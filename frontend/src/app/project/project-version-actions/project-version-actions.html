@@ -1,0 +1,18 @@
+<div fxLayout="row" fxLayoutAlign="space-between center">
+  <project-version-variable-actions
+    [hasEditPermission]="hasEditPermissions"
+    [version]="version"
+    (onVariableChange)="saveVersion($event)">
+  </project-version-variable-actions>
+
+  <deployable-actions
+    [hideIcons]="hideIcons"
+    [hideText]="hideText"
+    [userHasPermissions]="hasDeployPermission"
+    [isDeployed]="isDeployed()"
+    [isDeployDisabled]="project.isOrphan()"
+    [isStopDisabled]="version.desiredState === 'NotDeployed'"
+    (onDeploy)="deploy()"
+    (onStop)="stop()">
+  </deployable-actions>
+</div>

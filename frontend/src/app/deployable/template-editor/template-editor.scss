@@ -1,0 +1,25 @@
+@import "../../../mixins.scss";
+
+.te-box{
+  margin: 5px;
+}
+.template-editor-wrapper {
+
+  mat-form-field.box {
+    width: 200px;
+  }
+
+  label {
+    float: right;
+  }
+
+  .ace-wrapper {
+    width: 100%;
+
+    .ace_editor {
+      width: 100%;
+      min-height: 300px;
+      overflow: auto;
+    }
+  }
+}

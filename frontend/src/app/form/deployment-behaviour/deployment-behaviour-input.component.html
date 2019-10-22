@@ -1,0 +1,9 @@
+<div class="deployment-behaviour-input" fxLayout="column">
+  <mat-form-field>
+    <mat-select #deploymentBehaviour="ngModel" [required]="!required" placeholder="Deployment behaviour" [(ngModel)]="model.deploymentBehaviour" name="deploymentBehaviour" id="deploymentBehaviour" [disabled]="readonly">
+      <mat-option value="automatically">Deploy new images automatically</mat-option>
+      <mat-option value="manually">Deploy new images only on user request</mat-option>
+    </mat-select>
+    <mat-error *ngIf="deploymentBehaviour.invalid && required">You must set a deployment behaviour.</mat-error>
+  </mat-form-field>
+</div>

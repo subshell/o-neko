@@ -1,0 +1,30 @@
+@import "../../mixins";
+
+mat-toolbar {
+  @include mat-elevation(2);
+  user-select: none;
+
+  .o-neko {
+    cursor: pointer;
+    outline: none;
+    span {
+      color: mat-color($o-neko-primary);
+      font-family: "Varela Round", sans-serif;
+      background: gradient(mat-color($o-neko-primary, 300), mat-color($o-neko-primary, 700));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 500;
+      font-size: 1.6em;
+    }
+    img {
+      height: 2em;
+    }
+  }
+
+  a {
+    &.active {
+      background-color: mat-color($o-neko-primary);
+      color: white;
+    }
+  }
+}

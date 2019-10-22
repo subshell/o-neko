@@ -1,0 +1,28 @@
+<div class="create-namespace-dialog">
+  <h1 mat-dialog-title>Define Namespace</h1>
+  <div mat-dialog-content="">
+    <div>
+      <p>
+        You are about to define a new namespace in O-Neko. You totally can type in a namespace that already exists in Kubernetes.<br/>
+        If you define a namespace that is not yet existing then it will not be created until a project version using this namespace really is deployed.
+      </p>
+    </div>
+    <div>
+      <form fxLayout="column" #namespaceForm="ngForm" fxLayoutGap="1em">
+        <div fxLayout="row" fxLayoutGap="1em">
+          <mat-form-field>
+            <input type="text" matInput [(ngModel)]="namespace.name" autocomplete="off" required name="name" id="name"
+                   placeholder="Name" #name="ngModel" pattern="[a-z0-9]([-a-z0-9]*[a-z0-9])?" maxlength="63">
+            <mat-error *ngIf="name.invalid && name.errors.required">A name is required.</mat-error>
+            <mat-error *ngIf="name.invalid && name.errors.pattern">The name must only contain alpha-numeric lowercase characters and dashes inbetween.</mat-error>
+            <mat-error *ngIf="name.invalid && name.errors.maxlength">The name must be 63 characters or less.</mat-error>
+          </mat-form-field>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div mat-dialog-actions fxLayoutAlign="space-between center">
+    <button mat-button [disabled]="namespaceForm.form.invalid" color="primary" (click)="save()">Save</button>
+    <button mat-button (click)="cancel()">Cancel</button>
+  </div>
+</div>

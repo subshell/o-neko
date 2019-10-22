@@ -1,0 +1,9 @@
+<deployable-actions
+  [hideIcons]="hideIcons"
+  [hideText]="hideText"
+  [userHasPermissions]="hasUserDeployPermissions"
+  [isDeployed]="isDeployed()"
+  [isDeployDisabled]="mesh.components.length === 0"
+  (onDeploy)="deploy()"
+  (onStop)="stop()">
+</deployable-actions>

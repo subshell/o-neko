@@ -1,0 +1,45 @@
+<h4>{{label}}</h4>
+
+<div class="te-box" fxLayout="row" fxLayoutGap="1em" *ngIf="!readonly">
+  <file-upload [multiple]="true" (filesCallback)="onConfigUpload($event)"></file-upload>
+  <button mat-stroked-button="" color="primary" mat-button (click)="onAddNewTemplate()">Create new template</button>
+</div>
+
+<div class="template-editor-wrapper">
+  <mat-tab-group [selectedIndex]="selectedTab.value" (selectedIndexChange)="selectedTab.setValue($event)">
+
+    <!-- Default Templates -->
+    <mat-tab [label]="template.name" *ngFor="let template of configurationTemplatesModels; let i = index">
+      <ng-template mat-tab-label>
+        <mat-icon [svgIcon]="template.isOriginal() ? 'file-outline' : 'file-document-outline'"></mat-icon>
+        <span>{{template.name}}</span>
+        <button *ngIf="template.isOriginal() && !readonly" mat-icon-button (click)="removeTemplateWithConfirmation(template)"><mat-icon svgIcon="close"></mat-icon></button>
+        <button *ngIf="template.isOverwriting() && !readonly" mat-icon-button (click)="useDefaultProjectConfigurationTemplate(template)"><mat-icon svgIcon="undo-variant"></mat-icon></button>
+      </ng-template>
+
+      <div class="box">
+        <mat-form-field class="box" *ngIf="!readonly">
+          <input [disabled]="!template.isOriginal()" matInput [(ngModel)]="template.name" placeholder="Name" required #templatename="ngModel" [forbiddenValues]="getIllegalTemplateNamesFor(template)" (change)="checkValidNames()"/>
+          <mat-error *ngIf="templatename.invalid && templatename.errors.forbiddenValues">The name is in use by another template</mat-error>
+        </mat-form-field>
+
+        <mat-form-field class="box" *ngIf="!readonly">
+          <input matInput [(ngModel)]="template.description" placeholder="Description" />
+        </mat-form-field>
+
+        <div *ngIf="readonly && template.description">
+          <span class="mat-caption">{{template.description}}</span>
+        </div>
+      </div>
+
+      <div class="ace-wrapper">
+        <div ace-editor [text]="template.effectiveTemplate.content" [durationBeforeCallback]="25" (textChanged)="onTextOverwrite($event, template)" mode="yaml" theme="chrome" [readOnly]="readonly"></div>
+      </div>
+
+      <div class="box" *ngIf="!template.isOriginal()">
+        <i *ngIf="!template.isOverwriting()" class="mat-caption italic">This is an inherited configuration.</i>
+        <i *ngIf="template.isOverwriting()" class="mat-caption italic">This overwrites an inherited configuration.</i>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

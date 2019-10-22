@@ -1,0 +1,18 @@
+<div class="template-variables" fxLayout="row" fxLayoutGap="32px">
+
+  <div class="template-variables-list">
+    <mat-action-list>
+      <mat-list-item [ngClass]="{'selected': selectedTemplateVariable === templateVariable}" (click)="selectedTemplateVariable = templateVariable" *ngFor="let templateVariable of customTemplateVariables">
+        <button mat-icon-button (click)="deleteTemplateVariable(templateVariable)"><mat-icon svgIcon="delete-outline"></mat-icon></button>
+        <span mat-line>{{templateVariable.label}}</span>
+      </mat-list-item>
+      <div class="custom-variables-header" fxLayout="row" fxLayoutAlign="space-between center">
+        <button mat-stroked-button class="add-button" color="primary" [disabled]="readonly" (click)="addTemplateVariable()">Add Template Parameter</button>
+      </div>
+    </mat-action-list>
+  </div>
+
+  <div class="template-variable-editor">
+    <template-variable-editor [readonly]="readonly" [templateVariable]="selectedTemplateVariable"></template-variable-editor>
+  </div>
+</div>

@@ -1,0 +1,48 @@
+<navigation></navigation>
+<breadcrumbs [breadcrumbs]="[{label: 'home', link: ''}, {label: 'projects'}]"></breadcrumbs>
+<div class="project-list container" fxLayout="column">
+  <div fxLayout="row" fxLayoutAlign="space-between center">
+    <button mat-button (click)="createProject()">
+      <span fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="1em">
+        <mat-icon svgIcon="folder-plus"></mat-icon>
+        <span>Create Project</span>
+      </span>
+    </button>
+    <mat-form-field>
+      <mat-select placeholder="Columns" multiple [(ngModel)]="activeColumnKeys">
+        <mat-option *ngFor="let col of allColumns" [value]="col.key">{{col.label}}</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-paginator [length]="projects.length"
+                   [pageSize]="pageSettings.pageSize"
+                   [pageSizeOptions]="pageSettings.pageSizeOptions"
+                   (page)="paginationEvent($event)"></mat-paginator>
+  </div>
+
+  <table matSort (matSortChange)="sortProjects($event)">
+    <tr>
+      <th mat-sort-header="name" *ngIf="isColumnActive(nameColumn.key)">Name</th>
+      <th mat-sort-header="imagename" *ngIf="isColumnActive(imageNameColumn.key)">Image name</th>
+      <th mat-sort-header="status" *ngIf="isColumnActive(statusColumn.key)">Status</th>
+      <th mat-sort-header="versions" *ngIf="isColumnActive(versionsColumn.key)">Versions</th>
+    </tr>
+    <tr *ngFor="let project of sortedProjects" [ngClass]="{orphaned: project.isOrphan()}">
+      <td *ngIf="isColumnActive(nameColumn.key)">
+        <a class="o-neko-internal-link" [routerLink]="'/projects/' + project.uuid">{{nameColumn.getValue(project)}}</a>
+      </td>
+      <td *ngIf="isColumnActive(imageNameColumn.key)">
+        {{imageNameColumn.getValue(project)}}
+      </td>
+      <td *ngIf="isColumnActive(statusColumn.key)">
+        <mat-icon *ngIf="project.isOrphan()" svgIcon="checkbox-blank-circle-outline" matTooltip="orphaned" class="yellow"></mat-icon>
+        <mat-icon *ngIf="!project.isOrphan() && project.status === 'Ok'" svgIcon="check-circle-outline" matTooltip="OK" class="green"></mat-icon>
+        <mat-icon *ngIf="!project.isOrphan() && project.status === 'Pending'" svgIcon="timelapse" matTooltip="Pending" class="yellow"></mat-icon>
+        <mat-icon *ngIf="!project.isOrphan() && project.status === 'Error'" svgIcon="close-circle-outline" matTooltip="Error" class="red"></mat-icon>
+        <mat-icon *ngIf="!project.isOrphan() && project.status === 'NotDeployed'" svgIcon="alarm-off" matTooltip="Not deployed" class="yellow"></mat-icon>
+      </td>
+      <td *ngIf="isColumnActive(versionsColumn.key)">
+        <a class="o-neko-internal-link" [routerLink]="'/projects/' + project.uuid + '/versions'">{{versionsColumn.getValue(project)}} Versions</a>
+      </td>
+    </tr>
+  </table>
+</div>

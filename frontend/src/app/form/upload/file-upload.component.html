@@ -1,0 +1,6 @@
+<div class="image-upload-container">
+  <button mat-flat-button="" color="primary" mat-button class="image-upload" (click)="imageFileInput.click()" [disabled]="disabled">
+    Upload YAML file
+  </button>
+  <input hidden [multiple]="multiple" type="file" accept=".yaml, .yml" #imageFileInput (change)="filesSet(imageFileInput)" [disabled]="disabled">
+</div>

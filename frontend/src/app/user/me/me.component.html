@@ -1,0 +1,39 @@
+<navigation></navigation>
+<div class="container me" *ngIf="me" fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="4em">
+  <div fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="1em">
+    <div class="portrait-container" fxLayout="row" fxLayoutAlign="center center">
+      <mat-icon svgIcon="account"></mat-icon>
+    </div>
+    <div fxLayout="row" fxLayoutGap="0.4em" fxLayoutAlign="center center">
+      <div class="username">{{me.displayName()}}</div>
+      <button mat-icon-button mat-raised-button (click)="editAccount()" matTooltip="Edit">
+        <mat-icon svgIcon="account-edit"></mat-icon>
+      </button>
+    </div>
+  </div>
+  <div fxLayout="column" fxLayoutGap="1em">
+    <div fxLayout="row" fxLayoutGap="1em">
+      <strong>Username:</strong>
+      <span>{{me.username}}</span>
+    </div>
+    <div fxLayout="row" fxLayoutGap="1em">
+      <strong>Email:</strong>
+      <span>{{me.email}}</span>
+    </div>
+    <div fxLayout="row" fxLayoutGap="1em">
+      <strong>First name:</strong>
+      <span>{{me.firstName}}</span>
+    </div>
+    <div fxLayout="row" fxLayoutGap="1em">
+      <strong>Last name:</strong>
+      <span>{{me.lastName}}</span>
+    </div>
+    <div fxLayout="row" fxLayoutGap="1em">
+      <strong>Role:</strong>
+      <span>{{me.role}}</span>
+    </div>
+  </div>
+  <div>
+    <button mat-button color="warn" (click)="deleteAccount()">Delete account</button>
+  </div>
+</div>

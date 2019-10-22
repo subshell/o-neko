@@ -1,0 +1,27 @@
+<div class="deployable-actions" fxLayout="row" fxLayoutGap="6px" [class.hide-text]="hideText" [class.hide-icons]="hideIcons">
+  <button *ngIf="userHasPermissions"
+          [disabled]="isDeployDisabled"
+          class="deploy-button"
+          mat-button
+          matTooltip="Deploy"
+          matTooltipShowDelay="500"
+          (click)="deploy(); $event.stopPropagation()">
+    <span fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="6px">
+      <mat-icon svgIcon="play-circle"></mat-icon>
+      <span>{{ isDeployed ? 'Re-Deploy' : 'Deploy' }}</span>
+    </span>
+  </button>
+
+  <button *ngIf="userHasPermissions"
+          [disabled]="isStopDisabled"
+          class="stop-button"
+          mat-button
+          matTooltip="Stop"
+          matTooltipShowDelay="500"
+          (click)="stop(); $event.stopPropagation()">
+    <span fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="6px">
+      <mat-icon svgIcon="stop-circle"></mat-icon>
+      <span>Stop</span>
+    </span>
+  </button>
+</div>

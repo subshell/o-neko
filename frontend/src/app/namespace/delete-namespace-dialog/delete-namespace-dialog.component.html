@@ -1,0 +1,20 @@
+<h2 mat-dialog-title>{{'Delete ' + namespace.name + '?'}}</h2>
+<mat-dialog-content>
+  <div>
+    <h3>Disclaimer</h3>
+    <p>
+      You are about to deleted the defined namespace <b>{{namespace.name}}</b>.
+      All project versions currently using this namespace will fall back to their default namespace.
+    </p>
+    <p>This will not remove these namespace from kubernetes.</p>
+  </div>
+  <p>Please confirm this deletion by entering the namespace below. This action cannot be undone.</p>
+  <mat-form-field>
+    <input type="text" matInput [(ngModel)]="confirmedName" autocomplete="off" required name="name" id="name" placeholder="Confirm name">
+  </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions fxLayoutAlign="space-between center">
+  <button mat-button (click)="confirm()" [disabled]="confirmedName !== namespace.name">Delete</button>
+  <button mat-button (click)="deny()">Cancel</button>
+</mat-dialog-actions>
+

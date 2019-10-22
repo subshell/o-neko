@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="60 seconds">
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH:-logs}/o-neko.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH:-logs}/o-neko.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <Pattern>%d{ISO8601} [%thread] %-5level %logger{50} [%file:%line] - %msg%n</Pattern>
+        </encoder>
+    </appender>
+
+    <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+        <file>${LOG_PATH:-logs}/o-neko-error.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH:-logs}/o-neko-error.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <Pattern>%d{ISO8601} [%thread] %-5level %logger{50} [%file:%line] - %msg%n</Pattern>
+        </encoder>
+    </appender>
+
+    <logger name="io.oneko" level="TRACE"/>
+
+    <root level="INFO">
+        <appender-ref ref="ERROR_FILE"/>
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>

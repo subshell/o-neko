@@ -1,0 +1,64 @@
+<navigation></navigation>
+<breadcrumbs [breadcrumbs]="[{label: 'home', link: ''}, {label: 'project meshes'}]"></breadcrumbs>
+<div class="project-mesh-list container" fxLayout="column">
+  <div fxLayout="row" fxLayoutAlign="space-between center">
+    <button mat-button (click)="createProjectMesh()">
+      <span fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="1em">
+        <mat-icon svgIcon="table-plus"></mat-icon>
+        <span>Create Project Mesh</span>
+      </span>
+    </button>
+    <mat-form-field>
+      <mat-select placeholder="Columns" multiple [(ngModel)]="activeColumnKeys">
+        <mat-option *ngFor="let col of allColumns" [value]="col.key">{{col.label}}</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-paginator [length]="meshes.length"
+                   [pageSize]="pageSettings.pageSize"
+                   [pageSizeOptions]="pageSettings.pageSizeOptions"
+                   (page)="paginationEvent($event)"></mat-paginator>
+  </div>
+
+  <table matSort (matSortChange)="sortProjectMeshes($event)">
+    <tr>
+      <th mat-sort-header="name" *ngIf="isColumnActive(nameColumn.key)">Name</th>
+      <th mat-sort-header="status" *ngIf="isColumnActive(statusColumn.key)">Status</th>
+      <th mat-sort-header="components" *ngIf="isColumnActive(componentsColumn.key)">Components</th>
+      <th mat-sort-header="deployment_date" *ngIf="isColumnActive(deploymentDatesColumn.key)">Deployment Date</th>
+      <th></th>
+    </tr>
+    <tr *ngFor="let mesh of sortedMeshes">
+      <td *ngIf="isColumnActive(nameColumn.key)">
+        <a class="o-neko-internal-link" [routerLink]="'/project-meshes/' + mesh.id">{{nameColumn.getValue(mesh)}}</a>
+      </td>
+      <td *ngIf="isColumnActive(statusColumn.key)">
+        <mat-icon *ngIf="mesh.status === 'Ok'" svgIcon="check-circle-outline" matTooltip="OK" class="green"></mat-icon>
+        <mat-icon *ngIf="mesh.status === 'Pending'" svgIcon="timelapse" matTooltip="Pending" class="blue"></mat-icon>
+        <mat-icon *ngIf="mesh.status === 'Error'" svgIcon="close-circle-outline" matTooltip="Error" class="red"></mat-icon>
+        <mat-icon *ngIf="mesh.status === 'NotDeployed'" svgIcon="alarm-off" matTooltip="Not deployed" class="blue"></mat-icon>
+      </td>
+      <td *ngIf="isColumnActive(componentsColumn.key)">
+        <a class="o-neko-internal-link" [routerLink]="'/project-meshes/' + mesh.id + '/components'">{{componentsColumn.getValue(mesh)}}</a>
+      </td>
+      <td *ngIf="isColumnActive(deploymentDatesColumn.key)">
+        {{deploymentDatesColumn.getValue(mesh)}}
+      </td>
+      <td>
+        <div fxLayout="row" fxLayoutAlign="space-between center">
+
+          <project-mesh-actions [hideText]="true" [hideIcons]="false" [mesh]="mesh"></project-mesh-actions>
+
+          <button *ngIf="mayDeleteProjectMeshes()"
+                  class="delete-button"
+                  mat-icon-button
+                  matTooltip="Delete"
+                  matTooltipShowDelay="500"
+                  (click)="deleteProjectMesh(mesh)">
+            <mat-icon svgIcon="delete"></mat-icon>
+          </button>
+
+        </div>
+      </td>
+    </tr>
+  </table>
+</div>

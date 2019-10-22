@@ -1,0 +1,66 @@
+<div class="project-edit-dialog">
+  <h1 mat-dialog-title>Create a new project</h1>
+  <div mat-dialog-content>
+    <mat-horizontal-stepper [linear]="true" #stepper>
+      <ng-template matStepperIcon="edit" let-index="index">
+        {{index + 1 }}
+      </ng-template>
+      <ng-template matStepperIcon="done" let-index="index">
+        {{index + 1}}
+      </ng-template>
+      <ng-template matStepperIcon="number" let-index="index">
+        {{index + 1}}
+      </ng-template>
+      <mat-step [stepControl]="projectNameFormGroup">
+        <form [formGroup]="projectNameFormGroup">
+          <ng-template matStepLabel>Enter the new projects name</ng-template>
+          <p>Enter a meaningful name for your new project.</p>
+          <p>The name can be chosen arbitrarily but should be distinguishable from the names of yet existing projects.</p>
+          <mat-form-field>
+            <input matInput placeholder="Project name" required formControlName="nameCtrl" >
+          </mat-form-field>
+          <figure *ngIf="getCollidingProjectName()" class="warning">
+            <figcaption>Warning</figcaption>
+            <p>There is yet a project with the name {{getCollidingProjectName()}}.</p>
+          </figure>
+          <div>
+            <button mat-button matStepperNext>Next</button>
+          </div>
+        </form>
+      </mat-step>
+      <mat-step [stepControl]="dockerRegistryFormGroup">
+        <form [formGroup]="dockerRegistryFormGroup">
+          <ng-template matStepLabel>Select a docker registry</ng-template>
+          <p>All images for this project will be picked from the docker registry you select here.</p>
+          <mat-form-field>
+            <mat-label>Docker registry</mat-label>
+            <mat-select required formControlName="registryUuidCtrl">
+              <mat-option *ngFor="let dockerRegistry of dockerRegistries" [value]="dockerRegistry.uuid">
+                {{ dockerRegistry.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          <div>
+            <button mat-button matStepperPrevious>Back</button>
+            <button mat-button matStepperNext>Next</button>
+          </div>
+        </form>
+      </mat-step>
+      <mat-step [stepControl]="imageNameFormGroup">
+        <form [formGroup]="imageNameFormGroup">
+          <ng-template matStepLabel>Enter the new projects image name</ng-template>
+          <p>Type in the name of the docker image. This must match the image name as present on the docker registry.</p>
+          <p>We totally would like to offer you a list of image names to select from, but the docker API for retrieving these is a bit picky in terms of permissions.</p>
+          <p><span>Until we fix this, you have to type this on your own.</span><mat-icon svgIcon="emoticon-sad" [inline]="true"></mat-icon></p>
+          <mat-form-field>
+            <input matInput placeholder="Image name" required formControlName="imageNameCtrl" >
+          </mat-form-field>
+          <div>
+            <button mat-button matStepperPrevious>Back</button>
+            <button mat-button [disabled]="!imageNameFormGroup.valid" (click)="finish()">Done</button>
+          </div>
+        </form>
+      </mat-step>
+    </mat-horizontal-stepper>
+  </div>
+</div>

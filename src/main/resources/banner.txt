@@ -1,0 +1,7 @@
+${AnsiColor.BRIGHT_RED} ██████╗       ███╗   ██╗███████╗██╗  ██╗ ██████╗
+${AnsiColor.BRIGHT_RED}██╔═══██╗      ████╗  ██║██╔════╝██║ ██╔╝██╔═══██╗${AnsiColor.CYAN}      /\_/\           ___
+${AnsiColor.BRIGHT_RED}██║   ██║█████╗██╔██╗ ██║█████╗  █████╔╝ ██║   ██║${AnsiColor.CYAN}     = o_o =_______    \ \
+${AnsiColor.BRIGHT_RED}██║   ██║╚════╝██║╚██╗██║██╔══╝  ██╔═██╗ ██║   ██║${AnsiColor.CYAN}      __^      __(  \.__) )
+${AnsiColor.BRIGHT_RED}╚██████╔╝      ██║ ╚████║███████╗██║  ██╗╚██████╔╝${AnsiColor.CYAN}  (@)<_____>__(_____)____/
+${AnsiColor.BRIGHT_RED} ╚═════╝       ╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝ ╚═════╝
+${AnsiColor.BRIGHT_YELLOW}:: Running on Spring Boot ${spring-boot.version} ::${AnsiStyle.NORMAL}

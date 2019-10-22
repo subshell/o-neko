@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: o-neko
+  name: o-neko
+spec:
+  selector:
+    o-neko: o-neko
+  ports:
+  - port: 8080
+    targetPort: 8080

@@ -1,0 +1,35 @@
+<navigation></navigation>
+<breadcrumbs [breadcrumbs]="[{label: 'home', link: ''}, {label: 'namespaces'}]"></breadcrumbs>
+
+<div class="defined-namespaces container" fxLayout="column">
+  <div fxLayout="row" fxLayoutAlign="space-between center">
+    <button *ngIf="mayCreateDefinedNamespace()" mat-button (click)="createDefinedNamespace()">
+      <span fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="1em">
+        <mat-icon svgIcon="cat"></mat-icon>
+        <span>Create Namespace</span>
+      </span>
+    </button>
+    <span *ngIf="!mayCreateDefinedNamespace()" class="place-holder"></span>
+    <mat-paginator [length]="definedNamespaces.length"
+                   [pageSize]="pageSettings.pageSize"
+                   [pageSizeOptions]="pageSettings.pageSizeOptions"
+                   (page)="paginationEvent($event)"></mat-paginator>
+  </div>
+    <table>
+      <tr>
+        <th>Name</th>
+        <th></th>
+      </tr>
+      <tr *ngFor="let namespace of sortedDefinedNamespaces">
+        <td>{{namespace.name}}</td>
+        <td>
+          <div fxLayout="row" fxLayoutAlign="end center">
+            <button *ngIf="mayDeleteDefinedNamespace()" mat-icon-button (click)="deleteDefinedNamespace(namespace)" matTooltip="Delete">
+              <mat-icon svgIcon="delete"></mat-icon>
+            </button>
+          </div>
+        </td>
+      </tr>
+    </table>
+</div>
+

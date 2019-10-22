@@ -1,0 +1,85 @@
+<navigation></navigation>
+<breadcrumbs *ngIf="projectVersion" [breadcrumbs]="[{label: 'home', link: ''}, {label: 'projects', link: '/projects'}, {label: project.name, link: '/projects/' + project.uuid}, {label: 'versions', link: '/projects/' + project.uuid + '/versions'}, {label: projectVersion.name}]"></breadcrumbs>
+<div class="edit-project-version container full-page-form" *ngIf="projectVersion" fxLayout="column">
+
+  <h1 class="title">{{'Edit Project Version'}}</h1>
+  <div class="content">
+
+    <div>
+      <form fxLayout="column" #projectVersionForm="ngForm" fxLayoutGap="1em">
+        <div class="form-field-group">
+          <h4>Deployment URLs</h4>
+          <mat-nav-list *ngIf="projectVersion.urls.length > 0">
+            <a mat-list-item [href]="'https://'+ url" target="_blank" referrerpolicy="no-referrer" *ngFor="let url of projectVersion.urls"><small>{{ url }}</small><mat-icon svgIcon="open-in-new"></mat-icon></a>
+          </mat-nav-list>
+          <p *ngIf="projectVersion.urls.length === 0">
+            Currently no deployment-URLs
+          </p>
+        </div>
+
+        <mat-form-field>
+          <input type="text" matInput [(ngModel)]="projectVersion.name" autocomplete="off" disabled name="projectversionname" id="projectversionname"
+                 placeholder="Project version name" #projectversionname="ngModel">
+        </mat-form-field>
+        <mat-form-field>
+          <input type="text" matInput [(ngModel)]="project.name" autocomplete="off" disabled name="projectname" id="projectname"
+                 placeholder="Belonging to project" #projectname="ngModel">
+        </mat-form-field>
+        <mat-form-field>
+          <mat-select required placeholder="Namespace in Kubernetes" name="namespace" id="namespace" [(ngModel)]="projectVersion.namespace" [compareWith]="compareNameSpaces">
+            <mat-option [value]="projectVersion.implicitNamespace">{{projectVersion.implicitNamespace.name + ' (implicit namespace)'}}</mat-option>
+            <mat-option *ngFor="let namespace of namespaces" [value]="namespace">{{namespace.name}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <div class="form-field-group">
+          <template-editor [templates]="projectVersion.configurationTemplates"
+                           [defaultTemplates]="project.defaultConfigurationTemplates"
+                           (templatesChange)="onConfigurationTemplateChange($event)"
+                           (templatesValid)="onTemplatesValidationChange($event)"
+                           label="Configuration Template"
+                           [readonly]="!mayEditProjects()"></template-editor>
+        </div>
+
+        <div class="form-field-group">
+          <div class="template-wrapper" fxLayout="column">
+            <label>Inherited Parameters</label>
+            <value-input [valuesByKey]="projectVariables" [readonly]="!mayEditProjects()" (onChange)="updateProjectVariables($event)"></value-input>
+          </div>
+        </div>
+
+        <div class="form-field-group">
+          <div class="template-wrapper" fxLayout="column">
+            <label>Version Specific Parameters</label>
+            <key-value-input [keyValues]="projectVersionVariables" [readonly]="!mayEditProjects()" (onChange)="updateProjectVersionVariables($event)"></key-value-input>
+          </div>
+        </div>
+
+        <deployment-behaviour-input [model]="projectVersion" [required]="true"></deployment-behaviour-input>
+
+        <lifetime-behaviour-input [model]="projectVersion.lifetimeBehaviour" [required]="true" [lifetimeBehaviourOptions]="lifetimeBehaviourOptions"></lifetime-behaviour-input>
+
+      </form>
+    </div>
+  </div>
+  <div class="bottom-toolbar" fxLayout="row" fxLayoutAlign="space-around center">
+    <button mat-flat-button
+            [disabled]="projectVersionForm.form.invalid || !templatesValid || !mayEditProjects()"
+            color="primary"
+            (click)="save()">
+      <span fxLayout="row" fxLayoutAlign="space-around center" fxLayoutGap="6px">
+        <mat-icon svgIcon="content-save"></mat-icon>
+        <span>Save</span>
+      </span>
+    </button>
+
+    <button mat-stroked-button
+            color="primary"
+            (click)="showEffectiveConfiguration()">
+      <span fxLayout="row" fxLayoutAlign="space-around center" fxLayoutGap="6px">
+        <mat-icon svgIcon="eye"></mat-icon>
+        <span>Show effective Configuration</span>
+      </span>
+    </button>
+  </div>
+</div>

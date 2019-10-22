@@ -1,0 +1,25 @@
+<div class="value-input" *ngFor="let id of ids" fxLayout="column" >
+
+  <div fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="5px">
+    <div class="value-input-key">
+      <span [matTooltip]="valuesByKey[id].name">{{valuesByKey[id].label || valuesByKey[id].name}}</span>
+    </div>
+
+    <mat-form-field *ngIf="!valuesByKey[id].singleValue">
+      <mat-label>Select a value</mat-label>
+      <mat-select [(value)]="valuesByKey[id].selectedValue" [disabled]="readonly" (valueChange)="emitChange(id)">
+        <mat-option>None</mat-option>
+        <mat-option [value]="variableValue" *ngFor="let variableValue of valuesByKey[id].values">{{variableValue}}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field *ngIf="valuesByKey[id].singleValue">
+      <input type="text" matInput [(ngModel)]="valuesByKey[id].selectedValue" (change)="emitChange(id)" placeholder="Set value" [name]="id + '_value'" [disabled]="readonly">
+    </mat-form-field>
+
+    <button mat-icon-button [disabled]="valuesByKey[id].selectedValue === valuesByKey[id].defaultValue" (click)="valuesByKey[id].selectedValue = valuesByKey[id].defaultValue; emitChange(id)"><mat-icon svgIcon="restore"></mat-icon></button>
+  </div>
+</div>
+
+<mat-divider class="end-divider"></mat-divider>
+

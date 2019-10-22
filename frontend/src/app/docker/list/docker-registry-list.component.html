@@ -1,0 +1,42 @@
+<navigation></navigation>
+<breadcrumbs [breadcrumbs]="[{label: 'home', link: ''}, {label: 'docker-registries'}]"></breadcrumbs>
+<div class="docker-registries container" fxLayout="column">
+  <div fxLayout="row" fxLayoutAlign="space-between center">
+    <button *ngIf="mayCreateDockerRegistry()" mat-button (click)="createDockerRegistry()">
+      <span fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="1em">
+        <mat-icon svgIcon="docker"></mat-icon>
+        <span>Create Docker Registry</span>
+      </span>
+    </button>
+    <span *ngIf="!mayCreateDockerRegistry()" class="place-holder"></span>
+    <mat-paginator [length]="dockerRegistries.length"
+                   [pageSize]="pageSettings.pageSize"
+                   [pageSizeOptions]="pageSettings.pageSizeOptions"
+                   (page)="paginationEvent($event)"></mat-paginator>
+  </div>
+
+  <table matSort (matSortChange)="sortDockerRegistries($event)">
+    <tr>
+      <th mat-sort-header="name">Name</th>
+      <th mat-sort-header="registryUrl">URL</th>
+      <th></th>
+    </tr>
+    <tr *ngFor="let dockerRegistry of sortedDockerRegistries">
+      <td>{{dockerRegistry.name}}</td>
+      <td><div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="6px"><mat-icon [matTooltip]="dockerRegistry.trustInsecureCertificate ? 'O-Neko is configured to trust insecure certificates from this registry.' : 'O-Neko does not trust insecure certificates from this registry.'" class="shield-icon" [svgIcon]="dockerRegistry.trustInsecureCertificate ? 'shield-alert' : 'shield-check'" [class.insecure]="dockerRegistry.trustInsecureCertificate"></mat-icon><span>{{dockerRegistry.registryUrl}}</span></div></td>
+      <td>
+        <div fxLayout="row" fxLayoutAlign="end center">
+          <button *ngIf="mayShowDockerRegistryDetails()" mat-icon-button (click)="showDockerRegistryDetails(dockerRegistry)" matTooltip="View details">
+            <mat-icon svgIcon="information-outline"></mat-icon>
+          </button>
+          <button *ngIf="mayEditDockerRegistry()" mat-icon-button (click)="editDockerRegistry(dockerRegistry)" matTooltip="Edit">
+            <mat-icon svgIcon="pencil"></mat-icon>
+          </button>
+          <button *ngIf="mayDeleteDockerRegistry()" mat-icon-button (click)="deleteDockerRegistry(dockerRegistry)" matTooltip="Delete">
+            <mat-icon svgIcon="delete"></mat-icon>
+          </button>
+        </div>
+      </td>
+    </tr>
+  </table>
+</div>

@@ -1,0 +1,23 @@
+<div class="version-configuration-dialog">
+  <h1 mat-dialog-title>Effective configuration of {{deployableConfiguration.name}}</h1>
+  <div mat-dialog-content="">
+    <div>
+      <form fxLayout="column" fxLayoutGap="1em">
+        <div fxLayout="row" fxLayoutGap="1em">
+          <div class="ace-wrapper">
+            <template-editor [templates]="deployableConfiguration.configurationTemplates" [readonly]="true" label="Calculated configuration"></template-editor>
+          </div>
+        </div>
+        <div fxLayout="row" fxLayoutGap="1em">
+          <div class="available-parameters-wrapper" fxLayout="column">
+            <label>Available configuration parameters</label>
+            <key-value-input [keyValues]="deployableConfiguration.availableTemplateVariables" [readonly]="true"></key-value-input>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div mat-dialog-actions fxLayoutAlign="space-between center">
+    <button mat-button (click)="close()">Okay</button>
+  </div>
+</div>

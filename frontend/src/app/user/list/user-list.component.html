@@ -1,0 +1,49 @@
+<navigation></navigation>
+<breadcrumbs [breadcrumbs]="[{label: 'home', link: ''}, {label: 'users'}]"></breadcrumbs>
+<div class="user-list container" fxLayout="column">
+  <div fxLayout="row" fxLayoutAlign="space-between center">
+    <button mat-button (click)="createUser()">
+      <span fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="1em">
+        <mat-icon svgIcon="account-plus"></mat-icon>
+        <span>Create User</span>
+      </span>
+    </button>
+    <mat-form-field>
+      <mat-select placeholder="Columns" multiple [(ngModel)]="selectedColumns">
+        <mat-option *ngFor="let col of columns" [value]="col.value">{{col.label}}</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-paginator [length]="users.length"
+                   [pageSize]="pageSettings.pageSize"
+                   [pageSizeOptions]="pageSettings.pageSizeOptions"
+                   (page)="paginationEvent($event)"></mat-paginator>
+  </div>
+
+  <table matSort (matSortChange)="sortUsers($event)">
+    <tr>
+      <th mat-sort-header="username" *ngIf="columnActive('username')">Username</th>
+      <th mat-sort-header="email" *ngIf="columnActive('email')">Email</th>
+      <th mat-sort-header="firstName" *ngIf="columnActive('firstName')">First name</th>
+      <th mat-sort-header="lastName" *ngIf="columnActive('lastName')">Last name</th>
+      <th mat-sort-header="role" *ngIf="columnActive('role')">Role</th>
+      <th></th>
+    </tr>
+    <tr *ngFor="let user of sortedUsers">
+      <td *ngIf="columnActive('username')">{{user.username}}</td>
+      <td *ngIf="columnActive('email')">{{user.email}}</td>
+      <td *ngIf="columnActive('firstName')">{{user.firstName}}</td>
+      <td *ngIf="columnActive('lastName')">{{user.lastName}}</td>
+      <td *ngIf="columnActive('role')">{{user.role}}</td>
+      <td>
+        <div fxLayout="row" fxLayoutAlign="end center">
+          <button mat-icon-button (click)="editUser(user)" matTooltip="Edit">
+            <mat-icon svgIcon="pencil"></mat-icon>
+          </button>
+          <button mat-icon-button (click)="deleteUser(user)" matTooltip="Delete">
+            <mat-icon svgIcon="delete"></mat-icon>
+          </button>
+        </div>
+      </td>
+    </tr>
+  </table>
+</div>

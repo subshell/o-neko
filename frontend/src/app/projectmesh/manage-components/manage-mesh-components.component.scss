@@ -1,0 +1,31 @@
+@import "../../../mixins";
+
+.manage-mesh-components-empty-info-section {
+  mat-icon {
+    padding: 0 16px;
+  }
+}
+
+.manage-mesh-components {
+
+  .mat-expansion-panel-header-title {
+    padding-top: 8px;
+  }
+
+  form {
+
+    mat-form-field {
+      width: 100%;
+    }
+
+    .template-defaults-wrapper {
+      width: 100%;
+    }
+
+    template-editor {
+      width: 100%;
+    }
+
+  }
+
+}

@@ -1,0 +1,23 @@
+<h2 mat-dialog-title>{{'Delete ' + dockerRegistry.name + '?'}}</h2>
+<mat-dialog-content>
+  <div *ngIf="projectNames.length > 0">
+    <h3>Warning</h3>
+    <p>
+      The docker registry <b>{{dockerRegistry.name}}</b> is used by these projects:
+    </p>
+    <ul>
+      <li *ngFor="let projectName of projectNames">{{projectName}}</li>
+    </ul>
+    <p>If you delete this registry then those projects will remain in an orphaned state.</p>
+    <p>They can no longer be deployed or used otherwise until they are assigned to a new registry serving images with the same name.</p>
+  </div>
+  <p>Please confirm the deletion of this docker registry by entering its name below. This action cannot be undone.</p>
+  <mat-form-field>
+    <input type="text" matInput [(ngModel)]="confirmedName" autocomplete="off" required name="name" id="name" placeholder="Confirm name" #name="ngModel">
+  </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions fxLayoutAlign="space-between center">
+  <button mat-button (click)="confirm()" [disabled]="confirmedName !== dockerRegistry.name">Delete</button>
+  <button mat-button (click)="deny()">Cancel</button>
+</mat-dialog-actions>
+

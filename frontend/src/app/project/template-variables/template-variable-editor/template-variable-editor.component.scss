@@ -1,0 +1,23 @@
+.template-variable-editor {
+  mat-form-field {
+    width: 100%;
+  }
+
+  .value-list {
+    width: 100%;
+
+    .mat-list-item-content {
+      width: 100%;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+  }
+
+  .single-default-value {
+    margin-top: 8px;
+  }
+
+  .add-button {
+    width: 100%;
+  }
+}

@@ -1,0 +1,25 @@
+@import "../../../mixins";
+
+.progress-container {
+  height: 24px;
+  width: 24px;
+  display: flex;
+  align-content: center;
+  > * {
+    margin: 0 auto;
+    position: absolute;
+  }
+  mat-progress-spinner {
+    z-index: 10;
+    pointer-events: none;
+  }
+  mat-icon {
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.1s;
+    color: mat-color($o-neko-primary, 500);
+    &:hover {
+      opacity: 1;
+    }
+  }
+}

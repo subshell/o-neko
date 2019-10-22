@@ -1,0 +1,19 @@
+@import "../../../mixins";
+
+form {
+  mat-form-field {
+    width: 100%;
+  }
+
+  figure.warning {
+    border-left: mat-color($o-neko-warn, 600) 2px solid;
+    border-radius: $mat-radius;
+    background-color: mat-color($gray-palette, 50, .5);
+    margin-left: 1em;
+    padding-left: 1em;
+
+    figcaption {
+      color: mat-color($o-neko-warn, 600);
+    }
+  }
+}

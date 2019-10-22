@@ -1,0 +1,32 @@
+@import "../../../mixins";
+.defined-namespaces {
+
+  table {
+    background-color: white;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: $mat-radius;
+    width: 100%;
+
+    @include mat-elevation(6);
+
+    tr {
+      th {
+        color: rgba(0, 0, 0, 0.54);
+        font-size: 0.85em;
+        font-weight: 500;
+        height: 4em;
+        padding: 0 24px;
+        border-bottom: 1px solid rgba(0, 0, 0, .12);
+      }
+      td {
+        padding: 0 24px;
+        height: 48px;
+        border-bottom: 1px solid rgba(0, 0, 0, .12);
+      }
+    }
+  }
+  .mat-paginator {
+    background: transparent;
+  }
+}

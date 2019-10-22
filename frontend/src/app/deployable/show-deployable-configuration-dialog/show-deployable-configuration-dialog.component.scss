@@ -1,0 +1,22 @@
+@import "../../../mixins";
+
+form {
+  mat-form-field {
+    width: 100%;
+  }
+
+  .ace-wrapper {
+    width: 100%;
+
+    .ace_editor {
+      width: 100%;
+      min-height: 200px;
+      overflow: auto;
+    }
+  }
+
+  .available-parameters-wrapper {
+    width: 100%;
+  }
+
+}

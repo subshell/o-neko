@@ -1,0 +1,26 @@
+<div class="activity-log" #activityLogContainer>
+  <mat-list class="activity-log-results"
+            infiniteScroll
+            [infiniteScrollDistance]="2"
+            [infiniteScrollThrottle]="100"
+            (scrolled)="loadMore()"
+            [infiniteScrollDisabled]="infiniteScrollDisabled"
+            [scrollWindow]="false"
+            [style.height.px]="panelHeight">
+    <mat-list-item [@slideInOut] *ngFor="let activity of results" class="activity-item">
+      <mat-icon class="trigger-icon" mat-list-icon [ngClass]="activity.priority" [svgIcon]="getIcon(activity)" [matTooltip]="activity.triggerName" matTooltipShowDelay="500"></mat-icon>
+      <a mat-icon-button *ngIf="activity.entityType === 'Project'" [href]="'/projects/' + activity.entityId" target="_blank" [matTooltip]="'Open ' + activity.entityName" matTooltipShowDelay="500"><mat-icon mat-list-icon svgIcon="open-in-new"></mat-icon></a>
+      <a mat-icon-button *ngIf="activity.entityType === 'ProjectMesh'" [href]="'/project-meshes/' + activity.entityId" target="_blank" [matTooltip]="'Open ' + activity.entityName" matTooltipShowDelay="500"><mat-icon mat-list-icon svgIcon="open-in-new"></mat-icon></a>
+      <a mat-icon-button *ngIf="activity.entityType === 'User'" href="/users" target="_blank" matTooltip="Open users page" matTooltipShowDelay="500"><mat-icon mat-list-icon svgIcon="open-in-new"></mat-icon></a>
+      <a mat-icon-button *ngIf="activity.entityType === 'DockerRegistry'" href="/docker-registries" target="_blank" matTooltip="Open docker registry page" matTooltipShowDelay="500"><mat-icon mat-list-icon svgIcon="open-in-new"></mat-icon></a>
+      <a mat-icon-button *ngIf="activity.entityType === 'Namespace'" href="/namespaces" target="_blank" matTooltip="Open namespaces page" matTooltipShowDelay="500"><mat-icon mat-list-icon svgIcon="open-in-new"></mat-icon></a>
+      <h4 mat-line [matTooltip]="activity.description" matTooltipShowDelay="500">{{activity.description}}</h4>
+      <p mat-line class="item-date">{{activity.formattedDate }}</p>
+      <p mat-line *ngIf="activity.changedProperties" >
+        <mat-chip-list>
+          <mat-chip color="accent" *ngFor="let property of activity.changedProperties" matTooltip="Changed Property" matTooltipShowDelay="500">{{property}}</mat-chip>
+        </mat-chip-list>
+      </p>
+    </mat-list-item>
+  </mat-list>
+</div>

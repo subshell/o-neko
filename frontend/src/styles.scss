@@ -1,0 +1,74 @@
+@import "mixins";
+
+html {
+  height: 100%;
+  body {
+    margin: 0;
+    height: 100%;
+  }
+}
+
+.container {
+  margin: 1em 2em;
+}
+
+$full-page-form-border-style: mat-color($o-neko-primary) 2px solid;
+$full-page-form-full-padding: 36px;
+$full-page-form-slim-padding: 12px;
+.full-page-form {
+  background-color: mat-color($gray-palette, 50, .5);
+  border-radius: $mat-radius;
+  padding: 0 $full-page-form-full-padding;
+  margin: $full-page-form-slim-padding auto;
+  max-width: 1500px;
+  box-sizing: border-box;
+  box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12);
+
+  .title {
+    padding: $full-page-form-slim-padding $full-page-form-full-padding 0 $full-page-form-full-padding;
+    margin: 0 (-$full-page-form-full-padding) $full-page-form-slim-padding;
+    color: mat-color($o-neko-primary);
+    border-bottom: $full-page-form-border-style;
+  }
+
+  .form-field-group {
+    padding: $full-page-form-slim-padding;
+    border-radius: $mat-radius;
+    background-color: white;
+    @include mat-elevation(2);
+  }
+
+  .bottom-toolbar {
+    padding: $full-page-form-slim-padding $full-page-form-full-padding 0 $full-page-form-full-padding;
+    margin: $full-page-form-slim-padding (-$full-page-form-full-padding) $full-page-form-slim-padding;
+    border-top: $full-page-form-border-style;
+    button[mat-flat-button] {
+      color: white;
+    }
+  }
+}
+
+.o-neko-internal-link {
+  text-decoration: none;
+  background-color: transparent;
+  color: mat-color($o-neko-primary);
+}
+
+.mat-tooltip {
+  color: rgba(white, 0.95) !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  background-color: rgba(0, 0, 0, 0.7) !important;
+}
+
+/* Apparently the following fixes icons not being aligned properly when used in a menu item.
+ * Source: https://materialdesignicons.com/getting-started
+ */
+button.mat-menu-item {
+  line-height: 24px !important;
+}
+.mat-icon svg {
+  height: 24px;
+  width: 24px;
+}
+/**/

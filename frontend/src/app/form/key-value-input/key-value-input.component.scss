@@ -1,0 +1,11 @@
+@import "../../../mixins";
+
+.key-value-input {
+  &, .add-button, mat-form-field, .existing-key-values {
+    width: 100%;
+  }
+
+  .new-key-value {
+    font-style: italic;
+  }
+}

@@ -1,0 +1,53 @@
+<navigation></navigation>
+<breadcrumbs *ngIf="project" [breadcrumbs]="[{label: 'home', link: ''}, {label: 'projects', link: '/projects'}, {label: project.name, link: '/projects/' + project.uuid}, {label: 'versions'}]"></breadcrumbs>
+<div class="project-version-list container" fxLayout="column">
+  <div fxLayout="row" fxLayoutAlign="space-between center">
+    <span fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="1em">
+      <mat-form-field>
+        <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Filter versions by name">
+      </mat-form-field>
+    </span>
+    <mat-form-field>
+      <mat-select placeholder="Columns" multiple [(ngModel)]="activeColumnKeys">
+        <mat-option *ngFor="let col of allColumns" [value]="col.key">{{col.label}}</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-paginator [length]="filteredProjectVersions.length"
+                   [pageSize]="pageSettings.pageSize"
+                   [pageSizeOptions]="pageSettings.pageSizeOptions"
+                   (page)="paginationEvent($event)"></mat-paginator>
+  </div>
+
+  <table matSort (matSortChange)="sortProjectVersions($event)">
+    <tr>
+      <th mat-sort-header="name" *ngIf="isColumnActive(nameColumn.key)">{{nameColumn.label}}</th>
+      <th mat-sort-header="image_updated_date" *ngIf="isColumnActive(imageDateColumn.key)">{{imageDateColumn.label}}</th>
+      <th *ngIf="isColumnActive(urlColumn.key)">{{urlColumn.label}}</th>
+      <th mat-sort-header="deployment_status" *ngIf="isColumnActive(deploymentStatusColumn.key)">{{deploymentStatusColumn.label}}</th>
+      <th mat-sort-header="deployment_date" *ngIf="isColumnActive(deploymentDateColumn.key)">{{deploymentDateColumn.label}}</th>
+      <th></th><!-- This is the header for the actions column - it does not support sorting since that would be none sense-->
+    </tr>
+    <tr *ngFor="let projectVersion of sortedProjectVersions">
+      <td *ngIf="isColumnActive(nameColumn.key)">
+        <a class="o-neko-internal-link" [routerLink]="'/projects/' + project.uuid + '/versions/' + projectVersion.uuid">{{nameColumn.getValue(projectVersion)}}</a>
+      </td>
+      <td *ngIf="isColumnActive(imageDateColumn.key)">
+        {{imageDateColumn.getValue(projectVersion)}}
+      </td>
+      <td *ngIf="isColumnActive(urlColumn.key)">
+        <mat-nav-list>
+          <a mat-list-item [href]="'https://'+ url" target="_blank" referrerpolicy="no-referrer" *ngFor="let url of projectVersion.urls"><small>{{ url }}</small><mat-icon svgIcon="open-in-new"></mat-icon></a>
+        </mat-nav-list>
+      </td>
+      <td *ngIf="isColumnActive(deploymentStatusColumn.key)">
+        <deployableStatus [status]="deploymentStatusColumn.getValue(projectVersion)" [outdated]="projectVersion.outdated"></deployableStatus>
+      </td>
+      <td *ngIf="isColumnActive(deploymentDateColumn.key)">
+        {{deploymentDateColumn.getValue(projectVersion)}}
+      </td>
+      <td>
+        <projectVersionActions [version]="projectVersion" [project]="project" [hideText]="true"></projectVersionActions>
+      </td>
+    </tr>
+  </table>
+</div>

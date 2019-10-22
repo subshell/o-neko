@@ -1,0 +1,65 @@
+<div class="user-edit-dialog">
+  <h1 mat-dialog-title>{{isNewUser ? 'Create User' : 'Edit User'}}</h1>
+  <div mat-dialog-content="">
+    <div>
+      <form fxLayout="column" #userForm="ngForm" fxLayoutGap="1em">
+        <div fxLayout="row" fxLayoutGap="1em">
+          <mat-form-field>
+            <input type="text" matInput [usernameAvailable]="originalUser ? originalUser.username : null" [(ngModel)]="user.username" autocomplete="off" required name="username" id="username"
+                   placeholder="Username" #username="ngModel">
+            <mat-hint *ngIf="!isNewUser && editingUser && editingUser.username === originalUser.username && originalUser.username !== user.username">Changing your username will require you to sign in again.</mat-hint>
+            <mat-error *ngIf="username.invalid && username.errors.required">A username is required.</mat-error>
+            <mat-error *ngIf="username.invalid && username.errors.usernameAvailable">This username is not available.</mat-error>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-select #role="ngModel" required [disabled]="!canChangeRole" placeholder="Role" [(ngModel)]="user.role" name="role" id="role">
+              <mat-option *ngFor="let role of roles" [value]="role.value">
+                {{ role.name }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="role.invalid && role.errors.required">A role is required for every user.</mat-error>
+          </mat-form-field>
+        </div>
+        <mat-form-field>
+          <input type="email" #email="ngModel" email [emailAvailable]="originalUser ? originalUser.email : null" matInput [(ngModel)]="user.email" required name="email" id="email" placeholder="E-Mail">
+          <mat-error *ngIf="email.invalid && email.errors.required">An email address is required.</mat-error>
+          <mat-error *ngIf="email.invalid && email.errors.email && !email.errors.required">Please enter a valid email address.</mat-error>
+          <mat-error *ngIf="email.invalid && email.errors.emailAvailable">This email is not available.</mat-error>
+        </mat-form-field>
+        <div fxLayout="row" fxLayoutGap="1em">
+          <mat-form-field>
+            <input type="text" matInput [(ngModel)]="user.firstName" autocomplete="off" name="firstName" id="firstName"
+                   placeholder="First name">
+          </mat-form-field>
+          <mat-form-field>
+            <input type="text" matInput [(ngModel)]="user.lastName" autocomplete="off" name="lastName" id="lastName"
+                   placeholder="Last name">
+          </mat-form-field>
+        </div>
+        <div *ngIf="passwordFieldsVisible" fxLayout="row" fxLayoutGap="1em">
+          <mat-form-field>
+            <input type="password" matInput #password="ngModel" [(ngModel)]="user.password" [required]="isNewUser" name="password" id="password" placeholder="Password">
+            <mat-error *ngIf="password.invalid && password.errors.required">A password is required.</mat-error>
+          </mat-form-field>
+          <mat-form-field>
+            <input #verify_password="ngModel" type="password" matInput [mustMatch]="user.password" [required]="isNewUser" [(ngModel)]="passwordVerification" name="verify_password" id="verify_password" placeholder="Repeat Password">
+            <mat-error *ngIf="verify_password.invalid && verify_password.errors.required">Verify your password by entering it again.</mat-error>
+            <mat-error *ngIf="verify_password.invalid && verify_password.errors.mustMatch">The passwords must match.</mat-error>
+          </mat-form-field>
+        </div>
+        <div *ngIf="!passwordFieldsVisible">
+          <button mat-button color="primary" (click)="passwordFieldsVisible = true;">
+            <span fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="0.3em">
+              <mat-icon svgIcon="lock-reset"></mat-icon>
+              <span>Change password</span>
+            </span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div mat-dialog-actions fxLayoutAlign="space-between center">
+    <button mat-button [disabled]="userForm.form.invalid" color="primary" (click)="close()">Save</button>
+    <button mat-button (click)="cancel()">Cancel</button>
+  </div>
+</div>

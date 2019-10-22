@@ -1,0 +1,50 @@
+@import "../../../mixins";
+
+.activity-log {
+  max-width: 100%;
+  border-left: 1px solid mat-color($mat-yellow, 700);
+  overflow-y: hidden;
+
+  .activity-log-results {
+    padding-top: 0;
+    overflow-y: scroll;
+    width: 100%;
+
+    .mat-line {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      font-size: 0.9em;
+
+      mat-icon {
+        @include mat-icon-size(22px);
+        &.trigger-icon.INFO {
+          color: mat-color($mat-green, 600);
+        }
+        &.trigger-icon.ERROR {
+          color: mat-color($mat-red, 600);
+        }
+        &.time-icon.WARNING {
+          color: mat-color($mat-blue-gray, 600);
+        }
+      }
+    }
+
+    mat-chip {
+      min-height: 18px;
+      font-size: 0.75rem;
+    }
+
+    .item-date {
+      color: mat-color($mat-gray, 600);
+      font-size: 0.75rem;
+    }
+
+    .mat-list-item {
+      &:not(:last-of-type) {
+        border-bottom: 1px solid #ddd;
+      }
+    }
+  }
+
+}

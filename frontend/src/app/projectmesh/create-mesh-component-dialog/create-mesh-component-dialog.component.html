@@ -1,0 +1,66 @@
+<div class="create-project-mesh-dialog">
+  <h1 mat-dialog-title>Create a new component for {{projectMesh.name}}</h1>
+  <div mat-dialog-content>
+    <mat-horizontal-stepper [linear]="true">
+      <ng-template matStepperIcon="edit" let-index="index">
+        {{index + 1 }}
+      </ng-template>
+      <ng-template matStepperIcon="done" let-index="index">
+        {{index + 1}}
+      </ng-template>
+      <ng-template matStepperIcon="number" let-index="index">
+        {{index + 1}}
+      </ng-template>
+      <mat-step [stepControl]="componentNameFormGroup">
+        <form [formGroup]="componentNameFormGroup">
+          <ng-template matStepLabel>Enter a name for the new component</ng-template>
+          <p>Enter a meaningful name for your new mesh component.</p>
+          <p>The name can be chosen arbitrarily but should be distinguishable from other components names of the same mesh.</p>
+          <p>You can change the name later on.</p>
+          <mat-form-field>
+            <input matInput placeholder="Component name" required formControlName="nameCtrl" >
+          </mat-form-field>
+          <div>
+            <button mat-button [disabled]="!componentNameFormGroup.valid" matStepperNext>Next</button>
+          </div>
+        </form>
+      </mat-step>
+      <mat-step [stepControl]="projectFormGroup">
+        <form [formGroup]="projectFormGroup">
+          <ng-template matStepLabel>Select a project this component relates to</ng-template>
+          <mat-form-field>
+            <mat-select required formControlName="projectIdCtrl" placeholder="Project">
+              <ngx-mat-select-search formControlName="projectFilterCtrl" (ngModelChange)="filterProjects($event)" noEntriesFoundLabel="No matching projects"></ngx-mat-select-search>
+              <mat-option *ngFor="let project of filteredProjects | async" [value]="project.uuid">
+                {{ project.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          <div>
+            <button mat-button matStepperPrevious>Back</button>
+            <button mat-button matStepperNext>Next</button>
+          </div>
+        </form>
+      </mat-step>
+      <mat-step [stepControl]="projectVersionGroup">
+        <form [formGroup]="projectVersionGroup">
+          <ng-template matStepLabel>Select a version from the project</ng-template>
+          <p>That's just the version to start with. You can change it later on.</p>
+          <mat-form-field *ngIf="isProjectSelected()">
+            <mat-label>Project version</mat-label>
+            <mat-select required formControlName="projectVersionIdCtrl">
+              <ngx-mat-select-search formControlName="projectVersionFilterCtrl" (ngModelChange)="filterProjectVersions($event)" noEntriesFoundLabel="No matching versions"></ngx-mat-select-search>
+              <mat-option *ngFor="let version of filteredProjectVersions | async" [value]="version.uuid">
+                {{ version.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          <div>
+            <button mat-button matStepperPrevious>Back</button>
+            <button mat-button (click)="finish()">Done</button>
+          </div>
+        </form>
+      </mat-step>
+    </mat-horizontal-stepper>
+  </div>
+</div>

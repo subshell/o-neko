@@ -1,0 +1,12 @@
+<div class="template-variables" fxLayout="row" fxLayout.lt-lg="column" fxLayoutAlign="space-between center" fxLayoutGap="6px">
+  <div *ngFor="let templateVariable of availableTemplateVariables">
+    <mat-form-field *ngIf="templateVariable.useValues">
+      <mat-label>{{templateVariable.label}}</mat-label>
+      <mat-select (selectionChange)="emitOnChange()" [(value)]="version.templateVariables[templateVariable.name]" [disabled]="!hasEditPermission">
+        <mat-option *ngFor="let value of templateVariable.values" [value]="value">
+          {{value}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+</div>

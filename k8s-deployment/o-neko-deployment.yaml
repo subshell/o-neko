@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    o-neko: o-neko
+  name: o-neko
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      o-neko: o-neko
+  minReadySeconds: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  revisionHistoryLimit: 10
+  template:
+    metadata:
+      labels:
+        o-neko: o-neko
+    spec:
+      containers:
+        - name: o-neko
+          image: subshellgmbh/o-neko:latest
+          ports:
+          - containerPort: 8080
+          volumeMounts:
+          - name: config
+            mountPath: "/config"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 60
+            timeoutSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+      restartPolicy: Always
+      volumes:
+        - name: config
+          configMap:
+            name: o-neko-config

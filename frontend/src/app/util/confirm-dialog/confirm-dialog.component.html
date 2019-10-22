@@ -1,0 +1,8 @@
+<h2 matDialogTitle>{{ title }}</h2>
+<mat-dialog-content>
+  <p>{{ message }}</p>
+</mat-dialog-content>
+<mat-dialog-actions fxLayoutAlign="space-between center">
+  <button mat-button color="primary" [mat-dialog-close]="true">{{okButtonText}}</button>
+  <button mat-button mat-dialog-close>{{cancelButtonText}}</button>
+</mat-dialog-actions>

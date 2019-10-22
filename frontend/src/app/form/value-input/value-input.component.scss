@@ -1,0 +1,16 @@
+@import "../../../mixins";
+
+.value-input {
+  &, mat-form-field, .value-input-key {
+    width: 100%;
+  }
+
+  .key-name {
+    font-style: italic;
+    color: #222;
+  }
+}
+
+.end-divider {
+  margin-bottom: 16px;
+}

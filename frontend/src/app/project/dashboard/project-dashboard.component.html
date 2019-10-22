@@ -1,0 +1,57 @@
+<div class="project-dashboard" fxLayout="column">
+  <div class="project-selection" fxLayout="row" fxLayoutAlign="space-between center">
+    <h4>Projects</h4>
+    <mat-form-field *ngIf="projects.length > 1">
+      <mat-select placeholder="Projects" multiple [(ngModel)]="currentlyShownProjects">
+        <mat-option *ngFor="let project of projects" [value]="project.uuid">{{project.name}}</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <div class="projects-selected">
+    <mat-list dense>
+      <ng-container *ngFor="let project of selectedProjects">
+        <div class="project-header" fxLayout="row" fxLayoutAlign="start center">
+          <a mat-subheader matRipple class="o-neko-internal-link versions-link" [routerLink]="'/projects/' + project.uuid + '/versions'">{{project.name}}</a>
+          <div class="tool-container" fxLayout="row">
+            <a mat-icon-button class="settings-link" [routerLink]="'/projects/' + project.uuid">
+              <mat-icon svgIcon="tune"></mat-icon>
+            </a>
+          </div>
+        </div>
+
+        <div mat-list-item
+             matRipple
+             [matRippleTrigger]="rippleTrigger"
+             *ngFor="let version of getDeployedVersionsOfProject(project); let lastVersion = last">
+          <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="1em">
+            <deployableStatus [status]="version.deployment.status" [outdated]="version.outdated" matListIcon></deployableStatus>
+            <a fxFlex #rippleTrigger [routerLink]="'/projects/' + project.uuid + '/versions/' + version.uuid">
+              <h4 mat-line>{{version.name}}</h4>
+              <p mat-line>
+                <span fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="16px">
+                  <span *ngIf="version.deployment.timestamp" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="4px"><mat-icon svgIcon="kubernetes"></mat-icon><span>{{version.deployment.formattedTimestamp}}</span></span>
+                  <span *ngIf="version.imageUpdatedDate" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="4px"><mat-icon svgIcon="docker"></mat-icon><span>{{version.formattedImageUpdatedDate}}</span></span>
+                </span>
+              </p>
+            </a>
+            <a mat-icon-button *ngIf="version.urls.length === 1" [href]="'https://'+ version.urls[0]" [matTooltip]="'https://'+ version.urls[0]" target="_blank" referrerpolicy="no-referrer">
+              <mat-icon svgIcon="open-in-new"></mat-icon>
+            </a>
+            <button mat-icon-button *ngIf="version.urls.length > 1" [matMenuTriggerFor]="urlMenu">
+              <mat-icon svgIcon="open-in-new"></mat-icon>
+              <mat-menu #urlMenu="matMenu">
+                <a mat-menu-item *ngFor="let url of version.urls" [href]="'https://'+ url" target="_blank" referrerpolicy="no-referrer">{{'https://' + url}}</a>
+              </mat-menu>
+            </button>
+            <projectVersionActions [version]="version" [project]="project"></projectVersionActions>
+          </div>
+          <mat-divider *ngIf="!lastVersion"></mat-divider>
+        </div>
+        <span mat-list-item *ngIf="getDeployedVersionsOfProject(project).length === 0">
+          <strong>{{project.name}}</strong> has no deployed versions.
+        </span>
+      </ng-container>
+    </mat-list>
+  </div>
+</div>
+

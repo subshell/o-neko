@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: o-neko-config
+data:
+  application.yaml: |-
+    spring:
+      data:
+        mongodb:
+          uri: mongodb://o-neko-mongodb:27017/o-neko?
+
+    logging:
+      path: logs
+      level:
+        io.oneko: trace
+
+    o-neko:
+      security:
+        credentialsCoderKey: VJxDYI6zT9gLLfY9MyDGf2nxQ8mY7DcECxTDqKIV
+
+    kubernetes:
+      auth:
+        token: <TOKEN>
+      server:
+        url: <API_URL>

@@ -1,0 +1,11 @@
+<h2 matDialogTitle>{{ title }}</h2>
+<mat-dialog-content>
+  <p>{{ message }}</p>
+  <mat-form-field>
+    <input matInput [placeholder]="confirmationTextPlaceholder" #confirm="ngModel" [mustMatch]="confirmationText" [(ngModel)]="inputText" name="confirm" id="confirm">
+  </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions fxLayoutAlign="space-between center">
+  <button mat-button color="primary" [disabled]="confirm.invalid" [mat-dialog-close]="true">{{okButtonText}}</button>
+  <button mat-button mat-dialog-close>{{cancelButtonText}}</button>
+</mat-dialog-actions>

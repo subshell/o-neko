@@ -1,0 +1,10 @@
+<div class="progress-container">
+  <mat-progress-spinner
+    color="primary"
+    mode="determinate"
+    [value]="spinnerValue"
+    diameter="24"
+  >
+  </mat-progress-spinner>
+  <mat-icon svgIcon="close-circle" i18n-matTooltip="@@dismiss" matTooltip="Dismiss" (click)="dismiss()"></mat-icon>
+</div>

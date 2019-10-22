@@ -1,0 +1,13 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: o-neko-ingress
+spec:
+  rules:
+  - host: <HOSTNAME>
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: o-neko
+          servicePort: 8080

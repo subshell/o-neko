@@ -1,0 +1,9 @@
+<div fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="1em">
+  <span>{{text}}</span>
+  <div fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="0.2em">
+    <timeout-with-ui [duration]="duration"
+                     [cancelled]="snackBarRef.afterDismissed()"
+                     (onDone)="dismiss()">
+    </timeout-with-ui>
+  </div>
+</div>
