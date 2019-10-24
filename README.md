@@ -1,4 +1,4 @@
-# O-Neko
+![O-NEKO](oneko.png)
 
 O-Neko is a Kubernetes-native application that allows to cross a bridge between developers and other stakeholders by deploying 
 development versions of your software into Kubernetes to allow everybody to try and test them.
