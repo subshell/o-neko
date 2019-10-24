@@ -28,12 +28,6 @@ effectively providing a way to deploy dynamic test server setups with ease
 * When a version of a project is deployed, O-Neko creates a namespace in Kubernetes to deploy all resources to. If you stop a deployment, the corresponding namespace will be deleted.
 * The status of all running deployments is monitored by O-Neko and can be seen in the web frontend
 
-# Development
+## Original authors
 
-To start developing you need to install:
-
-* Docker
-* NodeJS (incl. npm)
-* The @angular/cli via npm
-
-Run `docker-compose up -d` to start the development MongoDB on your machine. You can then start O-Neko in debug mode and run `npm start` in the [frontend](./frontend) directory to start serving the frontend.
+This project has been put to life by [@philmtd](https://github.com/philmtd), [@reinkem](https://github.com/reinkem), [@schwerlaut](https://github.com/schwerlaut), [@steffenkuche](https://github.com/steffenkuche) and [@tom-schoener](https://github.com/tom-schoener).
