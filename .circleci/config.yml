@@ -60,7 +60,6 @@ jobs:
       - run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
       - run: docker push subshellgmbh/o-neko:latest-dev
 
-
 workflows:
   version: 2
   build:
@@ -72,6 +71,6 @@ workflows:
       - dockerize_dev:
           requires:
             - backend
-          #filter:
-          #  branches:
-          #    only: master
+          filter:
+            branches:
+              only: master
