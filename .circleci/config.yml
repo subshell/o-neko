@@ -38,3 +38,12 @@ jobs:
           key: oneko-maven-dependencies-{{ checksum "pom.xml" }}
           paths: ~/.m2
       - run: mvn package
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - frontend
+      - backend:
+          requires:
+            - frontend
