@@ -40,9 +40,9 @@ jobs:
       - run: mvn package
       - store_test_results:
           path: target/surefire-reports
-      - run: mkdir /tmp/circle-artifacts && cp target/o-neko*.jar /tmp/circle-artifacts
+      - run: mkdir ./circle-artifacts && cp ./target/o-neko*.jar ./circle-artifacts/
       - store_artifacts:
-          path: tmp/circle-artifacts
+          path: ./circle-artifacts/
 
 workflows:
   version: 2
