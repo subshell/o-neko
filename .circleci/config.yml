@@ -22,7 +22,7 @@ jobs:
       - save_cache:
           key: oneko-frontend-{{ .Environment.CIRCLE_SHA1 }}
           paths:
-            - ./frontend/dist
+            - ./frontend/dist/
 
   backend:
     docker:
@@ -30,9 +30,9 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys:
-            - oneko-maven-dependencies-{{ checksum "pom.xml" }}
-            - oneko-frontend-{{ .Environment.CIRCLE_SHA1 }}
+          key: oneko-maven-dependencies-{{ checksum "pom.xml" }}
+      - restore_cache:
+          key: oneko-frontend-{{ .Environment.CIRCLE_SHA1 }}
       - run: mvn dependency:go-offline
       - save_cache:
           key: oneko-maven-dependencies-{{ checksum "pom.xml" }}

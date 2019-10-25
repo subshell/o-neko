@@ -1,5 +1,7 @@
 ![O-NEKO](oneko.png)
 
+[![CircleCI](https://circleci.com/gh/subshell/o-neko/tree/master.svg?style=svg)](https://circleci.com/gh/subshell/o-neko/tree/master)
+
 O-Neko is a Kubernetes-native application that allows to cross a bridge between developers and other stakeholders by deploying 
 development versions of your software into Kubernetes to allow everybody to try and test them.
 
