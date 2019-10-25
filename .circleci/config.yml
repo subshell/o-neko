@@ -38,6 +38,11 @@ jobs:
           key: oneko-maven-dependencies-{{ checksum "pom.xml" }}
           paths: ~/.m2
       - run: mvn package
+      - store_test_results:
+          path: target/surefire-reports
+      - run: mkdir /tmp/circle-artifacts && cp target/o-neko*.jar /tmp/circle-artifacts
+      - store_artifacts:
+          path: tmp/circle-artifacts
 
 workflows:
   version: 2
