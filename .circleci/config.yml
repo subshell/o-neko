@@ -41,11 +41,11 @@ jobs:
       - store_test_results:
           path: target/surefire-reports
       - run: mkdir ./circle-artifacts && cp ./target/o-neko*.jar ./circle-artifacts/
-      - store_artifacts:
-          path: ./circle-artifacts/
       - save_cache:
           key: oneko-artifacts-{{ .Environment.CIRCLE_SHA1 }}
           paths: ./circle-artifacts/
+      - store_artifacts:
+          path: ./circle-artifacts/
 
   dockerize_dev:
     docker:
