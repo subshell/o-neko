@@ -71,6 +71,6 @@ workflows:
       - dockerize_dev:
           requires:
             - backend
-          filter:
+          filters:
             branches:
               only: master
