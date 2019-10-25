@@ -55,7 +55,7 @@ jobs:
       - setup_remote_docker
       - restore_cache:
           key: oneko-artifacts-{{ .Environment.CIRCLE_SHA1 }}
-      - run: docker build --build-arg JAR_FILE=$(find ./circle-artifacts -type f -name '*.jar') -t subshellgmbh/o-neko:latest-dev .
+      - run: docker build --build-arg JAR_FILE=$(find ~/project/circle-artifacts -type f -name '*.jar') -t subshellgmbh/o-neko:latest-dev .
       - run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
       - run: docker push subshellgmbh/o-neko:latest-dev
 
