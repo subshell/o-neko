@@ -3,6 +3,7 @@ jobs:
   frontend:
     docker:
       - image: circleci/node:11
+    resource_class: small
     steps:
       - checkout
       - restore_cache:
@@ -27,6 +28,7 @@ jobs:
   backend:
     docker:
       - image: circleci/openjdk:11-stretch
+    resource_class: small
     steps:
       - checkout
       - restore_cache:
@@ -50,6 +52,7 @@ jobs:
   dockerize_dev:
     docker:
       - image: docker:19
+    resource_class: small
     steps:
       - checkout
       - setup_remote_docker
