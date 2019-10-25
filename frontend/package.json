@@ -5,7 +5,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve --open --proxy-config proxy.conf.json",
-    "build": "ng build --prod && gzipper gl -9 ./dist",
+    "build": "ng build --prod && gzipper --level 9 ./dist",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"
@@ -47,7 +47,7 @@
     "@types/jasminewd2": "2.0.6",
     "@types/node": "11.11.5",
     "codelyzer": "^5.1.0",
-    "gzipper": "2.10.4",
+    "gzipper": "3.3.0",
     "jasmine-core": "3.3.0",
     "jasmine-spec-reporter": "4.2.1",
     "karma": "4.0.1",

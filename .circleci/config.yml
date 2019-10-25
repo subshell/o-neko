@@ -1,0 +1,40 @@
+version: 2.1
+jobs:
+  frontend:
+    docker:
+      - image: circleci/node:11
+    steps:
+      - checkout
+      - restore_cache:
+          key: oneko-npm-dependencies-{{ checksum "frontend/package.json" }}
+          paths:
+            - ./frontend/node_modules
+      - run:
+          name: Installing dependencies
+          working_directory: ./frontend
+          command: npm install
+      - save_cache:
+          key: oneko-npm-dependencies-{{ checksum "frontend/package.json" }}
+      - run:
+          name: Building the frontend
+          working_directory: ./frontend
+          command: npm run build
+      - save_cache:
+          key: oneko-frontend-{{ .Environment.CIRCLE_SHA1 }}
+          paths:
+            - ./frontend/dist
+
+  backend:
+    docker:
+      - image: circleci/openjdk:11-stretch
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - oneko-maven-dependencies-{{ checksum "pom.xml" }}
+            - oneko-frontend-{{ .Environment.CIRCLE_SHA1 }}
+      - run: mvn dependency:go-offline
+      - save_cache:
+          key: oneko-maven-dependencies-{{ checksum "pom.xml" }}
+          paths: ~/.m2
+      - run: mvn package
