@@ -7,14 +7,14 @@ jobs:
       - checkout
       - restore_cache:
           key: oneko-npm-dependencies-{{ checksum "frontend/package.json" }}
-          paths:
-            - ./frontend/node_modules
       - run:
           name: Installing dependencies
           working_directory: ./frontend
           command: npm install
       - save_cache:
           key: oneko-npm-dependencies-{{ checksum "frontend/package.json" }}
+          paths:
+            - ./frontend/node_modules
       - run:
           name: Building the frontend
           working_directory: ./frontend
