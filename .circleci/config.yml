@@ -2,7 +2,7 @@ version: 2.1
 jobs:
   frontend:
     docker:
-      - image: circleci/node:11
+      - image: circleci/node:12.13
     steps:
       - checkout
       - restore_cache:
