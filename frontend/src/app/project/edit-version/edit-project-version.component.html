@@ -43,14 +43,14 @@
 
         <div class="form-field-group">
           <div class="template-wrapper" fxLayout="column">
-            <label>Inherited Parameters</label>
+            <label>Inherited Variables</label>
             <value-input [valuesByKey]="projectVariables" [readonly]="!mayEditProjects()" (onChange)="updateProjectVariables($event)"></value-input>
           </div>
         </div>
 
         <div class="form-field-group">
           <div class="template-wrapper" fxLayout="column">
-            <label>Version Specific Parameters</label>
+            <label>Version Specific Variables</label>
             <key-value-input [keyValues]="projectVersionVariables" [readonly]="!mayEditProjects()" (onChange)="updateProjectVersionVariables($event)"></key-value-input>
           </div>
         </div>

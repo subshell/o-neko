@@ -24,6 +24,7 @@ import {WebSocketServiceWrapper} from "../../websocket/web-socket-service-wrappe
 import {Project} from "../project";
 import {ProjectVersion} from "../project-version";
 import {ProjectService} from "../project.service";
+import {TemplateVariablesService} from "../template-variables.service";
 
 @Component({
   selector: 'edit-project-version',
@@ -51,6 +52,7 @@ export class EditProjectVersionComponent implements OnInit, OnDestroy {
               private userService: UserService,
               private route: ActivatedRoute,
               private dialog: MatDialog,
+              private templateVariablesService: TemplateVariablesService,
               private wsService: WebSocketServiceWrapper) {
     this.userService.currentUser().subscribe(currentUser => this.editingUser = currentUser);
     this.rest.docker().getAllDockerRegistries().subscribe(regs => this.dockerRegistries = regs);
@@ -73,15 +75,7 @@ export class EditProjectVersionComponent implements OnInit, OnDestroy {
 
         this.projectVersion.availableTemplateVariables.forEach(variable => {
           delete this.projectVersionVariables[variable.name];
-
-          this.projectVariables[variable.id] = {
-            selectedValue: this.projectVersion.templateVariables[variable.name],
-            defaultValue: variable.defaultValue,
-            values: variable.values,
-            singleValue: !variable.useValues,
-            label: variable.label,
-            name: variable.name
-          };
+          this.projectVariables[variable.id] = this.templateVariablesService.createValueInfo(variable, this.projectVersion.templateVariables[variable.name]);
         });
 
         this.updateSubscription = this.wsService.getProjectVersionChanges(this.project.uuid)

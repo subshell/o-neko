@@ -46,6 +46,7 @@
 
             <div class="form-field-group">
               <template-editor [templates]="component.configurationTemplates"
+                               [defaultTemplates]="defaultConfigurationTemplatesCache[component.id] || []"
                                (templatesChange)="onDefaultConfigurationTemplateChange($event, component)"
                                (templatesValid)="onTemplatesValidationChange($event)"
                                label="Configuration Templates"
@@ -56,7 +57,8 @@
             <div class="form-field-group">
               <div class="template-wrapper" fxLayout="column">
                 <label>Template Parameters</label>
-                <key-value-input [keyValues]="component.templateVariables" [readonly]="!mayEditComponents()"></key-value-input>
+                <value-input [valuesByKey]="templateVariables[component.id]" [readonly]="!mayEditComponents()" (onChange)="updateTemplateVariables(component, $event)"></value-input>
+                <key-value-input [keyValues]="ownTemplateVariables" [readonly]="!mayEditComponents()" (onChange)="updateOwnTemplateVariables(component, $event)"></key-value-input>
               </div>
             </div>
           </form>

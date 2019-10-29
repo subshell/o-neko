@@ -64,6 +64,7 @@ import {ProjectListComponent} from "./project/list/project-list.component";
 import {ProjectVersionActionsComponent} from "./project/project-version-actions/project-version-actions.component";
 import {ProjectVersionVariableActionsComponent} from './project/project-version-variable-actions/project-version-variable-actions.component';
 import {ProjectService} from "./project/project.service";
+import {TemplateVariablesService} from "./project/template-variables.service";
 import {TemplateVariableEditorComponent} from './project/template-variables/template-variable-editor/template-variable-editor.component';
 import {TemplateVariablesComponent} from './project/template-variables/template-variables.component';
 import {ProjectVersionListComponent} from "./project/versions-list/project-version-list.component";
@@ -214,7 +215,8 @@ import {WebSocketService} from "./websocket/web-socket.service";
     ProjectService,
     WebSocketService,
     WebSocketServiceWrapper,
-    ProjectMeshService
+    ProjectMeshService,
+    TemplateVariablesService
   ],
   entryComponents: [
     TimeoutSnackbarComponent,
