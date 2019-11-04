@@ -57,7 +57,6 @@ export class ManageMeshComponentsComponent implements OnInit, OnDestroy {
       ).subscribe(mesh => {
         this.projectMesh = mesh;
         for (let component of mesh.components) {
-          const project = this.getProjectOf(component);
           const projectVersion = this.getSelectedProjectVersionForComponent(component);
           this.addFormForComponent(component);
           this.defaultConfigurationTemplatesCache[component.id] = this.getDefaultTemplatesForComponent(component);
@@ -67,7 +66,7 @@ export class ManageMeshComponentsComponent implements OnInit, OnDestroy {
           projectVersion.availableTemplateVariables.forEach(templateVariable => {
             delete this.ownTemplateVariables[templateVariable.name];
 
-            const value = projectVersion.templateVariables[templateVariable.name] !== undefined
+            const value = projectVersion.templateVariables[templateVariable.name] === undefined
               ? component.templateVariables[templateVariable.name]
               : projectVersion.templateVariables[templateVariable.name];
             this.templateVariables[component.id][templateVariable.name] = this.templateVariablesService.createValueInfo(templateVariable, value);
@@ -130,11 +129,12 @@ export class ManageMeshComponentsComponent implements OnInit, OnDestroy {
   }
 
   public getDefaultTemplatesForComponent(component: MeshComponent): Array<ConfigurationTemplate> {
-    const projectConfigurationTemplates = this.getProjectOf(component).defaultConfigurationTemplates || [];
-    const projectVersionConfigurationTemplates = this.getSelectedProjectVersionForComponent(component).configurationTemplates || [];
+    const projectConfigurationTemplates: ConfigurationTemplate[] = this.getProjectOf(component).defaultConfigurationTemplates || [];
+    const projectVersionConfigurationTemplates: ConfigurationTemplate[] = this.getSelectedProjectVersionForComponent(component).configurationTemplates || [];
+    const projectVersionConfigurationTemplateNames = projectVersionConfigurationTemplates.map(t => t.name);
 
     return [
-      ...projectConfigurationTemplates.filter(template => projectVersionConfigurationTemplates.find(versionTemplate => versionTemplate.name !== template.name)),
+      ...projectConfigurationTemplates.filter(template => projectVersionConfigurationTemplateNames.indexOf(template.name) === -1),
       ...projectVersionConfigurationTemplates
     ];
   }
