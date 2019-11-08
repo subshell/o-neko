@@ -4,6 +4,7 @@ import static io.oneko.deployable.DeploymentBehaviour.*;
 import static io.oneko.kubernetes.deployments.DesiredState.*;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -38,6 +39,7 @@ import io.oneko.projectmesh.ProjectMesh;
 import io.oneko.projectmesh.ProjectMeshRepository;
 import io.oneko.util.ExpiringBucket;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
@@ -55,6 +57,9 @@ class DockerRegistryPolling {
 	private final AtomicBoolean pollingInProgress = new AtomicBoolean(false);
 	private final ExpiringBucket<UUID> failedManifestRequests = new ExpiringBucket<UUID>(Duration.ofMinutes(5)).concurrent();
 
+	private Instant lastPollingJobStartDate = null;
+	private Disposable currentPollingJob = null;
+
 	DockerRegistryPolling(ProjectRepository projectRepository, ProjectMeshRepository projectMeshRepository, DockerRegistryV2ClientFactory dockerRegistryV2ClientFactory, KubernetesDeploymentManager kubernetesDeploymentManager, EventDispatcher eventDispatcher) {
 		this.projectRepository = projectRepository;
 		this.projectMeshRepository = projectMeshRepository;
@@ -67,23 +72,41 @@ class DockerRegistryPolling {
 	@Scheduled(fixedDelay = 20000, initialDelay = 20000)
 	protected void checkDockerForNewImages() {
 		if (!this.pollingInProgress.getAndSet(true)) {
+			log.trace("Starting polling job");
+			lastPollingJobStartDate = Instant.now();
 			final Mono<List<ProjectMesh>> meshesMono = projectMeshRepository.getAll().
 					collectList();
 			final Mono<List<Project>> projectsMono = projectRepository.getAll()
 					.collectList();
-			meshesMono.zipWith(projectsMono)
-					.subscribe(pair -> this.checkDockerForNewImages(pair.getT1(), pair.getT2()));
+			this.currentPollingJob = meshesMono.zipWith(projectsMono)
+					.flatMap(pair -> this.checkDockerForNewImages(pair.getT1(), pair.getT2()))
+					.subscribe();
+		} else if (shouldPollingJobBeTimedOut() || this.currentPollingJob.isDisposed()) {
+			log.info("Timing out polling job.");
+			this.currentPollingJob.dispose();
+			this.currentPollingJob = null;
+			setPollingJobToNotRunning();
 		} else {
 			log.debug("Skipping job because another polling job is still running.");
 		}
+	}
+
+	private boolean shouldPollingJobBeTimedOut() {
+		final Duration pollingTimeout = Duration.ofMinutes(5);
+		return lastPollingJobStartDate != null && Instant.now().minus(pollingTimeout).isAfter(lastPollingJobStartDate);
+	}
+
+	private void setPollingJobToNotRunning() {
+		this.pollingInProgress.set(false);
+		this.lastPollingJobStartDate = null;
 	}
 
 	/**
 	 * Iterates through all project versions checking for updates. Alongside handles all mesh components using these
 	 * versions images alongside. Triggers re-deployments if necessary.
 	 */
-	private void checkDockerForNewImages(List<ProjectMesh> allMeshes, List<Project> allProjects) {
-		Flux.fromIterable(allProjects)
+	private Mono<Void> checkDockerForNewImages(List<ProjectMesh> allMeshes, List<Project> allProjects) {
+		return Flux.fromIterable(allProjects)
 				.flatMap(this::updateProjectVersions)
 				.onErrorContinue((ex, o) -> log.error("Encountered an exception while checking new project versions of {}", o, ex))
 				.flatMap(this::fetchMissingDatesForImages)
@@ -93,9 +116,9 @@ class DockerRegistryPolling {
 				//finally we have to save the project meshes, that's some awkward mapping here
 				.thenMany(Flux.fromIterable(allMeshes))
 				.flatMap(this.projectMeshRepository::add)
-				.doOnTerminate(() -> this.pollingInProgress.set(false))
+				.doOnTerminate(this::setPollingJobToNotRunning)
 				.subscriberContext(Context.of(EventTrigger.class, this.asTrigger))
-				.subscribe();
+				.then();
 	}
 
 	private Mono<Project> fetchMissingDatesForImages(Project project) {
