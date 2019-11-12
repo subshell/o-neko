@@ -5,7 +5,7 @@
     </mat-form-field>
 
     <mat-form-field>
-      <input type="text" matInput [(ngModel)]="keyValues[key]" placeholder="{{'Parameter value for ' + key}}" [name]="key + '_value'" (change)="emitEvent(key, keyValues[key])" [disabled]="readonly">
+      <input type="text" matInput [value]="keyValues.get(key)" placeholder="{{'Parameter value for ' + key}}" [name]="key + '_value'" (change)="emitEvent(key, $event.target.value)" [disabled]="readonly">
     </mat-form-field>
 
     <button mat-icon-button (click)="removeVariable(key)" *ngIf="!readonly">

@@ -13,7 +13,11 @@ import {
   LabeledLifetimeBehaviour,
   LifetimeBehaviourInputComponent
 } from "../../form/lifetime-behaviour/lifetime-behaviour-input.component";
-import {ValueInfoChangeEvent, ValueInfoMap} from "../../form/value-input/value-info";
+import {
+  createValueInfoFromTemplateVariable,
+  ValueInfoChangeEvent,
+  ValueInfoMap
+} from "../../form/value-input/value-info";
 
 import {DefinedNamespace} from "../../namespace/defined-namespace";
 import {Namespace} from "../../namespace/namespace";
@@ -24,7 +28,6 @@ import {WebSocketServiceWrapper} from "../../websocket/web-socket-service-wrappe
 import {Project} from "../project";
 import {ProjectVersion} from "../project-version";
 import {ProjectService} from "../project.service";
-import {TemplateVariablesService} from "../template-variables.service";
 
 @Component({
   selector: 'edit-project-version',
@@ -43,7 +46,7 @@ export class EditProjectVersionComponent implements OnInit, OnDestroy {
     value: -1
   }].concat(...LifetimeBehaviourInputComponent.defaultLifetimeBehaviourOptions);
   public projectVariables: ValueInfoMap = {};
-  public projectVersionVariables: { [key: string]: string } = {};
+  public projectVersionVariables: Map<string, string> = new Map();
   private editingUser: User;
   private updateSubscription?: Subscription;
 
@@ -52,7 +55,6 @@ export class EditProjectVersionComponent implements OnInit, OnDestroy {
               private userService: UserService,
               private route: ActivatedRoute,
               private dialog: MatDialog,
-              private templateVariablesService: TemplateVariablesService,
               private wsService: WebSocketServiceWrapper) {
     this.userService.currentUser().subscribe(currentUser => this.editingUser = currentUser);
     this.rest.docker().getAllDockerRegistries().subscribe(regs => this.dockerRegistries = regs);
@@ -71,11 +73,11 @@ export class EditProjectVersionComponent implements OnInit, OnDestroy {
           this.projectVersion.lifetimeBehaviour = {daysToLive: -1};
         }
 
-        this.projectVersionVariables = {...this.projectVersion.templateVariables};
+        this.projectVersionVariables = new Map(Object.entries(this.projectVersion.templateVariables));
 
         this.projectVersion.availableTemplateVariables.forEach(variable => {
-          delete this.projectVersionVariables[variable.name];
-          this.projectVariables[variable.id] = this.templateVariablesService.createValueInfo(variable, this.projectVersion.templateVariables[variable.name]);
+          this.projectVersionVariables.delete(variable.name);
+          this.projectVariables[variable.id] = createValueInfoFromTemplateVariable(variable, this.projectVersion.templateVariables[variable.name]);
         });
 
         this.updateSubscription = this.wsService.getProjectVersionChanges(this.project.uuid)

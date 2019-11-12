@@ -8,10 +8,13 @@ import {ConfigurationTemplate} from "../../deployable/configuration-template";
 import {EffectiveDeployableConfiguration} from "../../deployable/effective-deployable-configuration";
 import {ShowDeployableConfigurationDialog} from "../../deployable/show-deployable-configuration-dialog/show-deployable-configuration-dialog.component";
 import {KeyValueChangeEvent} from "../../form/key-value-input/key-value-input.component";
-import {ValueInfoChangeEvent, ValueInfoMap} from "../../form/value-input/value-info";
+import {
+  createValueInfoFromTemplateVariable,
+  ValueInfoChangeEvent,
+  ValueInfoMap
+} from "../../form/value-input/value-info";
 import {Project} from "../../project/project";
 import {ProjectVersion} from "../../project/project-version";
-import {TemplateVariablesService} from "../../project/template-variables.service";
 import {RestService} from "../../rest/rest.service";
 import {User} from "../../user/user";
 import {UserService} from "../../user/user.service";
@@ -29,8 +32,8 @@ import {ProjectMeshService} from "../project-mesh.service";
 export class ManageMeshComponentsComponent implements OnInit, OnDestroy {
 
   public defaultConfigurationTemplatesCache: {[key: string]: ConfigurationTemplate[]} = {};
-  public templateVariables: {[key: string]: ValueInfoMap} = {};
-  public ownTemplateVariables: {[key: string]: string} = {};
+  public templateVariables: Map<string, ValueInfoMap> = new Map();
+  public ownTemplateVariables: Map<string, string> = new Map();
   public projectMesh: ProjectMesh;
   public uberForm: FormGroup = new FormGroup({});
 
@@ -43,8 +46,7 @@ export class ManageMeshComponentsComponent implements OnInit, OnDestroy {
               private userService: UserService,
               private route: ActivatedRoute,
               private dialog: MatDialog,
-              private websocket: WebSocketServiceWrapper,
-              private templateVariablesService: TemplateVariablesService) {
+              private websocket: WebSocketServiceWrapper) {
     this.userService.currentUser().subscribe(currentUser => this.editingUser = currentUser);
   }
 
@@ -61,15 +63,16 @@ export class ManageMeshComponentsComponent implements OnInit, OnDestroy {
           this.addFormForComponent(component);
           this.defaultConfigurationTemplatesCache[component.id] = this.getDefaultTemplatesForComponent(component);
 
-          this.templateVariables[component.id] = {};
-          this.ownTemplateVariables = {...component.templateVariables};
+          const templateVariableInfoMap: ValueInfoMap = {};
+          this.templateVariables.set(component.id, templateVariableInfoMap);
+          this.ownTemplateVariables = new Map(Object.entries(component.templateVariables));
           projectVersion.availableTemplateVariables.forEach(templateVariable => {
-            delete this.ownTemplateVariables[templateVariable.name];
+            this.ownTemplateVariables.delete(templateVariable.name);
 
             const value = projectVersion.templateVariables[templateVariable.name] === undefined
               ? component.templateVariables[templateVariable.name]
               : projectVersion.templateVariables[templateVariable.name];
-            this.templateVariables[component.id][templateVariable.name] = this.templateVariablesService.createValueInfo(templateVariable, value);
+            templateVariableInfoMap[templateVariable.name] = createValueInfoFromTemplateVariable(templateVariable, value);
           });
         }
 
@@ -178,11 +181,11 @@ export class ManageMeshComponentsComponent implements OnInit, OnDestroy {
   public updateOwnTemplateVariables(component: MeshComponent, $event: KeyValueChangeEvent) {
     if ($event.deletion) {
       delete component.templateVariables[$event.key];
-      delete this.ownTemplateVariables[$event.key];
+      this.ownTemplateVariables.delete($event.key);
       return;
     }
 
-    this.ownTemplateVariables[$event.key] = $event.value;
+    this.ownTemplateVariables.set($event.key, $event.value);
     component.templateVariables[$event.key] = $event.value;
   }
 

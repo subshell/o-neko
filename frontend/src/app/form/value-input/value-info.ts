@@ -1,3 +1,5 @@
+import {TemplateVariable} from "../../project/project";
+
 export interface ValueInfoChangeEvent {
   id: string
   changedValue: ValueInfo
@@ -13,4 +15,15 @@ export interface ValueInfo {
   values: string[]
   label?: string
   name: string
+}
+
+export function createValueInfoFromTemplateVariable(templateVariable: TemplateVariable, selectedValue: string): ValueInfo {
+  return {
+    selectedValue: selectedValue,
+    defaultValue: templateVariable.defaultValue,
+    values: templateVariable.values,
+    singleValue: !templateVariable.useValues,
+    label: templateVariable.label,
+    name: templateVariable.name
+  };
 }
