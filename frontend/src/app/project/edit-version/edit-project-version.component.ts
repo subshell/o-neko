@@ -13,7 +13,11 @@ import {
   LabeledLifetimeBehaviour,
   LifetimeBehaviourInputComponent
 } from "../../form/lifetime-behaviour/lifetime-behaviour-input.component";
-import {ValueInfoChangeEvent, ValueInfoMap} from "../../form/value-input/value-info";
+import {
+  createValueInfoFromTemplateVariable,
+  ValueInfoChangeEvent,
+  ValueInfoMap
+} from "../../form/value-input/value-info";
 
 import {DefinedNamespace} from "../../namespace/defined-namespace";
 import {Namespace} from "../../namespace/namespace";
@@ -42,7 +46,7 @@ export class EditProjectVersionComponent implements OnInit, OnDestroy {
     value: -1
   }].concat(...LifetimeBehaviourInputComponent.defaultLifetimeBehaviourOptions);
   public projectVariables: ValueInfoMap = {};
-  public projectVersionVariables: { [key: string]: string } = {};
+  public projectVersionVariables: Map<string, string> = new Map();
   private editingUser: User;
   private updateSubscription?: Subscription;
 
@@ -69,19 +73,11 @@ export class EditProjectVersionComponent implements OnInit, OnDestroy {
           this.projectVersion.lifetimeBehaviour = {daysToLive: -1};
         }
 
-        this.projectVersionVariables = {...this.projectVersion.templateVariables};
+        this.projectVersionVariables = new Map(Object.entries(this.projectVersion.templateVariables));
 
         this.projectVersion.availableTemplateVariables.forEach(variable => {
-          delete this.projectVersionVariables[variable.name];
-
-          this.projectVariables[variable.id] = {
-            selectedValue: this.projectVersion.templateVariables[variable.name],
-            defaultValue: variable.defaultValue,
-            values: variable.values,
-            singleValue: !variable.useValues,
-            label: variable.label,
-            name: variable.name
-          };
+          this.projectVersionVariables.delete(variable.name);
+          this.projectVariables[variable.id] = createValueInfoFromTemplateVariable(variable, this.projectVersion.templateVariables[variable.name]);
         });
 
         this.updateSubscription = this.wsService.getProjectVersionChanges(this.project.uuid)

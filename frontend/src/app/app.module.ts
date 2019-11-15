@@ -214,7 +214,7 @@ import {WebSocketService} from "./websocket/web-socket.service";
     ProjectService,
     WebSocketService,
     WebSocketServiceWrapper,
-    ProjectMeshService
+    ProjectMeshService,
   ],
   entryComponents: [
     TimeoutSnackbarComponent,

@@ -48,7 +48,7 @@ export class TemplateVariablesComponent {
   deleteTemplateVariable(templateVariable: TemplateVariable) {
     this.dialog.open(ConfirmDialog, {
       data: <ConfirmDialogData>{
-        title: `Delete Template Parameter?`,
+        title: `Delete Template Variable?`,
         okButtonText: 'Delete'
       }
     }).afterClosed().subscribe(result => {
