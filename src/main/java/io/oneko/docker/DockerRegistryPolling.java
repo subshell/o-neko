@@ -85,7 +85,8 @@ class DockerRegistryPolling {
 					.collectList();
 			this.currentPollingJob = new DockerRegistryPollingJob(meshesMono.zipWith(projectsMono)
 					.flatMap(pair -> this.checkDockerForNewImages(pair.getT1(), pair.getT2()))
-					.subscribe(nothingness -> log.trace("Finished polling job")), Instant.now()).withTimeoutDuration(pollingTimeoutDuration);
+					.doOnTerminate(() -> log.trace("Finished polling job"))
+					.subscribe(), Instant.now()).withTimeoutDuration(pollingTimeoutDuration);
 		} else if (this.currentPollingJob != null && (this.currentPollingJob.shouldCancel() || this.currentPollingJob.isCancelled())) {
 			log.info("The job timed out. Cancelling it.");
 			this.currentPollingJob.cancel();
