@@ -91,6 +91,10 @@ export class TemplateEditorComponent implements OnInit {
       this.configurationTemplatesModels.push(new ConfigurationTemplateEditorModel(template));
     }
 
+    if (!this.defaultTemplates) {
+      return;
+    }
+
     for (let template of this.defaultTemplates) {
       let tpl = this.configurationTemplatesModels.find(tpl => tpl.name === template.name);
       if (tpl) {

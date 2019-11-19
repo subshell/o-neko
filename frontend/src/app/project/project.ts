@@ -1,5 +1,6 @@
 import {isNil, map} from 'lodash';
 import {ConfigurationTemplate} from "../deployable/configuration-template";
+import {ValueInfo} from "../form/value-input/value-info";
 import {ProjectVersion} from "./project-version";
 
 export type DeploymentBehaviour = 'automatically' | 'manually';

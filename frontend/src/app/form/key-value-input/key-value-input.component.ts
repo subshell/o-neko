@@ -13,7 +13,7 @@ export interface KeyValueChangeEvent {
 })
 export class KeyValueInputComponent implements OnInit {
 
-  @Input() keyValues: { [key: string]: string };
+  @Input() keyValues: Map<string, string>;
   @Input() readonly?: boolean = false;
 
   @Output() onChange: EventEmitter<KeyValueChangeEvent> = new EventEmitter<KeyValueChangeEvent>();
@@ -21,7 +21,7 @@ export class KeyValueInputComponent implements OnInit {
   public orderedKeys: string[] = [];
 
   ngOnInit(): void {
-    this.orderedKeys = this.keyValues ? Object.getOwnPropertyNames(this.keyValues) : [];
+    this.orderedKeys = this.keyValues ? Array.from(this.keyValues.keys()) : [];
   }
 
   public isAddingNewVariableAllowed(): boolean {
@@ -33,14 +33,14 @@ export class KeyValueInputComponent implements OnInit {
       return;
     }
 
-    this.keyValues[key] = "";
+    this.keyValues.set(key, "");
     this.orderedKeys.push(key);
 
-    this.emitEvent(key, this.keyValues[key]);
+    this.emitEvent(key, this.keyValues.get(key));
   }
 
   public removeVariable(key: string) {
-    delete this.keyValues[key];
+    this.keyValues.delete(key);
     this.orderedKeys.splice(this.orderedKeys.indexOf(key), 1);
 
     this.emitEvent(key, undefined, true);
@@ -48,19 +48,20 @@ export class KeyValueInputComponent implements OnInit {
 
   public changeKey($event: any, oldKey: string): void {
     const newKey = $event.target.value;
-    if (this.keyValues[newKey]) {
+    if (this.keyValues.has(newKey)) {
       return;
     }
 
-    this.keyValues[newKey] = this.keyValues[oldKey];
+    this.keyValues.set(newKey, this.keyValues.get(oldKey));
     this.orderedKeys[this.orderedKeys.findIndex(key => key === oldKey)] = newKey;
-    delete this.keyValues[oldKey];
+    this.keyValues.delete(oldKey);
 
     this.emitEvent(oldKey, undefined, true);
-    this.emitEvent(newKey, this.keyValues[newKey]);
+    this.emitEvent(newKey, this.keyValues.get(newKey));
   }
 
   public emitEvent(key: string, value: string, deletion: boolean = false): void {
+    this.keyValues.set(key, value);
     this.onChange.emit({key, value, deletion});
   }
 }
