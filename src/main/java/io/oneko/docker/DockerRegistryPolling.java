@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
@@ -39,7 +40,6 @@ import io.oneko.projectmesh.ProjectMesh;
 import io.oneko.projectmesh.ProjectMeshRepository;
 import io.oneko.util.ExpiringBucket;
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
@@ -53,19 +53,25 @@ class DockerRegistryPolling {
 	private final DockerRegistryV2ClientFactory dockerRegistryV2ClientFactory;
 	private final KubernetesDeploymentManager kubernetesDeploymentManager;
 	private final EventDispatcher eventDispatcher;
+	private final Duration pollingTimeoutDuration;
 	private final EventTrigger asTrigger;
 	private final AtomicBoolean pollingInProgress = new AtomicBoolean(false);
 	private final ExpiringBucket<UUID> failedManifestRequests = new ExpiringBucket<UUID>(Duration.ofMinutes(5)).concurrent();
 
-	private Instant lastPollingJobStartDate = null;
-	private Disposable currentPollingJob = null;
+	private DockerRegistryPollingJob currentPollingJob;
 
-	DockerRegistryPolling(ProjectRepository projectRepository, ProjectMeshRepository projectMeshRepository, DockerRegistryV2ClientFactory dockerRegistryV2ClientFactory, KubernetesDeploymentManager kubernetesDeploymentManager, EventDispatcher eventDispatcher) {
+	DockerRegistryPolling(ProjectRepository projectRepository,
+						  ProjectMeshRepository projectMeshRepository,
+						  DockerRegistryV2ClientFactory dockerRegistryV2ClientFactory,
+						  KubernetesDeploymentManager kubernetesDeploymentManager,
+						  EventDispatcher eventDispatcher,
+						  @Value("${o-neko.docker.polling.timeoutInMinutes:5}") int pollingTimeoutInMinutes) {
 		this.projectRepository = projectRepository;
 		this.projectMeshRepository = projectMeshRepository;
 		this.dockerRegistryV2ClientFactory = dockerRegistryV2ClientFactory;
 		this.kubernetesDeploymentManager = kubernetesDeploymentManager;
 		this.eventDispatcher = eventDispatcher;
+		this.pollingTimeoutDuration = Duration.ofMinutes(pollingTimeoutInMinutes);
 		this.asTrigger = new ScheduledTask("Docker Registry Polling");
 	}
 
@@ -73,17 +79,16 @@ class DockerRegistryPolling {
 	protected void checkDockerForNewImages() {
 		if (!this.pollingInProgress.getAndSet(true)) {
 			log.trace("Starting polling job");
-			lastPollingJobStartDate = Instant.now();
 			final Mono<List<ProjectMesh>> meshesMono = projectMeshRepository.getAll().
 					collectList();
 			final Mono<List<Project>> projectsMono = projectRepository.getAll()
 					.collectList();
-			this.currentPollingJob = meshesMono.zipWith(projectsMono)
+			this.currentPollingJob = new DockerRegistryPollingJob(meshesMono.zipWith(projectsMono)
 					.flatMap(pair -> this.checkDockerForNewImages(pair.getT1(), pair.getT2()))
-					.subscribe();
-		} else if (shouldPollingJobBeTimedOut() || this.currentPollingJob.isDisposed()) {
-			log.info("Timing out polling job.");
-			this.currentPollingJob.dispose();
+					.subscribe(nothingness -> log.trace("Finished polling job")), Instant.now()).withTimeoutDuration(pollingTimeoutDuration);
+		} else if (this.currentPollingJob != null && (this.currentPollingJob.shouldCancel() || this.currentPollingJob.isCancelled())) {
+			log.info("The job timed out. Cancelling it.");
+			this.currentPollingJob.cancel();
 			this.currentPollingJob = null;
 			setPollingJobToNotRunning();
 		} else {
@@ -91,14 +96,8 @@ class DockerRegistryPolling {
 		}
 	}
 
-	private boolean shouldPollingJobBeTimedOut() {
-		final Duration pollingTimeout = Duration.ofMinutes(5);
-		return lastPollingJobStartDate != null && Instant.now().minus(pollingTimeout).isAfter(lastPollingJobStartDate);
-	}
-
 	private void setPollingJobToNotRunning() {
 		this.pollingInProgress.set(false);
-		this.lastPollingJobStartDate = null;
 	}
 
 	/**
