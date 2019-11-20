@@ -5,6 +5,10 @@
 O-Neko is a Kubernetes-native application that allows to cross a bridge between developers and other stakeholders by deploying 
 development versions of your software into Kubernetes to allow everybody to try and test them.
 
+|       |       |       |
+| ----- | ----- | ----- |
+| ![O-Neko login screen](./docs/images/login.png) | ![O-Neko dashboard](./docs/images/dashboard.png) | ![O-Neko project overview](./docs/images/project.png) |
+
 ## Features
 
 * Deploy development versions (e.g. every branch) to Kubernetes with one click
@@ -32,4 +36,4 @@ effectively providing a way to deploy dynamic test server setups with ease
 
 ## Original authors
 
-This project has been put to life by [@philmtd](https://github.com/philmtd), [@reinkem](https://github.com/reinkem), [@schwerlaut](https://github.com/schwerlaut), [@steffenkuche](https://github.com/steffenkuche) and [@tom-schoener](https://github.com/tom-schoener).
+This project has been started in late 2017 as a "lab day" project by [@philmtd](https://github.com/philmtd), [@reinkem](https://github.com/reinkem), [@schwerlaut](https://github.com/schwerlaut), [@steffenkuche](https://github.com/steffenkuche) and [@tom-schoener](https://github.com/tom-schoener).
