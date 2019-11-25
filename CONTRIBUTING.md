@@ -1,14 +1,12 @@
 # Contributing to O-Neko
 
 *Disclaimer: We created O-Neko as a "lab day" project and had to deal with time limits during our regular
-work hours. This led to us neglecting some best practices in order to get the project to a usable state in an adequate
-time (it still took us almost two years from the idea to now). This trade off we had to make means the project is 
+work hours. This led to us neglecting some best practices in order to get the project to a usable state in an acceptable amount of time (it still took us almost two years from the idea to now). This trade off we had to make means the project is 
 currently in a state we would like to improve with coming contributions from ourselves and the community.*
 
 ## Found a bug? Have a feature request? Just have a question?
 
-Please feel free to create issues here on GitHub if you think you found a bug or want to request a feature that is not 
-currently in O-Neko. You can also ask questions via GitHub issues.
+Please feel free to create issues here on GitHub if you think you found a bug or want to request a feature that O-Neko currently lacks. You can also ask questions via GitHub issues.
 
 ## Want to work on an issue?
 
