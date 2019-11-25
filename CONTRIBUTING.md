@@ -20,7 +20,7 @@ a lot of time into developing it. **Small features** are welcome as pull request
 pull request please:
 
 * See whether a similar issue has already been worked on or is currently being worked on, to prevent duplicated effort.
-* Fork the O-Neko repository and checkout a new branch for your changes.
+* Fork the O-Neko repository and checkout a new branch for your changes. Follow our [dev environment setup guide](./DEV_ENVIRONMENT.md) in case you need help setting up your development environment.
 * Create your changes. Ideally you make sure to include appropriate test cases.
 * Test your changes and make sure the backend and frontend are behaving as expected.
 * Commit your changes. While we don't enforce a template for commit messages yet, we're fans of 

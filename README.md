@@ -1,4 +1,4 @@
-![O-NEKO](oneko.png)
+# O-Neko ![O-Neko Logo](oneko.svg)
 
 [![CircleCI](https://circleci.com/gh/subshell/o-neko/tree/master.svg?style=svg)](https://circleci.com/gh/subshell/o-neko/tree/master)
 
@@ -33,6 +33,10 @@ effectively providing a way to deploy dynamic test server setups with ease
 * The configuration is done with native Kubernetes .yaml and template variables. O-Neko provides some variables (e.g. the docker image tag) but you can also define your own. The configuration and the variables can be overridden by specific versions.
 * When a version of a project is deployed, O-Neko creates a namespace in Kubernetes to deploy all resources to. If you stop a deployment, the corresponding namespace will be deleted.
 * The status of all running deployments is monitored by O-Neko and can be seen in the web frontend
+
+## Contributing
+
+If you want to report an issue or work on O-Neko please read our [contributing page](./CONTRIBUTING.md).
 
 ## Original authors
 
