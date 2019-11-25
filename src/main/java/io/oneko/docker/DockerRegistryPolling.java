@@ -4,6 +4,7 @@ import static io.oneko.deployable.DeploymentBehaviour.*;
 import static io.oneko.kubernetes.deployments.DesiredState.*;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
@@ -51,39 +53,60 @@ class DockerRegistryPolling {
 	private final DockerRegistryV2ClientFactory dockerRegistryV2ClientFactory;
 	private final KubernetesDeploymentManager kubernetesDeploymentManager;
 	private final EventDispatcher eventDispatcher;
+	private final Duration pollingTimeoutDuration;
 	private final EventTrigger asTrigger;
 	private final AtomicBoolean pollingInProgress = new AtomicBoolean(false);
 	private final ExpiringBucket<UUID> failedManifestRequests = new ExpiringBucket<UUID>(Duration.ofMinutes(5)).concurrent();
 
-	DockerRegistryPolling(ProjectRepository projectRepository, ProjectMeshRepository projectMeshRepository, DockerRegistryV2ClientFactory dockerRegistryV2ClientFactory, KubernetesDeploymentManager kubernetesDeploymentManager, EventDispatcher eventDispatcher) {
+	private DockerRegistryPollingJob currentPollingJob;
+
+	DockerRegistryPolling(ProjectRepository projectRepository,
+						  ProjectMeshRepository projectMeshRepository,
+						  DockerRegistryV2ClientFactory dockerRegistryV2ClientFactory,
+						  KubernetesDeploymentManager kubernetesDeploymentManager,
+						  EventDispatcher eventDispatcher,
+						  @Value("${o-neko.docker.polling.timeoutInMinutes:5}") int pollingTimeoutInMinutes) {
 		this.projectRepository = projectRepository;
 		this.projectMeshRepository = projectMeshRepository;
 		this.dockerRegistryV2ClientFactory = dockerRegistryV2ClientFactory;
 		this.kubernetesDeploymentManager = kubernetesDeploymentManager;
 		this.eventDispatcher = eventDispatcher;
+		this.pollingTimeoutDuration = Duration.ofMinutes(pollingTimeoutInMinutes);
 		this.asTrigger = new ScheduledTask("Docker Registry Polling");
 	}
 
 	@Scheduled(fixedDelay = 20000, initialDelay = 20000)
 	protected void checkDockerForNewImages() {
 		if (!this.pollingInProgress.getAndSet(true)) {
+			log.trace("Starting polling job");
 			final Mono<List<ProjectMesh>> meshesMono = projectMeshRepository.getAll().
 					collectList();
 			final Mono<List<Project>> projectsMono = projectRepository.getAll()
 					.collectList();
-			meshesMono.zipWith(projectsMono)
-					.subscribe(pair -> this.checkDockerForNewImages(pair.getT1(), pair.getT2()));
+			this.currentPollingJob = new DockerRegistryPollingJob(meshesMono.zipWith(projectsMono)
+					.flatMap(pair -> this.checkDockerForNewImages(pair.getT1(), pair.getT2()))
+					.doOnTerminate(() -> log.trace("Finished polling job"))
+					.subscribe(), Instant.now()).withTimeoutDuration(pollingTimeoutDuration);
+		} else if (this.currentPollingJob != null && (this.currentPollingJob.shouldCancel() || this.currentPollingJob.isCancelled())) {
+			log.info("The job timed out. Cancelling it.");
+			this.currentPollingJob.cancel();
+			this.currentPollingJob = null;
+			setPollingJobToNotRunning();
 		} else {
 			log.debug("Skipping job because another polling job is still running.");
 		}
+	}
+
+	private void setPollingJobToNotRunning() {
+		this.pollingInProgress.set(false);
 	}
 
 	/**
 	 * Iterates through all project versions checking for updates. Alongside handles all mesh components using these
 	 * versions images alongside. Triggers re-deployments if necessary.
 	 */
-	private void checkDockerForNewImages(List<ProjectMesh> allMeshes, List<Project> allProjects) {
-		Flux.fromIterable(allProjects)
+	private Mono<Void> checkDockerForNewImages(List<ProjectMesh> allMeshes, List<Project> allProjects) {
+		return Flux.fromIterable(allProjects)
 				.flatMap(this::updateProjectVersions)
 				.onErrorContinue((ex, o) -> log.error("Encountered an exception while checking new project versions of {}", o, ex))
 				.flatMap(this::fetchMissingDatesForImages)
@@ -93,9 +116,9 @@ class DockerRegistryPolling {
 				//finally we have to save the project meshes, that's some awkward mapping here
 				.thenMany(Flux.fromIterable(allMeshes))
 				.flatMap(this.projectMeshRepository::add)
-				.doOnTerminate(() -> this.pollingInProgress.set(false))
+				.doOnTerminate(this::setPollingJobToNotRunning)
 				.subscriberContext(Context.of(EventTrigger.class, this.asTrigger))
-				.subscribe();
+				.then();
 	}
 
 	private Mono<Project> fetchMissingDatesForImages(Project project) {
