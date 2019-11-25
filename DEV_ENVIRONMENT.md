@@ -18,13 +18,17 @@ The Java dependencies are managed by Maven and should be downloaded automaticall
 running on localhost with MongoDB's default port 27017. You can easily start that MongoDB by running `docker-compose up -d` in the
 project's root directory. If you want to use another MongoDB make sure to change the settings in the `/src/main/resources/application.yaml`.
 
-6. Start the backend. This step may vary, depending on your IDE/editor. The main class you want to run is `io.oneko.ONekoApplication`.
+6. O-Neko uses the [fabric8.io Kubernetes client library](https://github.com/fabric8io/kubernetes-client) to connect to Kubernetes. 
+O-Neko will connect to the cluster configured in the `application.yaml` file or, if present, use your `~/.kube/config` file to
+choose a cluster to connect to. Make sure one of the two options is available.
+
+7. Start the backend. This step may vary, depending on your IDE/editor. The main class you want to run is `io.oneko.ONekoApplication`.
 We use Spring profiles to separate useful default settings from settings we use during development. This is why you need to
 run the application with the following VM option: `-Dspring.profiles.active=development`.
 
-7. Start the frontend. This is done by running `npm start` in the `/frontend` directory. This should compile the frontend
+8. Start the frontend. This is done by running `npm start` in the `/frontend` directory. This should compile the frontend
 and open your default browser. O-Neko will be available on port 4200. This will also start a proxy server that proxies
 all requests to `/api` and `/ws` to the O-Neko backend, which runs on port 8080.
 
-8. You can now log in to O-Neko with the credentials `admin`/`admin` (if you started with a clean database) and are 
+9. You can now log in to O-Neko with the credentials `admin`/`admin` (if you started with a clean database) and are 
 ready to start developing.
