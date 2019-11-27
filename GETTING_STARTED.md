@@ -72,10 +72,10 @@ host string with a string that contains the variable `${SAFE_VERSION_NAME}`, lik
 There are some other default template variables you can use:
 
 * `PROJECT_NAME` (the name you chose for your project)
-* `ONEKO_PROJECT` (the project's UUID)
+* `ONEKO_PROJECT` (the project's ID)
 * `VERSION_NAME` (the name of a version; the docker image tag)
 * `SAFE_VERSION_NAME` (the URL compatible version name)
-* `ONEKO_VERSION` (the version's UUID)
+* `ONEKO_VERSION` (the version's ID)
 
 You can also create your own template variables and override them in specific versions as you like.
 
