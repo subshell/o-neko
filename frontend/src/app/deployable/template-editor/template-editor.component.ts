@@ -78,6 +78,7 @@ export class TemplateEditorComponent implements OnInit {
   public templatesValid: EventEmitter<boolean> = new EventEmitter<boolean>();
   public configurationTemplatesModels: Array<ConfigurationTemplateEditorModel> = [];
   public selectedTab = new FormControl(0);
+  public aceOptions = {useSoftTabs: true, navigateWithinSoftTabs: true, tabSize: 2};
   private _fileReaderService: FileReaderService;
   private _skipTextOverwrite: Date = null;
 
