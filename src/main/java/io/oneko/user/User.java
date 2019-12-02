@@ -11,7 +11,6 @@ import io.oneko.security.UserRole;
 import io.oneko.user.auth.PasswordBasedUserAuthentication;
 import io.oneko.user.auth.UserAuthentication;
 import lombok.Builder;
-import lombok.Getter;
 
 /**
  * User domain object. Contains all logic for doing whatever users need to do.
@@ -25,8 +24,7 @@ public class User extends ModificationAwareIdentifiable implements Serializable 
 	private final ModificationAwareProperty<String> email = new ModificationAwareProperty<>(this, "email");
 	private final ModificationAwareProperty<UserRole> role = new ModificationAwareProperty<>(this, "role");
 
-	@Getter
-	transient private UserAuthentication<?> authentication;
+	transient private ModificationAwareProperty<UserAuthentication<?>> authentication = new ModificationAwareProperty<>(this, "authentication");
 
 	/**
 	 * Creates a completely new user.
@@ -36,14 +34,14 @@ public class User extends ModificationAwareIdentifiable implements Serializable 
 	}
 
 	@Builder
-	public User(UUID uuid, String userName, String firstName, String lastName, String email, UserRole role, UserAuthentication authentication) {
+	public User(UUID uuid, String userName, String firstName, String lastName, String email, UserRole role, UserAuthentication<?> authentication) {
 		this.uuid.init(uuid);
 		this.userName.init(userName);
 		this.firstName.init(firstName);
 		this.lastName.init(lastName);
 		this.email.init(email);
 		this.role.init(role);
-		this.authentication = authentication;
+		this.authentication.init(authentication);
 	}
 
 
@@ -62,7 +60,7 @@ public class User extends ModificationAwareIdentifiable implements Serializable 
 	 * @param password The plain password to set as authentication for this user.
 	 */
 	public void setPasswordAuthentication(String password, PasswordEncoder passwordEncoder) {
-		this.authentication = new PasswordBasedUserAuthentication(this.uuid.get(), () -> this, passwordEncoder.encode(password), passwordEncoder);
+		this.authentication.set(new PasswordBasedUserAuthentication(this.uuid.get(), () -> this, passwordEncoder.encode(password), passwordEncoder));
 	}
 
 	//add methods for creating LDAP authentications or similar foo here:
@@ -71,10 +69,14 @@ public class User extends ModificationAwareIdentifiable implements Serializable 
 	 * Checks, whether this user can be authorized by the given identifier against any of it's authentications.
 	 */
 	public <T> boolean authenticates(T identifier) {
-		if (this.authentication.getIdentifierType().isInstance(identifier)) {
+		if (this.authentication.get().getIdentifierType().isInstance(identifier)) {
 			return ((UserAuthentication<T>) this.authentication).authenticates(identifier);
 		}
 		return false;
+	}
+
+	public UserAuthentication<?> getAuthentication() {
+		return authentication.get();
 	}
 
 	public String getUserName() {
@@ -116,5 +118,4 @@ public class User extends ModificationAwareIdentifiable implements Serializable 
 	public void setRole(UserRole role) {
 		this.role.set(role);
 	}
-
 }
