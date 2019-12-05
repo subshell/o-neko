@@ -41,5 +41,5 @@ containing your changes.
 
 We want to ensure a consistent style throughout the source code. While we have no strict code style yet, we roughly
 orient our style on the standard style in Java and JavaScript/TypeScript. Please make sure that the style of your code
-is similar to the rest of the backend and/or frontend code. Node that the backend and the frontend may use a different 
+is similar to the rest of the backend and/or frontend code. Note, that the backend and the frontend may use a different 
 code style different and formatting rules. 
