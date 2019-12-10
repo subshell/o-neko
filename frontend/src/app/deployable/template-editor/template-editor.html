@@ -33,7 +33,7 @@
       </div>
 
       <div class="ace-wrapper">
-        <div ace-editor [text]="template.effectiveTemplate.content" [durationBeforeCallback]="25" (textChanged)="onTextOverwrite($event, template)" mode="yaml" theme="chrome" [readOnly]="readonly"></div>
+        <div ace-editor [options]="aceOptions" [text]="template.effectiveTemplate.content" [durationBeforeCallback]="25" (textChanged)="onTextOverwrite($event, template)" mode="yaml" theme="chrome" [readOnly]="readonly"></div>
       </div>
 
       <div class="box" *ngIf="!template.isOriginal()">
