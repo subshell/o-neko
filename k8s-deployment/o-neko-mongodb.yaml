@@ -1,3 +1,4 @@
+# You should not use this in production. Read how to set up a MongoDB replica set in Kubernetes.
 apiVersion: v1
 kind: Service
 metadata:
