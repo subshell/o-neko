@@ -68,9 +68,9 @@ test setups that get automatically updated when the software changes. Example us
 consists of multiple programs (e.g. server + tools, microservices, etc.). You could e.g. set up a project mesh for every
 major version of your software that is still actively maintained to get a "full" test setup.
 
-## Roles
+## Users and roles
 
-O-Neko has a very basic permission scheme consisting of three roles:
+O-Neko has user management with a very basic permission scheme consisting of three roles:
 
 | Role | Description |
 | --- | --- |
