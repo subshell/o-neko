@@ -74,7 +74,6 @@ O-Neko has a very basic permission scheme consisting of three roles:
 
 | Role | Description |
 | --- | --- |
-| VIEWER | Can view projects (and versions) and deploy them or stop deployments. Can not modify them or change the
-           configurations except of select variables that are displayed on the O-Neko dashboard. |
+| VIEWER | Can view projects (and versions) and deploy them or stop deployments. Can not modify them or change the configurations except of select variables that are displayed on the O-Neko dashboard. |
 | DOER | Can also create and modify projects. |
 | ADMIN | Can also manage users, docker registries and namespaces. |
