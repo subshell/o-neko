@@ -36,21 +36,34 @@ Generally, nearly every project able to run in Kubernetes can be deployed with O
 In O-Neko as well as in this documentation we often use terms that may be misunderstood for something else. We want
 to clarify what specific words mean in the context of O-Neko.
 
-* **Project:** A project is the entry point for deploying an application with O-Neko. Projects have a direct
+### Project
+A project is the entry point for deploying an application with O-Neko. Projects have a direct
 association with a Docker image. Theoretically you can also have multiple projects referencing the same Docker image.
 A project can have multiple versions. Projects can be configured using configuration templates.
-* **Project Version** or **Version**: A project version is associated with a tag of the project's docker image.
+
+### Project Version
+
+A project version is associated with a tag of the project's docker image.
 A project version inherits the project's configuration templates but can also override them or add entirely new configuration
 templates. A project version can be deployed and automatically updated if the docker tag gets pushed again with different
 contents (based on the checksum).
-* **Configuration template:** A configuration template is a native kubernetes .yaml file (e.g. a service definition).
+
+### Configuration template
+
+A configuration template is a native kubernetes .yaml file (e.g. a service definition).
 Variable placeholders like `${MY_VARIABLE_NAME}` can be used to insert O-Neko specific variables into these templates.
 The variables can be overridden in project versions to e.g. achieve slightly different configurations of versions without
 having to modify the templates per version.
-* **Select variables:** Select variables are template variables with pre-defined values. If (e.g.) your application
+
+### Select variables
+
+Select variables are template variables with pre-defined values. If (e.g.) your application
 needs to connect to an external service E, you could have a variable consisting of the hostnames of the production, test
 and development versions of E and you could quickly choose which instance of E to connect to from the O-Neko dashboard.
-* **Project mesh:** A project mesh is a conglomerate of specific project versions. They can be used to create "static"
+
+### Project mesh
+
+A project mesh is a conglomerate of specific project versions. They can be used to create "static"
 test setups that get automatically updated when the software changes. Example use case: Let's say you are developing a software that
 consists of multiple programs (e.g. server + tools, microservices, etc.). You could e.g. set up a project mesh for every
 major version of your software that is still actively maintained to get a "full" test setup.
@@ -59,7 +72,9 @@ major version of your software that is still actively maintained to get a "full"
 
 O-Neko has a very basic permission scheme consisting of three roles:
 
-* **VIEWER**: Can view projects (and versions) and deploy them or stop deployments. Can not modify them or change the
-configurations except of select variables that are displayed on the O-Neko dashboard.
-* **DOER**: Can also create and modify projects.
-* **ADMIN**: Can also manage users, docker registries and namespaces.
+| Role | Description |
+| --- | --- |
+| VIEWER | Can view projects (and versions) and deploy them or stop deployments. Can not modify them or change the
+           configurations except of select variables that are displayed on the O-Neko dashboard. |
+| DOER | Can also create and modify projects. |
+| ADMIN | Can also manage users, docker registries and namespaces. |
