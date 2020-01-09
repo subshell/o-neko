@@ -1,6 +1,6 @@
 # About O-Neko
 
-O-Neko is a Kubernetes-native application that allows to cross a bridge between developers and other stakeholders by
+O-Neko is a Kubernetes-native application that closes a gap between developers and other stakeholders by
 deploying development versions of your software into Kubernetes to allow everybody to try and test them.
 
 ## Features
@@ -17,7 +17,7 @@ effectively providing a way to deploy dynamic test server setups with ease
 
 ## Pre-requisites
 
-Generally, nearly every project able to run in Kubernetes can be deployed with O-Neko. To run a project in O-Neko:
+Generally, nearly every project able to run in Kubernetes can be deployed with O-Neko (unless it relies on CRDs because our Kubernetes-Java-Client probably can't handle them correctly). To run a project in O-Neko:
 
 * You need Docker containers of all project versions you want to deploy with O-Neko
 * You need to provide the Kubernetes .yaml files in a simple template format to configure a project
@@ -25,7 +25,7 @@ Generally, nearly every project able to run in Kubernetes can be deployed with O
 
 ## How does it work?
 
-* O-Neko is running inside your Kubernetes cluster
+* O-Neko is running inside your Kubernetes cluster (at least this is our recommendation - you could run it outside as well as long as it is able to access your cluster).
 * A project consists of a Docker image that resides in any Docker registry. O-Neko is polling all tags that are available for this image and lets you deploy them.
 * The configuration is done with native Kubernetes .yaml and template variables. O-Neko provides some variables (e.g. the docker image tag), but you can also define your own. The configuration and the variables can be overridden by specific versions.
 * When a version of a project is deployed, O-Neko creates a namespace in Kubernetes to deploy all resources to. If you stop a deployment, the corresponding namespace will be deleted.
@@ -46,7 +46,9 @@ A project can have multiple versions. Projects can be configured using configura
 A project version is associated with a tag of the project's docker image.
 A project version inherits the project's configuration templates but can also override them or add entirely new configuration
 templates. A project version can be deployed and automatically updated if the docker tag gets pushed again with different
-contents (based on the checksum).
+contents (based on the checksum). This is especially useful for scenarios where the docker tags are not used to reference
+e.g. a fixed commit but rather are a pointer to a current working copy (e.g. "the most recent version of the branch 
+feature/my-new-feature").
 
 ### Configuration template
 
@@ -67,6 +69,24 @@ A project mesh is a conglomerate of specific project versions. They can be used 
 test setups that get automatically updated when the software changes. Example use case: Let's say you are developing a software that
 consists of multiple programs (e.g. server + tools, microservices, etc.). You could e.g. set up a project mesh for every
 major version of your software that is still actively maintained to get a "full" test setup.
+
+### Docker registries
+
+Docker registries in O-Neko are references to the registries your projects'
+images are pulled from. To briefly learn how to set up a reference to a docker registry please see the 
+"Show O-Neko your Docker Registry" section in the [getting started](./GETTING_STARTED.md).
+
+### Namespaces
+
+Namespaces are references to namespaces in your Kubernetes cluster. By default all project versions will be deployed into
+their own namespaces with a generated name consisting of the project's name and the project version's name.
+If you want a project version to be deployed into a specific namespace you can create a namespace reference via the
+"Namespaces" page and select this namespace in the settings of the project version. 
+
+### Activity Log
+
+While not feature complete the activity log shows a basic history of some actions happening in your O-Neko installation (e.g. a project
+has been edited or new docker tags/project versions have been found).
 
 ## Users and roles
 
