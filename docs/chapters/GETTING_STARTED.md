@@ -7,7 +7,7 @@ This document will guide you through the first steps after you've successfully i
 The first step is fairly easy. You need to open O-Neko in your browser. Open the URL you chose in the
 O-Neko ingress you deployed in your cluster during installation.
 
-After the login page shows up you can initially login with admin/admin. Please change the admin password as soon as possible.
+After the login page shows up you can initially login with `admin/admin`. Please change the admin password as soon as possible.
 
 ## 2. Show O-Neko your Docker Registry
 
