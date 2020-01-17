@@ -1,0 +1,16 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: {{.Values.ingressClass | quote}}
+  name: oneko-ingress
+spec:
+  rules:
+    - host: {{.Values.host | quote}}
+      http:
+        paths:
+          - backend:
+              serviceName: o-neko
+              servicePort: 8080
+            path: /
+

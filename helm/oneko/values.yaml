@@ -1,0 +1,4 @@
+kubernetesPort: 6443
+ingressClass: traefik
+host: oneko.subshell.cloud
+credentialsCoderKey: ur2QsZu8WUamepbo1EOlqXaS5ZiNvdCueEy32eJS

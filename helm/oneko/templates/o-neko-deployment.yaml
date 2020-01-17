@@ -22,8 +22,10 @@ spec:
         o-neko: o-neko
     spec:
       containers:
-        - name: o-neko
-          image: subshellgmbh/o-neko:latest
+        - env:
+          name: o-neko
+          image: subshellgmbh/o-neko:latest-dev
+          imagePullPolicy: Always
           ports:
           - containerPort: 8080
           volumeMounts:
@@ -42,7 +44,9 @@ spec:
               port: 8080
             initialDelaySeconds: 5
             periodSeconds: 5
-            timeoutSeconds: 5
+            timeoutSeconds: 30
+      imagePullSecrets:
+        - name: dockersubshell
       restartPolicy: Always
       volumes:
         - name: config
