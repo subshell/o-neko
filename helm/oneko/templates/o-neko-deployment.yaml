@@ -45,8 +45,6 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 5
             timeoutSeconds: 30
-      imagePullSecrets:
-        - name: dockersubshell
       restartPolicy: Always
       volumes:
         - name: config

@@ -7,18 +7,18 @@ data:
     spring:
       data:
         mongodb:
-          uri: mongodb://o-neko-mongodb:27017/o-neko?
+          uri: mongodb://o-neko-mongodb:27017/o-neko
     logging:
       path: logs
     o-neko:
       security:
-        credentialsCoderKey: {{- .Values.credentialsCoderKey }}
+        credentialsCoderKey: {{ .Values.credentialsCoderKey }}
     kubernetes:
       auth:
-        {{- if .Values.kubernetesAuthToken }}
+    {{- if .Values.kubernetesAuthToken }}
         token: {{.Values.kubernetesAuthToken}}
-        {{- end }}
+    {{- end }}
       server:
-        {{- if .Values.kubernetesUrl }}
+    {{- if .Values.kubernetesUrl }}
         url: {{.Values.kubernetesUrl -}} : {{- .Values.kubernetesPort}}
-        {{- end }}
+    {{- end }}
