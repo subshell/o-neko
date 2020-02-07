@@ -13,7 +13,7 @@ public interface DockerRegistryRepository {
 
 	Flux<DockerRegistry> getAll();
 
-	Mono<DockerRegistry> add(DockerRegistry registry);
+	Mono<DockerRegistry> add(WritableDockerRegistry registry);
 
 	Mono<Void> remove(DockerRegistry registry);
 }

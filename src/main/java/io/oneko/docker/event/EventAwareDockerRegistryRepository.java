@@ -2,6 +2,7 @@ package io.oneko.docker.event;
 
 import io.oneko.docker.DockerRegistry;
 import io.oneko.docker.DockerRegistryRepository;
+import io.oneko.docker.WritableDockerRegistry;
 import io.oneko.event.EventDispatcher;
 import reactor.core.publisher.Mono;
 
@@ -14,7 +15,7 @@ public abstract class EventAwareDockerRegistryRepository implements DockerRegist
 	}
 
 	@Override
-	public Mono<DockerRegistry> add(DockerRegistry dockerRegistry) {
+	public Mono<DockerRegistry> add(WritableDockerRegistry dockerRegistry) {
 		if (dockerRegistry.isDirty()) {
 			Mono<DockerRegistry> dockerRegistryMono = addInternally(dockerRegistry);
 			return this.eventDispatcher.createAndDispatchEvent(dockerRegistryMono, (d, t) -> new DockerRegistrySavedEvent(dockerRegistry, t));
@@ -23,7 +24,7 @@ public abstract class EventAwareDockerRegistryRepository implements DockerRegist
 		}
 	}
 
-	protected abstract Mono<DockerRegistry> addInternally(DockerRegistry dockerRegistry);
+	protected abstract Mono<DockerRegistry> addInternally(WritableDockerRegistry dockerRegistry);
 
 	@Override
 	public Mono<Void> remove(DockerRegistry dockerRegistry) {

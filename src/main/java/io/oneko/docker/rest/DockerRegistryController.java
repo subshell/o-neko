@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import io.oneko.docker.WritableDockerRegistry;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -53,7 +54,7 @@ public class DockerRegistryController {
 	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping
 	Mono<DockerRegistryDTO> createRegistry(@RequestBody DockerRegistryDTO dto) {
-		DockerRegistry registry = new DockerRegistry();
+		WritableDockerRegistry registry = new WritableDockerRegistry();
 		registry = this.dtoMapper.updateRegistryFromDTO(registry, dto);
 		return this.dockerRegistryRepository.add(registry)
 				.map(this.dtoMapper::registryToDTO);
@@ -72,6 +73,7 @@ public class DockerRegistryController {
 	Mono<DockerRegistryDTO> updateRegistry(@PathVariable UUID id, @RequestBody DockerRegistryDTO dto) {
 		return this.dockerRegistryRepository.getById(id)
 				.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "DockerRegistry with id " + id + " not found")))
+				.map(DockerRegistry::writable)
 				.map(p -> this.dtoMapper.updateRegistryFromDTO(p, dto))
 				.flatMap(this.dockerRegistryRepository::add)
 				.map(this.dtoMapper::registryToDTO);
@@ -90,6 +92,7 @@ public class DockerRegistryController {
 	Mono<DockerRegistryDTO> changeRegistryPassword(@PathVariable UUID id, @RequestBody ChangeDockerRegistryPasswordDTO dto) {
 		return this.dockerRegistryRepository.getById(id)
 				.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "DockerRegistry with id " + id + " not found")))
+				.map(DockerRegistry::writable)
 				.map(dockerRegistry -> {
 					dockerRegistry.setPassword(dto.getPassword());
 					return dockerRegistry;
