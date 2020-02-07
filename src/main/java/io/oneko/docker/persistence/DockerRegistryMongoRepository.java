@@ -2,8 +2,11 @@ package io.oneko.docker.persistence;
 
 import java.util.UUID;
 
+import io.oneko.Profiles;
+import io.oneko.docker.WritableDockerRegistry;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import io.oneko.docker.DockerRegistry;
@@ -13,7 +16,7 @@ import io.oneko.security.AES;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@Service
+@Profile(Profiles.MONGO)
 class DockerRegistryMongoRepository extends EventAwareDockerRegistryRepository {
 	private final DockerRegistryMongoSpringRepository innerRepo;
 	private final AES credentialsCoder;
@@ -41,7 +44,7 @@ class DockerRegistryMongoRepository extends EventAwareDockerRegistryRepository {
 	}
 
 	@Override
-	protected Mono<DockerRegistry> addInternally(DockerRegistry registry) {
+	protected Mono<DockerRegistry> addInternally(WritableDockerRegistry registry) {
 		DockerRegistryMongo registryMongo = this.toRegistryMongo(registry);
 		return this.innerRepo.save(registryMongo).map(this::fromRegistryMongo);
 	}
@@ -55,7 +58,7 @@ class DockerRegistryMongoRepository extends EventAwareDockerRegistryRepository {
      * Mapping stuff
      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-	private DockerRegistryMongo toRegistryMongo(DockerRegistry registry) {
+	private DockerRegistryMongo toRegistryMongo(WritableDockerRegistry registry) {
 		DockerRegistryMongo registryMongo = new DockerRegistryMongo();
 		registryMongo.setRegistryUuid(registry.getUuid());
 		registryMongo.setName(registry.getName());

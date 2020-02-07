@@ -2,24 +2,27 @@ package io.oneko.docker;
 
 import java.util.UUID;
 
-import io.oneko.domain.ModificationAwareIdentifiable;
+import io.oneko.domain.Identifiable;
+import io.oneko.domain.ModificationAwareContainer;
 import io.oneko.domain.ModificationAwareProperty;
 import lombok.Builder;
 
-public class DockerRegistry extends ModificationAwareIdentifiable {
+public class DockerRegistry extends Identifiable {
 
-	private final ModificationAwareProperty<UUID> uuid = new ModificationAwareProperty<>(this, "uuid");
-	private final ModificationAwareProperty<String> name = new ModificationAwareProperty<>(this, "name");
-	private final ModificationAwareProperty<String> registryUrl = new ModificationAwareProperty<>(this, "registryUrl");
-	private final ModificationAwareProperty<String> userName = new ModificationAwareProperty<>(this, "userName");
-	private final ModificationAwareProperty<String> password = new ModificationAwareProperty<>(this, "password");
-	private final ModificationAwareProperty<Boolean> trustInsecureCertificate = new ModificationAwareProperty<>(this, "trustInsecureCertificate");
+	protected final ModificationAwareContainer modifications = new ModificationAwareContainer();
+	protected final ModificationAwareProperty<UUID> uuid = new ModificationAwareProperty<>(modifications, "uuid");
+	protected final ModificationAwareProperty<String> name = new ModificationAwareProperty<>(modifications, "name");
+	protected final ModificationAwareProperty<String> registryUrl = new ModificationAwareProperty<>(modifications, "registryUrl");
+	protected final ModificationAwareProperty<String> userName = new ModificationAwareProperty<>(modifications, "userName");
+	protected final ModificationAwareProperty<String> password = new ModificationAwareProperty<>(modifications, "password");
+	protected final ModificationAwareProperty<Boolean> trustInsecureCertificate = new ModificationAwareProperty<>(modifications, "trustInsecureCertificate");
 
 	/**
 	 * Creates a completely new DockerRegistry
 	 */
 	public DockerRegistry() {
 		this.uuid.set(UUID.randomUUID());
+		this.trustInsecureCertificate.set(false);//init primitive values
 	}
 
 	@Builder
@@ -45,39 +48,24 @@ public class DockerRegistry extends ModificationAwareIdentifiable {
 		return name.get();
 	}
 
-	public void setName(String name) {
-		this.name.set(name);
-	}
-
 	public String getRegistryUrl() {
 		return registryUrl.get();
-	}
-
-	public void setRegistryUrl(String registryUrl) {
-		this.registryUrl.set(registryUrl);
 	}
 
 	public String getUserName() {
 		return this.userName.get();
 	}
 
-	public void setUserName(String userName) {
-		this.userName.set(userName);
-	}
-
 	public String getPassword() {
 		return password.get();
-	}
-
-	public void setPassword(String password) {
-		this.password.set(password);
 	}
 
 	public boolean isTrustInsecureCertificate() {
 		return trustInsecureCertificate.get();
 	}
 
-	public void setTrustInsecureCertificate(boolean trustInsecureCertificate) {
-		this.trustInsecureCertificate.set(trustInsecureCertificate);
+	public WritableDockerRegistry writable() {
+		return new WritableDockerRegistry(getUuid(), getName(), getRegistryUrl(), getUserName(), getPassword(), isTrustInsecureCertificate());
 	}
+
 }
