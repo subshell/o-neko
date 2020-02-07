@@ -38,6 +38,13 @@ effectively providing a way to deploy dynamic test server setups with ease
 * When a version of a project is deployed, O-Neko creates a namespace in Kubernetes to deploy all resources to. If you stop a deployment, the corresponding namespace will be deleted.
 * The status of all running deployments is monitored by O-Neko and can be seen in the web frontend
 
+## Installation
+The easiest way to install o-neko is to use our helm chart in the folder helm/oneko.
+
+Please make sure, that you specify the url to the k8s cluster (kubernetesUrl) and an authentication token of a k8s user with the cluster-admin role (kubernetesAuthToken).
+In a cloud vendor environment theses values are often provided by environment variables and must not be configured manually.
+The ingress class (ingressClass) and its host (oneko.subshell.cloud) must be configured as well.
+
 ## Contributing
 
 If you want to report an issue or work on O-Neko please read our [contributing page](./CONTRIBUTING.md).
