@@ -6,6 +6,7 @@ import static org.junit.Assert.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.oneko.docker.WritableDockerRegistry;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -33,7 +34,7 @@ public class EventAwareProjectRepositoryTest {
 
 	@Test
 	public void testSaveEvent() {
-		DockerRegistry dr = new DockerRegistry();
+		DockerRegistry dr = new WritableDockerRegistry();
 		Project p = new Project(dr);
 
 		this.uut.add(p).subscribe();
@@ -47,7 +48,7 @@ public class EventAwareProjectRepositoryTest {
 	@Test
 	public void testSaveEventWithTrigger() {
 		EventTrigger customTrigger = new SampleTrigger();
-		DockerRegistry dr = new DockerRegistry();
+		DockerRegistry dr = new WritableDockerRegistry();
 		Project p = new Project(dr);
 
 		this.uut.add(p).subscriberContext(Context.of(EventTrigger.class, customTrigger)).subscribe();

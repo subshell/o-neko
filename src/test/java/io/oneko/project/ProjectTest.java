@@ -6,6 +6,7 @@ import static org.junit.Assert.*;
 import java.util.Arrays;
 import java.util.Collections;
 
+import io.oneko.docker.WritableDockerRegistry;
 import org.junit.Test;
 
 import io.oneko.docker.DockerRegistry;
@@ -15,7 +16,7 @@ public class ProjectTest {
 
 	@Test
 	public void testSetDefaultConfigurationTemplates() {
-		DockerRegistry dockerRegistry = new DockerRegistry();
+		DockerRegistry dockerRegistry = new WritableDockerRegistry();
 		Project uut = new Project(dockerRegistry);
 
 		assertThat(uut.getDefaultConfigurationTemplates(), is(empty()));

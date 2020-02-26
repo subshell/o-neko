@@ -2,6 +2,7 @@ package io.oneko.configuration;
 
 import javax.annotation.PostConstruct;
 
+import io.oneko.user.WritableUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -51,12 +52,13 @@ public class InitialSetup extends EventTrigger {
 
 	private Mono<User> ensureAdminUserHasAdminRoleIfExists() {
 		return this.userRepository.getByUserName("admin")
+				.map(User::writable)
 				.doOnNext(user -> user.setRole(UserRole.ADMIN))
 				.flatMap(userRepository::add);
 	}
 
 	private Mono<User> createAdmin() {
-		User newAdmin = new User();
+		WritableUser newAdmin = new WritableUser();
 		newAdmin.setRole(UserRole.ADMIN);
 		newAdmin.setUserName("admin");
 		newAdmin.setPasswordAuthentication("admin", this.passwordEncoder);

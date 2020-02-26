@@ -20,7 +20,7 @@ public class DockerRegistry extends Identifiable {
 	/**
 	 * Creates a completely new DockerRegistry
 	 */
-	public DockerRegistry() {
+	protected DockerRegistry() {
 		this.uuid.set(UUID.randomUUID());
 		this.trustInsecureCertificate.set(false);//init primitive values
 	}

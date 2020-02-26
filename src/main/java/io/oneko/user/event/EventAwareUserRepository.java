@@ -3,6 +3,7 @@ package io.oneko.user.event;
 import io.oneko.event.EventDispatcher;
 import io.oneko.user.User;
 import io.oneko.user.UserRepository;
+import io.oneko.user.WritableUser;
 import reactor.core.publisher.Mono;
 
 public abstract class EventAwareUserRepository implements UserRepository {
@@ -14,7 +15,7 @@ public abstract class EventAwareUserRepository implements UserRepository {
 	}
 
 	@Override
-	public Mono<User> add(User user) {
+	public Mono<User> add(WritableUser user) {
 		if (user.isDirty()) {
 			Mono<User> userMono = addInternally(user);
 			return this.eventDispatcher.createAndDispatchEvent(userMono, (u, t) -> new UserSavedEvent(user, t));
@@ -23,7 +24,7 @@ public abstract class EventAwareUserRepository implements UserRepository {
 		}
 	}
 
-	protected abstract Mono<User> addInternally(User user);
+	protected abstract Mono<User> addInternally(WritableUser user);
 
 	@Override
 	public Mono<Void> removeUser(User user) {

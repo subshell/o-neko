@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import io.oneko.docker.WritableDockerRegistry;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
@@ -23,7 +24,7 @@ public class ProjectVersionTest {
 	@Test
 	public void testCalculateConfiguration() {
 		//have a bit of preparation here
-		DockerRegistry reg = new DockerRegistry();
+		DockerRegistry reg = new WritableDockerRegistry();
 		Project project = new Project(reg);
 
 		List<ConfigurationTemplate> templates = Collections.singletonList(
@@ -64,7 +65,7 @@ public class ProjectVersionTest {
 
 	@Test
 	public void testOverwriteConfiguration() {        //have a bit of preparation here
-		DockerRegistry reg = new DockerRegistry();
+		DockerRegistry reg = new WritableDockerRegistry();
 		Project project = new Project(reg);
 
 		List<ConfigurationTemplate> templates = Arrays.asList(
@@ -110,7 +111,7 @@ public class ProjectVersionTest {
 
 	@Test
 	public void testSetConfigurationTemplates() {
-		DockerRegistry dockerRegistry = new DockerRegistry();
+		DockerRegistry dockerRegistry = new WritableDockerRegistry();
 		Project project = new Project(dockerRegistry);
 		ProjectVersion uut = project.createVersion("sample");
 
@@ -142,7 +143,7 @@ public class ProjectVersionTest {
 	@Test
 	public void testDeployableConfigurationTemplates() {
 		//have a bit of preparation here
-		DockerRegistry reg = new DockerRegistry();
+		DockerRegistry reg = new WritableDockerRegistry();
 		Project project = new Project(reg);
 		project.setName("project1");
 

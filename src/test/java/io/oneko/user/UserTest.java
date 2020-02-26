@@ -13,7 +13,7 @@ import io.oneko.security.UserRole;
 public class UserTest {
 
 	final UUID uuid = UUID.randomUUID();
-	User uut;
+	WritableUser uut;
 
 	@Before
 	public void setUp() {
@@ -21,7 +21,8 @@ public class UserTest {
 				.email("foo@bar.com")
 				.role(UserRole.ADMIN)
 				.uuid(uuid)
-				.build();
+				.build()
+				.writable();
 	}
 
 	@Test
