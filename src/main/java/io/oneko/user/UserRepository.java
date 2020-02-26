@@ -21,7 +21,7 @@ public interface UserRepository {
 	/**
 	 * Persists the user.
 	 */
-	Mono<User> add(User user);
+	Mono<User> add(WritableUser user);
 
 	Mono<Void> removeUser(User user);
 }

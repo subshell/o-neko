@@ -1,5 +1,6 @@
 package io.oneko.user.rest;
 
+import io.oneko.user.WritableUser;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -49,7 +50,7 @@ public class UserController {
 	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping
 	Mono<UserDTO> createUser(@RequestBody UserDTO dto) {
-		User newUser = new User();
+		WritableUser newUser = new WritableUser();
 		newUser.setPasswordAuthentication(dto.getPassword(), this.passwordEncoder);
 		this.dtoMapper.updateUserFromDTO(newUser, dto);
 		return userRepository.add(newUser).map(this.dtoMapper::userToDTO);
@@ -65,6 +66,7 @@ public class UserController {
 	@PostMapping("/{userName}")
 	Mono<UserDTO> updateUser(Authentication authentication, @AuthenticationPrincipal Mono<ONekoUserDetails> userDetails, @PathVariable String userName, @RequestBody UserDTO dto) {
 		Mono<User> updateUserMono = this.userRepository.getByUserName(userName)
+				.map(User::writable)
 				.map(u -> this.dtoMapper.updateUserFromDTO(u, dto))
 				.flatMap(this.userRepository::add);
 
@@ -84,6 +86,7 @@ public class UserController {
 	@PostMapping("/{userName}/password")
 	Mono<UserDTO> changePassword(@PathVariable String userName, @RequestBody ChangePasswordDTO dto) {
 		return this.userRepository.getByUserName(userName)
+				.map(User::writable)
 				.doOnNext(u -> u.setPasswordAuthentication(dto.getPassword(), this.passwordEncoder))
 				.flatMap(this.userRepository::add)
 				.map(this.dtoMapper::userToDTO);

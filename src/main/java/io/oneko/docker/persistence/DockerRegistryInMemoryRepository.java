@@ -44,10 +44,9 @@ public class DockerRegistryInMemoryRepository extends EventAwareDockerRegistryRe
 
 	@Override
 	public Mono<DockerRegistry> getByName(String registryName) {
-		final Optional<DockerRegistry> match = innerRepository.values().stream()
+		return Mono.justOrEmpty(innerRepository.values().stream()
 				.filter(registry -> registry.getName().equals(registryName))
-				.findFirst();
-		return Mono.justOrEmpty(match);
+				.findFirst());
 	}
 
 	@Override

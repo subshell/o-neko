@@ -6,13 +6,14 @@ import io.oneko.domain.DescribingEntityChange;
 import io.oneko.event.EntityChangedEvent;
 import io.oneko.event.EventTrigger;
 import io.oneko.user.User;
+import io.oneko.user.WritableUser;
 
 public class UserSavedEvent extends EntityChangedEvent {
 
 	/**
 	 * Use this constructor with the user object prior to actually saving it.
 	 */
-	public UserSavedEvent(User user, EventTrigger trigger) {
+	public UserSavedEvent(WritableUser user, EventTrigger trigger) {
 		this(user, user.getDirtyProperties(), trigger);
 	}
 

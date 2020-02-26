@@ -7,7 +7,6 @@ import io.oneko.docker.WritableDockerRegistry;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Service;
 
 import io.oneko.docker.DockerRegistry;
 import io.oneko.docker.event.EventAwareDockerRegistryRepository;

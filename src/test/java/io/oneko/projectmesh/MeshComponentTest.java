@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import io.oneko.docker.WritableDockerRegistry;
 import org.junit.Test;
 
 import io.oneko.docker.DockerRegistry;
@@ -23,7 +24,7 @@ public class MeshComponentTest {
 
 	@Test
 	public void testChangeVersion() {
-		DockerRegistry reg = new DockerRegistry();
+		DockerRegistry reg = new WritableDockerRegistry();
 		Project p = new Project(reg);
 		final ProjectVersion v1 = p.createVersion("v1");
 		final ProjectVersion v2 = p.createVersion("v2");
@@ -49,7 +50,7 @@ public class MeshComponentTest {
 
 	@Test
 	public void testTemplateComposition() {
-		DockerRegistry r = new DockerRegistry();
+		DockerRegistry r = new WritableDockerRegistry();
 		Project p = new Project(r);
 		p.setDefaultConfigurationTemplates(Arrays.asList(
 				new ConfigurationTemplate(UUID.randomUUID(), "content1 ${a}", "name1", ""),
