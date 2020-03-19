@@ -10,18 +10,18 @@ import reactor.core.publisher.Mono;
  */
 public interface UserRepository {
 
-	Mono<User> getById(UUID userId);
+	Mono<ReadableUser> getById(UUID userId);
 
-	Mono<User> getByUserName(String userName);
+	Mono<ReadableUser> getByUserName(String userName);
 
-	Mono<User> getByUserEmail(String userEmail);
+	Mono<ReadableUser> getByUserEmail(String userEmail);
 
-	Flux<User> getAll();
+	Flux<ReadableUser> getAll();
 
 	/**
 	 * Persists the user.
 	 */
-	Mono<User> add(WritableUser user);
+	Mono<ReadableUser> add(WritableUser user);
 
 	Mono<Void> removeUser(User user);
 }

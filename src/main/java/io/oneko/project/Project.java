@@ -20,7 +20,7 @@ import io.oneko.docker.DockerRegistry;
 import io.oneko.domain.ModificationAwareIdentifiable;
 import io.oneko.domain.ModificationAwareListProperty;
 import io.oneko.domain.ModificationAwareProperty;
-import io.oneko.templates.ConfigurationTemplate;
+import io.oneko.templates.WritableConfigurationTemplate;
 import io.oneko.templates.ConfigurationTemplates;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +38,7 @@ public class Project extends ModificationAwareIdentifiable {
 	/**
 	 * Default configuration template to be used for versions. Should be a multi line yaml-string.
 	 */
-	private final ModificationAwareProperty<List<ConfigurationTemplate>> defaultConfigurationTemplates = new ModificationAwareListProperty<>(this, "defaultConfigurationTemplates");
+	private final ModificationAwareProperty<List<WritableConfigurationTemplate>> defaultConfigurationTemplates = new ModificationAwareListProperty<>(this, "defaultConfigurationTemplates");
 	private final ModificationAwareProperty<DockerRegistry> dockerRegistry = new ModificationAwareProperty<>(this, "dockerRegistry");
 	private final ModificationAwareProperty<LifetimeBehaviour> defaultLifetimeBehaviour = new ModificationAwareProperty<>(this, "defaultLifetimeBehaviour");
 	private final List<TemplateVariable> templateVariables;
@@ -63,7 +63,7 @@ public class Project extends ModificationAwareIdentifiable {
 	 */
 	@Builder
 	public Project(UUID uuid, String name, String imageName, DeploymentBehaviour newVersionsDeploymentBehaviour,
-				   List<ConfigurationTemplate> defaultConfigurationTemplates, List<TemplateVariable> templateVariables,
+				   List<WritableConfigurationTemplate> defaultConfigurationTemplates, List<TemplateVariable> templateVariables,
 				   DockerRegistry dockerRegistry, List<ProjectVersion> versions, LifetimeBehaviour defaultLifetimeBehaviour) {
 		this.uuid.init(uuid);
 		this.name.init(name);
@@ -118,11 +118,11 @@ public class Project extends ModificationAwareIdentifiable {
 		this.newVersionsDeploymentBehaviour.set(newVersionsDeploymentBehaviour);
 	}
 
-	public List<ConfigurationTemplate> getDefaultConfigurationTemplates() {
+	public List<WritableConfigurationTemplate> getDefaultConfigurationTemplates() {
 		return defaultConfigurationTemplates.get();
 	}
 
-	public void setDefaultConfigurationTemplates(List<ConfigurationTemplate> defaultConfigurationTemplates) {
+	public void setDefaultConfigurationTemplates(List<WritableConfigurationTemplate> defaultConfigurationTemplates) {
 		ConfigurationTemplates.ensureConsistentCollection(defaultConfigurationTemplates);
 		this.defaultConfigurationTemplates.set(defaultConfigurationTemplates);
 	}
@@ -233,7 +233,7 @@ public class Project extends ModificationAwareIdentifiable {
 		if (this.versions.stream().anyMatch(ProjectVersion::isDirty)) {
 			dirtyProperties = Sets.union(dirtyProperties, Collections.singleton("versions"));
 		}
-		if (this.getDefaultConfigurationTemplates().stream().anyMatch(ConfigurationTemplate::isDirty)) {
+		if (this.getDefaultConfigurationTemplates().stream().anyMatch(WritableConfigurationTemplate::isDirty)) {
 			dirtyProperties = Sets.union(dirtyProperties, Collections.singleton("defaultConfigurationTemplates"));
 		}
 		return dirtyProperties;

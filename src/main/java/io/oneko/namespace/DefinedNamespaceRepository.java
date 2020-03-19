@@ -10,13 +10,13 @@ import reactor.core.publisher.Mono;
  */
 public interface DefinedNamespaceRepository {
 
-	Mono<DefinedNamespace> getById(UUID id);
+	Mono<ReadableDefinedNamespace> getById(UUID id);
 
-	Mono<DefinedNamespace> getByName(String name);
+	Mono<ReadableDefinedNamespace> getByName(String name);
 
-	Flux<DefinedNamespace> getAll();
+	Flux<ReadableDefinedNamespace> getAll();
 
-	Mono<DefinedNamespace> add(DefinedNamespace namespace);
+	Mono<ReadableDefinedNamespace> add(WritableDefinedNamespace namespace);
 
 	Mono<Void> remove(DefinedNamespace namespace);
 }

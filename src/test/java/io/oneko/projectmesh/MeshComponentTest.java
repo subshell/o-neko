@@ -18,7 +18,7 @@ import io.oneko.docker.DockerRegistry;
 import io.oneko.project.Project;
 import io.oneko.project.ProjectVersion;
 import io.oneko.project.TemplateVariable;
-import io.oneko.templates.ConfigurationTemplate;
+import io.oneko.templates.WritableConfigurationTemplate;
 
 public class MeshComponentTest {
 
@@ -53,10 +53,10 @@ public class MeshComponentTest {
 		DockerRegistry r = new WritableDockerRegistry();
 		Project p = new Project(r);
 		p.setDefaultConfigurationTemplates(Arrays.asList(
-				new ConfigurationTemplate(UUID.randomUUID(), "content1 ${a}", "name1", ""),
-				new ConfigurationTemplate(UUID.randomUUID(), "content2 ${b}", "name2", ""),
-				new ConfigurationTemplate(UUID.randomUUID(), "content3 ${c}", "name3", ""),
-				new ConfigurationTemplate(UUID.randomUUID(), "content4 ${d}", "name4", "")));
+				new WritableConfigurationTemplate(UUID.randomUUID(), "content1 ${a}", "name1", ""),
+				new WritableConfigurationTemplate(UUID.randomUUID(), "content2 ${b}", "name2", ""),
+				new WritableConfigurationTemplate(UUID.randomUUID(), "content3 ${c}", "name3", ""),
+				new WritableConfigurationTemplate(UUID.randomUUID(), "content4 ${d}", "name4", "")));
 		List<TemplateVariable> defaultTemplateVariables = new ArrayList<>();
 		defaultTemplateVariables.add(new TemplateVariable("a", "a", Collections.singletonList("a1"), true, "a1", false));
 		defaultTemplateVariables.add(new TemplateVariable("b", "b", Collections.singletonList("b1"), true, "b1", false));
@@ -66,9 +66,9 @@ public class MeshComponentTest {
 
 		final ProjectVersion v = p.createVersion("v1");
 		v.setConfigurationTemplates(Arrays.asList(
-				new ConfigurationTemplate(UUID.randomUUID(), "content3 ${c} from version", "name3", ""),
-				new ConfigurationTemplate(UUID.randomUUID(), "content4 ${d} from version", "name4", ""),
-				new ConfigurationTemplate(UUID.randomUUID(), "content5 ${e} from version", "name5", "")));
+				new WritableConfigurationTemplate(UUID.randomUUID(), "content3 ${c} from version", "name3", ""),
+				new WritableConfigurationTemplate(UUID.randomUUID(), "content4 ${d} from version", "name4", ""),
+				new WritableConfigurationTemplate(UUID.randomUUID(), "content5 ${e} from version", "name5", "")));
 
 		Map<String, String> templateVariables = new HashMap<>();
 		templateVariables.put("b", "b2");
@@ -78,16 +78,16 @@ public class MeshComponentTest {
 		ProjectMesh mesh = new ProjectMesh();
 		MeshComponent c = new MeshComponent(mesh, p, v);
 		c.setConfigurationTemplates(Arrays.asList(
-				new ConfigurationTemplate(UUID.randomUUID(), "content2 ${b} from mesh", "name2", ""),
-				new ConfigurationTemplate(UUID.randomUUID(), "content4 ${d} from mesh", "name4", ""),
-				new ConfigurationTemplate(UUID.randomUUID(), "content6 ${f} from mesh", "name6", "")));
+				new WritableConfigurationTemplate(UUID.randomUUID(), "content2 ${b} from mesh", "name2", ""),
+				new WritableConfigurationTemplate(UUID.randomUUID(), "content4 ${d} from mesh", "name4", ""),
+				new WritableConfigurationTemplate(UUID.randomUUID(), "content6 ${f} from mesh", "name6", "")));
 
 		Map<String, String> meshTemplateVariables = new HashMap<>();
 		meshTemplateVariables.put("c", "c3");
 		meshTemplateVariables.put("f", "f3");
 		c.setTemplateVariables(meshTemplateVariables);
 
-		final List<ConfigurationTemplate> calculatedConfigurationTemplates = c.getCalculatedConfigurationTemplates();
+		final List<WritableConfigurationTemplate> calculatedConfigurationTemplates = c.getCalculatedConfigurationTemplates();
 		assertThat(calculatedConfigurationTemplates, hasSize(6));
 		assertThat(calculatedConfigurationTemplates.get(0).getName(), is("name1"));
 		assertThat(calculatedConfigurationTemplates.get(0).getContent(), is("content1 a1"));

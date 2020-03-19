@@ -6,13 +6,14 @@ import io.oneko.domain.DescribingEntityChange;
 import io.oneko.event.EntityChangedEvent;
 import io.oneko.event.EventTrigger;
 import io.oneko.namespace.DefinedNamespace;
+import io.oneko.namespace.WritableDefinedNamespace;
 
 public class DefinedNamespaceSavedEvent extends EntityChangedEvent {
 
 	/**
 	 * Use this constructor with the user object prior to actually saving it.
 	 */
-	public DefinedNamespaceSavedEvent(DefinedNamespace namespace, EventTrigger trigger) {
+	public DefinedNamespaceSavedEvent(WritableDefinedNamespace namespace, EventTrigger trigger) {
 		this(namespace, namespace.getDirtyProperties(), trigger);
 	}
 

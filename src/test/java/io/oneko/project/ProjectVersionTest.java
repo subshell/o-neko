@@ -17,7 +17,7 @@ import org.junit.Test;
 
 import io.oneko.deployable.DeployableConfigurationTemplates;
 import io.oneko.docker.DockerRegistry;
-import io.oneko.templates.ConfigurationTemplate;
+import io.oneko.templates.WritableConfigurationTemplate;
 
 public class ProjectVersionTest {
 
@@ -27,8 +27,8 @@ public class ProjectVersionTest {
 		DockerRegistry reg = new WritableDockerRegistry();
 		Project project = new Project(reg);
 
-		List<ConfigurationTemplate> templates = Collections.singletonList(
-				ConfigurationTemplate.builder()
+		List<WritableConfigurationTemplate> templates = Collections.singletonList(
+				WritableConfigurationTemplate.builder()
 						.content(
 								"This is a template with implicit variables (${PROJECT_NAME}, ${VERSION_NAME}), " +
 										"default variables (${TEST1}), overwritten default variables (${TEST2}) and child variables (${TEST3})"
@@ -68,13 +68,13 @@ public class ProjectVersionTest {
 		DockerRegistry reg = new WritableDockerRegistry();
 		Project project = new Project(reg);
 
-		List<ConfigurationTemplate> templates = Arrays.asList(
-				ConfigurationTemplate.builder()
+		List<WritableConfigurationTemplate> templates = Arrays.asList(
+				WritableConfigurationTemplate.builder()
 						.content("aaa")
 						.id(UUID.randomUUID())
 						.name("name1")
 						.build(),
-				ConfigurationTemplate.builder()
+				WritableConfigurationTemplate.builder()
 						.content("ccc")
 						.id(UUID.randomUUID())
 						.name("name2")
@@ -90,16 +90,16 @@ public class ProjectVersionTest {
 		ProjectVersion version = project.createVersion("master");
 
 		version.setConfigurationTemplates(Collections.singletonList(
-				ConfigurationTemplate.builder()
+				WritableConfigurationTemplate.builder()
 						.content("bbb")
 						.id(UUID.randomUUID())
 						.name("name1")
 						.build()
 		));
 
-		final List<ConfigurationTemplate> calculatedConfigurationTemplates = version.getCalculatedConfigurationTemplates();
+		final List<WritableConfigurationTemplate> calculatedConfigurationTemplates = version.getCalculatedConfigurationTemplates();
 		assertThat(calculatedConfigurationTemplates.size(), is(2));
-		for (ConfigurationTemplate template : version.getCalculatedConfigurationTemplates()) {
+		for (WritableConfigurationTemplate template : version.getCalculatedConfigurationTemplates()) {
 			assertThat(template.getName(), either(is("name1")).or(is("name2")));
 			if (StringUtils.equals(template.getName(), "name1")) {
 				assertThat(template.getContent(), is("bbb"));
@@ -117,7 +117,7 @@ public class ProjectVersionTest {
 
 		assertThat(uut.getConfigurationTemplates(), is(empty()));
 
-		ConfigurationTemplate t1 = new ConfigurationTemplate();
+		WritableConfigurationTemplate t1 = new WritableConfigurationTemplate();
 		t1.setName("test");
 		uut.setConfigurationTemplates(Collections.singletonList(t1));
 		assertThat(uut.getConfigurationTemplates(), hasItem(t1));
@@ -129,7 +129,7 @@ public class ProjectVersionTest {
 			assertThat(uut.getConfigurationTemplates(), hasItem(t1));
 		}
 
-		ConfigurationTemplate t2 = new ConfigurationTemplate();
+		WritableConfigurationTemplate t2 = new WritableConfigurationTemplate();
 		t2.setName("test");
 
 		try {
@@ -147,8 +147,8 @@ public class ProjectVersionTest {
 		Project project = new Project(reg);
 		project.setName("project1");
 
-		List<ConfigurationTemplate> templates = Collections.singletonList(
-				ConfigurationTemplate.builder()
+		List<WritableConfigurationTemplate> templates = Collections.singletonList(
+				WritableConfigurationTemplate.builder()
 						.content("this template does not contain any variables")
 						.id(UUID.randomUUID())
 						.name("no-variables.yaml")
@@ -163,8 +163,8 @@ public class ProjectVersionTest {
 		assertThat(deployableConfigurationTemplates.getTemplates(), hasSize(1));
 
 		// overwrite the template without variables
-		List<ConfigurationTemplate> versionTemplates = Collections.singletonList(
-				ConfigurationTemplate.builder()
+		List<WritableConfigurationTemplate> versionTemplates = Collections.singletonList(
+				WritableConfigurationTemplate.builder()
 						.content("this template does not contain any variables")
 						.id(UUID.randomUUID())
 						.name("other-template.yaml")

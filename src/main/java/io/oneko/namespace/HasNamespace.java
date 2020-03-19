@@ -20,10 +20,6 @@ public interface HasNamespace {
 
 	Namespace getNamespace();
 
-	void assignDefinedNamespace(DefinedNamespace namespace);
-
-	void resetToImplicitNamespace();
-
 	/**
 	 * Provides the ID of the defined namespace (if one is set.)
 	 *

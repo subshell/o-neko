@@ -23,7 +23,7 @@ import io.oneko.project.Project;
 import io.oneko.project.ProjectConstants;
 import io.oneko.project.ProjectVersion;
 import io.oneko.project.TemplateVariable;
-import io.oneko.templates.ConfigurationTemplate;
+import io.oneko.templates.WritableConfigurationTemplate;
 import io.oneko.templates.ConfigurationTemplates;
 import lombok.Builder;
 import lombok.Getter;
@@ -38,13 +38,13 @@ public class MeshComponent extends ModificationAwareIdentifiable {
 	private final ModificationAwareProperty<ProjectVersion> projectVersion = new ModificationAwareProperty<>(this, "projectVersion");
 	private final ModificationAwareProperty<String> dockerContentDigest = new ModificationAwareProperty<>(this, "dockerContentDigest");
 	private final ModificationAwareProperty<Map<String, String>> templateVariables = new ModificationAwareMapProperty<>(this, "templateVariables");
-	private final ModificationAwareProperty<List<ConfigurationTemplate>> configurationTemplates = new ModificationAwareListProperty<>(this, "configurationTemplates");
+	private final ModificationAwareProperty<List<WritableConfigurationTemplate>> configurationTemplates = new ModificationAwareListProperty<>(this, "configurationTemplates");
 	private final ModificationAwareProperty<Boolean> outdated = new ModificationAwareProperty<>(this, "outdated");
 	private final ModificationAwareProperty<List<String>> urls = new ModificationAwareListProperty<>(this, "urls");
 	private final ModificationAwareProperty<DesiredState> desiredState = new ModificationAwareProperty<>(this, "desiredState");
 
 	@Builder
-	public MeshComponent(ProjectMesh owner, UUID id, String name, Project project, ProjectVersion version, String dockerContentDigest, Map<String, String> templateVariables, List<ConfigurationTemplate> configurationTemplates, boolean outdated, List<String> urls, DesiredState desiredState) {
+	public MeshComponent(ProjectMesh owner, UUID id, String name, Project project, ProjectVersion version, String dockerContentDigest, Map<String, String> templateVariables, List<WritableConfigurationTemplate> configurationTemplates, boolean outdated, List<String> urls, DesiredState desiredState) {
 		this.owner = owner;
 		this.id.init(id);
 		this.name.init(name);
@@ -157,11 +157,11 @@ public class MeshComponent extends ModificationAwareIdentifiable {
 		return mergedTemplateVariables;
 	}
 
-	public List<ConfigurationTemplate> getConfigurationTemplates() {
+	public List<WritableConfigurationTemplate> getConfigurationTemplates() {
 		return this.configurationTemplates.get();
 	}
 
-	public void setConfigurationTemplates(List<ConfigurationTemplate> configurationTemplates) {
+	public void setConfigurationTemplates(List<WritableConfigurationTemplate> configurationTemplates) {
 		ConfigurationTemplates.ensureConsistentCollection(configurationTemplates);
 		this.configurationTemplates.set(configurationTemplates);
 	}
@@ -171,11 +171,11 @@ public class MeshComponent extends ModificationAwareIdentifiable {
 	 * template, a modified version template or a modified template straight from this component with the effective
 	 * template variables filled in.
 	 */
-	public List<ConfigurationTemplate> getCalculatedConfigurationTemplates() {
+	public List<WritableConfigurationTemplate> getCalculatedConfigurationTemplates() {
 		StringSubstitutor sub = new StringSubstitutor(this.calculateEffectiveTemplateVariables());
 		return ConfigurationTemplates.unifyTemplateSets(project.getDefaultConfigurationTemplates(), getProjectVersion().getConfigurationTemplates(), getConfigurationTemplates())
 				.stream()
-				.map(ConfigurationTemplate::clone)
+				.map(WritableConfigurationTemplate::clone)
 				.peek(template -> template.setContent(sub.replace(template.getContent())))
 				.collect(Collectors.toList());
 	}
@@ -183,7 +183,7 @@ public class MeshComponent extends ModificationAwareIdentifiable {
 	@Override
 	public Set<String> getDirtyProperties() {
 		Set<String> dirtyProperties = super.getDirtyProperties();
-		if (this.getConfigurationTemplates().stream().anyMatch(ConfigurationTemplate::isDirty)) {
+		if (this.getConfigurationTemplates().stream().anyMatch(WritableConfigurationTemplate::isDirty)) {
 			dirtyProperties = Sets.union(dirtyProperties, Collections.singleton("configurationTemplates"));
 		}
 		return dirtyProperties;

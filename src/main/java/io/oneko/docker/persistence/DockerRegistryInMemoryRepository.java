@@ -2,6 +2,7 @@ package io.oneko.docker.persistence;
 
 import io.oneko.Profiles;
 import io.oneko.docker.DockerRegistry;
+import io.oneko.docker.ReadableDockerRegistry;
 import io.oneko.docker.WritableDockerRegistry;
 import io.oneko.docker.event.EventAwareDockerRegistryRepository;
 import io.oneko.event.EventDispatcher;
@@ -17,7 +18,7 @@ import java.util.*;
 @Profile(Profiles.IN_MEMORY)
 public class DockerRegistryInMemoryRepository extends EventAwareDockerRegistryRepository {
 
-	private final Map<UUID, DockerRegistry> innerRepository = new HashMap<>();
+	private final Map<UUID, ReadableDockerRegistry> innerRepository = new HashMap<>();
 
 	@Autowired
 	DockerRegistryInMemoryRepository(EventDispatcher eventDispatcher) {
@@ -25,32 +26,32 @@ public class DockerRegistryInMemoryRepository extends EventAwareDockerRegistryRe
 	}
 
 	@Override
-	protected Mono<DockerRegistry> addInternally(WritableDockerRegistry dockerRegistry) {
-		final DockerRegistry readable = dockerRegistry.readable();
-		innerRepository.put(dockerRegistry.getId(), dockerRegistry);
+	protected Mono<ReadableDockerRegistry> addInternally(WritableDockerRegistry dockerRegistry) {
+		final ReadableDockerRegistry readable = dockerRegistry.readable();
+		innerRepository.put(dockerRegistry.getId(), readable);
 		return Mono.just(readable);
 	}
 
 	@Override
 	protected Mono<Void> removeInternally(DockerRegistry dockerRegistry) {
-		innerRepository.remove(dockerRegistry.getId());
+		innerRepository.remove(dockerRegistry.getUuid());
 		return Mono.empty();
 	}
 
 	@Override
-	public Mono<DockerRegistry> getById(UUID registryId) {
+	public Mono<ReadableDockerRegistry> getById(UUID registryId) {
 		return Mono.justOrEmpty(innerRepository.get(registryId));
 	}
 
 	@Override
-	public Mono<DockerRegistry> getByName(String registryName) {
+	public Mono<ReadableDockerRegistry> getByName(String registryName) {
 		return Mono.justOrEmpty(innerRepository.values().stream()
 				.filter(registry -> registry.getName().equals(registryName))
 				.findFirst());
 	}
 
 	@Override
-	public Flux<DockerRegistry> getAll() {
+	public Flux<ReadableDockerRegistry> getAll() {
 		return Flux.fromIterable(innerRepository.values());
 	}
 }

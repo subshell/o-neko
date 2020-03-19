@@ -13,7 +13,7 @@ import org.junit.Test;
 
 import io.oneko.project.Project;
 import io.oneko.project.ProjectVersion;
-import io.oneko.templates.ConfigurationTemplate;
+import io.oneko.templates.WritableConfigurationTemplate;
 import io.oneko.templates.rest.ConfigurationTemplateDTOMapper;
 
 public class DeployableConfigurationDTOMapperTest {
@@ -36,7 +36,7 @@ public class DeployableConfigurationDTOMapperTest {
 						.templateVariables(new ArrayList<>())
 						.build())
 				.configurationTemplates(Collections.singletonList(
-						ConfigurationTemplate.builder().content("${VAR_1} ${VAR_2}").build()
+						WritableConfigurationTemplate.builder().content("${VAR_1} ${VAR_2}").build()
 				))
 				.templateVariables(templateVariables)
 				.build();
