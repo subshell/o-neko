@@ -1,5 +1,6 @@
 package io.oneko.user.rest;
 
+import io.oneko.user.ReadableUser;
 import io.oneko.user.WritableUser;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -66,7 +67,7 @@ public class UserController {
 	@PostMapping("/{userName}")
 	Mono<UserDTO> updateUser(Authentication authentication, @AuthenticationPrincipal Mono<ONekoUserDetails> userDetails, @PathVariable String userName, @RequestBody UserDTO dto) {
 		Mono<User> updateUserMono = this.userRepository.getByUserName(userName)
-				.map(User::writable)
+				.map(ReadableUser::writable)
 				.map(u -> this.dtoMapper.updateUserFromDTO(u, dto))
 				.flatMap(this.userRepository::add);
 
@@ -86,7 +87,7 @@ public class UserController {
 	@PostMapping("/{userName}/password")
 	Mono<UserDTO> changePassword(@PathVariable String userName, @RequestBody ChangePasswordDTO dto) {
 		return this.userRepository.getByUserName(userName)
-				.map(User::writable)
+				.map(ReadableUser::writable)
 				.doOnNext(u -> u.setPasswordAuthentication(dto.getPassword(), this.passwordEncoder))
 				.flatMap(this.userRepository::add)
 				.map(this.dtoMapper::userToDTO);

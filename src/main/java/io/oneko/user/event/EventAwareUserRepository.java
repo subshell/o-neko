@@ -1,6 +1,7 @@
 package io.oneko.user.event;
 
 import io.oneko.event.EventDispatcher;
+import io.oneko.user.ReadableUser;
 import io.oneko.user.User;
 import io.oneko.user.UserRepository;
 import io.oneko.user.WritableUser;
@@ -15,16 +16,16 @@ public abstract class EventAwareUserRepository implements UserRepository {
 	}
 
 	@Override
-	public Mono<User> add(WritableUser user) {
+	public Mono<ReadableUser> add(WritableUser user) {
 		if (user.isDirty()) {
-			Mono<User> userMono = addInternally(user);
+			Mono<ReadableUser> userMono = addInternally(user);
 			return this.eventDispatcher.createAndDispatchEvent(userMono, (u, t) -> new UserSavedEvent(user, t));
 		} else {
-			return Mono.just(user);
+			return Mono.just(user.readable());
 		}
 	}
 
-	protected abstract Mono<User> addInternally(WritableUser user);
+	protected abstract Mono<ReadableUser> addInternally(WritableUser user);
 
 	@Override
 	public Mono<Void> removeUser(User user) {

@@ -4,13 +4,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import io.oneko.templates.ConfigurationTemplate;
+import io.oneko.templates.WritableConfigurationTemplate;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class ConfigurationTemplateMongoMapper {
 
-	public static ConfigurationTemplateMongo toConfigurationTemplateMongo(ConfigurationTemplate configurationTemplate) {
+	public static ConfigurationTemplateMongo toConfigurationTemplateMongo(WritableConfigurationTemplate configurationTemplate) {
 		return ConfigurationTemplateMongo.builder()
 				.id(configurationTemplate.getId())
 				.name(configurationTemplate.getName())
@@ -19,14 +19,14 @@ public class ConfigurationTemplateMongoMapper {
 				.build();
 	}
 
-	public static List<ConfigurationTemplateMongo> toConfigurationTemplateMongos(Collection<ConfigurationTemplate> configurationTemplates) {
+	public static List<ConfigurationTemplateMongo> toConfigurationTemplateMongos(Collection<WritableConfigurationTemplate> configurationTemplates) {
 		return configurationTemplates.stream()
 				.map(ConfigurationTemplateMongoMapper::toConfigurationTemplateMongo)
 				.collect(Collectors.toList());
 	}
 
-	public static ConfigurationTemplate fromConfigurationTemplateMongo(ConfigurationTemplateMongo templateMongo) {
-		return ConfigurationTemplate.builder()
+	public static WritableConfigurationTemplate fromConfigurationTemplateMongo(ConfigurationTemplateMongo templateMongo) {
+		return WritableConfigurationTemplate.builder()
 				.id(templateMongo.getId())
 				.name(templateMongo.getName())
 				.content(templateMongo.getContent())
@@ -34,7 +34,7 @@ public class ConfigurationTemplateMongoMapper {
 				.build();
 	}
 
-	public static List<ConfigurationTemplate> fromConfigurationTemplateMongos(Collection<ConfigurationTemplateMongo> mongos) {
+	public static List<WritableConfigurationTemplate> fromConfigurationTemplateMongos(Collection<ConfigurationTemplateMongo> mongos) {
 		return mongos.stream()
 				.map(ConfigurationTemplateMongoMapper::fromConfigurationTemplateMongo)
 				.collect(Collectors.toList());

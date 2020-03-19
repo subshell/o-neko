@@ -7,13 +7,13 @@ import reactor.core.publisher.Mono;
 
 public interface DockerRegistryRepository {
 
-	Mono<DockerRegistry> getById(UUID registryId);
+	Mono<ReadableDockerRegistry> getById(UUID registryId);
 
-	Mono<DockerRegistry> getByName(String registryName);
+	Mono<ReadableDockerRegistry> getByName(String registryName);
 
-	Flux<DockerRegistry> getAll();
+	Flux<ReadableDockerRegistry> getAll();
 
-	Mono<DockerRegistry> add(WritableDockerRegistry registry);
+	Mono<ReadableDockerRegistry> add(WritableDockerRegistry registry);
 
 	Mono<Void> remove(DockerRegistry registry);
 }

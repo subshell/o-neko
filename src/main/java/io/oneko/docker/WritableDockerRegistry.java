@@ -1,21 +1,65 @@
 package io.oneko.docker;
 
-import io.oneko.domain.ModificationAware;
+import io.oneko.domain.ModificationAwareIdentifiable;
+import io.oneko.domain.ModificationAwareProperty;
+import lombok.Builder;
 
-import java.util.Set;
 import java.util.UUID;
 
-public class WritableDockerRegistry extends DockerRegistry implements ModificationAware {
+public class WritableDockerRegistry extends ModificationAwareIdentifiable implements DockerRegistry {
+
+	private final ModificationAwareProperty<UUID> uuid = new ModificationAwareProperty<>(this, "uuid");
+	private final ModificationAwareProperty<String> name = new ModificationAwareProperty<>(this, "name");
+	private final ModificationAwareProperty<String> registryUrl = new ModificationAwareProperty<>(this, "registryUrl");
+	private final ModificationAwareProperty<String> userName = new ModificationAwareProperty<>(this, "userName");
+	private final ModificationAwareProperty<String> password = new ModificationAwareProperty<>(this, "password");
+	private final ModificationAwareProperty<Boolean> trustInsecureCertificate = new ModificationAwareProperty<>(this, "trustInsecureCertificate");
 
 	/**
 	 * Creates a completely new DockerRegistry
 	 */
-	public WritableDockerRegistry() {
+	protected WritableDockerRegistry() {
 		this.uuid.set(UUID.randomUUID());
+		this.trustInsecureCertificate.set(false);//init primitive values
 	}
 
+	@Builder
 	public WritableDockerRegistry(UUID uuid, String name, String registryUrl, String userName, String password, boolean trustInsecureCertificate) {
-		super(uuid, name, registryUrl, userName, password, trustInsecureCertificate);
+		this.uuid.init(uuid);
+		this.name.init(name);
+		this.registryUrl.init(registryUrl);
+		this.userName.init(userName);
+		this.password.init(password);
+		this.trustInsecureCertificate.init(trustInsecureCertificate);
+	}
+
+	public UUID getUuid() {
+		return uuid.get();
+	}
+
+	@Override
+	public UUID getId() {
+		return this.uuid.get();
+	}
+
+	public String getName() {
+		return name.get();
+	}
+
+	public String getRegistryUrl() {
+		return registryUrl.get();
+	}
+
+	public String getUserName() {
+		return this.userName.get();
+	}
+
+	public String getPassword() {
+		return password.get();
+	}
+
+	public boolean getTrustInsecureCertificate() {
+		return trustInsecureCertificate.get();
 	}
 
 	public void setName(String name) {
@@ -38,22 +82,8 @@ public class WritableDockerRegistry extends DockerRegistry implements Modificati
 		this.trustInsecureCertificate.set(trustInsecureCertificate);
 	}
 
-	public DockerRegistry readable() {
-		return new DockerRegistry(getUuid(), getName(), getRegistryUrl(), getUserName(), getPassword(), isTrustInsecureCertificate());
+	public ReadableDockerRegistry readable() {
+		return new ReadableDockerRegistry(getUuid(), getName(), getRegistryUrl(), getUserName(), getPassword(), getTrustInsecureCertificate());
 	}
 
-	@Override
-	public void touch() {
-		modifications.touch();
-	}
-
-	@Override
-	public boolean isDirty() {
-		return modifications.isDirty();
-	}
-
-	@Override
-	public Set<String> getDirtyProperties() {
-		return modifications.getDirtyProperties();
-	}
 }

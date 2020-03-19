@@ -2,6 +2,7 @@ package io.oneko.user.persistence;
 
 import io.oneko.Profiles;
 import io.oneko.event.EventDispatcher;
+import io.oneko.user.ReadableUser;
 import io.oneko.user.User;
 import io.oneko.user.WritableUser;
 import io.oneko.user.event.EventAwareUserRepository;
@@ -19,7 +20,7 @@ import java.util.UUID;
 @Profile(Profiles.IN_MEMORY)
 public class UserInMemoryRepository extends EventAwareUserRepository {
 
-	private final Map<UUID, User> innerRepository = new HashMap<>();
+	private final Map<UUID, ReadableUser> innerRepository = new HashMap<>();
 
 	@Autowired
 	UserInMemoryRepository(EventDispatcher eventDispatcher) {
@@ -27,8 +28,8 @@ public class UserInMemoryRepository extends EventAwareUserRepository {
 	}
 
 	@Override
-	protected Mono<User> addInternally(WritableUser user) {
-		final User readable = user.readable();
+	protected Mono<ReadableUser> addInternally(WritableUser user) {
+		final ReadableUser readable = user.readable();
 		this.innerRepository.put(readable.getId(), readable);
 		return Mono.just(readable);
 	}
@@ -40,26 +41,26 @@ public class UserInMemoryRepository extends EventAwareUserRepository {
 	}
 
 	@Override
-	public Mono<User> getById(UUID userId) {
+	public Mono<ReadableUser> getById(UUID userId) {
 		return Mono.justOrEmpty(innerRepository.get(userId));
 	}
 
 	@Override
-	public Mono<User> getByUserName(String userName) {
+	public Mono<ReadableUser> getByUserName(String userName) {
 		return Mono.justOrEmpty(innerRepository.values().stream()
 				.filter(user -> user.getUserName().equals(userName))
 				.findFirst());
 	}
 
 	@Override
-	public Mono<User> getByUserEmail(String userEmail) {
+	public Mono<ReadableUser> getByUserEmail(String userEmail) {
 		return Mono.justOrEmpty(innerRepository.values().stream()
 				.filter(user -> user.getEmail().equals(userEmail))
 				.findFirst());
 	}
 
 	@Override
-	public Flux<User> getAll() {
+	public Flux<ReadableUser> getAll() {
 		return Flux.fromIterable(innerRepository.values());
 	}
 }
