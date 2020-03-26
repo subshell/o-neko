@@ -8,12 +8,13 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import io.oneko.templates.ConfigurationTemplate;
 import io.oneko.templates.WritableConfigurationTemplate;
 
 @Service
 public class ConfigurationTemplateDTOMapper {
 
-	public ConfigurationTemplateDTO toDTO(WritableConfigurationTemplate template) {
+	public ConfigurationTemplateDTO toDTO(ConfigurationTemplate template) {
 		return ConfigurationTemplateDTO.builder()
 				.id(template.getId())
 				.name(template.getName())

@@ -30,10 +30,10 @@ import io.oneko.templates.WritableConfigurationTemplate;
 import io.oneko.templates.ConfigurationTemplates;
 import lombok.Builder;
 
-public class WritableProjectVersion extends ModificationAwareIdentifiable implements WritableHasNamespace, ProjectVersion {
+public class WritableProjectVersion extends ModificationAwareIdentifiable implements WritableHasNamespace, ProjectVersion<WritableProject, WritableProjectVersion> {
 
 	private final ModificationAwareProperty<UUID> uuid = new ModificationAwareProperty<>(this, "uuid");
-	private final Project project;
+	private WritableProject project;
 	private final ModificationAwareProperty<String> name = new ModificationAwareProperty<>(this, "name");
 	private final ModificationAwareProperty<DeploymentBehaviour> deploymentBehaviour = new ModificationAwareProperty<>(this, "deploymentBehaviour");
 	private final ModificationAwareProperty<Map<String, String>> templateVariables = new ModificationAwareMapProperty<>(this, "templateVariables");
@@ -47,12 +47,11 @@ public class WritableProjectVersion extends ModificationAwareIdentifiable implem
 	private final ModificationAwareProperty<Instant> imageUpdatedDate = new ModificationAwareProperty<>(this, "imageUpdatedDate");
 
 	@Builder
-	public WritableProjectVersion(UUID uuid, Project project, String name, DeploymentBehaviour deploymentBehaviour,
+	public WritableProjectVersion(UUID uuid, String name, DeploymentBehaviour deploymentBehaviour,
 								  Map<String, String> templateVariables, String dockerContentDigest, List<String> urls,
 								  List<WritableConfigurationTemplate> configurationTemplates, boolean outdated, LifetimeBehaviour lifetimeBehaviour,
 								  DefinedNamespace namespace, DesiredState desiredState, Instant imageUpdatedDate) {
 		this.uuid.init(uuid);
-		this.project = project;
 		this.name.init(name);
 		this.deploymentBehaviour.init(deploymentBehaviour);
 		this.dockerContentDigest.init(dockerContentDigest);
@@ -67,9 +66,16 @@ public class WritableProjectVersion extends ModificationAwareIdentifiable implem
 	}
 
 	/**
+	 * Should only be called by the project after instantiation.
+	 */
+	void setProject(WritableProject project) {
+		this.project = project;
+	}
+
+	/**
 	 * Creates a new version of the given project.
 	 */
-	WritableProjectVersion(Project project, String name) {
+	WritableProjectVersion(WritableProject project, String name) {
 		this.uuid.set(UUID.randomUUID());
 		this.project = Objects.requireNonNull(project);
 		this.name.set(name);
@@ -89,7 +95,7 @@ public class WritableProjectVersion extends ModificationAwareIdentifiable implem
 	}
 
 	@JsonIgnore
-	public Project getProject() {
+	public WritableProject getProject() {
 		return project;
 	}
 
@@ -107,10 +113,6 @@ public class WritableProjectVersion extends ModificationAwareIdentifiable implem
 
 	public void setLifetimeBehaviour(LifetimeBehaviour lifetimeBehaviour) {
 		this.lifetimeBehaviour.set(lifetimeBehaviour);
-	}
-
-	public Optional<LifetimeBehaviour> getEffectiveLifetimeBehaviour() {
-		return getLifetimeBehaviour().or(project::getDefaultLifetimeBehaviour);
 	}
 
 	public DeploymentBehaviour getDeploymentBehaviour() {
@@ -146,20 +148,12 @@ public class WritableProjectVersion extends ModificationAwareIdentifiable implem
 		this.configurationTemplates.set(configurationTemplates);
 	}
 
-	public boolean getOutdated() {
+	public boolean isOutdated() {
 		return this.outdated.get();
 	}
 
 	public void setOutdated(boolean outdated) {
 		this.outdated.set(outdated);
-	}
-
-	/**
-	 * A project version is orphaned if it's project has no docker registry assigned. This happens, when a registry is getting deleted.
-	 * No deployments can be performed on orphaned project versions.
-	 */
-	public boolean isOrphan() {
-		return this.project.isOrphan();
 	}
 
 	public boolean isUpdatedAutomatically() {
@@ -217,10 +211,9 @@ public class WritableProjectVersion extends ModificationAwareIdentifiable implem
 		this.imageUpdatedDate.set(imageUpdatedDate);
 	}
 
-	public ReadableProjectVersion writable() {
+	ReadableProjectVersion readable() {
 		return ReadableProjectVersion.builder()
 				.uuid(getUuid())
-				.project(getProject())
 				.name(getName())
 				.deploymentBehaviour(getDeploymentBehaviour())
 				.templateVariables(getTemplateVariables())
@@ -229,8 +222,8 @@ public class WritableProjectVersion extends ModificationAwareIdentifiable implem
 				.configurationTemplates(getConfigurationTemplates().stream()
 						.map(WritableConfigurationTemplate::readable)
 						.collect(Collectors.toList()))
-				.outdated(getOutdated())
-				.lifetimeBehaviour(getLifetimeBehaviour().orElse(null))
+				.outdated(isOutdated())
+				.lifetimeBehaviour(lifetimeBehaviour.get())
 				.namespace(getNamespace() instanceof DefinedNamespace ? (DefinedNamespace)getNamespace() : null)
 				.desiredState(getDesiredState())
 				.imageUpdatedDate(getImageUpdatedDate())

@@ -13,7 +13,7 @@ public class DeployableConfigurationTemplates {
 
 	private final Set<DeployableConfigurationTemplate> templates;
 
-	public static DeployableConfigurationTemplates of(Collection<ConfigurationTemplate> configurationTemplates) {
+	public static DeployableConfigurationTemplates of(Collection<? extends ConfigurationTemplate> configurationTemplates) {
 		final Set<DeployableConfigurationTemplate> deployableTemplates = configurationTemplates.stream()
 				.map(template -> new DeployableConfigurationTemplate(template.getContent(), template.getName()))
 				.collect(Collectors.toSet());

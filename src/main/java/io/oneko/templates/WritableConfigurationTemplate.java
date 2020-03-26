@@ -30,7 +30,7 @@ public class WritableConfigurationTemplate extends ModificationAwareIdentifiable
 		this.description.init(description);
 	}
 
-	public static WritableConfigurationTemplate clone(WritableConfigurationTemplate from) {
+	public static WritableConfigurationTemplate clone(ConfigurationTemplate from) {
 		return WritableConfigurationTemplate.builder()
 				.name(from.getName())
 				.id(from.getId())

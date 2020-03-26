@@ -11,12 +11,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import io.oneko.docker.ReadableDockerRegistry;
 import io.oneko.docker.WritableDockerRegistry;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
 import io.oneko.deployable.DeployableConfigurationTemplates;
-import io.oneko.docker.DockerRegistry;
 import io.oneko.templates.WritableConfigurationTemplate;
 
 public class ProjectVersionTest {
@@ -24,8 +24,8 @@ public class ProjectVersionTest {
 	@Test
 	public void testCalculateConfiguration() {
 		//have a bit of preparation here
-		DockerRegistry reg = new WritableDockerRegistry();
-		Project project = new Project(reg);
+		ReadableDockerRegistry reg = new WritableDockerRegistry().readable();
+		WritableProject project = new WritableProject(reg);
 
 		List<WritableConfigurationTemplate> templates = Collections.singletonList(
 				WritableConfigurationTemplate.builder()
@@ -42,13 +42,13 @@ public class ProjectVersionTest {
 		project.setDefaultConfigurationTemplates(templates);
 		project.setName("o-neko");
 
-		List<TemplateVariable> defaultVariables = Arrays.asList(
-				new TemplateVariable(UUID.randomUUID(), "TEST1", "TEST1", Arrays.asList("aa", "cc"), true, "aa", false),
-				new TemplateVariable(UUID.randomUUID(), "TEST2", "TEST2", Collections.singletonList("bb"), true, "bb", false)
+		List<WritableTemplateVariable> defaultVariables = Arrays.asList(
+				new WritableTemplateVariable(UUID.randomUUID(), "TEST1", "TEST1", Arrays.asList("aa", "cc"), true, "aa", false),
+				new WritableTemplateVariable(UUID.randomUUID(), "TEST2", "TEST2", Collections.singletonList("bb"), true, "bb", false)
 		);
 		project.setTemplateVariables(defaultVariables);
 
-		ProjectVersion version = project.createVersion("master");
+		WritableProjectVersion version = project.createVersion("master");
 		Map<String, String> versionVariables = new HashMap<>();
 		versionVariables.put("TEST2", "cc");
 		versionVariables.put("TEST3", "dd");
@@ -65,8 +65,8 @@ public class ProjectVersionTest {
 
 	@Test
 	public void testOverwriteConfiguration() {        //have a bit of preparation here
-		DockerRegistry reg = new WritableDockerRegistry();
-		Project project = new Project(reg);
+		ReadableDockerRegistry reg = new WritableDockerRegistry().readable();
+		WritableProject project = new WritableProject(reg);
 
 		List<WritableConfigurationTemplate> templates = Arrays.asList(
 				WritableConfigurationTemplate.builder()
@@ -84,10 +84,10 @@ public class ProjectVersionTest {
 		project.setDefaultConfigurationTemplates(templates);
 		project.setName("o-neko");
 
-		List<TemplateVariable> defaultVariables = new ArrayList<>();
+		List<WritableTemplateVariable> defaultVariables = new ArrayList<>();
 		project.setTemplateVariables(defaultVariables);
 
-		ProjectVersion version = project.createVersion("master");
+		WritableProjectVersion version = project.createVersion("master");
 
 		version.setConfigurationTemplates(Collections.singletonList(
 				WritableConfigurationTemplate.builder()
@@ -111,9 +111,9 @@ public class ProjectVersionTest {
 
 	@Test
 	public void testSetConfigurationTemplates() {
-		DockerRegistry dockerRegistry = new WritableDockerRegistry();
-		Project project = new Project(dockerRegistry);
-		ProjectVersion uut = project.createVersion("sample");
+		ReadableDockerRegistry dockerRegistry = new WritableDockerRegistry().readable();
+		WritableProject project = new WritableProject(dockerRegistry);
+		WritableProjectVersion uut = project.createVersion("sample");
 
 		assertThat(uut.getConfigurationTemplates(), is(empty()));
 
@@ -142,9 +142,8 @@ public class ProjectVersionTest {
 
 	@Test
 	public void testDeployableConfigurationTemplates() {
-		//have a bit of preparation here
-		DockerRegistry reg = new WritableDockerRegistry();
-		Project project = new Project(reg);
+		ReadableDockerRegistry reg = new WritableDockerRegistry().readable();
+		WritableProject project = new WritableProject(reg);
 		project.setName("project1");
 
 		List<WritableConfigurationTemplate> templates = Collections.singletonList(
@@ -157,7 +156,7 @@ public class ProjectVersionTest {
 
 		project.setDefaultConfigurationTemplates(templates);
 
-		final ProjectVersion version = project.createVersion("version");
+		final WritableProjectVersion version = project.createVersion("version");
 
 		DeployableConfigurationTemplates deployableConfigurationTemplates = version.calculateDeployableConfigurationTemplates();
 		assertThat(deployableConfigurationTemplates.getTemplates(), hasSize(1));

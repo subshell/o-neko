@@ -22,6 +22,6 @@ public interface DockerRegistry {
 
 	String getPassword();
 
-	boolean getTrustInsecureCertificate();
+	boolean isTrustInsecureCertificate();
 
 }

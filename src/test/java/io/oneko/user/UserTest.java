@@ -17,12 +17,11 @@ public class UserTest {
 
 	@Before
 	public void setUp() {
-		uut = User.builder()
+		uut = WritableUser.builder()
 				.email("foo@bar.com")
 				.role(UserRole.ADMIN)
 				.uuid(uuid)
-				.build()
-				.writable();
+				.build();
 	}
 
 	@Test

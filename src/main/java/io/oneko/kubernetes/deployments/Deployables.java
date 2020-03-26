@@ -11,18 +11,20 @@ import io.oneko.automations.LifetimeBehaviour;
 import io.oneko.deployable.DeployableConfigurationTemplates;
 import io.oneko.deployable.DeploymentBehaviour;
 import io.oneko.docker.DockerRegistry;
-import io.oneko.project.Project;
+import io.oneko.project.ReadableProject;
+import io.oneko.project.ReadableProjectVersion;
+import io.oneko.project.WritableProject;
 import io.oneko.project.ProjectConstants;
-import io.oneko.project.ProjectVersion;
-import io.oneko.projectmesh.MeshComponent;
+import io.oneko.project.WritableProjectVersion;
+import io.oneko.projectmesh.WritableMeshComponent;
 
 public class Deployables {
 
-	public static Deployable<ProjectVersion> of(ProjectVersion version) {
+	public static Deployable<WritableProjectVersion> of(WritableProjectVersion version) {
 		return new Deployable<>() {
 
 			@Override
-			public ProjectVersion getEntity() {
+			public WritableProjectVersion getEntity() {
 				return version;
 			}
 
@@ -46,11 +48,11 @@ public class Deployables {
 				return version.getProject().getDockerRegistry();
 			}
 
-			public Project getRelatedProject() {
+			public WritableProject getRelatedProject() {
 				return version.getProject();
 			}
 
-			public ProjectVersion getRelatedProjectVersion() {
+			public WritableProjectVersion getRelatedProjectVersion() {
 				return version;
 			}
 
@@ -103,12 +105,6 @@ public class Deployables {
 				return version.getDesiredState();
 			}
 
-
-
-
-
-
-
 			@Override
 			public void setDesiredState(DesiredState desiredState) {
 				version.setDesiredState(desiredState);
@@ -116,11 +112,11 @@ public class Deployables {
 		};
 	}
 
-	public static Deployable<MeshComponent> of(MeshComponent component) {
+	public static Deployable<WritableMeshComponent> of(WritableMeshComponent component) {
 		return new Deployable<>() {
 
 			@Override
-			public MeshComponent getEntity() {
+			public WritableMeshComponent getEntity() {
 				return component;
 			}
 
@@ -144,11 +140,11 @@ public class Deployables {
 				return component.getProject().getDockerRegistry();
 			}
 
-			public Project getRelatedProject() {
+			public ReadableProject getRelatedProject() {
 				return component.getProject();
 			}
 
-			public ProjectVersion getRelatedProjectVersion() {
+			public ReadableProjectVersion getRelatedProjectVersion() {
 				return component.getProjectVersion();
 			}
 

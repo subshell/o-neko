@@ -7,13 +7,13 @@ import reactor.core.publisher.Mono;
 
 public interface ProjectMeshRepository {
 
-	Mono<ProjectMesh> getById(UUID id);
+	Mono<ReadableProjectMesh> getById(UUID id);
 
-	Mono<ProjectMesh> getByName(String name);
+	Mono<ReadableProjectMesh> getByName(String name);
 
-	Flux<ProjectMesh> getAll();
+	Flux<ReadableProjectMesh> getAll();
 
-	Mono<ProjectMesh> add(ProjectMesh mesh);
+	Mono<ReadableProjectMesh> add(WritableProjectMesh mesh);
 
-	Mono<Void> remove(ProjectMesh mesh);
+	Mono<Void> remove(ProjectMesh<?, ?> mesh);
 }

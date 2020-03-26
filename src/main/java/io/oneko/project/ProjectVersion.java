@@ -25,11 +25,11 @@ import io.oneko.templates.ConfigurationTemplates;
  * Each project has a number of versions. These versions are stored as part of the project they belong to.
  * As for all model entities, there are
  */
-public interface ProjectVersion extends HasNamespace {
+public interface ProjectVersion<P extends Project<P, V>, V extends ProjectVersion<P, V>> extends HasNamespace {
 
 	UUID getUuid();
 
-	Project getProject();
+	P getProject();
 
 	String getName();
 
@@ -47,7 +47,7 @@ public interface ProjectVersion extends HasNamespace {
 
 	List<? extends ConfigurationTemplate> getConfigurationTemplates();
 
-	boolean getOutdated();
+	boolean isOutdated();
 
 	/**
 	 * A project version is orphaned if it's project has no docker registry assigned. This happens, when a registry is getting deleted.
@@ -88,8 +88,8 @@ public interface ProjectVersion extends HasNamespace {
 	default Map<String, String> calculateEffectiveTemplateVariables() {
 		Map<String, String> mergedTemplateVariables = new HashMap<>();
 
-		mergedTemplateVariables.putAll(getProject().getTemplateVariables().stream()
-				.collect(Collectors.toMap(TemplateVariable::getName, TemplateVariable::getDefaultValue)));
+		getProject().getTemplateVariables().
+				forEach(var -> mergedTemplateVariables.put(var.getName(), var.getDefaultValue()));
 		mergedTemplateVariables.putAll(getProject().getImplicitTemplateVariables());
 		mergedTemplateVariables.putAll(getImplicitTemplateVariables());
 		mergedTemplateVariables.putAll(getTemplateVariables());
@@ -111,10 +111,12 @@ public interface ProjectVersion extends HasNamespace {
 	 * Provides all effective templates to use on this version. This is either derived from the project's configuration
 	 * template or a modified version template and the effective template variables.
 	 */
-	default List<ConfigurationTemplate> getCalculatedConfigurationTemplates() {
+	default List<WritableConfigurationTemplate> getCalculatedConfigurationTemplates() {
 		StringSubstitutor sub = new StringSubstitutor(this.calculateEffectiveTemplateVariables());
 
-		return ConfigurationTemplates.unifyTemplateSets(getProject().getDefaultConfigurationTemplates(), getConfigurationTemplates()).stream()
+		//somehow java does not properly figure out the list type here
+		final List<ConfigurationTemplate> unifiedTemplates = ConfigurationTemplates.unifyTemplateSets(getProject().getDefaultConfigurationTemplates(), getConfigurationTemplates());
+		return unifiedTemplates.stream()
 				.map(WritableConfigurationTemplate::clone)
 				.peek(template -> template.setContent(sub.replace(template.getContent())))
 				.collect(Collectors.toList());
