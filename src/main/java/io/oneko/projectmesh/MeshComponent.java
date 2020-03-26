@@ -1,142 +1,51 @@
 package io.oneko.projectmesh;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.commons.text.StringSubstitutor;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Sets;
-
-import io.oneko.domain.ModificationAwareIdentifiable;
-import io.oneko.domain.ModificationAwareListProperty;
-import io.oneko.domain.ModificationAwareMapProperty;
-import io.oneko.domain.ModificationAwareProperty;
 import io.oneko.kubernetes.deployments.DesiredState;
-import io.oneko.project.Project;
 import io.oneko.project.ProjectConstants;
-import io.oneko.project.ProjectVersion;
+import io.oneko.project.ReadableProject;
+import io.oneko.project.ReadableProjectVersion;
 import io.oneko.project.TemplateVariable;
-import io.oneko.templates.WritableConfigurationTemplate;
+import io.oneko.templates.ConfigurationTemplate;
 import io.oneko.templates.ConfigurationTemplates;
-import lombok.Builder;
-import lombok.Getter;
+import io.oneko.templates.WritableConfigurationTemplate;
 
-public class MeshComponent extends ModificationAwareIdentifiable {
+public interface MeshComponent<M extends ProjectMesh<M, C>, C extends MeshComponent<M, C>> {
 
-	@Getter
-	private final ProjectMesh owner;
-	private final ModificationAwareProperty<UUID> id = new ModificationAwareProperty<>(this, "id");
-	private final ModificationAwareProperty<String> name = new ModificationAwareProperty<>(this, "name");
-	private final Project project;
-	private final ModificationAwareProperty<ProjectVersion> projectVersion = new ModificationAwareProperty<>(this, "projectVersion");
-	private final ModificationAwareProperty<String> dockerContentDigest = new ModificationAwareProperty<>(this, "dockerContentDigest");
-	private final ModificationAwareProperty<Map<String, String>> templateVariables = new ModificationAwareMapProperty<>(this, "templateVariables");
-	private final ModificationAwareProperty<List<WritableConfigurationTemplate>> configurationTemplates = new ModificationAwareListProperty<>(this, "configurationTemplates");
-	private final ModificationAwareProperty<Boolean> outdated = new ModificationAwareProperty<>(this, "outdated");
-	private final ModificationAwareProperty<List<String>> urls = new ModificationAwareListProperty<>(this, "urls");
-	private final ModificationAwareProperty<DesiredState> desiredState = new ModificationAwareProperty<>(this, "desiredState");
+	UUID getId();
 
-	@Builder
-	public MeshComponent(ProjectMesh owner, UUID id, String name, Project project, ProjectVersion version, String dockerContentDigest, Map<String, String> templateVariables, List<WritableConfigurationTemplate> configurationTemplates, boolean outdated, List<String> urls, DesiredState desiredState) {
-		this.owner = owner;
-		this.id.init(id);
-		this.name.init(name);
-		this.project = project;
-		this.projectVersion.init(version);
-		this.dockerContentDigest.init(dockerContentDigest);
-		this.templateVariables.init(templateVariables);
-		this.configurationTemplates.init(configurationTemplates);
-		this.outdated.init(outdated);
-		this.urls.init(urls);
-		this.desiredState.init(Objects.requireNonNullElse(desiredState, DesiredState.NotDeployed));
-	}
+	String getName();
 
-	/**
-	 * Creates a mesh of the given project.
-	 */
-	public MeshComponent(ProjectMesh owner, Project project, ProjectVersion version) {
-		this.owner = Objects.requireNonNull(owner);
-		this.id.set(UUID.randomUUID());
-		this.project = Objects.requireNonNull(project);
-		this.projectVersion.set(Objects.requireNonNull(version));
-		this.outdated.set(false);
-		this.desiredState.set(DesiredState.NotDeployed);
-	}
+	M getOwner();
 
-	@Override
-	public UUID getId() {
-		return this.id.get();
-	}
+	ReadableProject getProject();
 
-	public String getName() {
-		return name.get();
-	}
+	ReadableProjectVersion getProjectVersion();
 
-	public void setName(String name) {
-		this.name.set(name);
-	}
+	String getDockerContentDigest();
 
-	public Project getProject() {
-		return project;
-	}
+	List<String> getUrls();
 
-	public ProjectVersion getProjectVersion() {
-		return this.projectVersion.get();
-	}
-
-	public void setProjectVersion(ProjectVersion version) {
-		Preconditions.checkArgument(Objects.equals(version.getProject(), this.project), "The Version of a mesh component can just be changed to another version of the project it is already assigned to.");
-		this.projectVersion.set(version);
-	}
-
-	public String getDockerContentDigest() {
-		return dockerContentDigest.get();
-	}
-
-	public void setDockerContentDigest(String dockerContentDigest) {
-		this.dockerContentDigest.set(dockerContentDigest);
-	}
-
-	public List<String> getUrls() {
-		return urls.get();
-	}
-
-	public void setUrls(List<String> urls) {
-		this.urls.set(urls);
-	}
-
-	public boolean isOutdated() {
-		return this.outdated.get();
-	}
-
-	public void setOutdated(boolean outdated) {
-		this.outdated.set(outdated);
-	}
+	boolean isOutdated();
 
 	/**
 	 * Provides a mutable copy of the template variables explicitly set on this version.
 	 */
-	public Map<String, String> getTemplateVariables() {
-		return this.templateVariables.get();
-	}
+	Map<String, String> getTemplateVariables();
 
-	public void setTemplateVariables(Map<String, String> templateVariables) {
-		this.templateVariables.set(templateVariables);
-	}
-
-	private Map<String, String> getImplicitTemplateVariables() {
+	default Map<String, String> getImplicitTemplateVariables() {
 		Map<String, String> implicitTemplateVariables = new HashMap<>();
-		implicitTemplateVariables.put(ProjectConstants.TemplateVariablesNames.MESH_NAME, this.owner.getName());
-		implicitTemplateVariables.put(ProjectConstants.TemplateVariablesNames.ONEKO_MESH, this.owner.getId().toString());
-		implicitTemplateVariables.put(ProjectConstants.TemplateVariablesNames.MESH_COMPONENT_NAME, this.getName());
-		implicitTemplateVariables.put(ProjectConstants.TemplateVariablesNames.ONEKO_MESH_COMPONENT, this.owner.getId().toString());
+		implicitTemplateVariables.put(ProjectConstants.TemplateVariablesNames.MESH_NAME, getOwner().getName());
+		implicitTemplateVariables.put(ProjectConstants.TemplateVariablesNames.ONEKO_MESH, getOwner().getId().toString());
+		implicitTemplateVariables.put(ProjectConstants.TemplateVariablesNames.MESH_COMPONENT_NAME, getName());
+		implicitTemplateVariables.put(ProjectConstants.TemplateVariablesNames.ONEKO_MESH_COMPONENT, getOwner().getId().toString());
 		return implicitTemplateVariables;
 	}
 
@@ -146,54 +55,33 @@ public class MeshComponent extends ModificationAwareIdentifiable {
 	 *
 	 * @return Never <code>null</code>
 	 */
-	public Map<String, String> calculateEffectiveTemplateVariables() {
+	default Map<String, String> calculateEffectiveTemplateVariables() {
 		Map<String, String> mergedTemplateVariables = new HashMap<>();
-		mergedTemplateVariables.putAll(this.getProjectVersion().getImplicitTemplateVariables());
-		mergedTemplateVariables.putAll(this.getProject().getTemplateVariables().stream()
+		mergedTemplateVariables.putAll(getProjectVersion().getImplicitTemplateVariables());
+		mergedTemplateVariables.putAll(getProject().getTemplateVariables().stream()
 				.collect(Collectors.toMap(TemplateVariable::getName, TemplateVariable::getDefaultValue)));
-		mergedTemplateVariables.putAll(this.getProjectVersion().getTemplateVariables());
-		mergedTemplateVariables.putAll(this.getImplicitTemplateVariables());
-		mergedTemplateVariables.putAll(this.getTemplateVariables());
+		mergedTemplateVariables.putAll(getProjectVersion().getTemplateVariables());
+		mergedTemplateVariables.putAll(getImplicitTemplateVariables());
+		mergedTemplateVariables.putAll(getTemplateVariables());
 		return mergedTemplateVariables;
 	}
 
-	public List<WritableConfigurationTemplate> getConfigurationTemplates() {
-		return this.configurationTemplates.get();
-	}
-
-	public void setConfigurationTemplates(List<WritableConfigurationTemplate> configurationTemplates) {
-		ConfigurationTemplates.ensureConsistentCollection(configurationTemplates);
-		this.configurationTemplates.set(configurationTemplates);
-	}
+	List<? extends ConfigurationTemplate> getConfigurationTemplates();
 
 	/**
 	 * Provides all effective templates to use on this component. This is either derived from the project's configuration
 	 * template, a modified version template or a modified template straight from this component with the effective
 	 * template variables filled in.
 	 */
-	public List<WritableConfigurationTemplate> getCalculatedConfigurationTemplates() {
+	default List<WritableConfigurationTemplate> getCalculatedConfigurationTemplates() {
 		StringSubstitutor sub = new StringSubstitutor(this.calculateEffectiveTemplateVariables());
-		return ConfigurationTemplates.unifyTemplateSets(project.getDefaultConfigurationTemplates(), getProjectVersion().getConfigurationTemplates(), getConfigurationTemplates())
+		return ConfigurationTemplates.unifyTemplateSets(getProject().getDefaultConfigurationTemplates(), getProjectVersion().getConfigurationTemplates(), getConfigurationTemplates())
 				.stream()
 				.map(WritableConfigurationTemplate::clone)
 				.peek(template -> template.setContent(sub.replace(template.getContent())))
 				.collect(Collectors.toList());
 	}
 
-	@Override
-	public Set<String> getDirtyProperties() {
-		Set<String> dirtyProperties = super.getDirtyProperties();
-		if (this.getConfigurationTemplates().stream().anyMatch(WritableConfigurationTemplate::isDirty)) {
-			dirtyProperties = Sets.union(dirtyProperties, Collections.singleton("configurationTemplates"));
-		}
-		return dirtyProperties;
-	}
+	DesiredState getDesiredState();
 
-	public DesiredState getDesiredState() {
-		return desiredState.get();
-	}
-
-	public void setDesiredState(DesiredState desiredState) {
-		this.desiredState.set(desiredState);
-	}
 }

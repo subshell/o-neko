@@ -17,7 +17,7 @@ public class ReadableDockerRegistry extends Identifiable implements DockerRegist
 	private final String registryUrl;
 	private final String userName;
 	private final String password;
-	private final Boolean trustInsecureCertificate;
+	private final boolean trustInsecureCertificate;
 
 	@Override
 	public UUID getId() {
@@ -25,6 +25,6 @@ public class ReadableDockerRegistry extends Identifiable implements DockerRegist
 	}
 
 	public WritableDockerRegistry writable() {
-		return new WritableDockerRegistry(getUuid(), getName(), getRegistryUrl(), getUserName(), getPassword(), getTrustInsecureCertificate());
+		return new WritableDockerRegistry(getUuid(), getName(), getRegistryUrl(), getUserName(), getPassword(), isTrustInsecureCertificate());
 	}
 }

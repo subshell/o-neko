@@ -16,6 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 import io.oneko.configuration.Controllers;
 import io.oneko.namespace.DefinedNamespace;
 import io.oneko.namespace.DefinedNamespaceRepository;
+import io.oneko.namespace.WritableDefinedNamespace;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -44,7 +45,7 @@ public class DefinedNamespaceController {
 	@PreAuthorize("hasAnyRole('ADMIN')")
 	@PostMapping
 	Mono<DefinedNamespaceDTO> createNamespace(@RequestBody DefinedNamespaceDTO dto) {
-		DefinedNamespace newNamespace = new DefinedNamespace(dto.getName());
+		WritableDefinedNamespace newNamespace = new WritableDefinedNamespace(dto.getName());
 		return namespaceRepository.add(newNamespace).map(this.dtoMapper::namespaceToDTO);
 	}
 

@@ -1,21 +1,24 @@
 package io.oneko.projectmesh.persistence;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
+import io.oneko.Profiles;
 import io.oneko.event.EventDispatcher;
 import io.oneko.namespace.DefinedNamespace;
 import io.oneko.namespace.DefinedNamespaceRepository;
 import io.oneko.project.ProjectRepository;
-import io.oneko.project.ProjectVersion;
+import io.oneko.project.ReadableProjectVersion;
 import io.oneko.project.persistence.ConfigurationTemplateMongoMapper;
-import io.oneko.projectmesh.MeshComponent;
 import io.oneko.projectmesh.ProjectMesh;
+import io.oneko.projectmesh.ReadableMeshComponent;
+import io.oneko.projectmesh.ReadableProjectMesh;
+import io.oneko.projectmesh.WritableMeshComponent;
+import io.oneko.projectmesh.WritableProjectMesh;
 import io.oneko.projectmesh.event.EventAwareProjectMeshRepository;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -23,6 +26,7 @@ import reactor.core.publisher.Mono;
 
 @Service
 @Slf4j
+@Profile(Profiles.MONGO)
 class ProjectMeshMongoRepository extends EventAwareProjectMeshRepository {
 
 	private final ProjectMeshMongoSpringRepository innerRepo;
@@ -37,27 +41,27 @@ class ProjectMeshMongoRepository extends EventAwareProjectMeshRepository {
 	}
 
 	@Override
-	public Mono<ProjectMesh> getById(UUID id) {
+	public Mono<ReadableProjectMesh> getById(UUID id) {
 		return this.innerRepo.findById(id).flatMap(this::fromMongo);
 	}
 
 	@Override
-	public Mono<ProjectMesh> getByName(String name) {
+	public Mono<ReadableProjectMesh> getByName(String name) {
 		return this.innerRepo.findByName(name).flatMap(this::fromMongo);
 	}
 
 	@Override
-	public Flux<ProjectMesh> getAll() {
+	public Flux<ReadableProjectMesh> getAll() {
 		return this.innerRepo.findAll().flatMap(this::fromMongo);
 	}
 
 	@Override
-	protected Mono<ProjectMesh> addInternally(ProjectMesh project) {
+	protected Mono<ReadableProjectMesh> addInternally(WritableProjectMesh project) {
 		return this.innerRepo.save(toMongo(project)).flatMap(this::fromMongo);
 	}
 
 	@Override
-	protected Mono<Void> removeInternally(ProjectMesh mesh) {
+	protected Mono<Void> removeInternally(ProjectMesh<?, ?> mesh) {
 		return this.innerRepo.deleteById(mesh.getId());
 	}
 
@@ -65,7 +69,7 @@ class ProjectMeshMongoRepository extends EventAwareProjectMeshRepository {
      * Mapping stuff
      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-	private ProjectMeshMongo toMongo(ProjectMesh mesh) {
+	private ProjectMeshMongo toMongo(WritableProjectMesh mesh) {
 		ProjectMeshMongo mongo = new ProjectMeshMongo();
 		mongo.setId(mesh.getId());
 		mongo.setName(mesh.getName());
@@ -76,7 +80,7 @@ class ProjectMeshMongoRepository extends EventAwareProjectMeshRepository {
 		return mongo;
 	}
 
-	private MeshComponentMongo toMongo(MeshComponent meshComponent) {
+	private MeshComponentMongo toMongo(WritableMeshComponent meshComponent) {
 		MeshComponentMongo mongo = new MeshComponentMongo();
 		mongo.setId(meshComponent.getId());
 		mongo.setName(meshComponent.getName());
@@ -91,7 +95,7 @@ class ProjectMeshMongoRepository extends EventAwareProjectMeshRepository {
 		return mongo;
 	}
 
-	private Mono<ProjectMesh> fromMongo(ProjectMeshMongo mongo) {
+	private Mono<ReadableProjectMesh> fromMongo(ProjectMeshMongo mongo) {
 		UUID namespaceId = mongo.getNamespace();
 		if (namespaceId != null) {
 			return definedNamespaceRepository.getById(namespaceId)
@@ -101,42 +105,38 @@ class ProjectMeshMongoRepository extends EventAwareProjectMeshRepository {
 		}
 	}
 
-	private Mono<ProjectMesh> fromMongo(ProjectMeshMongo mongo, DefinedNamespace namespace) {
-		List<MeshComponent> components = new ArrayList<>();
-		final ProjectMesh mesh = ProjectMesh.builder()
-				.id(mongo.getId())
-				.name(mongo.getName())
-				.deploymentBehaviour(mongo.getDeploymentBehaviour())
-				.lifetimeBehaviour(mongo.getLifetimeBehaviour())
-				.namespace(namespace)
-				.components(components)
-				.build();
-
-		Flux<MeshComponent> componentsFlux = Flux.concat(
+	private Mono<ReadableProjectMesh> fromMongo(ProjectMeshMongo mongo, DefinedNamespace namespace) {
+		Flux<ReadableMeshComponent> componentsFlux = Flux.concat(
 				mongo.getComponents()
 						.stream()
-						.map(cm -> fromMongo(mesh, cm))
+						.map(this::fromMongo)
 						.collect(Collectors.toList()));
 
-		return componentsFlux.doOnNext(components::add)
-				.then(Mono.just(mesh));
+		return componentsFlux.collectList()
+				.map(components ->  ReadableProjectMesh.builder()
+						.id(mongo.getId())
+						.name(mongo.getName())
+						.deploymentBehaviour(mongo.getDeploymentBehaviour())
+						.lifetimeBehaviour(mongo.getLifetimeBehaviour())
+						.namespace(namespace)
+						.components(components)
+						.build());
 	}
 
-	private Mono<MeshComponent> fromMongo(ProjectMesh owner, MeshComponentMongo mongo) {
+	private Mono<ReadableMeshComponent> fromMongo(MeshComponentMongo mongo) {
 		return this.projectRepository.getById(mongo.getProjectId())
 				.map(project -> project.getVersionByUUID(mongo.getProjectVersionId()))
 				.filter(Optional::isPresent)
 				.map(Optional::get)
-				.map(component -> fromMongo(owner, mongo, component));
+				.map(version -> fromMongo(mongo, version));
 	}
 
-	private MeshComponent fromMongo(ProjectMesh owner, MeshComponentMongo mongo, ProjectVersion version) {
-		return MeshComponent.builder()
-				.owner(owner)
+	private ReadableMeshComponent fromMongo(MeshComponentMongo mongo, ReadableProjectVersion version) {
+		return ReadableMeshComponent.builder()
 				.id(mongo.getId())
 				.name(mongo.getName())
 				.project(version.getProject())
-				.version(version)
+				.projectVersion(version)
 				.dockerContentDigest(mongo.getDockerContentDigest())
 				.templateVariables(mongo.getTemplateVariables())
 				.configurationTemplates(ConfigurationTemplateMongoMapper.fromConfigurationTemplateMongos(mongo.getConfigurationTemplates()))

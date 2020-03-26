@@ -1,8 +1,11 @@
 package io.oneko.kubernetes;
 
-import io.oneko.project.ProjectVersion;
-import io.oneko.projectmesh.MeshComponent;
-import io.oneko.projectmesh.ProjectMesh;
+import io.oneko.project.ReadableProjectVersion;
+import io.oneko.project.WritableProjectVersion;
+import io.oneko.projectmesh.ReadableMeshComponent;
+import io.oneko.projectmesh.ReadableProjectMesh;
+import io.oneko.projectmesh.WritableMeshComponent;
+import io.oneko.projectmesh.WritableProjectMesh;
 import reactor.core.publisher.Mono;
 
 /**
@@ -10,15 +13,15 @@ import reactor.core.publisher.Mono;
  */
 public interface KubernetesDeploymentManager {
 
-	Mono<ProjectVersion> deploy(ProjectVersion version);
+	Mono<ReadableProjectVersion> deploy(WritableProjectVersion version);
 
-	Mono<ProjectMesh> deploy(ProjectMesh mesh);
+	Mono<ReadableProjectMesh> deploy(WritableProjectMesh mesh);
 
-	Mono<MeshComponent> deploy(MeshComponent mesh);
+	Mono<ReadableMeshComponent> deploy(WritableMeshComponent mesh);
 
-	Mono<ProjectVersion> stopDeployment(ProjectVersion version);
+	Mono<ReadableProjectVersion> stopDeployment(WritableProjectVersion version);
 
-	Mono<ProjectMesh> stopDeployment(ProjectMesh mesh);
+	Mono<ReadableProjectMesh> stopDeployment(WritableProjectMesh mesh);
 
-	Mono<ProjectMesh> stopDeployment(MeshComponent mesh);
+	Mono<ReadableProjectMesh> stopDeployment(WritableMeshComponent mesh);
 }

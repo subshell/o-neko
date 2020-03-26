@@ -1,20 +1,25 @@
 package io.oneko.project.persistence;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
-import io.oneko.docker.DockerRegistry;
+import io.oneko.Profiles;
 import io.oneko.docker.DockerRegistryRepository;
+import io.oneko.docker.ReadableDockerRegistry;
 import io.oneko.event.EventDispatcher;
 import io.oneko.namespace.DefinedNamespaceRepository;
 import io.oneko.project.Project;
-import io.oneko.project.ProjectVersion;
-import io.oneko.project.TemplateVariable;
+import io.oneko.project.ReadableProject;
+import io.oneko.project.ReadableProjectVersion;
+import io.oneko.project.ReadableTemplateVariable;
+import io.oneko.project.WritableProject;
+import io.oneko.project.WritableProjectVersion;
+import io.oneko.project.WritableTemplateVariable;
 import io.oneko.project.event.EventAwareProjectRepository;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -22,6 +27,7 @@ import reactor.core.publisher.Mono;
 
 @Service
 @Slf4j
+@Profile(Profiles.MONGO)
 class ProjectMongoRepository extends EventAwareProjectRepository {
 
 	private final ProjectMongoSpringRepository innerProjectRepo;
@@ -37,34 +43,34 @@ class ProjectMongoRepository extends EventAwareProjectRepository {
 	}
 
 	@Override
-	public Mono<Project> getById(UUID projectId) {
+	public Mono<ReadableProject> getById(UUID projectId) {
 		return this.innerProjectRepo.findById(projectId).flatMap(this::fromProjectMongo);
 	}
 
 	@Override
-	public Mono<Project> getByName(String name) {
+	public Mono<ReadableProject> getByName(String name) {
 		return this.innerProjectRepo.findByName(name).flatMap(this::fromProjectMongo);
 	}
 
 	@Override
-	public Flux<Project> getByDockerRegistryUuid(UUID dockerRegistryUUID) {
+	public Flux<ReadableProject> getByDockerRegistryUuid(UUID dockerRegistryUUID) {
 		return this.innerProjectRepo.findByDockerRegistryUUID(dockerRegistryUUID).flatMap(this::fromProjectMongo);
 	}
 
 	@Override
-	public Flux<Project> getAll() {
+	public Flux<ReadableProject> getAll() {
 		return this.innerProjectRepo.findAll().flatMap(this::fromProjectMongo);
 	}
 
 	@Override
-	protected Mono<Project> addInternally(Project project) {
+	protected Mono<ReadableProject> addInternally(WritableProject project) {
 		ProjectMongo projectMongo = this.toProjectMongo(project);
 		return this.innerProjectRepo.save(projectMongo)
 				.flatMap(this::fromProjectMongo);
 	}
 
 	@Override
-	protected Mono<Void> removeInternally(Project project) {
+	protected Mono<Void> removeInternally(Project<?, ?> project) {
 		return this.innerProjectRepo.deleteById(project.getId());
 	}
 
@@ -72,7 +78,7 @@ class ProjectMongoRepository extends EventAwareProjectRepository {
      * Mapping stuff
      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-	private ProjectMongo toProjectMongo(Project project) {
+	private ProjectMongo toProjectMongo(WritableProject project) {
 		ProjectMongo projectMongo = new ProjectMongo();
 		projectMongo.setProjectUuid(project.getId());
 		projectMongo.setName(project.getName());
@@ -96,19 +102,19 @@ class ProjectMongoRepository extends EventAwareProjectRepository {
 		return projectMongo;
 	}
 
-	private List<TemplateVariable> fromTemplateVariablesMongo(List<TemplateVariableMongo> templateVariables) {
+	private List<ReadableTemplateVariable> fromTemplateVariablesMongo(List<TemplateVariableMongo> templateVariables) {
 		return templateVariables.stream()
 				.map(this::fromTemplateVariableMongo)
 				.collect(Collectors.toList());
 	}
 
-	private List<TemplateVariableMongo> toTemplateVariablesMongo(List<TemplateVariable> templateVariables) {
+	private List<TemplateVariableMongo> toTemplateVariablesMongo(List<WritableTemplateVariable> templateVariables) {
 		return templateVariables.stream()
 				.map(this::toTemplateVariableMongo)
 				.collect(Collectors.toList());
 	}
 
-	private TemplateVariableMongo toTemplateVariableMongo(TemplateVariable templateVariable) {
+	private TemplateVariableMongo toTemplateVariableMongo(WritableTemplateVariable templateVariable) {
 		return TemplateVariableMongo.builder()
 				.id(templateVariable.getId())
 				.name(templateVariable.getName())
@@ -120,8 +126,8 @@ class ProjectMongoRepository extends EventAwareProjectRepository {
 				.build();
 	}
 
-	private TemplateVariable fromTemplateVariableMongo(TemplateVariableMongo templateVariable) {
-		return new TemplateVariable(templateVariable.getId(),
+	private ReadableTemplateVariable fromTemplateVariableMongo(TemplateVariableMongo templateVariable) {
+		return new ReadableTemplateVariable(templateVariable.getId(),
 				templateVariable.getName(),
 				templateVariable.getLabel(),
 				templateVariable.getValues(),
@@ -130,7 +136,7 @@ class ProjectMongoRepository extends EventAwareProjectRepository {
 				templateVariable.isShowOnDashboard());
 	}
 
-	private ProjectVersionMongo toProjectVersionMongo(ProjectVersion version) {
+	private ProjectVersionMongo toProjectVersionMongo(WritableProjectVersion version) {
 		ProjectVersionMongo versionMongo = new ProjectVersionMongo();
 		versionMongo.setName(version.getName());
 		versionMongo.setProjectVersionUuid(version.getUuid());
@@ -148,44 +154,40 @@ class ProjectMongoRepository extends EventAwareProjectRepository {
 		return versionMongo;
 	}
 
-	private Mono<Project> fromProjectMongo(ProjectMongo projectMongo) {
+	private Mono<ReadableProject> fromProjectMongo(ProjectMongo projectMongo) {
 		return this.registryRepository.getById(projectMongo.getDockerRegistryUUID())
 				.flatMap(registry -> this.fromProjectMongoAndRegistry(projectMongo, registry))
 				.switchIfEmpty(this.fromProjectMongoAndRegistry(projectMongo, null));
 	}
 
-	private Mono<Project> fromProjectMongoAndRegistry(ProjectMongo projectMongo, DockerRegistry registry) {
-		List<ProjectVersion> versions = new ArrayList<>();
+	private Mono<ReadableProject> fromProjectMongoAndRegistry(ProjectMongo projectMongo, ReadableDockerRegistry registry) {
 
-		Project project = Project.builder()
-				.uuid(projectMongo.getProjectUuid())
-				.name(projectMongo.getName())
-				.imageName(projectMongo.getImageName())
-				.newVersionsDeploymentBehaviour(projectMongo.getNewVersionsDeploymentBehaviour())
-				.defaultConfigurationTemplates(ConfigurationTemplateMongoMapper.fromConfigurationTemplateMongos(projectMongo.getDefaultConfigurationTemplates()))
-				.templateVariables(fromTemplateVariablesMongo(projectMongo.getTemplateVariables()))
-				.dockerRegistry(registry)
-				.versions(versions)
-				.defaultLifetimeBehaviour(projectMongo.getDefaultLifetimeBehaviour())
-				.build();
-
-		Flux<ProjectVersion> projectVersionFlux = Flux.concat(
+		Flux<ReadableProjectVersion> projectVersionFlux = Flux.concat(
 				projectMongo.getVersions()
 						.stream()
-						.map(vm -> this.fromProjectVersionMongo(project, vm))
+						.map(this::fromProjectVersionMongo)
 						.collect(Collectors.toList()));
 
-		return projectVersionFlux.doOnNext(versions::add)
-				.then(Mono.just(project));
+		return projectVersionFlux.collectList()
+				.map(versions -> ReadableProject.builder()
+						.uuid(projectMongo.getProjectUuid())
+						.name(projectMongo.getName())
+						.imageName(projectMongo.getImageName())
+						.newVersionsDeploymentBehaviour(projectMongo.getNewVersionsDeploymentBehaviour())
+						.defaultConfigurationTemplates(ConfigurationTemplateMongoMapper.fromConfigurationTemplateMongos(projectMongo.getDefaultConfigurationTemplates()))
+						.templateVariables(fromTemplateVariablesMongo(projectMongo.getTemplateVariables()))
+						.dockerRegistry(registry)
+						.versions(versions)
+						.defaultLifetimeBehaviour(projectMongo.getDefaultLifetimeBehaviour())
+						.build());
 	}
 
-	private Mono<ProjectVersion> fromProjectVersionMongo(Project project, ProjectVersionMongo versionMongo) {
-		ProjectVersion.ProjectVersionBuilder projectVersionBuilder = ProjectVersion.builder()
+	private Mono<ReadableProjectVersion> fromProjectVersionMongo(ProjectVersionMongo versionMongo) {
+		ReadableProjectVersion.ReadableProjectVersionBuilder projectVersionBuilder = ReadableProjectVersion.builder()
 				.uuid(versionMongo.getProjectVersionUuid())
 				.name(versionMongo.getName())
 				.deploymentBehaviour(versionMongo.getDeploymentBehaviour())
 				.templateVariables(versionMongo.getTemplateVariables())
-				.project(project)
 				.dockerContentDigest(versionMongo.getDockerContentDigest())
 				.urls(versionMongo.getUrls())
 				.outdated(versionMongo.isOutdated())

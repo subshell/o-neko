@@ -45,7 +45,7 @@ public class DockerRegistryV2ClientFactory {
 				.flatMap(checkResult -> this.buildClientBasedOnApiCheck(checkResult, dockerRegistry, "registry:catalog:*"));
 	}
 
-	public Mono<DockerRegistryV2Client> getDockerRegistryClient(Project project) {
+	public Mono<DockerRegistryV2Client> getDockerRegistryClient(Project<?, ?> project) {
 		if (project.isOrphan()) {
 			return Mono.empty();
 		}
@@ -54,7 +54,7 @@ public class DockerRegistryV2ClientFactory {
 				.flatMap(checkResult -> this.buildClientBasedOnApiCheck(checkResult, dockerRegistry, "repository:" + project.getImageName() + ":pull"));
 	}
 
-	public Mono<DockerRegistryV2Client> getDockerRegistryClient(MeshComponent component) {
+	public Mono<DockerRegistryV2Client> getDockerRegistryClient(MeshComponent<?, ?> component) {
 		return getDockerRegistryClient(component.getProject());
 	}
 

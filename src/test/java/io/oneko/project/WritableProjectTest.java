@@ -6,18 +6,19 @@ import static org.junit.Assert.*;
 import java.util.Arrays;
 import java.util.Collections;
 
+import io.oneko.docker.ReadableDockerRegistry;
 import io.oneko.docker.WritableDockerRegistry;
 import org.junit.Test;
 
 import io.oneko.docker.DockerRegistry;
 import io.oneko.templates.WritableConfigurationTemplate;
 
-public class ProjectTest {
+public class WritableProjectTest {
 
 	@Test
 	public void testSetDefaultConfigurationTemplates() {
-		DockerRegistry dockerRegistry = new WritableDockerRegistry();
-		Project uut = new Project(dockerRegistry);
+		ReadableDockerRegistry dockerRegistry = new WritableDockerRegistry().readable();
+		WritableProject uut = new WritableProject(dockerRegistry);
 
 		assertThat(uut.getDefaultConfigurationTemplates(), is(empty()));
 

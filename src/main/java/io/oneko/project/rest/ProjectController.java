@@ -16,10 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import io.oneko.configuration.Controllers;
-import io.oneko.docker.DockerRegistry;
 import io.oneko.docker.DockerRegistryRepository;
+import io.oneko.docker.ReadableDockerRegistry;
 import io.oneko.kubernetes.KubernetesDeploymentManager;
-import io.oneko.project.Project;
+import io.oneko.project.ReadableProject;
+import io.oneko.project.WritableProject;
 import io.oneko.project.ProjectRepository;
 import io.oneko.project.ProjectVersion;
 import lombok.extern.slf4j.Slf4j;
@@ -50,7 +51,7 @@ public class ProjectController {
 		this.kubernetesDeploymentManager = kubernetesDeploymentManager;
 	}
 
-	private Mono<DockerRegistry> getDockerRegistryForProject(Project project, ProjectDTO dto) {
+	private Mono<ReadableDockerRegistry> getDockerRegistryForProject(ReadableProject project, ProjectDTO dto) {
 		if (Objects.equals(project.getDockerRegistryUuid(), dto.getDockerRegistryUUID())) {
 			//no change, so...
 			return Mono.just(project.getDockerRegistry());
@@ -72,7 +73,7 @@ public class ProjectController {
 	@PostMapping
 	Mono<ProjectDTO> createProject(@RequestBody ProjectDTO dto) {
 		return dockerRegistryRepository.getById(dto.getDockerRegistryUUID())
-				.map(Project::new)
+				.map(WritableProject::new)
 				.flatMap(p -> this.dtoMapper.updateProjectFromDTO(p, dto, p.getDockerRegistry()))
 				.flatMap(this.projectRepository::add)
 				.flatMap(this.dtoMapper::projectToDTO);
@@ -92,7 +93,7 @@ public class ProjectController {
 		return this.projectRepository.getById(id)
 				.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Project with id " + id + " not found")))
 				.zipWhen(project -> this.getDockerRegistryForProject(project, dto))
-				.flatMap(tuple2 -> this.dtoMapper.updateProjectFromDTO(tuple2.getT1(), dto, tuple2.getT2()))
+				.flatMap(tuple2 -> this.dtoMapper.updateProjectFromDTO(tuple2.getT1().writable(), dto, tuple2.getT2()))
 				.flatMap(this.projectRepository::add)
 				.flatMap(this.dtoMapper::projectToDTO);
 	}
@@ -110,6 +111,7 @@ public class ProjectController {
 	Mono<ProjectDTO> triggerDeploymentOfVersion(@PathVariable UUID id, @PathVariable UUID versionId) {
 		return this.projectRepository.getById(id)
 				.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Project with id " + id + " not found")))
+				.map(ReadableProject::writable)
 				.map(project -> project.getVersionByUUID(versionId))
 				.filter(Optional::isPresent)
 				.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Project version with id " + versionId + " not found")))
@@ -123,6 +125,7 @@ public class ProjectController {
 	Mono<Void> stopDeployment(@PathVariable UUID id, @PathVariable UUID versionId) {
 		return this.projectRepository.getById(id)
 				.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Project with id " + id + " not found")))
+				.map(ReadableProject::writable)
 				.map(project -> project.getVersionByUUID(versionId))
 				.filter(Optional::isPresent)
 				.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Project version with id " + versionId + " not found")))

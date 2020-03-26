@@ -16,7 +16,7 @@ public class ConfigurationTemplates {
 	/**
 	 * Ensures that the given collection of templates does not contain an ID or name twice.
 	 */
-	public static void ensureConsistentCollection(Collection<WritableConfigurationTemplate> templates) {
+	public static void ensureConsistentCollection(Collection<? extends ConfigurationTemplate> templates) {
 		ensureNoDuplicate(templates);
 		ensureNoDuplicateNames(templates);
 	}
@@ -24,9 +24,9 @@ public class ConfigurationTemplates {
 	/**
 	 * Ensures, that the given collection of configuration templates does not contain a single configuration twice.
 	 */
-	public static void ensureNoDuplicate(Collection<WritableConfigurationTemplate> templates) {
+	public static void ensureNoDuplicate(Collection<? extends ConfigurationTemplate> templates) {
 		Set<UUID> ids = new HashSet<>(templates.size());
-		for (WritableConfigurationTemplate template : templates) {
+		for (ConfigurationTemplate template : templates) {
 			Preconditions.checkArgument(ids.add(template.getId()), "Collection of configuration templates contains the template %s twice.", template.getId());
 		}
 	}
@@ -34,17 +34,17 @@ public class ConfigurationTemplates {
 	/**
 	 * Ensures, that the given collection of configuration templates does not contain two configurations with the same name.
 	 */
-	public static void ensureNoDuplicateNames(Collection<WritableConfigurationTemplate> templates) {
+	public static void ensureNoDuplicateNames(Collection<? extends ConfigurationTemplate> templates) {
 		Set<String> names = new HashSet<>(templates.size());
-		for (WritableConfigurationTemplate template : templates) {
+		for (ConfigurationTemplate template : templates) {
 			Preconditions.checkArgument(names.add(template.getName()), "Collection of configuration templates contains the name %s twice.", template.getName());
 		}
 	}
 
 	@SafeVarargs
-	public static List<ConfigurationTemplate> unifyTemplateSets(Collection<ConfigurationTemplate>... templateSets) {
+	public static List<ConfigurationTemplate> unifyTemplateSets(Collection<? extends ConfigurationTemplate>... templateSets) {
 		Map<String, ConfigurationTemplate> templateNameToTemplateMap = new LinkedHashMap<>();
-		for (Collection<ConfigurationTemplate> templateSet : templateSets) {
+		for (Collection<? extends ConfigurationTemplate> templateSet : templateSets) {
 			for (ConfigurationTemplate template : templateSet) {
 				templateNameToTemplateMap.put(template.getName(), template);
 			}

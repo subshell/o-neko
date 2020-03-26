@@ -22,11 +22,13 @@ import io.oneko.kubernetes.deployments.DeploymentDTOs;
 import io.oneko.kubernetes.deployments.DeploymentRepository;
 import io.oneko.namespace.ImplicitNamespace;
 import io.oneko.namespace.rest.NamespaceDTOMapper;
-import io.oneko.project.Project;
+import io.oneko.project.ReadableProject;
+import io.oneko.project.ReadableProjectVersion;
 import io.oneko.project.ProjectRepository;
-import io.oneko.project.ProjectVersion;
-import io.oneko.projectmesh.MeshComponent;
-import io.oneko.projectmesh.ProjectMesh;
+import io.oneko.projectmesh.ReadableMeshComponent;
+import io.oneko.projectmesh.ReadableProjectMesh;
+import io.oneko.projectmesh.WritableMeshComponent;
+import io.oneko.projectmesh.WritableProjectMesh;
 import io.oneko.templates.rest.ConfigurationTemplateDTOMapper;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -47,7 +49,7 @@ public class ProjectMeshDTOMapper {
 		this.projectRepository = projectRepository;
 	}
 
-	public Mono<ProjectMeshDTO> projectMeshToDTO(ProjectMesh mesh) {
+	public Mono<ProjectMeshDTO> projectMeshToDTO(ReadableProjectMesh mesh) {
 		ProjectMeshDTO dto = new ProjectMeshDTO();
 		dto.setId(mesh.getId());
 		dto.setName(mesh.getName());
@@ -71,19 +73,19 @@ public class ProjectMeshDTOMapper {
 				.collect(Collectors.toList()));
 	}
 
-	private Flux<MeshComponentDTO> componentsToDTO(Collection<MeshComponent> components) {
+	private Flux<MeshComponentDTO> componentsToDTO(Collection<ReadableMeshComponent> components) {
 		return Flux.concat(components.stream()
 				.map(this::componentToDTO)
 				.collect(Collectors.toList()));
 	}
 
-	private Mono<MeshComponentDTO> componentToDTO(MeshComponent component) {
+	private Mono<MeshComponentDTO> componentToDTO(ReadableMeshComponent component) {
 		return deploymentRepository.findByDeployableId(component.getId())
 				.map(deployment -> componentToDTO(component, deployment))
 				.switchIfEmpty(Mono.justOrEmpty(componentToDTO(component, null)));
 	}
 
-	private MeshComponentDTO componentToDTO(MeshComponent component, Deployment deployment) {
+	private MeshComponentDTO componentToDTO(ReadableMeshComponent component, Deployment deployment) {
 		MeshComponentDTO dto = new MeshComponentDTO();
 		dto.setId(component.getId());
 		dto.setName(component.getName());
@@ -100,7 +102,7 @@ public class ProjectMeshDTOMapper {
 		return dto;
 	}
 
-	public Mono<ProjectMesh> updateProjectMeshFromDTO(ProjectMesh mesh, ProjectMeshDTO dto) {
+	public Mono<WritableProjectMesh> updateProjectMeshFromDTO(WritableProjectMesh mesh, ProjectMeshDTO dto) {
 		//id can not be changed
 		mesh.setName(dto.getName());
 		mesh.setDeploymentBehaviour(dto.getDeploymentBehaviour());
@@ -110,7 +112,7 @@ public class ProjectMeshDTOMapper {
 				.then(namespaceDTOMapper.updateNamespaceOfOwner(mesh, dto.getNamespace()));
 	}
 
-	private Flux<MeshComponent> updateComponentsFromDTO(ProjectMesh mesh, Collection<MeshComponent> components, List<MeshComponentDTO> componentDTOs) {
+	private Flux<WritableMeshComponent> updateComponentsFromDTO(WritableProjectMesh mesh, Collection<WritableMeshComponent> components, List<MeshComponentDTO> componentDTOs) {
 		final Map<UUID, MeshComponentDTO> componentDTOsById = new HashMap<>();
 		final List<MeshComponentDTO> newComponentDTOs = new ArrayList<>();
 		for (MeshComponentDTO componentDTO : componentDTOs) {
@@ -120,32 +122,32 @@ public class ProjectMeshDTOMapper {
 				newComponentDTOs.add(componentDTO);
 			}
 		}
-		final List<Mono<MeshComponent>> updatedExistingComponents = components.stream()
+		final List<Mono<WritableMeshComponent>> updatedExistingComponents = components.stream()
 				.map(component -> updateComponentFromDTO(component, componentDTOsById.get(component.getId())).thenReturn(component))
 				.collect(Collectors.toList());
-		final List<Mono<MeshComponent>> newComponents = newComponentDTOs.stream()
+		final List<Mono<WritableMeshComponent>> newComponents = newComponentDTOs.stream()
 				.map(dto -> createComponentFromDTO(mesh, dto))
 				.collect(Collectors.toList());
 		return Flux.concat(updatedExistingComponents)
 				.concatWith(Flux.concat(newComponents));
 	}
 
-	private Mono<MeshComponent> createComponentFromDTO(ProjectMesh owner, MeshComponentDTO dto) {
+	private Mono<WritableMeshComponent> createComponentFromDTO(WritableProjectMesh owner, MeshComponentDTO dto) {
 		return this.projectRepository.getById(dto.getProjectId())
 				.flatMap(p -> createComponentFromDTO(owner, dto, p))
 				.filter(Objects::nonNull);
 	}
 
-	private Mono<MeshComponent> createComponentFromDTO(ProjectMesh owner, MeshComponentDTO dto, Project project) {
-		final Optional<ProjectVersion> versionByUUID = project.getVersionByUUID(dto.getProjectVersionId());
+	private Mono<WritableMeshComponent> createComponentFromDTO(WritableProjectMesh owner, MeshComponentDTO dto, ReadableProject project) {
+		final Optional<ReadableProjectVersion> versionByUUID = project.getVersionByUUID(dto.getProjectVersionId());
 		if (versionByUUID.isEmpty()) {
 			return Mono.empty();
 		}
-		final MeshComponent component = owner.createComponent(dto.getName(), project, versionByUUID.get());
+		final WritableMeshComponent component = owner.createComponent(dto.getName(), project, versionByUUID.get());
 		return updateComponentFromDTO(component, dto);
 	}
 
-	private Mono<MeshComponent> updateComponentFromDTO(MeshComponent component, MeshComponentDTO componentDTO) {
+	private Mono<WritableMeshComponent> updateComponentFromDTO(WritableMeshComponent component, MeshComponentDTO componentDTO) {
 		if (componentDTO == null) {
 			component.getOwner().removeComponent(component.getName());
 			return Mono.empty();
@@ -154,7 +156,7 @@ public class ProjectMeshDTOMapper {
 		component.setTemplateVariables(componentDTO.getTemplateVariables());
 		component.setConfigurationTemplates(templateDTOMapper.updateFromDTOs(component.getConfigurationTemplates(), componentDTO.getConfigurationTemplates()));
 		if (!Objects.equals(component.getProjectVersion().getId(), componentDTO.getProjectVersionId())) {
-			final Optional<ProjectVersion> versionByUUID = component.getProject().getVersionByUUID(componentDTO.getProjectVersionId());
+			final Optional<ReadableProjectVersion> versionByUUID = component.getProject().getVersionByUUID(componentDTO.getProjectVersionId());
 			versionByUUID.ifPresent(component::setProjectVersion);
 		}
 		return Mono.just(component);

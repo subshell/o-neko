@@ -17,6 +17,8 @@ import io.oneko.docker.v2.model.Repository;
 import io.oneko.docker.v2.model.RepositoryList;
 import io.oneko.docker.v2.model.manifest.Manifest;
 import io.oneko.project.Project;
+import io.oneko.project.ReadableProject;
+import io.oneko.project.WritableProject;
 import io.oneko.project.ProjectVersion;
 import io.oneko.security.WebClientBuilderFactory;
 import reactor.core.publisher.Mono;
@@ -60,7 +62,7 @@ public class DockerRegistryV2Client {
 				.map(repositories -> repositories.stream().map(Repository::getName).collect(Collectors.toList()));
 	}
 
-	public Mono<List<String>> getAllTags(Project project) {
+	public Mono<List<String>> getAllTags(Project<?, ?> project) {
 		return client
 				.get()
 				.uri("/v2/" + project.getImageName() + "/tags/list")
@@ -69,7 +71,7 @@ public class DockerRegistryV2Client {
 				.map(ListTagsResult::getTags);
 	}
 
-	public Mono<Manifest> getManifest(ProjectVersion version) {
+	public Mono<Manifest> getManifest(ProjectVersion<?, ?> version) {
 		return client
 				.get()
 				.uri("/v2/" + version.getProject().getImageName() + "/manifests/" + version.getName())

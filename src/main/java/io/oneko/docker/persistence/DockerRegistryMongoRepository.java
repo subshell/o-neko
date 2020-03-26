@@ -67,7 +67,7 @@ class DockerRegistryMongoRepository extends EventAwareDockerRegistryRepository {
 		registryMongo.setRegistryUrl(registry.getRegistryUrl());
 		registryMongo.setUserName(registry.getUserName());
 		registryMongo.setPassword(credentialsCoder.encrypt(registry.getUuid().toString() + registry.getPassword()));
-		registryMongo.setTrustInsecureCertificate(registry.getTrustInsecureCertificate());
+		registryMongo.setTrustInsecureCertificate(registry.isTrustInsecureCertificate());
 		return registryMongo;
 	}
 

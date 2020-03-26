@@ -16,11 +16,13 @@ import io.oneko.kubernetes.deployments.Deployment;
 import io.oneko.kubernetes.deployments.DeploymentRepository;
 import io.oneko.kubernetes.deployments.DesiredState;
 import io.oneko.namespace.Namespace;
-import io.oneko.project.Project;
+import io.oneko.project.ReadableProject;
+import io.oneko.project.WritableProject;
 import io.oneko.project.ProjectRepository;
 import io.oneko.project.ProjectVersion;
-import io.oneko.projectmesh.MeshComponent;
-import io.oneko.projectmesh.ProjectMesh;
+import io.oneko.projectmesh.ReadableProjectMesh;
+import io.oneko.projectmesh.WritableMeshComponent;
+import io.oneko.projectmesh.WritableProjectMesh;
 import io.oneko.projectmesh.ProjectMeshRepository;
 import io.oneko.websocket.ReactiveWebSocketHandler;
 import io.oneko.websocket.message.DeploymentStatusChangedMessage;
@@ -54,7 +56,8 @@ class DeploymentStatusWatcher {
 	@Scheduled(fixedRate = 5000)
 	protected void updateProjectStatus() {
 		projectRepository.getAll()
-				.flatMapIterable(Project::getVersions)
+				.map(ReadableProject::writable)
+				.flatMapIterable(WritableProject::getVersions)
 				.filterWhen(projectVersion -> shouldScanDeployable(Deployables.of(projectVersion)))
 				.flatMap(version -> scanResourcesForDeployable(version.getNamespace(), Deployables.of(version)))
 				.subscriberContext(Context.of(EventTrigger.class, new ScheduledTask("Kubernetes Status Watcher")))
@@ -64,7 +67,8 @@ class DeploymentStatusWatcher {
 	@Scheduled(fixedRate = 5000, initialDelay = 2500)
 	protected void updateMeshStatus() {
 		meshRepository.getAll()
-				.flatMapIterable(ProjectMesh::getComponents)
+				.map(ReadableProjectMesh::writable)
+				.flatMapIterable(WritableProjectMesh::getComponents)
 				.filterWhen(meshComponent -> shouldScanDeployable(Deployables.of(meshComponent)))
 				.flatMap(component -> scanResourcesForDeployable(component.getOwner().getNamespace(), Deployables.of(component)))
 				.subscriberContext(Context.of(EventTrigger.class, new ScheduledTask("Kubernetes Status Watcher")))
@@ -127,8 +131,8 @@ class DeploymentStatusWatcher {
 		if (deployable.getEntity() instanceof ProjectVersion) {
 			ProjectVersion version = (ProjectVersion) deployable.getEntity();
 			webSocketHandler.broadcast(new DeploymentStatusChangedMessage(deployable.getId(), version.getProject().getId(), DeploymentStatusChangedMessage.DeployableType.projectVersion, newStatus, deployable.getDesiredState(), mysteriousRefDate, deployable.isOutdated(), version.getImageUpdatedDate()));
-		} else if (deployable.getEntity() instanceof MeshComponent) {
-			MeshComponent meshComponent = (MeshComponent) deployable.getEntity();
+		} else if (deployable.getEntity() instanceof WritableMeshComponent) {
+			WritableMeshComponent meshComponent = (WritableMeshComponent) deployable.getEntity();
 			webSocketHandler.broadcast(new DeploymentStatusChangedMessage(deployable.getId(), meshComponent.getOwner().getId(), DeploymentStatusChangedMessage.DeployableType.meshComponent, newStatus, deployable.getDesiredState(), mysteriousRefDate, deployable.isOutdated(), meshComponent.getProjectVersion().getImageUpdatedDate()));
 		}
 	}

@@ -18,7 +18,7 @@ public class WritableDockerRegistry extends ModificationAwareIdentifiable implem
 	/**
 	 * Creates a completely new DockerRegistry
 	 */
-	protected WritableDockerRegistry() {
+	public WritableDockerRegistry() {
 		this.uuid.set(UUID.randomUUID());
 		this.trustInsecureCertificate.set(false);//init primitive values
 	}
@@ -58,7 +58,7 @@ public class WritableDockerRegistry extends ModificationAwareIdentifiable implem
 		return password.get();
 	}
 
-	public boolean getTrustInsecureCertificate() {
+	public boolean isTrustInsecureCertificate() {
 		return trustInsecureCertificate.get();
 	}
 
@@ -83,7 +83,7 @@ public class WritableDockerRegistry extends ModificationAwareIdentifiable implem
 	}
 
 	public ReadableDockerRegistry readable() {
-		return new ReadableDockerRegistry(getUuid(), getName(), getRegistryUrl(), getUserName(), getPassword(), getTrustInsecureCertificate());
+		return new ReadableDockerRegistry(getUuid(), getName(), getRegistryUrl(), getUserName(), getPassword(), isTrustInsecureCertificate());
 	}
 
 }

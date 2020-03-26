@@ -35,8 +35,12 @@ import io.oneko.kubernetes.deployments.Deployables;
 import io.oneko.kubernetes.deployments.DesiredState;
 import io.oneko.project.ProjectRepository;
 import io.oneko.project.ProjectVersion;
-import io.oneko.projectmesh.MeshComponent;
-import io.oneko.projectmesh.ProjectMesh;
+import io.oneko.project.ReadableProjectVersion;
+import io.oneko.project.WritableProjectVersion;
+import io.oneko.projectmesh.ReadableMeshComponent;
+import io.oneko.projectmesh.ReadableProjectMesh;
+import io.oneko.projectmesh.WritableMeshComponent;
+import io.oneko.projectmesh.WritableProjectMesh;
 import io.oneko.projectmesh.ProjectMeshRepository;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -60,10 +64,10 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 	}
 
 	@Override
-	public Mono<ProjectVersion> deploy(ProjectVersion version) {
+	public Mono<ReadableProjectVersion> deploy(WritableProjectVersion version) {
 		try {
 			log.debug("Deploying version {} of project {}", version.getName(), version.getProject().getName());
-			Deployable<ProjectVersion> deployableVersion = Deployables.of(version);
+			Deployable<WritableProjectVersion> deployableVersion = Deployables.of(version);
 			String namespace = version.getNamespace().asKubernetesNameSpace();
 			return kubernetesAccess.createNamespaceIfNotExistent(version)
 					.then(createSecretIfNotExistent(deployableVersion.getDockerRegistry(), namespace))
@@ -73,7 +77,7 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 					.map(resources -> kubernetesAccess.createResourcesInNameSpace(namespace, resources))
 					.flatMap(resources -> this.updateDeployableWithCreatedResources(deployableVersion, resources))
 					.flatMap(deployable -> this.updateDesiredStateOfDeployable(deployable, Deployed))
-					.flatMap(v -> this.projectRepository.add(v.getRelatedProject()))
+					.flatMap(v -> this.projectRepository.add(v.getEntity().getProject()))
 					.map(project -> project.getVersionByUUID(version.getId()).get());
 		} catch (KubernetesClientException e) {
 			log.debug("Failed to deploy version {} of project {}", version.getName(), version.getProject().getName());
@@ -82,20 +86,20 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 	}
 
 	@Override
-	public Mono<ProjectMesh> deploy(ProjectMesh mesh) {
+	public Mono<ReadableProjectMesh> deploy(WritableProjectMesh mesh) {
 		log.debug("Deploying project mesh {}", mesh.getName());
 		return this.deployComponentsOfMesh(mesh, mesh.getComponents());
 	}
 
 	@Override
-	public Mono<MeshComponent> deploy(MeshComponent component) {
+	public Mono<ReadableMeshComponent> deploy(WritableMeshComponent component) {
 		log.debug("Deploying component {} of project mesh {}", component.getName(), component.getOwner().getName());
 		return this.deployComponentsOfMesh(component.getOwner(), Collections.singletonList(component))
 				.map(mesh -> mesh.getComponentById(component.getId()))
 				.map(Optional::get);
 	}
 
-	private Mono<ProjectMesh> deployComponentsOfMesh(ProjectMesh mesh, Collection<MeshComponent> components) {
+	private Mono<ReadableProjectMesh> deployComponentsOfMesh(WritableProjectMesh mesh, Collection<WritableMeshComponent> components) {
 		try {
 			String namespace = mesh.getNamespace().asKubernetesNameSpace();
 			return kubernetesAccess.createNamespaceIfNotExistent(mesh)
@@ -113,15 +117,15 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 					.filter(list -> !list.isEmpty())
 					.map(deployables -> deployables.get(0).getEntity().getOwner())
 					.flatMap(this.projectMeshRepository::add)
-					.switchIfEmpty(Mono.just(mesh));
+					.switchIfEmpty(Mono.just(mesh.readable()));
 		} catch (KubernetesClientException e) {
 			log.debug("Failed to deploy project mesh {}", mesh.getName());
 			return Mono.error(e);
 		}
 	}
 
-	private <T extends Deployable> Mono<T> updateDeployableWithCreatedResources(T deployable, List<HasMetadata> createdResources) {
-		ProjectVersion relatedVersion = deployable.getRelatedProjectVersion();
+	private <T extends Deployable<?>> Mono<T> updateDeployableWithCreatedResources(T deployable, List<HasMetadata> createdResources) {
+		ProjectVersion<?, ?> relatedVersion = deployable.getRelatedProjectVersion();
 		createdResources.forEach(hasMetadata -> setDeploymentUrlsTo(deployable, hasMetadata));
 		deployable.setOutdated(false);
 		if (StringUtils.isEmpty(deployable.getDockerContentDigest())) {
@@ -168,7 +172,7 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 		}
 	}
 
-	private void setDeploymentUrlsTo(Deployable deployable, HasMetadata hasMetadata) {
+	private void setDeploymentUrlsTo(Deployable<?> deployable, HasMetadata hasMetadata) {
 		if (hasMetadata instanceof Ingress) {
 			Ingress ingress = (Ingress) hasMetadata;
 
@@ -207,10 +211,10 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 	}
 
 	@Override
-	public Mono<ProjectVersion> stopDeployment(ProjectVersion version) {
+	public Mono<ReadableProjectVersion> stopDeployment(WritableProjectVersion version) {
 		try {
 			log.debug("Stop deployment of version {} of project {}", version.getName(), version.getProject().getName());
-			Deployable<ProjectVersion> deployableVersion = Deployables.of(version);
+			Deployable<WritableProjectVersion> deployableVersion = Deployables.of(version);
 			kubernetesAccess.deleteNamespaceByLabel(deployableVersion.getPrimaryLabel());
 			version.setUrls(Collections.emptyList());
 			version.setDesiredState(NotDeployed);
@@ -225,11 +229,11 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 	}
 
 	@Override
-	public Mono<ProjectMesh> stopDeployment(ProjectMesh mesh) {
+	public Mono<ReadableProjectMesh> stopDeployment(WritableProjectMesh mesh) {
 		try {
 			log.debug("Stop deployment of mesh {}", mesh.getName());
 			kubernetesAccess.deleteNamespaceByName(mesh.getNamespace().asKubernetesNameSpace());
-			for (MeshComponent component : mesh.getComponents()) {
+			for (WritableMeshComponent component : mesh.getComponents()) {
 				component.setUrls(Collections.emptyList());
 				component.setDesiredState(NotDeployed);
 			}
@@ -241,10 +245,10 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 	}
 
 	@Override
-	public Mono<ProjectMesh> stopDeployment(MeshComponent component) {
+	public Mono<ReadableProjectMesh> stopDeployment(WritableMeshComponent component) {
 		try {
 			log.debug("Stop deployment of component {} of mesh {}", component.getName(), component.getOwner().getName());
-			Deployable<MeshComponent> deployableComponent = Deployables.of(component);
+			Deployable<WritableMeshComponent> deployableComponent = Deployables.of(component);
 			kubernetesAccess.deleteAllResourcesFromNameSpace(component.getOwner().getNamespace().asKubernetesNameSpace(), deployableComponent.getPrimaryLabel());
 			component.setUrls(Collections.emptyList());
 			component.setDesiredState(NotDeployed);

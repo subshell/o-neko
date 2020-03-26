@@ -6,8 +6,8 @@ import org.springframework.stereotype.Service;
 
 import io.oneko.namespace.DefinedNamespace;
 import io.oneko.namespace.DefinedNamespaceRepository;
-import io.oneko.namespace.HasNamespace;
 import io.oneko.namespace.Namespace;
+import io.oneko.namespace.WritableHasNamespace;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -28,7 +28,7 @@ public class NamespaceDTOMapper {
 		return dto;
 	}
 
-	public <T extends HasNamespace> Mono<T> updateNamespaceOfOwner(T owner, NamespaceDTO namespaceDTO) {
+	public <T extends WritableHasNamespace> Mono<T> updateNamespaceOfOwner(T owner, NamespaceDTO namespaceDTO) {
 		if (namespaceDTO == null || Objects.equals(owner.getDefinedNamespaceId(), namespaceDTO.getId())) {
 			return Mono.just(owner);
 		}

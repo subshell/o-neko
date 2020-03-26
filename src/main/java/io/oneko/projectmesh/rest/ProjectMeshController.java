@@ -18,7 +18,9 @@ import io.oneko.configuration.Controllers;
 import io.oneko.kubernetes.KubernetesDeploymentManager;
 import io.oneko.project.rest.DeployableConfigurationDTO;
 import io.oneko.project.rest.DeployableConfigurationDTOMapper;
-import io.oneko.projectmesh.ProjectMesh;
+import io.oneko.projectmesh.ReadableMeshComponent;
+import io.oneko.projectmesh.ReadableProjectMesh;
+import io.oneko.projectmesh.WritableProjectMesh;
 import io.oneko.projectmesh.ProjectMeshRepository;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -52,7 +54,7 @@ public class ProjectMeshController {
 	@PreAuthorize("hasAnyRole('ADMIN', 'DOER')")
 	@PostMapping
 	Mono<ProjectMeshDTO> createProjectMesh(@RequestBody ProjectMeshDTO dto) {
-		return Mono.just(new ProjectMesh())
+		return Mono.just(new WritableProjectMesh())
 				.flatMap(p -> this.dtoMapper.updateProjectMeshFromDTO(p, dto))
 				.flatMap(this.meshRepository::add)
 				.flatMap(this.dtoMapper::projectMeshToDTO);
@@ -71,6 +73,7 @@ public class ProjectMeshController {
 	Mono<ProjectMeshDTO> updateProjectMesh(@PathVariable UUID id, @RequestBody ProjectMeshDTO dto) {
 		return this.meshRepository.getById(id)
 				.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "ProjectMesh with id " + id + " not found")))
+				.map(ReadableProjectMesh::writable)
 				.flatMap(mesh -> this.dtoMapper.updateProjectMeshFromDTO(mesh, dto))
 				.flatMap(this.meshRepository::add)
 				.flatMap(this.dtoMapper::projectMeshToDTO);
@@ -90,6 +93,7 @@ public class ProjectMeshController {
 	Mono<ProjectMeshDTO> triggerDeployment(@PathVariable UUID id) {
 		return this.meshRepository.getById(id)
 				.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "ProjectMesh with id " + id + " not found")))
+				.map(ReadableProjectMesh::writable)
 				.flatMap(mesh -> kubernetesDeploymentManager.deploy(mesh))
 				.flatMap(dtoMapper::projectMeshToDTO);
 	}
@@ -99,6 +103,7 @@ public class ProjectMeshController {
 	Mono<Void> stopDeployment(@PathVariable UUID id) {
 		return this.meshRepository.getById(id)
 				.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "ProjectMesh with id " + id + " not found")))
+				.map(ReadableProjectMesh::writable)
 				.flatMap(kubernetesDeploymentManager::stopDeployment)
 				.then();
 	}
@@ -120,12 +125,13 @@ public class ProjectMeshController {
 	Mono<ProjectMeshDTO> triggerDeploymentOfComponent(@PathVariable UUID id, @PathVariable UUID componentId) {
 		return this.meshRepository.getById(id)
 				.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "ProjectMesh with id " + id + " not found")))
+				.map(ReadableProjectMesh::writable)
 				.map(mesh -> mesh.getComponentById(componentId))
 				.filter(Optional::isPresent)
 				.map(Optional::get)
 				.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Mesh component with id " + componentId + " not found")))
-				.flatMap(component -> kubernetesDeploymentManager.deploy(component))
-				.map(component -> component.getOwner())
+				.flatMap(kubernetesDeploymentManager::deploy)
+				.map(ReadableMeshComponent::getOwner)
 				.flatMap(dtoMapper::projectMeshToDTO);
 	}
 
@@ -134,6 +140,7 @@ public class ProjectMeshController {
 	Mono<ProjectMeshDTO> stopDeploymentOfComponent(@PathVariable UUID id, @PathVariable UUID componentId) {
 		return this.meshRepository.getById(id)
 				.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "ProjectMesh with id " + id + " not found")))
+				.map(ReadableProjectMesh::writable)
 				.map(mesh -> mesh.getComponentById(componentId))
 				.filter(Optional::isPresent)
 				.map(Optional::get)

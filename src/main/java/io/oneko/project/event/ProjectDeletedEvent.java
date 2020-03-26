@@ -6,6 +6,7 @@ import io.oneko.domain.DescribingEntityChange;
 import io.oneko.event.EntityChangedEvent;
 import io.oneko.event.EventTrigger;
 import io.oneko.project.Project;
+import io.oneko.project.WritableProject;
 
 public class ProjectDeletedEvent extends EntityChangedEvent {
 

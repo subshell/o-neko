@@ -11,18 +11,18 @@ import reactor.core.publisher.Mono;
  */
 public interface ProjectRepository {
 
-	Mono<Project> getById(UUID projectId);
+	Mono<ReadableProject> getById(UUID projectId);
 
-	Mono<Project> getByName(String name);
+	Mono<ReadableProject> getByName(String name);
 
-	Flux<Project> getByDockerRegistryUuid(UUID dockerRegistryUUID);
+	Flux<ReadableProject> getByDockerRegistryUuid(UUID dockerRegistryUUID);
 
-	Flux<Project> getAll();
+	Flux<ReadableProject> getAll();
 
 	/**
 	 * Persists the project.
 	 */
-	Mono<Project> add(Project project);
+	Mono<ReadableProject> add(WritableProject project);
 
-	Mono<Void> remove(Project project);
+	Mono<Void> remove(Project<?, ?> project);
 }

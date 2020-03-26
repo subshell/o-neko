@@ -1,0 +1,77 @@
+package io.oneko.project;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import com.google.common.collect.ImmutableList;
+
+import io.oneko.automations.LifetimeBehaviour;
+import io.oneko.deployable.DeploymentBehaviour;
+import io.oneko.docker.ReadableDockerRegistry;
+import io.oneko.domain.Identifiable;
+import io.oneko.templates.ReadableConfigurationTemplate;
+import lombok.Builder;
+import lombok.Getter;
+
+@Getter
+public class ReadableProject extends Identifiable implements Project<ReadableProject, ReadableProjectVersion> {
+
+	private final UUID uuid;
+	private final String name;
+	private final String imageName;
+	private final DeploymentBehaviour newVersionsDeploymentBehaviour;
+	private final ImmutableList<ReadableConfigurationTemplate> defaultConfigurationTemplates;
+	private final ReadableDockerRegistry dockerRegistry;
+	private final LifetimeBehaviour defaultLifetimeBehaviour;
+	private final ImmutableList<ReadableTemplateVariable> templateVariables;
+	private final ImmutableList<ReadableProjectVersion> versions;
+
+	@Builder
+	public ReadableProject(UUID uuid, String name, String imageName, DeploymentBehaviour newVersionsDeploymentBehaviour,
+						   List<ReadableConfigurationTemplate> defaultConfigurationTemplates,
+						   ReadableDockerRegistry dockerRegistry, LifetimeBehaviour defaultLifetimeBehaviour,
+						   List<ReadableTemplateVariable> templateVariables, List<ReadableProjectVersion> versions) {
+		this.uuid = uuid;
+		this.name = name;
+		this.imageName = imageName;
+		this.newVersionsDeploymentBehaviour = newVersionsDeploymentBehaviour;
+		this.defaultConfigurationTemplates = ImmutableList.copyOf(defaultConfigurationTemplates);
+		this.dockerRegistry = dockerRegistry;
+		this.defaultLifetimeBehaviour = defaultLifetimeBehaviour;
+		this.templateVariables = ImmutableList.copyOf(templateVariables);
+		this.versions = ImmutableList.copyOf(versions);
+		versions.forEach(v -> v.setProject(this));
+	}
+
+	@Override
+	public UUID getId() {
+		return getUuid();
+	}
+
+	public Optional<LifetimeBehaviour> getDefaultLifetimeBehaviour() {
+		return Optional.ofNullable(this.defaultLifetimeBehaviour);
+	}
+
+	public WritableProject writable() {
+		final List<WritableProjectVersion> versions = getVersions().stream()
+				.map(ReadableProjectVersion::writable)
+				.collect(Collectors.toList());
+		return WritableProject.builder()
+				.uuid(getUuid())
+				.name(getName())
+				.imageName(getImageName())
+				.newVersionsDeploymentBehaviour(getNewVersionsDeploymentBehaviour())
+				.defaultConfigurationTemplates(getDefaultConfigurationTemplates().stream()
+					.map(ReadableConfigurationTemplate::writable)
+					.collect(Collectors.toList()))
+				.dockerRegistry(getDockerRegistry())
+				.defaultLifetimeBehaviour(defaultLifetimeBehaviour)
+				.templateVariables(getTemplateVariables().stream()
+					.map(ReadableTemplateVariable::writable)
+					.collect(Collectors.toList()))
+				.versions(versions)
+				.build();
+	}
+}
