@@ -8,7 +8,7 @@
 
 versionIdentifier=$1
 if [[ ! $versionIdentifier =~ ^(v[0-9]+(\.[0-9]+)*|major|minor|patch)$ ]]; then
-    echo "Version identifier is missing or invalid. Possible values are: [<v[major.minor.path]> | major | minor | patch]"
+    echo "Version identifier is missing or invalid. Possible values are: [<v[major.minor.patch]> | major | minor | patch]"
     exit 1
 fi
 
