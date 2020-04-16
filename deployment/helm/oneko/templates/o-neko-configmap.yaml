@@ -16,7 +16,7 @@ data:
     kubernetes:
       auth:
     {{- if .Values.kubernetesAuthToken }}
-        token: {{.Values.kubernetesAuthToken}}
+        token: {{.Values.kubernetesAuthToken | quote}}
     {{- end }}
       server:
     {{- if .Values.kubernetesUrl }}
