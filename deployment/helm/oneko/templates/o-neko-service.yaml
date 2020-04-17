@@ -7,6 +7,6 @@ metadata:
 spec:
   selector:
     o-neko: o-neko
-  type: {{- .Values.serviceType }}
+  type: {{.Values.serviceType}}
   ports:
   - port: 8080
