@@ -74,7 +74,9 @@ public class DockerRegistryV2Client {
 				.get()
 				.uri("/v2/" + version.getProject().getImageName() + "/manifests/" + version.getName())
 				.exchange()
-				.flatMap(response -> {
+				.flatMap(response -> response.bodyToMono(String.class).flatMap(body -> {
+					// the body is not needed here, but it must be consumed
+					// see https://github.com/reactor/reactor-netty/issues/778
 					if (response.statusCode().is4xxClientError() || response.statusCode().is5xxServerError()) {
 						if (response.statusCode() == HttpStatus.NOT_FOUND) {
 							return Mono.error(new HttpClientErrorException(HttpStatus.NOT_FOUND, "Unable to retrieve manifest for version " + version.getName() + "."));
@@ -84,7 +86,7 @@ public class DockerRegistryV2Client {
 					} else {
 						return Mono.just(response);
 					}
-				})
+				}))
 				.flatMap(clientResponse -> clientResponse.toEntity(String.class))
 				.map(response -> {
 					final HttpHeaders headers = response.getHeaders();
