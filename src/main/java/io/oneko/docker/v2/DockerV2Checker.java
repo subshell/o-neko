@@ -25,33 +25,39 @@ public class DockerV2Checker {
 		WebClient client = WebClientBuilderFactory.create(registry.isTrustInsecureCertificate()).baseUrl(registry.getRegistryUrl() + "/v2/").build();
 		return client.get()
 				.exchange()
-				.map(this::mapResponseToCheckResult);
+				.flatMap(this::mapResponseToCheckResult);
 	}
 
-	private V2CheckResult mapResponseToCheckResult(ClientResponse clientResponse) {
-		if (clientResponse.statusCode() == HttpStatus.OK) {
-			return V2CheckResult.V2Okay;
-		} else if (clientResponse.statusCode() == HttpStatus.NOT_FOUND) {
-			return V2CheckResult.V2NotSupported;
-		} else if (clientResponse.statusCode() == HttpStatus.UNAUTHORIZED) {
-			//parse authenticate
-			List<String> header = clientResponse.headers().header(HttpHeaders.WWW_AUTHENTICATE);
-			if (header.size() < 1) {
+	private Mono<V2CheckResult> mapResponseToCheckResult(ClientResponse clientResponse) {
+		HttpStatus httpStatus = clientResponse.statusCode();
+		ClientResponse.Headers headers = clientResponse.headers();
+		return clientResponse.bodyToMono(String.class).map(body -> {
+			// the body is not needed here, but it must be consumed
+			// see https://github.com/reactor/reactor-netty/issues/778
+			if (httpStatus == HttpStatus.OK) {
+				return V2CheckResult.V2Okay;
+			} else if (httpStatus == HttpStatus.NOT_FOUND) {
 				return V2CheckResult.V2NotSupported;
-			}
-			String authenticateHeaderValue = header.get(0);
-			String type = StringUtils.substringBefore(authenticateHeaderValue, " realm");
-			String realm = StringUtils.substringBetween(authenticateHeaderValue, "realm=\"", "\"");
-			String service = StringUtils.substringBetween(authenticateHeaderValue, "service=\"", "\"");
-			if (StringUtils.equalsIgnoreCase(type, "Bearer")) {
-				return new BearerAuthRequired(realm, service);
+			} else if (httpStatus == HttpStatus.UNAUTHORIZED) {
+				//parse authenticate
+				List<String> header = headers.header(HttpHeaders.WWW_AUTHENTICATE);
+				if (header.size() < 1) {
+					return V2CheckResult.V2NotSupported;
+				}
+				String authenticateHeaderValue = header.get(0);
+				String type = StringUtils.substringBefore(authenticateHeaderValue, " realm");
+				String realm = StringUtils.substringBetween(authenticateHeaderValue, "realm=\"", "\"");
+				String service = StringUtils.substringBetween(authenticateHeaderValue, "service=\"", "\"");
+				if (StringUtils.equalsIgnoreCase(type, "Bearer")) {
+					return new BearerAuthRequired(realm, service);
+				} else {
+					log.warn("Docker registry returned unsupported authentication type '{}'", type);
+					return V2CheckResult.V2NotSupported;
+				}
 			} else {
-				log.warn("Docker registry returned unsupported authentication type '{}'", type);
-				return V2CheckResult.V2NotSupported;
+				return new V2Unavailable(httpStatus.value());
 			}
-		} else {
-			return new V2Unavailable(clientResponse.statusCode().value());
-		}
+		});
 	}
 
 	public static class V2CheckResult {

@@ -16,7 +16,7 @@ import reactor.core.publisher.Mono;
 public class ActivityLogMongo implements WritableActivityLog {
 
 	private final ActivityMongoSpringRepository springRepository;
-	private final Sort sortByDateDesc = new Sort(Sort.Direction.DESC, "date");
+	private final Sort sortByDateDesc = Sort.by(Sort.Direction.DESC, "date");
 
 	@Autowired
 	public ActivityLogMongo(ActivityMongoSpringRepository springRepository) {

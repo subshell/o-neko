@@ -49,11 +49,11 @@ spec:
             timeoutSeconds: 30
           resources:
             limits:
-              memory: 6Gi
-              cpu: 2
+              memory: "6Gi"
+              cpu: "2"
             requests:
-              memory: 4Gi
-              cpu: 1
+              memory: "1Gi"
+              cpu: "0.5"
       restartPolicy: Always
       volumes:
         - name: config
