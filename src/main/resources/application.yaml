@@ -2,7 +2,8 @@
 spring:
   application:
     name: O-Neko
-
+  codec:
+    max-in-memory-size: 10MB
 logging:
   path: logs
   level:
