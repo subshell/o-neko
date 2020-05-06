@@ -10,6 +10,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Predicates;
 
 import io.oneko.docker.DockerRegistry;
 import io.oneko.docker.v2.model.ListTagsResult;
@@ -73,34 +74,19 @@ public class DockerRegistryV2Client {
 		return client
 				.get()
 				.uri("/v2/" + version.getProject().getImageName() + "/manifests/" + version.getName())
-				.exchange()
-				.flatMap(response -> response.bodyToMono(String.class).flatMap(body -> {
-					// the body is not needed here, but it must be consumed
-					// see https://github.com/reactor/reactor-netty/issues/778
-					if (response.statusCode().is4xxClientError() || response.statusCode().is5xxServerError()) {
-						if (response.statusCode() == HttpStatus.NOT_FOUND) {
-							return Mono.error(new HttpClientErrorException(HttpStatus.NOT_FOUND, "Unable to retrieve manifest for version " + version.getName() + "."));
-						} else {
-							return Mono.error(new RuntimeException("Unable to retrieve manifest for version " + version.getName() + " due to error " + response.statusCode().getReasonPhrase()));
-						}
-					} else {
-						return Mono.just(response);
-					}
-				}))
-				.flatMap(clientResponse -> clientResponse.toEntity(String.class))
-				.map(response -> {
-					final HttpHeaders headers = response.getHeaders();
+				.retrieve()
+				.onStatus(Predicates.or(HttpStatus::is4xxClientError, HttpStatus::is5xxServerError), (s) -> Mono.error(new RuntimeException("Unable to retrieve manifest for version " + version.getName() + " due to error " + s.statusCode().getReasonPhrase())))
+				.toEntity(String.class).flatMap(response -> {
+					HttpHeaders headers = response.getHeaders();
 					String dockerContentDigest = headers.getFirst("Docker-Content-Digest");
 					try {
 						// the response has the content-type "application/vnd.docker.distribution.manifest.v1+prettyjws"
-						String body = response.getBody();
-						Manifest manifest = objectMapper.readValue(body, Manifest.class);
+						Manifest manifest = objectMapper.readValue(response.getBody(), Manifest.class);
 						manifest.setDockerContentDigest(dockerContentDigest);
-						return manifest;
+						return Mono.just(manifest);
 					} catch (IOException e) {
-						throw new RuntimeException("Failed to deserialize Manifest from response.");
+						return Mono.error(new RuntimeException("Failed to deserialize Manifest from response."));
 					}
 				});
-
 	}
 }
