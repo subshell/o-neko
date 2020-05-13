@@ -75,11 +75,17 @@ public class DockerRegistryV2Client {
 				.get()
 				.uri("/v2/" + version.getProject().getImageName() + "/manifests/" + version.getName())
 				.retrieve()
-				.onStatus(Predicates.or(HttpStatus::is4xxClientError, HttpStatus::is5xxServerError), (s) -> Mono.error(new RuntimeException("Unable to retrieve manifest for version " + version.getName() + " due to error " + s.statusCode().getReasonPhrase())))
+				.onStatus(
+						Predicates.or(HttpStatus::is4xxClientError, HttpStatus::is5xxServerError),
+						s -> Mono.error(new RuntimeException("Unable to retrieve manifest for version " + version.getName() + " due to error " + s.statusCode().getReasonPhrase())))
 				.toEntity(String.class).flatMap(response -> {
 					HttpHeaders headers = response.getHeaders();
 					String dockerContentDigest = headers.getFirst("Docker-Content-Digest");
 					try {
+						if (response.getBody() == null) {
+							return Mono.error(new RuntimeException("Failed to deserialize Manifest from empty response."));
+						}
+
 						// the response has the content-type "application/vnd.docker.distribution.manifest.v1+prettyjws"
 						Manifest manifest = objectMapper.readValue(response.getBody(), Manifest.class);
 						manifest.setDockerContentDigest(dockerContentDigest);
