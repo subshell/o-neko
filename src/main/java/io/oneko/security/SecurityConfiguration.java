@@ -60,6 +60,8 @@ public class SecurityConfiguration {
 				.and()
 				.logout().logoutUrl("/api/session/logout").logoutSuccessHandler(new RestLogoutSuccessHandler(reactiveWebSocketHandler))
 				.and()
+				.httpBasic()
+				.and()
 				.build();
 	}
 
