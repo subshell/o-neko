@@ -1,4 +1,4 @@
-import * as moment from "moment";
+import {parseDateInReferenceToToday} from "../util/date-time-parser";
 
 export type PRIORITY = 'INFO' | 'WARNING' | 'ERROR';
 export type ENTITY_TYPE = 'Project' | 'DockerRegistry' | 'User' | 'Namespace' | 'ProjectMesh';
@@ -54,15 +54,6 @@ export class Activity implements ActivityDTO {
   }
 
   get formattedDate(): string {
-    let year = this.date.getFullYear();
-    let now = new Date();
-
-    let mom = moment(this.date);
-    if (now.getDate() === this.date.getDate()) {
-      return mom.format('HH:mm:ss');
-    } else if (now.getFullYear() === year) {
-      return mom.format('Do MMM HH:mm:ss');
-    }
-    return mom.format('DD/MM/YY HH:mm:ss');
+    return parseDateInReferenceToToday(this.date);
   }
 }

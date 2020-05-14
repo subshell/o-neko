@@ -1,9 +1,9 @@
 import {cloneDeep} from "lodash";
-import * as moment from "moment";
 import {ConfigurationTemplate} from "../deployable/configuration-template";
 import {Deployment, DeploymentDTO, DesiredState} from "../deployable/deployment";
 import {Namespace, NamespaceDTO} from "../namespace/namespace";
 import {DeploymentBehaviour, LifetimeBehaviour, TemplateVariable} from "./project";
+import {parseDateInReferenceToToday} from "../util/date-time-parser";
 
 export interface ProjectVersionDTO {
   uuid: string;
@@ -43,18 +43,7 @@ export class ProjectVersion implements ProjectVersionDTO {
   }
 
   get formattedImageUpdatedDate(): string {
-    if (this.imageUpdatedDate === null) {
-      return null;
-    }
-
-    let now = new Date();
-    let imageupdateDateMoment = moment(this.imageUpdatedDate);
-    if (moment(now).isSame(imageupdateDateMoment, 'day')) {
-      return imageupdateDateMoment.format('HH:mm:ss');
-    } else if (moment(now).isSame(imageupdateDateMoment, 'month')) {
-      return imageupdateDateMoment.format('Do MMM HH:mm:ss');
-    }
-    return imageupdateDateMoment.format('DD/MM/YY HH:mm:ss');
+    return parseDateInReferenceToToday(this.imageUpdatedDate);
   }
 
   static from(from: ProjectVersionDTO): ProjectVersion {
