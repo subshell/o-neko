@@ -8,7 +8,8 @@
     "build": "ng build --prod && gzipper --level 9 ./dist",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "postinstall": "ngcc"
   },
   "private": true,
   "dependencies": {
@@ -19,6 +20,7 @@
     "@angular/core": "9.1.7",
     "@angular/flex-layout": "9.0.0-beta.30",
     "@angular/forms": "9.1.7",
+    "@angular/localize": "^9.1.7",
     "@angular/material": "9.2.3",
     "@angular/platform-browser": "9.1.7",
     "@angular/platform-browser-dynamic": "9.1.7",

@@ -143,11 +143,11 @@
   "defaultProject": "o-neko",
   "schematics": {
     "@schematics/angular:component": {
-      "prefix": "app",
+      "prefix": "oneko",
       "style": "scss"
     },
     "@schematics/angular:directive": {
-      "prefix": "app"
+      "prefix": "oneko"
     }
   }
 }
