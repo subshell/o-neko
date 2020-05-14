@@ -3,7 +3,6 @@ package io.oneko.docker;
 import static com.google.common.truth.Truth.*;
 
 import java.time.Duration;
-import java.time.Instant;
 
 import org.junit.Test;
 
@@ -16,7 +15,7 @@ public class DockerRegistryPollingJobTest {
 	@Test
 	public void testJobShouldTimeout() {
 		TimeMachine timeMachine = new TimeMachine();
-		DockerRegistryPollingJob uut = new DockerRegistryPollingJob(Flux.empty().subscribe(), Instant.now()).withTimeoutDuration(Duration.ofMinutes(5));
+		DockerRegistryPollingJob uut = new DockerRegistryPollingJob(Flux.empty().subscribe()).withTimeoutDuration(Duration.ofMinutes(5));
 		uut.setClock(timeMachine);
 		assertThat(uut.shouldCancel()).isFalse();
 
@@ -28,7 +27,7 @@ public class DockerRegistryPollingJobTest {
 	public void shouldBeDisposedIfUnderlyingStreamIsDisposed() {
 		EmitterProcessor flux = EmitterProcessor.create();
 
-		DockerRegistryPollingJob uut = new DockerRegistryPollingJob(flux.subscribe(), Instant.now());
+		DockerRegistryPollingJob uut = new DockerRegistryPollingJob(flux.subscribe());
 		assertThat(uut.isCancelled()).isFalse();
 
 		flux.onComplete();
@@ -39,7 +38,7 @@ public class DockerRegistryPollingJobTest {
 	public void shouldBeCancellable() {
 		EmitterProcessor flux = EmitterProcessor.create();
 
-		DockerRegistryPollingJob uut = new DockerRegistryPollingJob(flux.subscribe(), Instant.now());
+		DockerRegistryPollingJob uut = new DockerRegistryPollingJob(flux.subscribe());
 		assertThat(uut.isCancelled()).isFalse();
 
 		uut.cancel();

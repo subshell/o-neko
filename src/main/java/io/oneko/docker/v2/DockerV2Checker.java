@@ -63,6 +63,7 @@ public class DockerV2Checker {
 	public static class V2CheckResult {
 		public static final V2CheckResult V2Okay = new V2CheckResult();
 		public static final V2CheckResult V2NotSupported = new V2CheckResult();
+
 		private V2CheckResult() {
 		}
 	}
