@@ -2,8 +2,8 @@ import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import {NgModule} from '@angular/core';
 import {FlexLayoutModule} from "@angular/flex-layout";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
-import { MatCheckboxModule } from "@angular/material/checkbox";
-import { MatRadioModule } from "@angular/material/radio";
+import {MatCheckboxModule} from "@angular/material/checkbox";
+import {MatRadioModule} from "@angular/material/radio";
 import {MatButtonModule} from "@angular/material/button";
 import {MatCardModule} from "@angular/material/card";
 import {MatChipsModule} from "@angular/material/chips";
@@ -216,21 +216,6 @@ import {WebSocketService} from "./websocket/web-socket.service";
     WebSocketService,
     WebSocketServiceWrapper,
     ProjectMeshService,
-  ],
-  entryComponents: [
-    TimeoutSnackbarComponent,
-    UserEditDialog,
-    ShowDeployableConfigurationDialog,
-    ConfirmDialog,
-    ConfirmWithTextDialog,
-    DockerRegistryEditDialogComponent,
-    ConfirmDeletionDialogComponent,
-    LogsComponent,
-    CreateProjectDialogComponent,
-    CreateNamespaceDialogComponent,
-    DeleteNamespaceDialogComponent,
-    CreateProjectMeshDialogComponent,
-    CreateMeshComponentDialogComponent
   ],
   bootstrap: [AppComponent]
 })
