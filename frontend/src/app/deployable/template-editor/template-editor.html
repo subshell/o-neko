@@ -32,14 +32,13 @@
         </div>
       </div>
 
-      <div class="ace-wrapper">
-        <div ace-editor [options]="aceOptions" [text]="template.effectiveTemplate.content" [durationBeforeCallback]="25" (textChanged)="onTextOverwrite($event, template)" mode="yaml" theme="chrome" [readOnly]="readonly"></div>
-      </div>
-
       <div class="box" *ngIf="!template.isOriginal()">
         <i *ngIf="!template.isOverwriting()" class="mat-caption italic">This is an inherited configuration.</i>
         <i *ngIf="template.isOverwriting()" class="mat-caption italic">This overwrites an inherited configuration.</i>
       </div>
     </mat-tab>
   </mat-tab-group>
+  <div class="code-editor-wrapper" *ngIf="configurationTemplatesModels[selectedTab.value]">
+    <ngx-monaco-editor class="code-editor" [options]="editorOptions" [ngModel]="configurationTemplatesModels[selectedTab.value].effectiveTemplate.content" (ngModelChange)="onTextOverwrite($event, configurationTemplatesModels[selectedTab.value])"></ngx-monaco-editor>
+  </div>
 </div>

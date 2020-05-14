@@ -29,7 +29,7 @@ import {MatToolbarModule} from "@angular/material/toolbar";
 import {MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipDefaultOptions, MatTooltipModule} from "@angular/material/tooltip";
 import {BrowserModule, DomSanitizer} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
-import {AceEditorModule} from 'ng2-ace-editor';
+
 import {InfiniteScrollModule} from "ngx-infinite-scroll";
 import {NgxMatSelectSearchModule} from "ngx-mat-select-search";
 import {ActivityLogComponent} from "./activity/activity-log/activity-log.component";
@@ -97,6 +97,7 @@ import {MustMatchValidatorDirective} from "./util/validators/must-match.validato
 import {UsernameAvailableValidator} from "./util/validators/username-available.validator";
 import {WebSocketServiceWrapper} from "./websocket/web-socket-service-wrapper.service";
 import {WebSocketService} from "./websocket/web-socket.service";
+import {MonacoEditorModule} from "ngx-monaco-editor";
 
 @NgModule({
   declarations: [
@@ -182,7 +183,7 @@ import {WebSocketService} from "./websocket/web-socket.service";
     MatMenuModule,
     FormsModule,
     HttpClientModule,
-    AceEditorModule,
+    MonacoEditorModule.forRoot(),
     MatToolbarModule,
     MatListModule,
     MatTabsModule,

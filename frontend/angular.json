@@ -23,15 +23,13 @@
                 "glob": "mdi.svg",
                 "input": "./node_modules/@mdi/angular-material/",
                 "output": "assets"
-              }
+              },
+              { "glob": "**/*", "input": "node_modules/ngx-monaco-editor/assets/monaco", "output": "./assets/monaco/" }
             ],
             "styles": [
               "src/mat-theme.scss",
               "src/styles.scss"
             ],
-            "scripts": [
-              "node_modules/ace-builds/src-min/ace.js"
-            ]
           },
           "configurations": {
             "production": {
@@ -83,9 +81,6 @@
             "karmaConfig": "./karma.conf.js",
             "polyfills": "src/polyfills.ts",
             "tsConfig": "src/tsconfig.spec.json",
-            "scripts": [
-              "node_modules/ace-builds/src-min/ace.js"
-            ],
             "styles": [
               "src/mat-theme.scss",
               "src/styles.scss"
