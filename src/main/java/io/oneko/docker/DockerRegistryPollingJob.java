@@ -5,9 +5,11 @@ import java.time.Duration;
 import java.time.Instant;
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.Disposable;
 
 @Data
+@Slf4j
 public class DockerRegistryPollingJob {
 	private Clock clock = Clock.systemDefaultZone();
 	private Duration timeoutDuration = Duration.ofMinutes(5);
@@ -15,10 +17,9 @@ public class DockerRegistryPollingJob {
 	private Disposable job;
 	private Instant startDate;
 
-
-	public DockerRegistryPollingJob(Disposable job, Instant startDate) {
+	public DockerRegistryPollingJob(Disposable job) {
 		this.job = job;
-		this.startDate = startDate;
+		this.startDate = Instant.now();
 	}
 
 	public DockerRegistryPollingJob withTimeoutDuration(Duration timeoutDuration) {
@@ -37,6 +38,7 @@ public class DockerRegistryPollingJob {
 	}
 
 	public void cancel() {
+		log.warn("Dispose docker registry polling job");
 		job.dispose();
 	}
 }
