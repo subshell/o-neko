@@ -17,12 +17,7 @@
             "tsConfig": "src/tsconfig.app.json",
             "polyfills": "src/polyfills.ts",
             "assets": [
-              "src/assets",
-              {
-                "glob": "mdi.svg",
-                "input": "./node_modules/@mdi/angular-material/",
-                "output": "assets"
-              }
+              "src/assets"
             ],
             "styles": [
               "src/mat-theme.scss",
@@ -84,12 +79,7 @@
               "src/styles.scss"
             ],
             "assets": [
-              "src/assets",
-              {
-                "glob": "mdi.svg",
-                "input": "./node_modules/@mdi/angular-material/",
-                "output": "assets"
-              }
+              "src/assets"
             ]
           }
         },
