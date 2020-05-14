@@ -7,7 +7,6 @@ metadata:
 spec:
   selector:
     o-neko: o-neko
-  type: ClusterIp
+  type: {{.Values.serviceType}}
   ports:
   - port: 8080
-    targetPort: 8080

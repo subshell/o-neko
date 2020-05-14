@@ -23,6 +23,8 @@ spec:
     spec:
       containers:
         - env:
+          - name: JAVA_OPTS
+            value: "-XX:MaxRAMPercentage=60"
           name: o-neko
           image: subshellgmbh/o-neko:latest-dev
           imagePullPolicy: Always
@@ -45,6 +47,13 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 5
             timeoutSeconds: 30
+          resources:
+            limits:
+              memory: "6Gi"
+              cpu: "2"
+            requests:
+              memory: "1Gi"
+              cpu: "0.5"
       restartPolicy: Always
       volumes:
         - name: config
