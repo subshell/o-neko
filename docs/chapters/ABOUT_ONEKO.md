@@ -21,7 +21,7 @@ Generally, nearly every project able to run in Kubernetes can be deployed with O
 
 * You need Docker containers of all project versions you want to deploy with O-Neko
 * You need to provide the Kubernetes .yaml files in a simple template format to configure a project
-* O-Neko works with kubernetes versions 1.9.0 - 1.15.3
+* O-Neko works with kubernetes versions 1.9.0 - 1.17.0
 
 ## How does it work?
 
