@@ -1,6 +1,6 @@
 import {MatIconRegistry} from '@angular/material/icon';
 import {DomSanitizer} from '@angular/platform-browser';
-import {MDI_SVG_ICONS} from './mdi';
+import {MDI_SVG_ICONS} from './generated/mdi';
 
 export const configureSvgIcons = (iconRegistry: MatIconRegistry, domSanitizer: DomSanitizer) => {
   // If the following produces errors in your IDE you need to install the npm dependencies

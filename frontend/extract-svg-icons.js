@@ -19,7 +19,7 @@ function writeSvgDefinitionFile(filePath, constName, basePath, iconNames) {
   let file =
     `// THIS FILE IS GENERATED AUTOMATICALLY BY extract-svg-icons.js
 // DO NOT EDIT IT MANUALLY - YOU WILL LOSE YOUR CHANGES
-import {IconSet} from './icon';
+import {IconSet} from '../icon';
 
 export const ${constName}: IconSet = {
   basePath: '${basePath}',
@@ -47,7 +47,7 @@ function extractMdiIconSet() {
   const iconNames = getSvgIconNamesFromDirectory('./node_modules/@mdi/svg/svg');
   fs.mkdirSync(`./src/assets/icons/mdi/`, {recursive: true});
   iconNames.forEach(iconName => fs.copyFileSync(`./node_modules/@mdi/svg/svg/${iconName}.svg`, `./src/assets/icons/mdi/${iconName}.svg`));
-  writeSvgDefinitionFile('./src/app/configuration/mdi.ts', 'MDI_SVG_ICONS', 'assets/icons/mdi', iconNames);
+  writeSvgDefinitionFile('./src/app/configuration/generated/mdi.ts', 'MDI_SVG_ICONS', 'assets/icons/mdi', iconNames);
 }
 
 extractMdiIconSet();
