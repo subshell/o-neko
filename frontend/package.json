@@ -8,7 +8,8 @@
     "build": "ng build --prod && gzipper --level 9 ./dist",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "postinstall": "node extract-svg-icons.js"
   },
   "private": true,
   "dependencies": {
@@ -23,7 +24,7 @@
     "@angular/platform-browser": "8.2.9",
     "@angular/platform-browser-dynamic": "8.2.9",
     "@angular/router": "8.2.9",
-    "@mdi/angular-material": "4.4.95",
+    "@mdi/svg": "5.2.45",
     "core-js": "2.6.5",
     "hammerjs": "2.0.8",
     "hash-it": "4.0.4",

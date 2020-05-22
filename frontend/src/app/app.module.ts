@@ -96,6 +96,7 @@ import {MustMatchValidatorDirective} from "./util/validators/must-match.validato
 import {UsernameAvailableValidator} from "./util/validators/username-available.validator";
 import {WebSocketServiceWrapper} from "./websocket/web-socket-service-wrapper.service";
 import {WebSocketService} from "./websocket/web-socket.service";
+import {configureSvgIcons} from "./configuration/configuration";
 
 @NgModule({
   declarations: [
@@ -235,7 +236,7 @@ import {WebSocketService} from "./websocket/web-socket.service";
 })
 export class AppModule {
   constructor(matIconRegistry: MatIconRegistry, domSanitizer: DomSanitizer, rest: RestService, auth: AuthService, ws: WebSocketService) {
-    matIconRegistry.addSvgIconSet(domSanitizer.bypassSecurityTrustResourceUrl('assets/mdi.svg'));
+    configureSvgIcons(matIconRegistry, domSanitizer);
 
     auth.isAuthenticated().subscribe(authenticated => {
       if (authenticated) {
