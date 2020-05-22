@@ -3,7 +3,7 @@ import {ConfigurationTemplate} from "../deployable/configuration-template";
 import {Deployment, DeploymentDTO, DesiredState} from "../deployable/deployment";
 import {Namespace, NamespaceDTO} from "../namespace/namespace";
 import {DeploymentBehaviour, LifetimeBehaviour, TemplateVariable} from "./project";
-import {parseDateInReferenceToToday} from "../util/date-time-parser";
+import {relativeDateString} from "../util/date-time-parser";
 
 export interface ProjectVersionDTO {
   uuid: string;
@@ -43,7 +43,7 @@ export class ProjectVersion implements ProjectVersionDTO {
   }
 
   get formattedImageUpdatedDate(): string {
-    return parseDateInReferenceToToday(this.imageUpdatedDate);
+    return relativeDateString(this.imageUpdatedDate);
   }
 
   static from(from: ProjectVersionDTO): ProjectVersion {

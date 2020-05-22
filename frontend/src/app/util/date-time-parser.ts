@@ -2,7 +2,7 @@ import isSameDay from "date-fns/isSameDay";
 import format from "date-fns/format";
 import isSameMonth from "date-fns/isSameMonth";
 
-export function parseDateInReferenceToToday(date: Date): string {
+export function relativeDateString(date: Date): string {
   if (date === null) {
     return null;
   }

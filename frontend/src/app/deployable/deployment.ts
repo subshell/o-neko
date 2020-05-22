@@ -1,4 +1,4 @@
-import {parseDateInReferenceToToday} from "../util/date-time-parser";
+import {relativeDateString} from "../util/date-time-parser";
 
 export enum DesiredState {
   Deployed = "Deployed",
@@ -33,7 +33,7 @@ export class Deployment implements DeploymentDTO {
   readyContainerCount: number;
 
   get formattedTimestamp(): string {
-    return parseDateInReferenceToToday(this.timestamp);
+    return relativeDateString(this.timestamp);
   }
 
   static from(from: DeploymentDTO): Deployment {

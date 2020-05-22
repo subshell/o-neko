@@ -81,9 +81,11 @@ export class TemplateEditorComponent implements OnInit {
 
   public readonly editorOptions: IStandaloneEditorConstructionOptions = {
     theme: 'vs-light',
+    renderLineHighlight: "gutter",
     language: 'yaml',
     fontSize: 12,
     scrollBeyondLastLine: false,
+    contextmenu: false,
     minimap: {
       enabled: false
     }

@@ -2,6 +2,7 @@
 
 .login {
   .o-neko-logo {
+    z-index: 1000;
     img {
       max-width: 280px;
       display: block;
@@ -11,7 +12,7 @@
     }
     &.rotate {
       img {
-        transform: scale(4);
+        transform: scale(2);
       }
     }
   }

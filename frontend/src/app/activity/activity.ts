@@ -1,4 +1,4 @@
-import {parseDateInReferenceToToday} from "../util/date-time-parser";
+import {relativeDateString} from "../util/date-time-parser";
 
 export type PRIORITY = 'INFO' | 'WARNING' | 'ERROR';
 export type ENTITY_TYPE = 'Project' | 'DockerRegistry' | 'User' | 'Namespace' | 'ProjectMesh';
@@ -54,6 +54,6 @@ export class Activity implements ActivityDTO {
   }
 
   get formattedDate(): string {
-    return parseDateInReferenceToToday(this.date);
+    return relativeDateString(this.date);
   }
 }
