@@ -24,7 +24,11 @@
                 "input": "./node_modules/@mdi/angular-material/",
                 "output": "assets"
               },
-              { "glob": "**/*", "input": "node_modules/ngx-monaco-editor/assets/monaco", "output": "./assets/monaco/" }
+              { 
+                "glob": "**/*", 
+                "input": "node_modules/ngx-monaco-editor/assets/monaco", 
+                "output": "./assets/monaco/" 
+              }
             ],
             "styles": [
               "src/mat-theme.scss",
@@ -86,12 +90,7 @@
               "src/styles.scss"
             ],
             "assets": [
-              "src/assets",
-              {
-                "glob": "mdi.svg",
-                "input": "./node_modules/@mdi/angular-material/",
-                "output": "assets"
-              }
+              "src/assets"
             ]
           }
         },
