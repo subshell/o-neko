@@ -2,15 +2,12 @@ import {Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation} from 
 import {FormControl, NG_VALUE_ACCESSOR} from "@angular/forms";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSnackBar} from "@angular/material/snack-bar";
-import "brace/mode/yaml";
-//manually import theme and mode for ace - else it will try to autoload it (and fail on doing so)...
-import "brace/theme/chrome";
 import {FileReaderService} from "../../form/upload/file-reader.service";
 import {ConfirmDialog} from "../../util/confirm-dialog/confirm-dialog.component";
 import {ConfigurationTemplate} from "../configuration-template";
+import IStandaloneEditorConstructionOptions = monaco.editor.IStandaloneEditorConstructionOptions;
 
 export class ConfigurationTemplateEditorModel {
-
   constructor(public template?: ConfigurationTemplate, public defaultTemplate?: ConfigurationTemplate) {
   }
 
@@ -78,9 +75,22 @@ export class TemplateEditorComponent implements OnInit {
   public templatesValid: EventEmitter<boolean> = new EventEmitter<boolean>();
   public configurationTemplatesModels: Array<ConfigurationTemplateEditorModel> = [];
   public selectedTab = new FormControl(0);
-  public aceOptions = {tabSize: 2};
+
   private _fileReaderService: FileReaderService;
   private _skipTextOverwrite: Date = null;
+
+  public readonly editorOptions: IStandaloneEditorConstructionOptions = {
+    theme: 'vs-light',
+    renderLineHighlight: "gutter",
+    language: 'yaml',
+    fontSize: 12,
+    scrollBeyondLastLine: false,
+    contextmenu: false,
+    minimap: {
+      enabled: false
+    },
+    tabSize: 2
+  };
 
   constructor(private snackBar: MatSnackBar, private dialog: MatDialog) {
     this._fileReaderService = new FileReaderService();
@@ -130,7 +140,7 @@ export class TemplateEditorComponent implements OnInit {
   }
 
   public onTextOverwrite(content: string, template: ConfigurationTemplateEditorModel) {
-    if (this._skipTextOverwrite && this._skipTextOverwrite.getTime() + 50 < new Date().getTime()) {
+    if (this._skipTextOverwrite && this._skipTextOverwrite.getTime() + 50 < new Date().getTime() || content === template.effectiveTemplate.content) {
       this._skipTextOverwrite = null;
       return;
     }

@@ -1,6 +1,7 @@
 package io.oneko.docker;
 
-import static com.google.common.truth.Truth.*;
+
+import static org.assertj.core.api.Assertions.*;
 
 import java.time.Duration;
 

@@ -1,9 +1,5 @@
 import {Component, Inject, OnInit} from "@angular/core";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
-import "brace/mode/yaml";
-//manually import theme and mode for ace - else it will try to autoload it (and fail on doing so)...
-import "brace/theme/chrome";
-import {KeyValueChangeEvent} from "../../form/key-value-input/key-value-input.component";
 import {EffectiveDeployableConfiguration} from "../effective-deployable-configuration";
 
 @Component({

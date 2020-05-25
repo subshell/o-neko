@@ -119,13 +119,13 @@
     "directive-selector": [
       true,
       "attribute",
-      "app",
+      ["oneko", "on"],
       "camelCase"
     ],
     "component-selector": [
       true,
       "element",
-      "app",
+      ["oneko", "on"],
       "kebab-case"
     ],
     "no-output-on-prefix": true,

@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from "@angular/core";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
-import {MatDialog} from "@angular/material";
+import { MatDialog } from "@angular/material/dialog";
 import {ActivatedRoute, ParamMap} from "@angular/router";
 import {Subscription} from "rxjs";
 import {flatMap, switchMap} from "rxjs/operators";

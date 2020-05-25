@@ -1,5 +1,7 @@
 import {Component} from "@angular/core";
-import {MatDialog, PageEvent, Sort} from "@angular/material";
+import { MatDialog } from "@angular/material/dialog";
+import { PageEvent } from "@angular/material/paginator";
+import { Sort } from "@angular/material/sort";
 import {Router} from "@angular/router";
 import {RestService} from "../../rest/rest.service";
 import {User} from "../../user/user";
