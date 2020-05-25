@@ -19,11 +19,6 @@
             "polyfills": "src/polyfills.ts",
             "assets": [
               "src/assets",
-              {
-                "glob": "mdi.svg",
-                "input": "./node_modules/@mdi/angular-material/",
-                "output": "assets"
-              },
               { 
                 "glob": "**/*", 
                 "input": "node_modules/ngx-monaco-editor/assets/monaco", 
