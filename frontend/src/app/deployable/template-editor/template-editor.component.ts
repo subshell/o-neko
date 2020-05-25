@@ -88,7 +88,8 @@ export class TemplateEditorComponent implements OnInit {
     contextmenu: false,
     minimap: {
       enabled: false
-    }
+    },
+    tabSize: 2
   };
 
   constructor(private snackBar: MatSnackBar, private dialog: MatDialog) {
