@@ -1,8 +1,8 @@
 import {Component, ViewEncapsulation} from "@angular/core";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {Router} from "@angular/router";
-import {RestService} from "../rest/rest.service";
-import {TimeoutSnackbarComponent} from "../util/timout-snackbar/timeout.snackbar.component";
+import {RestService} from "../../rest/rest.service";
+import {TimeoutSnackbarComponent} from "../../util/timout-snackbar/timeout.snackbar.component";
 
 @Component({
   selector: 'login',

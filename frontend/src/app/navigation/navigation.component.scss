@@ -1,30 +1,24 @@
 @import "../../mixins";
 
-mat-toolbar {
-  @include mat-elevation(2);
-  user-select: none;
+:host {
+  position: sticky;
+  z-index: 5;
+  top: 0;
+}
 
-  .o-neko {
-    cursor: pointer;
-    outline: none;
-    span {
-      color: mat-color($o-neko-primary);
-      font-family: "Varela Round", sans-serif;
-      background: gradient(mat-color($o-neko-primary, 300), mat-color($o-neko-primary, 700));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      font-weight: 500;
-      font-size: 1.6em;
-    }
-    img {
-      height: 2em;
-    }
+mat-toolbar {
+  box-shadow: 0 10px 30px 0 rgba(105, 63, 71, 0.14);
+  min-height: 3.4rem;
+
+  &.mat-toolbar-single-row {
+    height: initial;
   }
 
-  a {
-    &.active {
-      background-color: mat-color($o-neko-primary);
-      color: white;
-    }
+  button.user-button {
+    height: 3rem;
+  }
+
+  mat-divider {
+    height: 2em;
   }
 }

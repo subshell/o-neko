@@ -1,0 +1,26 @@
+@import '../../../mixins';
+
+mat-nav-list {
+  @include user-select(none);
+  .mat-list-item {
+    .mat-line {
+      font-weight: 500;
+    }
+
+    mat-icon {
+      @include mat-icon-size(28px);
+    }
+
+    &.disabled {
+      pointer-events: none;
+    }
+  }
+}
+
+.with-left-margin {
+  margin-left: 1em !important;
+}
+
+.expandable-entries {
+  overflow: hidden;
+}

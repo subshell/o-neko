@@ -1,0 +1,91 @@
+@import '../../../mixins';
+
+@mixin active-mat-list-item($primary) {
+  mat-icon:not(.expansion-indicator) {
+    color: mat-color($primary, 500);
+  }
+  mat-icon.expansion-indicator {
+    color: rgba(black, 0.98);
+  }
+  color: rgba(black, 0.98);
+}
+
+.o-neko {
+  cursor: pointer;
+  outline: none;
+
+  span {
+    color: mat-color($o-neko-primary);
+    font-family: "Varela Round", sans-serif;
+    background: gradient(mat-color($o-neko-primary, 300), mat-color($o-neko-primary, 700));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 500;
+  }
+
+  img {
+    height: 2em;
+  }
+}
+
+mat-sidenav-container {
+  height: 100%;
+
+  mat-sidenav {
+    min-width: 240px;
+    border-right: none;
+    mat-toolbar {
+      height: 3.4rem;
+
+      h1 {
+        img {
+          max-height: 1em;
+        }
+        font-size: 1.6em;
+        font-weight: 700;
+        margin: 0;
+      }
+    }
+
+    ::ng-deep on-expandable-menu {
+      mat-icon {
+        color: rgba(mat-color($o-neko-primary, 500), 0.4);
+      }
+
+      .mat-list-item {
+        color: rgba(black, 0.44);
+
+        &:hover {
+          @include active-mat-list-item($o-neko-primary);
+          background-color: rgba(black, 0.06);
+        }
+
+        &.active, &:active {
+          @include active-mat-list-item($o-neko-primary);
+        }
+
+        .mat-ripple-element {
+          background-color: rgba(black, 0.04);
+        }
+      }
+    }
+  }
+
+  main {
+    ::ng-deep h2 {
+      font-size: 3em;
+      font-weight: 300;
+      margin: 0 0 1rem;
+
+      mat-icon {
+        @include mat-icon-size(1.2em);
+        color: mat-color($o-neko-accent, 700);
+      }
+    }
+    ::ng-deep h3 {
+      mat-icon {
+        color: mat-color($o-neko-accent, 700);
+      }
+    }
+  }
+}

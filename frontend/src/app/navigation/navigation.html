@@ -1,21 +1,13 @@
-<mat-toolbar fxLayoutGap="0.6em" *ngIf="user">
-  <div class="o-neko" fxLayoutGap="0.6em" fxLayoutAlign="center center" routerLink="/">
-    <img src="../../assets/oneko.svg" />
-    <span>O-NEKO</span>
-  </div>
-
-  <a mat-button routerLinkActive="active" routerLink="/" [routerLinkActiveOptions]="{exact: true}">Home</a>
-  <a mat-button routerLinkActive="active" routerLink="/projects">Projects</a>
-  <a mat-button routerLinkActive="active" routerLink="/project-meshes">Project Meshes</a>
-  <a mat-button routerLinkActive="active" routerLink="/docker-registries" *ngIf="user.hasAnyPermission(UserRole.ADMIN, UserRole.DOER)">Docker Registries</a>
-  <a mat-button routerLinkActive="active" routerLink="/namespaces" *ngIf="user.hasAnyPermission(UserRole.ADMIN, UserRole.DOER)">Namespaces</a>
-  <a mat-button routerLinkActive="active" routerLink="/users" *ngIf="user.hasRolePermission(UserRole.ADMIN)">Users</a>
-  <a mat-button routerLinkActive="active" routerLink="/logs" *ngIf="user.hasAnyPermission(UserRole.ADMIN, UserRole.DOER)">Activity Log</a>
-  <div fxFlex=""></div>
+<mat-toolbar fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="1em">
+  <button *ngIf="!isDesktop" mat-icon-button (click)="sidenav.toggle()">
+    <mat-icon svgIcon="menu"></mat-icon>
+  </button>
+  <div fxFlex *ngIf="!isDesktop"></div>
+  <mat-divider [vertical]="true"></mat-divider>
   <button mat-button routerLinkActive="active" [matMenuTriggerFor]="userMenu">
     <span fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="0.3em">
       <mat-icon svgIcon="mdi:account"></mat-icon>
-      <span>{{user.username}}</span>
+      <span>{{(user | async)?.username}}</span>
     </span>
     <mat-menu [overlapTrigger]="false" #userMenu="matMenu">
       <a mat-menu-item routerLink="/me">

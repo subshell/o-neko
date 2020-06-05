@@ -1,6 +1,9 @@
-<navigation></navigation>
 <breadcrumbs [breadcrumbs]="[{label: 'home', link: ''}, {label: 'projects'}]"></breadcrumbs>
-<div class="project-list container" fxLayout="column">
+<div class="project-list main-content-padding" fxLayout="column">
+  <h2 fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="12px">
+    <mat-icon svgIcon="folder"></mat-icon>
+    <span>Projects</span>
+  </h2>
   <div fxLayout="row" fxLayoutAlign="space-between center">
     <button mat-button (click)="createProject()">
       <span fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="1em">

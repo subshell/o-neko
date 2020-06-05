@@ -1,6 +1,9 @@
-<navigation></navigation>
 <breadcrumbs [breadcrumbs]="[{label: 'home', link: ''}, {label: 'users'}]"></breadcrumbs>
-<div class="user-list container" fxLayout="column">
+<div class="user-list main-content-padding" fxLayout="column">
+  <h2 fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="12px">
+    <mat-icon svgIcon="supervised-user-circle"></mat-icon>
+    <span>User Management</span>
+  </h2>
   <div fxLayout="row" fxLayoutAlign="space-between center">
     <button mat-button (click)="createUser()">
       <span fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="1em">

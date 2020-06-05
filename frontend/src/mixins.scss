@@ -3,7 +3,8 @@
 $mat-radius: 4px;
 
 @mixin mat-icon-size($size: 24px) {
-  transform: scale($size/24px);
+  width: $size;
+  height: $size;
 }
 
 @function gradient($from, $to) {

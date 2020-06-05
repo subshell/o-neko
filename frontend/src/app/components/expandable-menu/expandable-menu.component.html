@@ -1,0 +1,21 @@
+<mat-nav-list>
+  <a mat-list-item (click)="toggle()" [class.active]="subRouteIsActive | async">
+    <mat-icon matListIcon [svgIcon]="entry.icon"></mat-icon>
+    <span matLine fxLayout="row" fxLayoutAlign="space-between center">
+      <span>
+        <span>{{entry.title}}</span>
+      </span>
+      <mat-icon class="expansion-indicator" [@indicatorRotate]="getExpandedState()"
+                svgIcon="keyboard-arrow-down"></mat-icon>
+    </span>
+  </a>
+  <div class="expandable-entries" [class.expanded]="expandedChange | async" [@bodyExpansion]="getExpandedState()">
+    <a mat-list-item *ngFor="let child of entry.children" [routerLink]="child.href" routerLinkActive="active" [routerLinkActiveOptions]="(child.href === '' || child.href === '/') ? {exact: true} : {exact: false}"
+                   [class.disabled]="child.disabled">
+      <mat-icon *ngIf="child.icon" class="with-left-margin" matListIcon [svgIcon]="child.icon"></mat-icon>
+      <span [class.with-left-margin]="!child.icon" matLine>
+        <span>{{child.title}}</span>
+      </span>
+    </a>
+  </div>
+</mat-nav-list>

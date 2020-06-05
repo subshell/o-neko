@@ -1,9 +1,11 @@
-import {Component} from "@angular/core";
+import {Component, Input} from "@angular/core";
 import {Router} from "@angular/router";
 import {RestService} from "../rest/rest.service";
 import {User} from "../user/user";
 import {UserRole} from "../user/user-role";
 import {UserService} from "../user/user.service";
+import {MatSidenav} from "@angular/material/sidenav";
+import {Observable} from "rxjs";
 
 @Component({
   selector: 'navigation',
@@ -11,11 +13,14 @@ import {UserService} from "../user/user.service";
   styleUrls: ['./navigation.component.scss']
 })
 export class NavigationComponent {
-  public user: User;
+  public user: Observable<User>;
   public UserRole = UserRole;
 
+  @Input() sidenav: MatSidenav;
+  @Input() isDesktop: boolean;
+
   constructor(private rest: RestService, private router: Router, private userService: UserService) {
-    this.userService.currentUser().subscribe(user => this.user = user);
+    this.user = this.userService.currentUser();
   }
 
   public logout() {

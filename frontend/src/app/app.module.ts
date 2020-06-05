@@ -51,7 +51,7 @@ import {LifetimeBehaviourInputComponent} from "./form/lifetime-behaviour/lifetim
 import {FileUploadComponent} from "./form/upload/file-upload.component";
 import {ValueInputComponent} from './form/value-input/value-input.component';
 import {HomeComponent} from "./home/home.component";
-import {LoginComponent} from "./login/login.component";
+import {LoginComponent} from "./views/login/login.component";
 import {LogsComponent} from "./logs/logs.component";
 import {CreateNamespaceDialogComponent} from "./namespace/create-namespace-dialog/create-namespace-dialog.component";
 import {DeleteNamespaceDialogComponent} from "./namespace/delete-namespace-dialog/delete-namespace-dialog.component";
@@ -99,6 +99,8 @@ import {WebSocketServiceWrapper} from "./websocket/web-socket-service-wrapper.se
 import {WebSocketService} from "./websocket/web-socket.service";
 import {MonacoEditorModule} from "ngx-monaco-editor";
 import {configureSvgIcons} from "./configuration/configuration";
+import {MainComponent} from "./views/main/main.component";
+import {ExpandableMenuComponent} from "./components/expandable-menu/expandable-menu.component";
 
 @NgModule({
   declarations: [
@@ -154,7 +156,9 @@ import {configureSvgIcons} from "./configuration/configuration";
     ProjectmeshDashboardComponent,
     MeshComponentActionsComponent,
     DeployableActionsComponent,
-    ProjectVersionVariableActionsComponent
+    ProjectVersionVariableActionsComponent,
+    MainComponent,
+    ExpandableMenuComponent
   ],
   imports: [
     BrowserModule,

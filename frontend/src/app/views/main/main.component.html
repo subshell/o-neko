@@ -1,0 +1,30 @@
+<mat-sidenav-container class="main-sidenav-container" [autosize]="true">
+  <mat-sidenav
+  #sidenav
+  [disableClose]="!isMobile"
+  [mode]="isMobile ? 'over' : 'side'"
+  [opened]="!isMobile"
+  [fixedInViewport]="isMobile">
+    <div fxLayout="column" fxFill>
+      <mat-toolbar class="main-sidenav-toolbar" routerLink="/">
+      <h1 class="o-neko" fxLayout="row" fxLayoutAlign="space-evenly center" fxLayoutGap="8px" fxFlexFill>
+        <img alt="O-Neko Logo" src="/assets/oneko.svg"/>
+        <span>O-NEKO</span>
+        <button mat-icon-button *ngIf="isMobile" (click)="sidenav.close()">
+          <mat-icon svgIcon="menu"></mat-icon>
+        </button>
+      </h1>
+      </mat-toolbar>
+      <on-expandable-menu *ngFor="let entry of menuStructure" [entry]="entry"></on-expandable-menu>
+      <span fxFlex></span>
+    </div>
+  </mat-sidenav>
+  <mat-sidenav-content fxLayout="column">
+    <navigation [isDesktop]="!isMobile" [sidenav]="sidenav"></navigation>
+    <main>
+      <router-outlet></router-outlet>
+    </main>
+    <div fxFlex="shrink"><!--push footer to the bottom--></div>
+    <!--<monoskope-footer></monoskope-footer>-->
+  </mat-sidenav-content>
+</mat-sidenav-container>
