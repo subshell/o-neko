@@ -1,8 +1,8 @@
 <nav aria-label="breadcrumb-container container" class="breadcrumb-container">
   <ol class="breadcrumb-list" fxLayout="row wrap" fxLayoutAlign="start center">
     <li class="breadcrumb-item" [ngClass]="{'active': last}" *ngFor="let breadcrumb of breadcrumbs; last as last; first as first" fxLayout="row" fxLayoutAlign="start center">
-      <mat-icon *ngIf="!first" svgIcon="chevron-right"></mat-icon>
-      <a *ngIf="!last" class="o-neko-internal-link" [routerLink]="breadcrumb.link" fxLayout="row" fxLayoutAlign="start center"><mat-icon *ngIf="first" svgIcon="home"></mat-icon><span>{{breadcrumb.label}}</span></a>
+      <mat-icon *ngIf="!first" svgIcon="mdi:chevron-right"></mat-icon>
+      <a *ngIf="!last" class="o-neko-internal-link" [routerLink]="breadcrumb.link" fxLayout="row" fxLayoutAlign="start center"><mat-icon *ngIf="first" svgIcon="mdi:home"></mat-icon><span>{{breadcrumb.label}}</span></a>
       <span *ngIf="last">{{breadcrumb.label}}</span>
     </li>
   </ol>

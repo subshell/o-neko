@@ -7,7 +7,7 @@
           matTooltipShowDelay="500"
           (click)="deploy(); $event.stopPropagation()">
     <span fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="6px">
-      <mat-icon svgIcon="play-circle"></mat-icon>
+      <mat-icon svgIcon="mdi:play-circle"></mat-icon>
       <span>{{ isDeployed ? 'Re-Deploy' : 'Deploy' }}</span>
     </span>
   </button>
@@ -20,7 +20,7 @@
           matTooltipShowDelay="500"
           (click)="stop(); $event.stopPropagation()">
     <span fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="6px">
-      <mat-icon svgIcon="stop-circle"></mat-icon>
+      <mat-icon svgIcon="mdi:stop-circle"></mat-icon>
       <span>Stop</span>
     </span>
   </button>

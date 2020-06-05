@@ -4,7 +4,7 @@
   <div fxLayout="row" fxLayoutAlign="space-between center">
     <button mat-button (click)="createProject()">
       <span fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="1em">
-        <mat-icon svgIcon="folder-plus"></mat-icon>
+        <mat-icon svgIcon="mdi:folder-plus"></mat-icon>
         <span>Create Project</span>
       </span>
     </button>
@@ -34,11 +34,11 @@
         {{imageNameColumn.getValue(project)}}
       </td>
       <td *ngIf="isColumnActive(statusColumn.key)">
-        <mat-icon *ngIf="project.isOrphan()" svgIcon="checkbox-blank-circle-outline" matTooltip="orphaned" class="yellow"></mat-icon>
-        <mat-icon *ngIf="!project.isOrphan() && project.status === 'Ok'" svgIcon="check-circle-outline" matTooltip="OK" class="green"></mat-icon>
-        <mat-icon *ngIf="!project.isOrphan() && project.status === 'Pending'" svgIcon="timelapse" matTooltip="Pending" class="yellow"></mat-icon>
-        <mat-icon *ngIf="!project.isOrphan() && project.status === 'Error'" svgIcon="close-circle-outline" matTooltip="Error" class="red"></mat-icon>
-        <mat-icon *ngIf="!project.isOrphan() && project.status === 'NotDeployed'" svgIcon="alarm-off" matTooltip="Not deployed" class="yellow"></mat-icon>
+        <mat-icon *ngIf="project.isOrphan()" svgIcon="mdi:checkbox-blank-circle-outline" matTooltip="orphaned" class="yellow"></mat-icon>
+        <mat-icon *ngIf="!project.isOrphan() && project.status === 'Ok'" svgIcon="mdi:check-circle-outline" matTooltip="OK" class="green"></mat-icon>
+        <mat-icon *ngIf="!project.isOrphan() && project.status === 'Pending'" svgIcon="mdi:timelapse" matTooltip="Pending" class="yellow"></mat-icon>
+        <mat-icon *ngIf="!project.isOrphan() && project.status === 'Error'" svgIcon="mdi:close-circle-outline" matTooltip="Error" class="red"></mat-icon>
+        <mat-icon *ngIf="!project.isOrphan() && project.status === 'NotDeployed'" svgIcon="mdi:alarm-off" matTooltip="Not deployed" class="yellow"></mat-icon>
       </td>
       <td *ngIf="isColumnActive(versionsColumn.key)">
         <a class="o-neko-internal-link" [routerLink]="'/projects/' + project.uuid + '/versions'">{{versionsColumn.getValue(project)}} Versions</a>

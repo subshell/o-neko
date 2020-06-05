@@ -14,16 +14,16 @@
   <div fxFlex=""></div>
   <button mat-button routerLinkActive="active" [matMenuTriggerFor]="userMenu">
     <span fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="0.3em">
-      <mat-icon svgIcon="account"></mat-icon>
+      <mat-icon svgIcon="mdi:account"></mat-icon>
       <span>{{user.username}}</span>
     </span>
     <mat-menu [overlapTrigger]="false" #userMenu="matMenu">
       <a mat-menu-item routerLink="/me">
-        <mat-icon svgIcon="account-edit"></mat-icon>
+        <mat-icon svgIcon="mdi:account-edit"></mat-icon>
         <span>Account</span>
       </a>
       <button mat-menu-item (click)="logout()">
-        <mat-icon svgIcon="logout-variant"></mat-icon>
+        <mat-icon svgIcon="mdi:logout-variant"></mat-icon>
         <span>Logout</span>
       </button>
     </mat-menu>

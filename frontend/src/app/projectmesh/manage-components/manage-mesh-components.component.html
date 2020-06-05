@@ -24,7 +24,7 @@
             <div class="form-field-group">
               <h4>Deployment URLs</h4>
               <mat-nav-list *ngIf="component.urls.length > 0">
-                <a mat-list-item [href]="'https://'+ url" target="_blank" referrerpolicy="no-referrer" *ngFor="let url of component.urls"><small>{{ url }}</small><mat-icon svgIcon="open-in-new"></mat-icon></a>
+                <a mat-list-item [href]="'https://'+ url" target="_blank" referrerpolicy="no-referrer" *ngFor="let url of component.urls"><small>{{ url }}</small><mat-icon svgIcon="mdi:open-in-new"></mat-icon></a>
               </mat-nav-list>
               <p *ngIf="component.urls.length === 0">
                 Currently no deployment-URLs
@@ -69,7 +69,7 @@
                     *ngIf="mayEditComponents()"
                     (click)="removeComponent(component)">
               <span fxLayout="row" fxLayoutAlign="space-around center" fxLayoutGap="6px">
-                <mat-icon svgIcon="delete"></mat-icon>
+                <mat-icon svgIcon="mdi:delete"></mat-icon>
               <span>Remove this component</span>
               </span>
             </button>
@@ -78,7 +78,7 @@
                     color="primary"
                     (click)="showEffectiveConfigurationOf(component)">
               <span fxLayout="row" fxLayoutAlign="space-around center" fxLayoutGap="6px">
-                <mat-icon svgIcon="eye"></mat-icon>
+                <mat-icon svgIcon="mdi:eye"></mat-icon>
                  <span>Show effective Configuration</span>
               </span>
             </button>
@@ -90,7 +90,7 @@
     </div>
 
     <div fxLayout="row" fxLayoutAlign="start stretch" *ngIf="!hasComponents()" class="manage-mesh-components-empty-info-section">
-      <mat-icon svgIcon="information-outline" color="primary"></mat-icon>
+      <mat-icon svgIcon="mdi:information-outline" color="primary"></mat-icon>
       <p>
         There are no components for {{projectMesh.name}} so far. Click 'Add component' to create one.
       </p>

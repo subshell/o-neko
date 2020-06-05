@@ -5,7 +5,7 @@
   <div fxLayout="row" fxLayoutAlign="space-between center">
     <button *ngIf="mayCreateDefinedNamespace()" mat-button (click)="createDefinedNamespace()">
       <span fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="1em">
-        <mat-icon svgIcon="cat"></mat-icon>
+        <mat-icon svgIcon="mdi:cat"></mat-icon>
         <span>Create Namespace</span>
       </span>
     </button>
@@ -25,7 +25,7 @@
         <td>
           <div fxLayout="row" fxLayoutAlign="end center">
             <button *ngIf="mayDeleteDefinedNamespace()" mat-icon-button (click)="deleteDefinedNamespace(namespace)" matTooltip="Delete">
-              <mat-icon svgIcon="delete"></mat-icon>
+              <mat-icon svgIcon="mdi:delete"></mat-icon>
             </button>
           </div>
         </td>

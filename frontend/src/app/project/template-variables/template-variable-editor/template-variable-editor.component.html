@@ -17,7 +17,7 @@
           <mat-form-field>
             <input matInput #valueInput [readonly]="readonly" [value]="value" (change)="templateVariable.values[i] = valueInput.value" />
           </mat-form-field>
-          <button mat-icon-button (click)="deleteValue(i)" matTooltip="Remove value"><mat-icon svgIcon="delete-outline"></mat-icon></button>
+          <button mat-icon-button (click)="deleteValue(i)" matTooltip="Remove value"><mat-icon svgIcon="mdi:delete-outline"></mat-icon></button>
         </mat-list-item>
       </mat-radio-group>
 

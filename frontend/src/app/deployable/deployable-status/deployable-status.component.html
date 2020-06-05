@@ -1,17 +1,17 @@
 <div class="deployment-status">
   <div class="pending" *ngIf="status === deployableStatus.Pending">
     <div [class.active]="activeButton" class="icon-container">
-      <mat-icon svgIcon="timelapse" [matTooltip]="tooltip" matTooltipShowDelay="500"></mat-icon>
+      <mat-icon svgIcon="mdi:timelapse" [matTooltip]="tooltip" matTooltipShowDelay="500"></mat-icon>
       <ng-container [ngTemplateOutlet]="outdatedIcon"></ng-container>
     </div>
   </div>
   <div *ngIf="status !== deployableStatus.Pending">
     <div class="icon-container">
-      <mat-icon [svgIcon]="iconName" [ngClass]="iconClass" [matTooltip]="tooltip" matTooltipShowDelay="500"></mat-icon>
+      <mat-icon [svgIcon]="'mdi:'+iconName" [ngClass]="iconClass" [matTooltip]="tooltip" matTooltipShowDelay="500"></mat-icon>
       <ng-container [ngTemplateOutlet]="outdatedIcon"></ng-container>
     </div>
   </div>
 </div>
 <ng-template #outdatedIcon>
-  <mat-icon class="outdated-icon" svgIcon="clock-alert" *ngIf="outdated" matTooltip="This deployment is running with an outdated configuration" matTooltipShowDelay="500"></mat-icon>
+  <mat-icon class="outdated-icon" svgIcon="mdi:clock-alert" *ngIf="outdated" matTooltip="This deployment is running with an outdated configuration" matTooltipShowDelay="500"></mat-icon>
 </ng-template>

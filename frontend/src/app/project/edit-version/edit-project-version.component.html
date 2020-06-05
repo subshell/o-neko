@@ -10,7 +10,7 @@
         <div class="form-field-group">
           <h4>Deployment URLs</h4>
           <mat-nav-list *ngIf="projectVersion.urls.length > 0">
-            <a mat-list-item [href]="'https://'+ url" target="_blank" referrerpolicy="no-referrer" *ngFor="let url of projectVersion.urls"><small>{{ url }}</small><mat-icon svgIcon="open-in-new"></mat-icon></a>
+            <a mat-list-item [href]="'https://'+ url" target="_blank" referrerpolicy="no-referrer" *ngFor="let url of projectVersion.urls"><small>{{ url }}</small><mat-icon svgIcon="mdi:open-in-new"></mat-icon></a>
           </mat-nav-list>
           <p *ngIf="projectVersion.urls.length === 0">
             Currently no deployment-URLs
@@ -68,7 +68,7 @@
             color="primary"
             (click)="save()">
       <span fxLayout="row" fxLayoutAlign="space-around center" fxLayoutGap="6px">
-        <mat-icon svgIcon="content-save"></mat-icon>
+        <mat-icon svgIcon="mdi:content-save"></mat-icon>
         <span>Save</span>
       </span>
     </button>
@@ -77,7 +77,7 @@
             color="primary"
             (click)="showEffectiveConfiguration()">
       <span fxLayout="row" fxLayoutAlign="space-around center" fxLayoutGap="6px">
-        <mat-icon svgIcon="eye"></mat-icon>
+        <mat-icon svgIcon="mdi:eye"></mat-icon>
         <span>Show effective Configuration</span>
       </span>
     </button>

@@ -1,11 +1,11 @@
 @import "assets/fonts/varela.css";
-@import "assets/fonts/ibm-plex-sans.css";
+@import "assets/fonts/barlow/barlow.css";
 @import "~@angular/material/theming";
 @import "mixins";
 @include mat-core();
 
 @include angular-material-theme($o-neko-theme);
 
-$custom-typography: mat-typography-config($font-family: '-apple-system, BlinkMacSystemFont, Segoe UI, IBM Plex Sans, Roboto, Helvetica, sans-serif');
+$custom-typography: mat-typography-config($font-family: 'Barlow, -apple-system, BlinkMacSystemFont, Segoe UI, IBM Plex Sans, Roboto, Helvetica, sans-serif');
 @include angular-material-typography($custom-typography);
 // ~~~~~~~~~~~~~~~~~~~

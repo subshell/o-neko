@@ -11,10 +11,10 @@
     <!-- Default Templates -->
     <mat-tab [label]="template.name" *ngFor="let template of configurationTemplatesModels; let i = index">
       <ng-template mat-tab-label>
-        <mat-icon [svgIcon]="template.isOriginal() ? 'file-outline' : 'file-document-outline'"></mat-icon>
+        <mat-icon [svgIcon]="template.isOriginal() ? 'mdi:file-outline' : 'mdi:file-document-outline'"></mat-icon>
         <span>{{template.name}}</span>
-        <button *ngIf="template.isOriginal() && !readonly" mat-icon-button (click)="removeTemplateWithConfirmation(template)"><mat-icon svgIcon="close"></mat-icon></button>
-        <button *ngIf="template.isOverwriting() && !readonly" mat-icon-button (click)="useDefaultProjectConfigurationTemplate(template)"><mat-icon svgIcon="undo-variant"></mat-icon></button>
+        <button *ngIf="template.isOriginal() && !readonly" mat-icon-button (click)="removeTemplateWithConfirmation(template)"><mat-icon svgIcon="mdi:close"></mat-icon></button>
+        <button *ngIf="template.isOverwriting() && !readonly" mat-icon-button (click)="useDefaultProjectConfigurationTemplate(template)"><mat-icon svgIcon="mdi:undo-variant"></mat-icon></button>
       </ng-template>
 
       <div class="box">
