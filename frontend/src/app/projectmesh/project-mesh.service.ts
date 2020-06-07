@@ -1,5 +1,6 @@
 import {Injectable} from "@angular/core";
-import {MatDialog, MatSnackBar} from "@angular/material";
+import { MatDialog } from "@angular/material/dialog";
+import { MatSnackBar } from "@angular/material/snack-bar";
 import {Observable} from "rxjs";
 import {throwError} from "rxjs/internal/observable/throwError";
 import {filter, mergeMap, shareReplay} from 'rxjs/operators';

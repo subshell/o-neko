@@ -1,4 +1,4 @@
-import * as moment from "moment";
+import {relativeDateString} from "../util/date-time-parser";
 
 export enum DesiredState {
   Deployed = "Deployed",
@@ -33,18 +33,7 @@ export class Deployment implements DeploymentDTO {
   readyContainerCount: number;
 
   get formattedTimestamp(): string {
-    if (this.timestamp === null) {
-      return null;
-    }
-
-    let now = new Date();
-    let timestampMoment = moment(this.timestamp);
-    if (moment(now).isSame(timestampMoment, 'day')) {
-      return timestampMoment.format('HH:mm:ss');
-    } else if (moment(now).isSame(timestampMoment, 'month')) {
-      return timestampMoment.format('Do MMM HH:mm:ss');
-    }
-    return timestampMoment.format('DD/MM/YY HH:mm:ss');
+    return relativeDateString(this.timestamp);
   }
 
   static from(from: DeploymentDTO): Deployment {

@@ -11,6 +11,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
+            "aot": true,
             "outputPath": "dist",
             "index": "src/index.html",
             "main": "src/main.ts",
@@ -18,22 +19,25 @@
             "polyfills": "src/polyfills.ts",
             "assets": [
               "src/assets",
-              {
-                "glob": "mdi.svg",
-                "input": "./node_modules/@mdi/angular-material/",
-                "output": "assets"
+              { 
+                "glob": "**/*", 
+                "input": "node_modules/ngx-monaco-editor/assets/monaco", 
+                "output": "./assets/monaco/" 
               }
             ],
             "styles": [
               "src/mat-theme.scss",
               "src/styles.scss"
             ],
-            "scripts": [
-              "node_modules/ace-builds/src-min/ace.js"
-            ]
           },
           "configurations": {
             "production": {
+              "budgets": [
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb"
+                }
+              ],
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
@@ -76,20 +80,12 @@
             "karmaConfig": "./karma.conf.js",
             "polyfills": "src/polyfills.ts",
             "tsConfig": "src/tsconfig.spec.json",
-            "scripts": [
-              "node_modules/ace-builds/src-min/ace.js"
-            ],
             "styles": [
               "src/mat-theme.scss",
               "src/styles.scss"
             ],
             "assets": [
-              "src/assets",
-              {
-                "glob": "mdi.svg",
-                "input": "./node_modules/@mdi/angular-material/",
-                "output": "assets"
-              }
+              "src/assets"
             ]
           }
         },
@@ -136,11 +132,11 @@
   "defaultProject": "o-neko",
   "schematics": {
     "@schematics/angular:component": {
-      "prefix": "app",
-      "styleext": "scss"
+      "prefix": "oneko",
+      "style": "scss"
     },
     "@schematics/angular:directive": {
-      "prefix": "app"
+      "prefix": "oneko"
     }
   }
 }

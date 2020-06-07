@@ -4,7 +4,6 @@
   margin: 5px;
 }
 .template-editor-wrapper {
-
   mat-form-field.box {
     width: 200px;
   }
@@ -13,13 +12,14 @@
     float: right;
   }
 
-  .ace-wrapper {
-    width: 100%;
+  .code-editor-wrapper {
+    $editor-height: 500px;
+    height: $editor-height;
 
-    .ace_editor {
-      width: 100%;
-      min-height: 300px;
-      overflow: auto;
+    .code-editor {
+      .editor-container {
+        height: $editor-height;
+      }
     }
   }
 }

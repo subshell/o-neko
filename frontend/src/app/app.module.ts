@@ -2,7 +2,8 @@ import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import {NgModule} from '@angular/core';
 import {FlexLayoutModule} from "@angular/flex-layout";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {MatCheckboxModule, MatRadioModule} from "@angular/material";
+import {MatCheckboxModule} from "@angular/material/checkbox";
+import {MatRadioModule} from "@angular/material/radio";
 import {MatButtonModule} from "@angular/material/button";
 import {MatCardModule} from "@angular/material/card";
 import {MatChipsModule} from "@angular/material/chips";
@@ -28,7 +29,7 @@ import {MatToolbarModule} from "@angular/material/toolbar";
 import {MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipDefaultOptions, MatTooltipModule} from "@angular/material/tooltip";
 import {BrowserModule, DomSanitizer} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
-import {AceEditorModule} from 'ng2-ace-editor';
+
 import {InfiniteScrollModule} from "ngx-infinite-scroll";
 import {NgxMatSelectSearchModule} from "ngx-mat-select-search";
 import {ActivityLogComponent} from "./activity/activity-log/activity-log.component";
@@ -96,6 +97,8 @@ import {MustMatchValidatorDirective} from "./util/validators/must-match.validato
 import {UsernameAvailableValidator} from "./util/validators/username-available.validator";
 import {WebSocketServiceWrapper} from "./websocket/web-socket-service-wrapper.service";
 import {WebSocketService} from "./websocket/web-socket.service";
+import {MonacoEditorModule} from "ngx-monaco-editor";
+import {configureSvgIcons} from "./configuration/configuration";
 
 @NgModule({
   declarations: [
@@ -181,7 +184,7 @@ import {WebSocketService} from "./websocket/web-socket.service";
     MatMenuModule,
     FormsModule,
     HttpClientModule,
-    AceEditorModule,
+    MonacoEditorModule.forRoot(),
     MatToolbarModule,
     MatListModule,
     MatTabsModule,
@@ -216,26 +219,11 @@ import {WebSocketService} from "./websocket/web-socket.service";
     WebSocketServiceWrapper,
     ProjectMeshService,
   ],
-  entryComponents: [
-    TimeoutSnackbarComponent,
-    UserEditDialog,
-    ShowDeployableConfigurationDialog,
-    ConfirmDialog,
-    ConfirmWithTextDialog,
-    DockerRegistryEditDialogComponent,
-    ConfirmDeletionDialogComponent,
-    LogsComponent,
-    CreateProjectDialogComponent,
-    CreateNamespaceDialogComponent,
-    DeleteNamespaceDialogComponent,
-    CreateProjectMeshDialogComponent,
-    CreateMeshComponentDialogComponent
-  ],
   bootstrap: [AppComponent]
 })
 export class AppModule {
   constructor(matIconRegistry: MatIconRegistry, domSanitizer: DomSanitizer, rest: RestService, auth: AuthService, ws: WebSocketService) {
-    matIconRegistry.addSvgIconSet(domSanitizer.bypassSecurityTrustResourceUrl('assets/mdi.svg'));
+    configureSvgIcons(matIconRegistry, domSanitizer);
 
     auth.isAuthenticated().subscribe(authenticated => {
       if (authenticated) {

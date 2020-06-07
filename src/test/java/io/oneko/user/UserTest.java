@@ -1,6 +1,6 @@
 package io.oneko.user;
 
-import static com.google.common.truth.Truth.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.UUID;
 
