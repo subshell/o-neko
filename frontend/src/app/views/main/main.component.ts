@@ -46,6 +46,9 @@ export class MainComponent {
       },{
         title: 'Users',
         href: '/users'
+      },{
+        title: 'Activity Log',
+        href: '/logs'
       }]
     }
   ];

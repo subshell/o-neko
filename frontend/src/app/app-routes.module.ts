@@ -17,6 +17,7 @@ import {DockerRegistryListComponent} from "./docker/list/docker-registry-list.co
 import {IsAdminOrDoerGuardService} from "./session/is-admin-or-doer-guard.service";
 import {DefinedNamespacesListComponent} from "./namespace/list/defined-namespaces-list.component";
 import {MeComponent} from "./user/me/me.component";
+import {LogsComponent} from "./logs/logs.component";
 
 export const APP_ROUTES: Routes = [
   // Login
@@ -106,6 +107,11 @@ export const APP_ROUTES: Routes = [
       {
         path: 'me',
         component: MeComponent,
+        canActivate: [AuthGuardService]
+      },
+      {
+        path: 'logs',
+        component: LogsComponent,
         canActivate: [AuthGuardService]
       },
       {

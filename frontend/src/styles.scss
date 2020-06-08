@@ -16,10 +16,6 @@ a,
 a:hover {
   text-decoration: none;
 }
-a,
-a:visited {
-  color: currentColor;
-}
 *:focus {
   outline: none;
 }
@@ -50,24 +46,17 @@ img {
   //margin: 1em 2em; //FIXME
 }
 
-$full-page-form-border-style: mat-color($o-neko-primary) 2px solid;
-$full-page-form-full-padding: 36px;
-$full-page-form-slim-padding: 12px;
+$full-page-form-full-padding: 2em;
+$full-page-form-slim-padding: 1em;
+
 .full-page-form {
   background-color: mat-color($gray-palette, 50, .5);
   border-radius: $mat-radius;
-  padding: 0 $full-page-form-full-padding;
-  margin: $full-page-form-slim-padding auto;
+  padding: $full-page-form-slim-padding $full-page-form-full-padding;
+  margin: $full-page-form-slim-padding 0;
   max-width: 1500px;
   box-sizing: border-box;
-  box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12);
-
-  .title {
-    padding: $full-page-form-slim-padding $full-page-form-full-padding 0 $full-page-form-full-padding;
-    margin: 0 (-$full-page-form-full-padding) $full-page-form-slim-padding;
-    color: mat-color($o-neko-primary);
-    border-bottom: $full-page-form-border-style;
-  }
+  @include mat-elevation(3);
 
   .form-field-group {
     padding: $full-page-form-slim-padding;
@@ -75,14 +64,8 @@ $full-page-form-slim-padding: 12px;
     background-color: white;
     @include mat-elevation(2);
   }
-
   .bottom-toolbar {
-    padding: $full-page-form-slim-padding $full-page-form-full-padding 0 $full-page-form-full-padding;
-    margin: $full-page-form-slim-padding (-$full-page-form-full-padding) $full-page-form-slim-padding;
-    border-top: $full-page-form-border-style;
-    button[mat-flat-button] {
-      color: white;
-    }
+    margin-top: 1em;
   }
 }
 

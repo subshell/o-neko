@@ -2,12 +2,9 @@
 
 .activity-log {
   max-width: 100%;
-  border-left: 1px solid mat-color($mat-yellow, 700);
-  overflow-y: hidden;
 
   .activity-log-results {
     padding-top: 0;
-    overflow-y: scroll;
     width: 100%;
 
     .mat-line {

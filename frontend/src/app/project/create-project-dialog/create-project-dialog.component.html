@@ -51,7 +51,7 @@
           <ng-template matStepLabel>Enter the new projects image name</ng-template>
           <p>Type in the name of the docker image. This must match the image name as present on the docker registry.</p>
           <p>We totally would like to offer you a list of image names to select from, but the docker API for retrieving these is a bit picky in terms of permissions.</p>
-          <p><span>Until we fix this, you have to type this on your own.</span><mat-icon svgIcon="mdi:emoticon-sad" [inline]="true"></mat-icon></p>
+          <p><span>Until we fix this, you have to type this on your own.</span><mat-icon svgIcon="mdi:emoticon-sad"></mat-icon></p>
           <mat-form-field>
             <input matInput placeholder="Image name" required formControlName="imageNameCtrl" >
           </mat-form-field>

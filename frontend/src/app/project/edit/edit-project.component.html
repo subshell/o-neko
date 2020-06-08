@@ -1,73 +1,78 @@
 <breadcrumbs *ngIf="project" [breadcrumbs]="[{label: 'home', link: ''}, {label: 'projects', link: '/projects'}, {label: project.name}]"></breadcrumbs>
-<div class="edit-project main-content-padding full-page-form" *ngIf="project" fxLayout="column">
-  <h1 class="title">{{'Edit Project'}}</h1>
-  <div class="content">
-    <div>
-      <form fxLayout="column" #projectForm="ngForm" fxLayoutGap="1em">
-        <mat-form-field>
-          <input type="text" matInput [(ngModel)]="project.name" autocomplete="off" required name="projectname" id="projectname"
-                 placeholder="Project name" #projectname="ngModel" [disabled]="!mayEditProjects()">
-          <mat-error *ngIf="projectname.invalid && projectname.errors.required">A project name is required.</mat-error>
-        </mat-form-field>
-        <mat-form-field>
-          <input type="text" matInput [(ngModel)]="project.imageName" autocomplete="off" required name="imagename" id="imagename"
-                 placeholder="Image name" #imagename="ngModel" [disabled]="!project.isOrphan() || !mayEditProjects()">
-          <mat-error *ngIf="imagename.invalid && imagename.errors.required">An image name is required.</mat-error>
-        </mat-form-field>
-        <mat-form-field>
-          <mat-select #dockerregistry="ngModel" required placeholder="Docker registry" [(ngModel)]="project.dockerRegistryUUID" name="dockerregistry" id="dockerregistry" [disabled]="!project.isOrphan() || !mayEditProjects()">
-            <mat-option *ngFor="let dockerRegistry of dockerRegistries" [value]="dockerRegistry.uuid">
-              {{ dockerRegistry.name }}
-            </mat-option>
-          </mat-select>
-          <mat-error *ngIf="dockerregistry.invalid && dockerregistry.errors.required">Each project must have a docker registry assigned.</mat-error>
-        </mat-form-field>
+<div class="main-content-padding">
+  <h2 fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="12px">
+    <mat-icon svgIcon="edit"></mat-icon>
+    <span>Edit Project</span>
+  </h2>
+  <div class="edit-project full-page-form" *ngIf="project" fxLayout="column">
+    <div class="content">
+      <div>
+        <form fxLayout="column" #projectForm="ngForm" fxLayoutGap="1em">
+          <mat-form-field>
+            <input type="text" matInput [(ngModel)]="project.name" autocomplete="off" required name="projectname" id="projectname"
+                   placeholder="Project name" #projectname="ngModel" [disabled]="!mayEditProjects()">
+            <mat-error *ngIf="projectname.invalid && projectname.errors.required">A project name is required.</mat-error>
+          </mat-form-field>
+          <mat-form-field>
+            <input type="text" matInput [(ngModel)]="project.imageName" autocomplete="off" required name="imagename" id="imagename"
+                   placeholder="Image name" #imagename="ngModel" [disabled]="!project.isOrphan() || !mayEditProjects()">
+            <mat-error *ngIf="imagename.invalid && imagename.errors.required">An image name is required.</mat-error>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-select #dockerregistry="ngModel" required placeholder="Docker registry" [(ngModel)]="project.dockerRegistryUUID" name="dockerregistry" id="dockerregistry" [disabled]="!project.isOrphan() || !mayEditProjects()">
+              <mat-option *ngFor="let dockerRegistry of dockerRegistries" [value]="dockerRegistry.uuid">
+                {{ dockerRegistry.name }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="dockerregistry.invalid && dockerregistry.errors.required">Each project must have a docker registry assigned.</mat-error>
+          </mat-form-field>
 
-        <div class="form-field-group">
-          <template-editor [templates]="project.defaultConfigurationTemplates"
-                           (templatesChange)="onDefaultConfigurationTemplateChange($event)"
-                           (templatesValid)="onTemplatesValidationChange($event)"
-                           label="Configuration Templates"
-                           [readonly]="!mayEditProjects()">
-          </template-editor>
-        </div>
-
-        <div class="form-field-group">
-          <div class="template-defaults-wrapper" fxLayout="column">
-            <h4>Template Variables</h4>
-            <template-variables [readonly]="!mayEditProjects()"
-                                [customTemplateVariables]="project.templateVariables"
-                                (onAddTemplateVariable)="onAddTemplateVariable($event)"
-                                (onDeleteTemplateVariable)="onDeleteTemplateVariable($event)"></template-variables>
+          <div class="form-field-group">
+            <template-editor [templates]="project.defaultConfigurationTemplates"
+                             (templatesChange)="onDefaultConfigurationTemplateChange($event)"
+                             (templatesValid)="onTemplatesValidationChange($event)"
+                             label="Configuration Templates"
+                             [readonly]="!mayEditProjects()">
+            </template-editor>
           </div>
-        </div>
 
-        <deployment-behaviour-input [model]="newVersionsDeploymentBehaviourAccess"[required]="true" [readonly]="!mayEditProjects()"></deployment-behaviour-input>
+          <div class="form-field-group">
+            <div class="template-defaults-wrapper" fxLayout="column">
+              <h4>Template Variables</h4>
+              <template-variables [readonly]="!mayEditProjects()"
+                                  [customTemplateVariables]="project.templateVariables"
+                                  (onAddTemplateVariable)="onAddTemplateVariable($event)"
+                                  (onDeleteTemplateVariable)="onDeleteTemplateVariable($event)"></template-variables>
+            </div>
+          </div>
 
-        <lifetime-behaviour-input [model]="project.defaultLifetimeBehaviour" name="Default lifetime behaviour"></lifetime-behaviour-input>
+          <deployment-behaviour-input [model]="newVersionsDeploymentBehaviourAccess"[required]="true" [readonly]="!mayEditProjects()"></deployment-behaviour-input>
 
-      </form>
+          <lifetime-behaviour-input [model]="project.defaultLifetimeBehaviour" name="Default lifetime behaviour"></lifetime-behaviour-input>
+
+        </form>
+      </div>
     </div>
-  </div>
-  <div class="bottom-toolbar" fxLayout="row" fxLayoutAlign="space-around center">
-    <button *ngIf="mayEditProjects()"
-            mat-button
-            [disabled]="projectForm.form.invalid || !templatesValid || !mayEditProjects()"
-            color="primary"
-            (click)="save()">
-      Save Project
-    </button>
-    <button mat-button
-            routerLinkActive="active"
-            [routerLink]="'/projects/' + project.uuid + '/versions'"
-            color="primary">
-      Show Versions
-    </button>
-    <button mat-button
-            [disabled]="!mayEditProjects()"
-            color="primary"
-            (click)="delete()">
-      Delete Project
-    </button>
+    <div class="bottom-toolbar" fxLayout="row" fxLayoutAlign="space-around center">
+      <button *ngIf="mayEditProjects()"
+              mat-button
+              [disabled]="projectForm.form.invalid || !templatesValid || !mayEditProjects()"
+              color="primary"
+              (click)="save()">
+        Save Project
+      </button>
+      <button mat-button
+              routerLinkActive="active"
+              [routerLink]="'/projects/' + project.uuid + '/versions'"
+              color="primary">
+        Show Versions
+      </button>
+      <button mat-button
+              [disabled]="!mayEditProjects()"
+              color="primary"
+              (click)="delete()">
+        Delete Project
+      </button>
+    </div>
   </div>
 </div>

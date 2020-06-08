@@ -1,111 +1,115 @@
 <breadcrumbs *ngIf="projectMesh" [breadcrumbs]="[{label: 'home', link: ''}, {label: 'projects meshes', link: '/project-meshes'}, {label: projectMesh.name, link: '/project-meshes/' + projectMesh.id}, {label: 'components'}]"></breadcrumbs>
-<div *ngIf="projectMesh" class="manage-mesh-components main-content-padding full-page-form" fxLayout="column">
-
-  <h1 class="title" *ngIf="projectMesh">Manage components of {{projectMesh.name}}</h1>
-  <div class="content">
-    <div fxLayout="row" fxLayoutAlign="space-between center">
-      <form [formGroup]="uberForm" fxLayout="column" fxLayoutGap="1em" fxFlex="grow">
-      <mat-accordion>
-        <mat-expansion-panel *ngFor="let component of projectMesh.components; let index=index" [ngClass]="{'invalid': uberForm.controls[index].invalid}">
-          <mat-expansion-panel-header>
-            <mat-panel-title>{{component.name}}</mat-panel-title>
-            <div fxLayoutAlign="end center" fxLayout="row">
-              <deployableStatus [status]="component.deployment.status" [outdated]="component.outdated"></deployableStatus>
-              <mesh-component-actions [meshComponent]="component" [projectMesh]="projectMesh" [hideText]="true" [hideIcons]="false"></mesh-component-actions>
-            </div>
-          </mat-expansion-panel-header>
-          <form [formGroup]="uberForm.controls[index]" fxLayout="column" fxLayoutGap="1em">
-
-            <mat-form-field>
-              <input type="text" matInput autocomplete="off" placeholder="Component name" formControlName="nameCtrl">
-            </mat-form-field>
-
-            <div class="form-field-group">
-              <h4>Deployment URLs</h4>
-              <mat-nav-list *ngIf="component.urls.length > 0">
-                <a mat-list-item [href]="'https://'+ url" target="_blank" referrerpolicy="no-referrer" *ngFor="let url of component.urls"><small>{{ url }}</small><mat-icon svgIcon="mdi:open-in-new"></mat-icon></a>
-              </mat-nav-list>
-              <p *ngIf="component.urls.length === 0">
-                Currently no deployment-URLs
-              </p>
-            </div>
-
-            <div class="form-field-group" fxLayout="row" fxLayoutGap="1em">
-              <mat-form-field fxFlex="grow">
-                <mat-select placeholder="Project" formControlName="projectIdCtrl">
-                  <mat-option *ngFor="let project of projects" [value]="project.uuid">{{project.name}}</mat-option>
-                </mat-select>
-              </mat-form-field>
-              <mat-form-field fxFlex="grow">
-                <mat-select placeholder="Project Version" formControlName="projectVersionIdCtrl">
-                  <mat-option *ngFor="let version of getProjectVersionsFor(component)" [value]="version.uuid">{{version.name}}</mat-option>
-                </mat-select>
-              </mat-form-field>
-            </div>
-
-            <div class="form-field-group">
-              <template-editor [templates]="component.configurationTemplates"
-                               [defaultTemplates]="defaultConfigurationTemplatesCache[component.id] || []"
-                               (templatesChange)="onDefaultConfigurationTemplateChange($event, component)"
-                               (templatesValid)="onTemplatesValidationChange($event)"
-                               label="Configuration Templates"
-                               [readonly]="!mayEditComponents()">
-              </template-editor>
-            </div>
-
-            <div class="form-field-group">
-              <div class="template-wrapper" fxLayout="column">
-                <label>Template Parameters</label>
-                <value-input [valuesByKey]="templateVariables.get(component.id)" [readonly]="!mayEditComponents()" (onChange)="updateTemplateVariables(component, $event)"></value-input>
-                <key-value-input [keyValues]="ownTemplateVariables" [readonly]="!mayEditComponents()" (onChange)="updateOwnTemplateVariables(component, $event)"></key-value-input>
+<div class="main-content-padding">
+  <h2 fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="12px">
+    <mat-icon svgIcon="edit"></mat-icon>
+    <span>Manage components of <strong>{{projectMesh?.name}}</strong></span>
+  </h2>
+  <div *ngIf="projectMesh" class="manage-mesh-components full-page-form" fxLayout="column">
+    <div class="content">
+      <div fxLayout="row" fxLayoutAlign="space-between center">
+        <form [formGroup]="uberForm" fxLayout="column" fxLayoutGap="1em" fxFlex="grow">
+        <mat-accordion>
+          <mat-expansion-panel *ngFor="let component of projectMesh.components; let index=index" [ngClass]="{'invalid': uberForm.controls[index].invalid}">
+            <mat-expansion-panel-header>
+              <mat-panel-title>{{component.name}}</mat-panel-title>
+              <div fxLayoutAlign="end center" fxLayout="row">
+                <deployableStatus [status]="component.deployment.status" [outdated]="component.outdated"></deployableStatus>
+                <mesh-component-actions [meshComponent]="component" [projectMesh]="projectMesh" [hideText]="true" [hideIcons]="false"></mesh-component-actions>
               </div>
+            </mat-expansion-panel-header>
+            <form [formGroup]="uberForm.controls[index]" fxLayout="column" fxLayoutGap="1em">
+
+              <mat-form-field>
+                <input type="text" matInput autocomplete="off" placeholder="Component name" formControlName="nameCtrl">
+              </mat-form-field>
+
+              <div class="form-field-group">
+                <h4>Deployment URLs</h4>
+                <mat-nav-list *ngIf="component.urls.length > 0">
+                  <a mat-list-item [href]="'https://'+ url" target="_blank" referrerpolicy="no-referrer" *ngFor="let url of component.urls"><small>{{ url }}</small><mat-icon svgIcon="mdi:open-in-new"></mat-icon></a>
+                </mat-nav-list>
+                <p *ngIf="component.urls.length === 0">
+                  Currently no deployment-URLs
+                </p>
+              </div>
+
+              <div class="form-field-group" fxLayout="row" fxLayoutGap="1em">
+                <mat-form-field fxFlex="grow">
+                  <mat-select placeholder="Project" formControlName="projectIdCtrl">
+                    <mat-option *ngFor="let project of projects" [value]="project.uuid">{{project.name}}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field fxFlex="grow">
+                  <mat-select placeholder="Project Version" formControlName="projectVersionIdCtrl">
+                    <mat-option *ngFor="let version of getProjectVersionsFor(component)" [value]="version.uuid">{{version.name}}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+              <div class="form-field-group">
+                <template-editor [templates]="component.configurationTemplates"
+                                 [defaultTemplates]="defaultConfigurationTemplatesCache[component.id] || []"
+                                 (templatesChange)="onDefaultConfigurationTemplateChange($event, component)"
+                                 (templatesValid)="onTemplatesValidationChange($event)"
+                                 label="Configuration Templates"
+                                 [readonly]="!mayEditComponents()">
+                </template-editor>
+              </div>
+
+              <div class="form-field-group">
+                <div class="template-wrapper" fxLayout="column">
+                  <label>Template Parameters</label>
+                  <value-input [valuesByKey]="templateVariables.get(component.id)" [readonly]="!mayEditComponents()" (onChange)="updateTemplateVariables(component, $event)"></value-input>
+                  <key-value-input [keyValues]="ownTemplateVariables" [readonly]="!mayEditComponents()" (onChange)="updateOwnTemplateVariables(component, $event)"></key-value-input>
+                </div>
+              </div>
+            </form>
+
+            <div class="bottom-toolbar" fxLayout="row" fxLayoutAlign="space-around center">
+              <button mat-flat-button
+                      color="primary"
+                      *ngIf="mayEditComponents()"
+                      (click)="removeComponent(component)">
+                <span fxLayout="row" fxLayoutAlign="space-around center" fxLayoutGap="6px">
+                  <mat-icon svgIcon="mdi:delete"></mat-icon>
+                <span>Remove this component</span>
+                </span>
+              </button>
+
+              <button mat-stroked-button
+                      color="primary"
+                      (click)="showEffectiveConfigurationOf(component)">
+                <span fxLayout="row" fxLayoutAlign="space-around center" fxLayoutGap="6px">
+                  <mat-icon svgIcon="mdi:eye"></mat-icon>
+                   <span>Show effective Configuration</span>
+                </span>
+              </button>
             </div>
-          </form>
 
-          <div class="bottom-toolbar" fxLayout="row" fxLayoutAlign="space-around center">
-            <button mat-flat-button
-                    color="primary"
-                    *ngIf="mayEditComponents()"
-                    (click)="removeComponent(component)">
-              <span fxLayout="row" fxLayoutAlign="space-around center" fxLayoutGap="6px">
-                <mat-icon svgIcon="mdi:delete"></mat-icon>
-              <span>Remove this component</span>
-              </span>
-            </button>
+          </mat-expansion-panel>
+        </mat-accordion>
+        </form>
+      </div>
 
-            <button mat-stroked-button
-                    color="primary"
-                    (click)="showEffectiveConfigurationOf(component)">
-              <span fxLayout="row" fxLayoutAlign="space-around center" fxLayoutGap="6px">
-                <mat-icon svgIcon="mdi:eye"></mat-icon>
-                 <span>Show effective Configuration</span>
-              </span>
-            </button>
-          </div>
-
-        </mat-expansion-panel>
-      </mat-accordion>
-      </form>
+      <div fxLayout="row" fxLayoutAlign="start stretch" *ngIf="!hasComponents()" class="manage-mesh-components-empty-info-section">
+        <mat-icon svgIcon="mdi:information-outline" color="primary"></mat-icon>
+        <p>
+          There are no components for {{projectMesh.name}} so far. Click 'Add component' to create one.
+        </p>
+      </div>
     </div>
 
-    <div fxLayout="row" fxLayoutAlign="start stretch" *ngIf="!hasComponents()" class="manage-mesh-components-empty-info-section">
-      <mat-icon svgIcon="mdi:information-outline" color="primary"></mat-icon>
-      <p>
-        There are no components for {{projectMesh.name}} so far. Click 'Add component' to create one.
-      </p>
+    <div class="bottom-toolbar" fxLayout="row" fxLayoutAlign="space-around center">
+      <button mat-button (click)="addComponent()" color="primary" *ngIf="mayEditComponents()">
+        Add component
+      </button>
+      <button mat-button
+              [disabled]="uberForm.invalid || !mayEditComponents()"
+              color="primary"
+              (click)="save()">
+        Save Project Mesh
+      </button>
     </div>
-  </div>
 
-  <div class="bottom-toolbar" fxLayout="row" fxLayoutAlign="space-around center">
-    <button mat-button (click)="addComponent()" color="primary" *ngIf="mayEditComponents()">
-      Add component
-    </button>
-    <button mat-button
-            [disabled]="uberForm.invalid || !mayEditComponents()"
-            color="primary"
-            (click)="save()">
-      Save Project Mesh
-    </button>
   </div>
-
 </div>
