@@ -1,4 +1,4 @@
-<mat-nav-list>
+<mat-nav-list *ngIf="!entry.hidden">
   <a mat-list-item (click)="toggle()" [class.active]="subRouteIsActive | async">
     <mat-icon matListIcon [svgIcon]="entry.icon"></mat-icon>
     <span matLine fxLayout="row" fxLayoutAlign="space-between center">
@@ -10,12 +10,14 @@
     </span>
   </a>
   <div class="expandable-entries" [class.expanded]="expandedChange | async" [@bodyExpansion]="getExpandedState()">
-    <a mat-list-item *ngFor="let child of entry.children" [routerLink]="child.href" routerLinkActive="active" [routerLinkActiveOptions]="(child.href === '' || child.href === '/') ? {exact: true} : {exact: false}"
-                   [class.disabled]="child.disabled">
-      <mat-icon *ngIf="child.icon" class="with-left-margin" matListIcon [svgIcon]="child.icon"></mat-icon>
-      <span [class.with-left-margin]="!child.icon" matLine>
-        <span>{{child.title}}</span>
-      </span>
-    </a>
+    <ng-container *ngFor="let child of entry.children">
+      <a mat-list-item *ngIf="!child.hidden" [routerLink]="child.href" routerLinkActive="active" [routerLinkActiveOptions]="(child.href === '' || child.href === '/') ? {exact: true} : {exact: false}"
+                     [class.disabled]="child.disabled">
+        <mat-icon *ngIf="child.icon" class="with-left-margin" matListIcon [svgIcon]="child.icon"></mat-icon>
+        <span [class.with-left-margin]="!child.icon" matLine>
+          <span>{{child.title}}</span>
+        </span>
+      </a>
+    </ng-container>
   </div>
 </mat-nav-list>

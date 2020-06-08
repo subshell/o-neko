@@ -3,11 +3,13 @@ export interface MenuEntry {
   href: string;
   icon?: string;
   disabled?: boolean;
+  hidden?: boolean;
 }
 
 export interface ToplevelMenuEntry {
   title: string;
   icon: string;
+  hidden?: boolean;
 }
 
 export interface ExpandableMenuEntry extends ToplevelMenuEntry {
