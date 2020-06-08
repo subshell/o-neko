@@ -1,6 +1,5 @@
-<navigation></navigation>
 <breadcrumbs *ngIf="projectMesh" [breadcrumbs]="[{label: 'home', link: ''}, {label: 'projects meshes', link: '/project-meshes'}, {label: projectMesh.name, link: '/project-meshes/' + projectMesh.id}, {label: 'components'}]"></breadcrumbs>
-<div *ngIf="projectMesh" class="manage-mesh-components container full-page-form" fxLayout="column">
+<div *ngIf="projectMesh" class="manage-mesh-components main-content-padding full-page-form" fxLayout="column">
 
   <h1 class="title" *ngIf="projectMesh">Manage components of {{projectMesh.name}}</h1>
   <div class="content">

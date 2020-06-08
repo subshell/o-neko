@@ -47,9 +47,13 @@ mat-sidenav-container {
       }
     }
 
-    ::ng-deep on-expandable-menu {
+    ::ng-deep on-expandable-menu, mat-nav-list {
       mat-icon {
         color: rgba(mat-color($o-neko-primary, 500), 0.4);
+      }
+
+      .mat-line {
+        font-weight: 500;
       }
 
       .mat-list-item {

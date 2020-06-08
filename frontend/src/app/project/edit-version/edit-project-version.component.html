@@ -1,6 +1,5 @@
-<navigation></navigation>
 <breadcrumbs *ngIf="projectVersion" [breadcrumbs]="[{label: 'home', link: ''}, {label: 'projects', link: '/projects'}, {label: project.name, link: '/projects/' + project.uuid}, {label: 'versions', link: '/projects/' + project.uuid + '/versions'}, {label: projectVersion.name}]"></breadcrumbs>
-<div class="edit-project-version container full-page-form" *ngIf="projectVersion" fxLayout="column">
+<div class="edit-project-version main-content-padding full-page-form" *ngIf="projectVersion" fxLayout="column">
 
   <h1 class="title">{{'Edit Project Version'}}</h1>
   <div class="content">

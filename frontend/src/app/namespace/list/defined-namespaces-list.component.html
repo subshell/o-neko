@@ -1,7 +1,10 @@
-<navigation></navigation>
 <breadcrumbs [breadcrumbs]="[{label: 'home', link: ''}, {label: 'namespaces'}]"></breadcrumbs>
 
-<div class="defined-namespaces container" fxLayout="column">
+<div class="defined-namespaces main-content-padding" fxLayout="column">
+  <h2 fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="12px">
+    <mat-icon svgIcon="dns"></mat-icon>
+    <span>Namespaces</span>
+  </h2>
   <div fxLayout="row" fxLayoutAlign="space-between center">
     <button *ngIf="mayCreateDefinedNamespace()" mat-button (click)="createDefinedNamespace()">
       <span fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="1em">

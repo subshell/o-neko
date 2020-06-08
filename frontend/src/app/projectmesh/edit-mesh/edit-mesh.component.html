@@ -1,6 +1,5 @@
-<navigation></navigation>
 <breadcrumbs *ngIf="projectMesh" [breadcrumbs]="[{label: 'home', link: ''}, {label: 'projects meshes', link: '/project-meshes'}, {label: projectMesh.name}]"></breadcrumbs>
-<div class="edit-mesh container full-page-form" *ngIf="projectMesh" fxLayout="column">
+<div class="edit-mesh main-content-padding full-page-form" *ngIf="projectMesh" fxLayout="column">
   <h1 class="title">{{'Edit Project Mesh'}}</h1>
   <div class="content">
     <div>

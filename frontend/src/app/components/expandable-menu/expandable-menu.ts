@@ -5,8 +5,16 @@ export interface MenuEntry {
   disabled?: boolean;
 }
 
-export interface ExpandableMenuEntry {
+export interface ToplevelMenuEntry {
   title: string;
   icon: string;
+}
+
+export interface ExpandableMenuEntry extends ToplevelMenuEntry {
   children: Array<MenuEntry>;
+}
+
+export interface SingleMenuEntry extends ToplevelMenuEntry {
+  isSingleEntry: true;
+  href: string;
 }

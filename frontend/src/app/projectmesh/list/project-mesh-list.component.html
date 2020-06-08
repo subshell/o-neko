@@ -1,6 +1,9 @@
-<navigation></navigation>
 <breadcrumbs [breadcrumbs]="[{label: 'home', link: ''}, {label: 'project meshes'}]"></breadcrumbs>
-<div class="project-mesh-list container" fxLayout="column">
+<div class="project-mesh-list main-content-padding" fxLayout="column">
+  <h2 fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="12px">
+    <mat-icon svgIcon="table-chart"></mat-icon>
+    <span>Project Meshes</span>
+  </h2>
   <div fxLayout="row" fxLayoutAlign="space-between center">
     <button mat-button (click)="createProjectMesh()">
       <span fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="1em">
