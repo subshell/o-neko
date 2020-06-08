@@ -98,9 +98,18 @@ import {UsernameAvailableValidator} from "./util/validators/username-available.v
 import {WebSocketServiceWrapper} from "./websocket/web-socket-service-wrapper.service";
 import {WebSocketService} from "./websocket/web-socket.service";
 import {MonacoEditorModule} from "ngx-monaco-editor";
-import {configureSvgIcons} from "./configuration/configuration";
+import {configureSvgIcons, provideAnimationDriverBasedOnUserPreferences} from "./configuration/configuration";
 import {MainComponent} from "./views/main/main.component";
 import {ExpandableMenuComponent} from "./components/expandable-menu/expandable-menu.component";
+import {NgxsModule} from "@ngxs/store";
+import {environment} from "../environments/environment.prod";
+import {NgxsStoragePluginModule} from "@ngxs/storage-plugin";
+import {NgxsReduxDevtoolsPluginModule} from "@ngxs/devtools-plugin";
+import {NgxsLoggerPluginModule} from "@ngxs/logger-plugin";
+import {AnimationDriver} from "@angular/animations/browser";
+import {appStates} from "./store";
+import {ThemingState} from "./store/theming/theming.state";
+import {ThemeSwitcherComponent} from "./components/theme-switcher/theme-switcher.component";
 
 @NgModule({
   declarations: [
@@ -158,7 +167,8 @@ import {ExpandableMenuComponent} from "./components/expandable-menu/expandable-m
     DeployableActionsComponent,
     ProjectVersionVariableActionsComponent,
     MainComponent,
-    ExpandableMenuComponent
+    ExpandableMenuComponent,
+    ThemeSwitcherComponent
   ],
   imports: [
     BrowserModule,
@@ -198,7 +208,11 @@ import {ExpandableMenuComponent} from "./components/expandable-menu/expandable-m
     InfiniteScrollModule,
     MatCheckboxModule,
     MatRadioModule,
-    NgxMatSelectSearchModule
+    NgxMatSelectSearchModule,
+    NgxsModule.forRoot(appStates, {developmentMode: !environment.production}),
+    NgxsStoragePluginModule.forRoot({key: [ThemingState]}),
+    NgxsReduxDevtoolsPluginModule.forRoot(),
+    NgxsLoggerPluginModule.forRoot()
   ],
   providers: [
     RestService,
@@ -222,6 +236,10 @@ import {ExpandableMenuComponent} from "./components/expandable-menu/expandable-m
     WebSocketService,
     WebSocketServiceWrapper,
     ProjectMeshService,
+    {
+      provide: AnimationDriver,
+      useFactory: () => provideAnimationDriverBasedOnUserPreferences()
+    }
   ],
   bootstrap: [AppComponent]
 })

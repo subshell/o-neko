@@ -3,6 +3,7 @@
     <mat-icon svgIcon="menu"></mat-icon>
   </button>
   <div fxFlex *ngIf="!isDesktop"></div>
+  <on-theme-switcher></on-theme-switcher>
   <mat-divider [vertical]="true"></mat-divider>
   <button mat-button routerLinkActive="active" [matMenuTriggerFor]="userMenu">
     <span fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="0.3em">

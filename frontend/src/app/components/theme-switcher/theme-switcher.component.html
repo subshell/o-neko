@@ -1,0 +1,9 @@
+<button mat-icon-button [matMenuTriggerFor]="modeMenu">
+  <mat-icon [svgIcon]="currentModeIcon | async"></mat-icon>
+</button>
+<mat-menu #modeMenu>
+  <button mat-menu-item *ngFor="let mode of modes" (click)="setMode(mode.mode)" [class.active]="(themingMode$ | async) === mode.mode">
+    <mat-icon [svgIcon]="mode.icon"></mat-icon>
+    <span>{{mode.label}}</span>
+  </button>
+</mat-menu>
