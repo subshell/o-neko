@@ -1,13 +1,11 @@
 @import "src/styles/mixins";
 
 .deployable-actions {
-
   &.hide-icons {
     mat-icon {
       display: none;
     }
   }
-
   &.hide-text {
     button {
       span > span {
@@ -15,23 +13,8 @@
       }
     }
   }
-
   button {
     min-height: 36px;
     min-width: 36px;
-
-    &:not([disabled]) {
-      color: rgba(black, 0.4);
-      &.deploy-button {
-        &:hover {
-          color: mat-color($mat-blue, 600);
-        }
-      }
-      &.stop-button {
-        &:hover {
-          color: mat-color($mat-red, 600);
-        }
-      }
-    }
   }
 }

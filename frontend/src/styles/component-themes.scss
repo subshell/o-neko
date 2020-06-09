@@ -16,6 +16,8 @@
 @import "../app/project/dashboard/project-dashboard.component.theme";
 @import "../app/project/template-variables/template-variables.component.theme";
 @import "../app/navigation/navigation.component.theme";
+@import "../app/deployable/deployable-actions/deployable-actions.theme";
+@import "../app/deployable/deployable-status/deployable-status.component.theme";
 
 @mixin component-themes($theme) {
   @include main-component-theme($theme);
@@ -36,4 +38,6 @@
   @include project-dashboard-component-theme($theme);
   @include template-variables-component-theme($theme);
   @include navigation-component-theme($theme);
+  @include deployable-actions-component-theme($theme);
+  @include deployable-status-component-theme($theme);
 }

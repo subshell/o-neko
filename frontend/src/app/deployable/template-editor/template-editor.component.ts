@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation} from "@angular/core";
+import {Component, EventEmitter, Input, OnInit, Output, ViewChild, ViewEncapsulation} from "@angular/core";
 import {FormControl, NG_VALUE_ACCESSOR} from "@angular/forms";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSnackBar} from "@angular/material/snack-bar";
@@ -6,6 +6,10 @@ import {FileReaderService} from "../../form/upload/file-reader.service";
 import {ConfirmDialog} from "../../util/confirm-dialog/confirm-dialog.component";
 import {ConfigurationTemplate} from "../configuration-template";
 import IStandaloneEditorConstructionOptions = monaco.editor.IStandaloneEditorConstructionOptions;
+import {Select, Store} from "@ngxs/store";
+import {ThemingState} from "../../store/theming/theming.state";
+import {Observable} from "rxjs";
+import {EditorComponent} from "ngx-monaco-editor";
 
 export class ConfigurationTemplateEditorModel {
   constructor(public template?: ConfigurationTemplate, public defaultTemplate?: ConfigurationTemplate) {
@@ -79,6 +83,8 @@ export class TemplateEditorComponent implements OnInit {
   private _fileReaderService: FileReaderService;
   private _skipTextOverwrite: Date = null;
 
+  @Select(ThemingState.isDarkMode) isDarkTheme$: Observable<boolean>;
+
   public readonly editorOptions: IStandaloneEditorConstructionOptions = {
     theme: 'vs-light',
     renderLineHighlight: "gutter",
@@ -92,8 +98,11 @@ export class TemplateEditorComponent implements OnInit {
     tabSize: 2
   };
 
-  constructor(private snackBar: MatSnackBar, private dialog: MatDialog) {
+  constructor(private snackBar: MatSnackBar, private dialog: MatDialog, private store: Store) {
     this._fileReaderService = new FileReaderService();
+    this.isDarkTheme$.subscribe(isDark => {
+      this.editorOptions.theme = isDark ? 'vs-dark' : 'vs-light';
+    });
   }
 
   ngOnInit(): void {

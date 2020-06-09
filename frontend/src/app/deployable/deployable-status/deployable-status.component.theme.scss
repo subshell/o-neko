@@ -1,0 +1,53 @@
+@import "src/styles/mixins";
+
+@mixin deployable-status-component-theme($theme) {
+  deployableStatus {
+    .deployment-status {
+      .pending {
+        > div {
+          &.active {
+            > mat-icon {
+              color: rgb(51, 94, 237);
+            }
+          }
+
+          &:not(.active) {
+            > mat-icon {
+              color: rgb(211, 217, 235);
+            }
+          }
+        }
+      }
+
+      .icon-container {
+        @if (map-get($theme, is-dark)) {
+          background-color: rgba(black, 0.36);
+        }
+
+        mat-icon {
+          &.gray {
+            color: rgb(51, 94, 237);
+          }
+
+          &.yellow {
+            color: rgb(249, 208, 48);
+          }
+
+          &.red {
+            color: mat-color($red-palette, 500);
+          }
+
+          &.green {
+            color: mat-color($green-palette, 500);
+          }
+        }
+
+        .outdated-icon {
+          background-color: rgba(white, 0.8);
+          color: mat-color($mat-orange, 400);
+        }
+      }
+
+    }
+  }
+}
