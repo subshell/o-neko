@@ -1,0 +1,10 @@
+@import "src/styles/mixins";
+
+@mixin project-list-theme($theme) {
+  $foreground: map-get($theme, foreground);
+  project-list {
+    .orphaned {
+      background-color: rgba(mat-color($foreground, text), 0.9);
+    }
+  }
+}

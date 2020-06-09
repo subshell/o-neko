@@ -1,0 +1,31 @@
+@import "src/styles/mixins";
+
+@mixin login-component-theme($theme) {
+  $primary: map-get($theme, primary);
+  $background: map-get($theme, background);
+  login {
+    .o-neko-logo {
+      filter: drop-shadow(1px 2px 2px rgba(black, .36));
+    }
+
+    .login {
+      .login-form {
+        h1 {
+          color: white;
+        }
+
+        background: linear-gradient(225deg, rgba(204, 29, 62, 1) 0%, rgba(255, 95, 20, 1) 100%);
+
+        button {
+          color: mat-color($primary);
+        }
+
+        mat-form-field {
+          .mat-form-field-outline {
+            background: map-get($background, background) !important;
+          }
+        }
+      }
+    }
+  }
+}

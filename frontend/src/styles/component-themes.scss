@@ -1,5 +1,17 @@
 @import "../app/views/main/main.component.theme";
+@import "../app/views/login/login.component.theme";
+@import "../app/user/me/me.component.theme";
+@import "../app/project/list/project-list.component.theme";
+@import "general-themes/create-dialog.theme";
+@import "general-themes/full-page-form.theme";
+@import "general-themes/table-page.theme";
 
 @mixin component-themes($theme) {
   @include main-component-theme($theme);
+  @include login-component-theme($theme);
+  @include me-component-theme($theme);
+  @include create-dialog-theme($theme);
+  @include full-page-form-theme($theme);
+  @include table-page-theme($theme);
+  @include project-list-theme($theme);
 }

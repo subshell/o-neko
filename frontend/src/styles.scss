@@ -43,15 +43,10 @@ img {
   vertical-align: middle;
 }
 
-.container {
-  //margin: 1em 2em; //FIXME
-}
-
 $full-page-form-full-padding: 2em;
 $full-page-form-slim-padding: 1em;
 
 .full-page-form {
-  background-color: mat-color($gray-palette, 50, .5);
   border-radius: $mat-radius;
   padding: $full-page-form-slim-padding $full-page-form-full-padding;
   margin: $full-page-form-slim-padding 0;
@@ -62,7 +57,6 @@ $full-page-form-slim-padding: 1em;
   .form-field-group {
     padding: $full-page-form-slim-padding;
     border-radius: $mat-radius;
-    background-color: white;
     @include mat-elevation(2);
   }
   .bottom-toolbar {
