@@ -11,6 +11,11 @@
 @import "src/app/components/breadcrumbs/breadcrumb.component.theme";
 @import "general-themes/internal-link.theme";
 @import "general-themes/mat-customized.themes";
+@import "../app/util/timeout-with-ui/timeout-with-ui.theme";
+@import "../app/projectmesh/dashboard/projectmesh-dashboard.component.theme";
+@import "../app/project/dashboard/project-dashboard.component.theme";
+@import "../app/project/template-variables/template-variables.component.theme";
+@import "../app/navigation/navigation.component.theme";
 
 @mixin component-themes($theme) {
   @include main-component-theme($theme);
@@ -26,4 +31,9 @@
   @include breadcrumb-component-theme($theme);
   @include internal-link-theme($theme);
   @include custom-mat-tooltip-theme($theme);
+  @include timeout-with-ui-component-theme($theme);
+  @include project-mesh-dashboard-component-theme($theme);
+  @include project-dashboard-component-theme($theme);
+  @include template-variables-component-theme($theme);
+  @include navigation-component-theme($theme);
 }

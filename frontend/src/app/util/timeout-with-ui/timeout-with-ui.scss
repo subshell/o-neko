@@ -17,7 +17,6 @@
     cursor: pointer;
     opacity: 0;
     transition: opacity 0.1s;
-    color: mat-color($o-neko-primary, 500);
     &:hover {
       opacity: 1;
     }

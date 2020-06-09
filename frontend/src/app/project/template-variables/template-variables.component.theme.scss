@@ -1,0 +1,17 @@
+@import "src/styles/mixins";
+
+@mixin template-variables-component-theme($theme) {
+  $foreground: map-get($theme, foreground);
+
+  template-variables {
+    .template-variables {
+      .template-variables-list {
+        border-right: 1px solid mat-color($foreground, text, 0.12);
+
+        .selected {
+          background-color: mat-color($foreground, text, 0.12);
+        }
+      }
+    }
+  }
+}

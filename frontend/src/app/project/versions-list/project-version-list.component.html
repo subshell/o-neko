@@ -1,5 +1,5 @@
 <breadcrumbs *ngIf="project" [breadcrumbs]="[{label: 'home', link: ''}, {label: 'projects', link: '/projects'}, {label: project.name, link: '/projects/' + project.uuid}, {label: 'versions'}]"></breadcrumbs>
-<div class="project-version-list main-content-padding" fxLayout="column">
+<div class="project-version-list table-page main-content-padding" fxLayout="column">
   <div fxLayout="row" fxLayoutAlign="space-between center">
     <span fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="1em">
       <mat-form-field>
