@@ -1,15 +1,4 @@
-@import "~@angular/material/theming";
-
-$mat-radius: 4px;
-
-@mixin mat-icon-size($size: 24px) {
-  width: $size;
-  height: $size;
-}
-
-@function gradient($from, $to) {
-  @return linear-gradient(225deg, $from 0%, $to 100%);
-}
+@import "node_modules/@angular/material/theming";
 
 // Palettes generated using http://mcg.mbitson.com/
 $dirty-blue: (
@@ -279,4 +268,3 @@ $pink-palette: (
 $o-neko-primary: mat-palette($pink-palette);
 $o-neko-accent: mat-palette($old-yellow);
 $o-neko-warn: mat-palette($blue-palette);
-$o-neko-theme: mat-light-theme($o-neko-primary, $o-neko-accent, $o-neko-warn);

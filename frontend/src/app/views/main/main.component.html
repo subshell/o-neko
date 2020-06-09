@@ -16,7 +16,7 @@
         </h1>
       </mat-toolbar>
       <ng-container *ngFor="let entry of menuStructure">
-        <mat-nav-list *ngIf="entry.isSingleEntry; else expandableEntry">
+        <mat-nav-list class="menu-nav-list" *ngIf="entry.isSingleEntry; else expandableEntry">
           <a mat-list-item [routerLink]="entry.href" routerLinkActive="active" [routerLinkActiveOptions]="(entry.href === '' || entry.href === '/') ? {exact: true} : {exact: false}">
             <mat-icon matListIcon [svgIcon]="entry.icon"></mat-icon>
             <span matLine fxLayout="row" fxLayoutAlign="space-between center">

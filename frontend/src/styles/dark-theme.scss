@@ -1,0 +1,4 @@
+@import "~@angular/material/theming";
+@import "src/styles/mixins";
+
+$o-neko-dark-theme: mat-dark-theme($o-neko-accent, $o-neko-primary, $o-neko-warn);

@@ -1,4 +1,4 @@
-@import '../../../mixins';
+@import 'src/styles/mixins';
 
 mat-nav-list {
   @include user-select(none);

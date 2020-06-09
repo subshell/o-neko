@@ -1,0 +1,5 @@
+@import "../app/views/main/main.component.theme";
+
+@mixin component-themes($theme) {
+  @include main-component-theme($theme);
+}

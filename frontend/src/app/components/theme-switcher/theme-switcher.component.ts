@@ -11,11 +11,11 @@ import {map} from "rxjs/operators";
 })
 export class ThemeSwitcherComponent {
 
-  private modes: Array<{ label: string, mode: ThemingMode, icon: string }> = [
+  modes: Array<{ label: string, mode: ThemingMode, icon: string }> = [
     {
       label: 'Auto',
       mode: 'auto',
-      icon: 'mdi:theme-light-dark'
+      icon: 'settings-brightness'
     }, {
       label: 'Light',
       mode: 'light',
@@ -28,7 +28,7 @@ export class ThemeSwitcherComponent {
   ];
 
   @Select(ThemingState.themingMode) themingMode$: Observable<ThemingMode>;
-  currentModeIcon = this.themingMode$.pipe(map(mode => this.modes.find(m => m.mode === mode)?.icon ?? 'mdi:theme-light-dark'))
+  currentModeIcon = this.themingMode$.pipe(map(mode => this.modes.find(m => m.mode === mode)?.icon ?? 'settings-brightness'))
 
   constructor(private store: Store) {
   }

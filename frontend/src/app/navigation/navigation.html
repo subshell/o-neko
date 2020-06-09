@@ -7,7 +7,7 @@
   <mat-divider [vertical]="true"></mat-divider>
   <button mat-button routerLinkActive="active" [matMenuTriggerFor]="userMenu">
     <span fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="0.3em">
-      <mat-icon svgIcon="mdi:account"></mat-icon>
+      <mat-icon svgIcon="account-circle"></mat-icon>
       <span>{{(user | async)?.username}}</span>
     </span>
     <mat-menu [overlapTrigger]="false" #userMenu="matMenu">
