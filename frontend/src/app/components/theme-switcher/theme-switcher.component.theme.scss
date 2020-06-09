@@ -1,0 +1,14 @@
+@import "src/styles/mixins";
+
+@mixin theme-switcher-component-theme($theme) {
+  $primary: map-get($theme, primary);
+  .theme-switcher-menu {
+    .active {
+      font-weight: 600;
+      color: mat-color($primary, 600);
+      mat-icon {
+        color: mat-color($primary, 600);
+      }
+    }
+  }
+}

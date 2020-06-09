@@ -36,7 +36,7 @@ import {ActivityLogComponent} from "./activity/activity-log/activity-log.compone
 import {AppRoutingModule} from "./app-routes.module";
 
 import {AppComponent} from './app.component';
-import {BreadcrumbComponent} from "./breadcrumbs/breadcrumb.component";
+import {BreadcrumbComponent} from "./components/breadcrumbs/breadcrumb.component";
 import {DeployableActionsComponent} from "./deployable/deployable-actions/deployable-actions.component";
 import {DeployableStatusComponent} from "./deployable/deployable-status/deployable-status.component";
 import {DeploymentsDashboardComponent} from "./deployable/deployments-dashboard/deployments-dashboard.component";

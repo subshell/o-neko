@@ -1,0 +1,16 @@
+@import "src/styles/mixins";
+
+@mixin breadcrumb-component-theme($theme) {
+  $foreground: map-get($theme, foreground);
+  breadcrumbs {
+    .breadcrumb-list {
+      background-color: mat-color($foreground, text, 0.06);
+    }
+    .breadcrumb-item {
+      color: mat-color($foreground, text, 0.5);
+      a {
+        background-color: transparent;
+      }
+    }
+  }
+}

@@ -7,18 +7,13 @@
 
 .breadcrumb-list {
   list-style: none;
-  background-color: #e9ecef;
   border-radius: $mat-radius;
   padding: 4px 8px;
 }
 
 .breadcrumb-item {
   font-size: 14px;
-  color: #6c757d;
   mat-icon {
     @include mat-icon-size(18px);
-  }
-  a {
-    background-color: transparent;
   }
 }

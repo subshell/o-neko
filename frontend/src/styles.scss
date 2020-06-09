@@ -67,12 +67,9 @@ $full-page-form-slim-padding: 1em;
 .o-neko-internal-link {
   text-decoration: none;
   background-color: transparent;
-  color: mat-color($o-neko-primary);
 }
 
 .mat-tooltip {
-  color: rgba(white, 0.95) !important;
   font-size: 12px !important;
   font-weight: 400 !important;
-  background-color: rgba(0, 0, 0, 0.7) !important;
 }

@@ -15,15 +15,6 @@
 
       mat-icon {
         @include mat-icon-size(22px);
-        &.trigger-icon.INFO {
-          color: mat-color($mat-green, 600);
-        }
-        &.trigger-icon.ERROR {
-          color: mat-color($mat-red, 600);
-        }
-        &.time-icon.WARNING {
-          color: mat-color($mat-blue-gray, 600);
-        }
       }
     }
 
@@ -33,15 +24,8 @@
     }
 
     .item-date {
-      color: mat-color($mat-gray, 600);
       font-size: 0.75rem;
-    }
 
-    .mat-list-item {
-      &:not(:last-of-type) {
-        border-bottom: 1px solid #ddd;
-      }
     }
   }
-
 }

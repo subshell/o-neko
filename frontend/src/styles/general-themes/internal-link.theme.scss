@@ -1,0 +1,8 @@
+@import "../mixins";
+
+@mixin internal-link-theme($theme) {
+  $primary: map-get($theme, primary);
+  .o-neko-internal-link {
+    color: mat-color($primary);
+  }
+}

@@ -5,6 +5,12 @@
 @import "general-themes/create-dialog.theme";
 @import "general-themes/full-page-form.theme";
 @import "general-themes/table-page.theme";
+@import "../app/docker/list/docker-registry-list.component.theme";
+@import "../app/components/theme-switcher/theme-switcher.component.theme";
+@import "../app/activity/activity-log/activity-log.component.theme";
+@import "src/app/components/breadcrumbs/breadcrumb.component.theme";
+@import "general-themes/internal-link.theme";
+@import "general-themes/mat-customized.themes";
 
 @mixin component-themes($theme) {
   @include main-component-theme($theme);
@@ -14,4 +20,10 @@
   @include full-page-form-theme($theme);
   @include table-page-theme($theme);
   @include project-list-theme($theme);
+  @include docker-registry-list-component-theme($theme);
+  @include theme-switcher-component-theme($theme);
+  @include activity-log-component-theme($theme);
+  @include breadcrumb-component-theme($theme);
+  @include internal-link-theme($theme);
+  @include custom-mat-tooltip-theme($theme);
 }

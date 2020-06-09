@@ -16,7 +16,7 @@ const activityIconMap = {
     icon: 'help-circle-outline'
   },
   ScheduledTask: {
-    icon: 'restore-clock'
+    icon: 'history'
   },
   UserRequest: {
     icon: 'account-circle-outline'
