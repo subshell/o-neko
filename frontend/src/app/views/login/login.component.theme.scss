@@ -2,6 +2,7 @@
 
 @mixin login-component-theme($theme) {
   $primary: map-get($theme, primary);
+  $accent: map-get($theme, accent);
   $background: map-get($theme, background);
   login {
     .o-neko-logo {
@@ -14,10 +15,14 @@
           color: white;
         }
 
-        background: linear-gradient(225deg, rgba(204, 29, 62, 1) 0%, rgba(255, 95, 20, 1) 100%);
+        background: linear-gradient(225deg, mat-color($primary, 700) 0%, mat-color($accent, 900) 100%);
 
         button {
-          color: mat-color($primary);
+          @if (map-get($theme, is-dark)) {
+            color: white;
+          } @else {
+            color: mat-color($primary);
+          }
         }
 
         mat-form-field {
