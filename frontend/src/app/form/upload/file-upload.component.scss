@@ -1,7 +1,30 @@
+@import "../../../mixins";
+
 .image-upload-container {
   display: inline-block;
 
   .image-upload-tooltip {
     z-index: 801;
+  }
+}
+
+.image-upload-container-full-width {
+  cursor: pointer;
+
+  margin: 32px;
+  padding: 32px;
+  border: 2px dashed mat-color($mat-gray, 400);
+  border-radius: 8px;
+
+  mat-icon {
+    @include mat-icon-size(30px);
+  }
+
+  &.fileover {
+    background-color: mat-color($mat-gray, 100);
+  }
+
+  &:hover {
+    border: 2px dashed mat-color($mat-gray, 700);
   }
 }

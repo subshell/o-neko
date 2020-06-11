@@ -22,6 +22,8 @@ import io.oneko.kubernetes.KubernetesDeploymentManager;
 import io.oneko.project.Project;
 import io.oneko.project.ProjectRepository;
 import io.oneko.project.ProjectVersion;
+import io.oneko.project.rest.export.ProjectExportDTO;
+import io.oneko.project.rest.export.ProjectExportDTOMapper;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -40,9 +42,9 @@ public class ProjectController {
 	private final KubernetesDeploymentManager kubernetesDeploymentManager;
 
 	public ProjectController(ProjectRepository projectRepository, DockerRegistryRepository dockerRegistryRepository,
-							 ProjectDTOMapper dtoMapper,
-							 DeployableConfigurationDTOMapper configurationDTOMapper,
-							 KubernetesDeploymentManager kubernetesDeploymentManager) {
+	                         ProjectDTOMapper dtoMapper,
+	                         DeployableConfigurationDTOMapper configurationDTOMapper,
+	                         KubernetesDeploymentManager kubernetesDeploymentManager) {
 		this.projectRepository = projectRepository;
 		this.dockerRegistryRepository = dockerRegistryRepository;
 		this.dtoMapper = dtoMapper;
@@ -103,6 +105,15 @@ public class ProjectController {
 		return this.projectRepository.getById(id)
 				.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Project with id " + id + " not found")))
 				.flatMap(this.projectRepository::remove);
+	}
+
+	@PreAuthorize("hasAnyRole('ADMIN', 'DOER', 'VIEWER')")
+	@GetMapping("/{id}/export")
+	Mono<ProjectExportDTO> exportProject(@PathVariable UUID id) {
+		return this.projectRepository.getById(id)
+				.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Project with id " + id + " not found")))
+				.flatMap(this.dtoMapper::projectToDTO)
+				.map(ProjectExportDTOMapper.MAPPER::toProjectExportDto);
 	}
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'DOER', 'VIEWER')")

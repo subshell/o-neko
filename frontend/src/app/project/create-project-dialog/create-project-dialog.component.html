@@ -1,7 +1,11 @@
 <div class="project-edit-dialog create-dialog">
-  <h1 mat-dialog-title>Create a new project</h1>
+  <h1 mat-dialog-title *ngIf="!showImport">Create a new project</h1>
+  <h1 mat-dialog-title *ngIf="showImport">Import a project</h1>
   <div mat-dialog-content>
     <mat-horizontal-stepper [linear]="true" #stepper>
+      <ng-template matStepperIcon="import" let-index="index" *ngIf="showImport">
+        {{index + 1 }}
+      </ng-template>
       <ng-template matStepperIcon="edit" let-index="index">
         {{index + 1 }}
       </ng-template>
@@ -11,6 +15,26 @@
       <ng-template matStepperIcon="number" let-index="index">
         {{index + 1}}
       </ng-template>
+      <mat-step [stepControl]="projectImportFormGroup" *ngIf="showImport">
+        <ng-template matStepLabel>Import a project configuration file</ng-template>
+        <p>Import a project from a <i>.json</i> configuration file. You can configure the import in the next steps.</p>
+        <file-upload  *ngIf="!projectExport"
+                      [multiple]="false"
+                      (filesCallback)="onProjectExportUpload($event)"
+                      displayType="full-width"
+                      accept=".json"
+                      label="Upload project configuration"></file-upload>
+        <div *ngIf="projectExport">
+          <p fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="12px">
+            <mat-icon svgIcon="check"></mat-icon>
+            <span>Upload successful!</span>
+          </p>
+          <p>The imported project has <b>{{projectExport.defaultConfigurationTemplates.length}}</b> configuration templates.</p>
+        </div>
+        <div>
+          <button mat-button matStepperNext>Next</button>
+        </div>
+      </mat-step>
       <mat-step [stepControl]="projectNameFormGroup">
         <form [formGroup]="projectNameFormGroup">
           <ng-template matStepLabel>Enter the new projects name</ng-template>
@@ -24,6 +48,7 @@
             <p>There is yet a project with the name {{getCollidingProjectName()}}.</p>
           </figure>
           <div>
+            <button mat-button matStepperPrevious *ngIf="showImport">Back</button>
             <button mat-button matStepperNext>Next</button>
           </div>
         </form>

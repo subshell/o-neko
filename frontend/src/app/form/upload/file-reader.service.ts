@@ -3,9 +3,6 @@ import {UploadedFile} from "./uploaded-file";
 
 export class FileReaderService {
 
-  constructor() {
-  }
-
   private static fileListToArray(fileList: FileList | File[]): File[] {
     if (isArray(fileList)) {
       return fileList;

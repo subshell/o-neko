@@ -110,6 +110,7 @@ import {AnimationDriver} from "@angular/animations/browser";
 import {appStates} from "./store";
 import {ThemingState} from "./store/theming/theming.state";
 import {ThemeSwitcherComponent} from "./components/theme-switcher/theme-switcher.component";
+import {DndDirective} from './form/upload/dnd.directive';
 
 @NgModule({
   declarations: [
@@ -168,7 +169,8 @@ import {ThemeSwitcherComponent} from "./components/theme-switcher/theme-switcher
     ProjectVersionVariableActionsComponent,
     MainComponent,
     ExpandableMenuComponent,
-    ThemeSwitcherComponent
+    ThemeSwitcherComponent,
+    DndDirective
   ],
   imports: [
     BrowserModule,

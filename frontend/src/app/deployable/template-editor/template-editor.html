@@ -1,7 +1,7 @@
 <h4>{{label}}</h4>
 
 <div class="te-box" fxLayout="row" fxLayoutGap="1em" *ngIf="!readonly">
-  <file-upload [multiple]="true" (filesCallback)="onConfigUpload($event)"></file-upload>
+  <file-upload [multiple]="true" (filesCallback)="onConfigUpload($event)" label="Upload YAML file"></file-upload>
   <button mat-stroked-button="" color="primary" mat-button (click)="onAddNewTemplate()">Create new template</button>
 </div>
 

@@ -15,6 +15,7 @@ import {
 import {TimeoutSnackbarComponent} from "../util/timout-snackbar/timeout.snackbar.component";
 import {Project} from "./project";
 import {ProjectVersion} from "./project-version";
+import {ProjectExportDTO} from './project-export';
 
 @Injectable()
 export class ProjectService {
@@ -32,7 +33,7 @@ export class ProjectService {
   }
 
   public isUserAllowedToEditProjects(user: User): boolean {
-    return user && (user.hasRolePermission(UserRole.ADMIN) || user.hasRolePermission(UserRole.DOER));
+    return user?.hasRolePermission(UserRole.ADMIN) || user?.hasRolePermission(UserRole.DOER);
   }
 
   public isUserAllowedToDeleteProjects(user: User): boolean {
@@ -40,7 +41,19 @@ export class ProjectService {
   }
 
   public isUserAllowedToDeployProjects(user: User): boolean {
-    return user && true;
+    return !!user;
+  }
+
+  public isUserAllowedToExportProjects(user: User): boolean {
+    return user?.hasRolePermission(UserRole.ADMIN) || user?.hasRolePermission(UserRole.DOER) || user?.hasRolePermission(UserRole.VIEWER);
+  }
+
+  public exportProject(project: Project, user: User): Observable<ProjectExportDTO> {
+    if (!this.isUserAllowedToExportProjects(user)) {
+      return throwError('User has no permissions to export projects');
+    }
+
+    return this.rest.project().exportProject(project);
   }
 
   public deleteProjectInteractively(project: Project, user: User): Observable<void> {

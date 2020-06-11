@@ -1,7 +1,7 @@
 import {isNil, map} from 'lodash';
-import {ConfigurationTemplate} from "../deployable/configuration-template";
-import {ValueInfo} from "../form/value-input/value-info";
-import {ProjectVersion} from "./project-version";
+import {ConfigurationTemplate, ConfigurationTemplateDTO} from '../deployable/configuration-template';
+import {ProjectVersion} from './project-version';
+import {ProjectExportDTO} from './project-export';
 
 export type DeploymentBehaviour = 'automatically' | 'manually';
 
@@ -62,6 +62,25 @@ export class Project implements ProjectDTO {
     project.versions = map(from.versions, version => ProjectVersion.from(version));
     project.status = from.status;
     project.defaultLifetimeBehaviour = from.defaultLifetimeBehaviour;
+
+    return project;
+  }
+
+  static fromProjectExport(from: ProjectExportDTO): Project {
+    const project = new Project();
+
+    project.name = from.name;
+    project.imageName = from.imageName;
+    project.newVersionsDeploymentBehaviour = from.newVersionsDeploymentBehaviour;
+    project.dockerRegistryUUID = from.dockerRegistryUUID;
+    project.status = from.status;
+    project.defaultLifetimeBehaviour = from.defaultLifetimeBehaviour;
+
+    // remove potentially existing ids
+    project.defaultConfigurationTemplates = (from.defaultConfigurationTemplates as Array<ConfigurationTemplateDTO> ?? [])
+      .map(({id, ...configurationTemplate}) => ConfigurationTemplate.from(configurationTemplate as ConfigurationTemplateDTO));
+    project.templateVariables = (from.templateVariables as Array<TemplateVariable> ?? [])
+      .map(({id, ...templateVariable}) => templateVariable as TemplateVariable);
 
     return project;
   }

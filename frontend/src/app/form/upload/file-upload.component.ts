@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, Output} from "@angular/core";
+import {Component, EventEmitter, Input, Output} from '@angular/core';
 
 @Component({
   selector: 'file-upload',
@@ -7,16 +7,17 @@ import {Component, EventEmitter, Input, Output} from "@angular/core";
 })
 export class FileUploadComponent {
 
+  @Input() displayType: string = 'button';
   @Input() disabled: boolean = false;
   @Input() multiple: boolean = true;
+  @Input() label: string = 'upload';
+  @Input() accept: string = '.yaml, .yml';
 
   @Output() public filesCallback = new EventEmitter<FileList | File[]>();
 
-  public filesSet(input) {
-    const files = input.files;
+  public filesSet({files}) {
     if (files && files[0]) {
       this.filesCallback.emit(files);
     }
   }
-
 }
