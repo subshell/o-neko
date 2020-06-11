@@ -7,7 +7,6 @@ import {Project} from '../project';
 import {FileReaderService} from '../../form/upload/file-reader.service';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {ProjectExportDTO} from '../project-export';
-import get = Reflect.get;
 
 export interface CreateProjectDialogComponentData {
   projects: Array<Project>;
@@ -95,10 +94,19 @@ export class CreateProjectDialogComponent implements OnInit {
       return;
     }
 
-    this.projectExport = JSON.parse(file.content);
-    this.newProject = Project.fromProjectExport(this.projectExport);
-    this.projectImportFormGroup.setValue({file: file});
+    try {
+      const projectExport = JSON.parse(file.content);
+      this.newProject = Project.fromProjectExport(projectExport);
+      this.projectExport = projectExport;
+    } catch (e) {
+      console.error('Error while parsing exported project', e);
+      this.snackBar.open(`Error while parsing exported project configuration`, null, {
+        duration: 1000
+      });
+      return;
+    }
 
+    this.projectImportFormGroup.setValue({file: file});
     this.projectNameFormGroup.setValue({nameCtrl: this.projectExport.name});
     this.imageNameFormGroup.setValue({imageNameCtrl: this.projectExport.imageName});
 

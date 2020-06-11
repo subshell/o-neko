@@ -1,7 +1,7 @@
 import {isNil, map} from 'lodash';
 import {ConfigurationTemplate, ConfigurationTemplateDTO} from '../deployable/configuration-template';
 import {ProjectVersion} from './project-version';
-import {ProjectExportDTO} from './project-export';
+import {ProjectExportDTO, SUPPORTED_VERSION} from './project-export';
 
 export type DeploymentBehaviour = 'automatically' | 'manually';
 
@@ -67,6 +67,14 @@ export class Project implements ProjectDTO {
   }
 
   static fromProjectExport(from: ProjectExportDTO): Project {
+    const version = from?.exportMetadata?.version;
+    if (version === undefined || version === null) {
+      throw new Error(`Project export configuration is invalid.`);
+    }
+    if (version !== SUPPORTED_VERSION) {
+      throw new Error(`Project export version ${version} is not supported.`);
+    }
+
     const project = new Project();
 
     project.name = from.name;
