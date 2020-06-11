@@ -2,7 +2,7 @@ import {AggregatedDeploymentStatus, DeploymentBehaviour, LifetimeBehaviour, Temp
 import {ConfigurationTemplate} from '../deployable/configuration-template';
 
 export interface ProjectExportMetadataDTO {
-  version: string;
+  version: number;
   exportedAt: string;
 }
 
@@ -32,3 +32,5 @@ export interface ProjectExportDTO {
   defaultLifetimeBehaviour?: LifetimeBehaviour;
   exportMetadata: ProjectExportMetadataDTO;
 }
+
+export const SUPPORTED_VERSION = 0;
