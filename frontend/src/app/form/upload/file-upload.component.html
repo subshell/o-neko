@@ -1,6 +1,18 @@
-<div class="image-upload-container">
-  <button mat-flat-button="" color="primary" mat-button class="image-upload" (click)="imageFileInput.click()" [disabled]="disabled">
-    Upload YAML file
+<div class="image-upload-container" *ngIf="displayType === 'button'; else fullWidthBlock">
+  <button mat-flat-button color="primary" mat-button class="image-upload" (click)="imageFileInput.click()" [disabled]="disabled">
+    {{label}}
   </button>
-  <input hidden [multiple]="multiple" type="file" accept=".yaml, .yml" #imageFileInput (change)="filesSet(imageFileInput)" [disabled]="disabled">
 </div>
+
+<ng-template #fullWidthBlock>
+  <div class="image-upload-container-full-width" (click)="!disabled && imageFileInput.click()" fxLayout="column" fxLayoutAlign="center center" onekoDnd (fileDropped)="filesSet({files: $event})">
+    <mat-icon svgIcon="upload"></mat-icon>
+    <h2>Drag and drop file here</h2>
+    <p>or</p>
+    <button mat-flat-button color="primary" mat-button class="image-upload" [disabled]="disabled">
+      {{label}}
+    </button>
+  </div>
+</ng-template>
+
+<input hidden [multiple]="multiple" type="file" [accept]="accept" #imageFileInput (change)="filesSet(imageFileInput)" [disabled]="disabled">

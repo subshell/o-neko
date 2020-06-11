@@ -1,10 +1,11 @@
-import {HttpClient} from "@angular/common/http";
-import {Observable} from "rxjs";
-import {map} from "rxjs/operators";
-import {EffectiveDeployableConfiguration} from "../deployable/effective-deployable-configuration";
-import {Project, ProjectDTO} from "../project/project";
-import {ProjectVersion} from "../project/project-version";
-import {ProjectRestClient} from "./project-rest-client";
+import {HttpClient} from '@angular/common/http';
+import {Observable} from 'rxjs';
+import {map} from 'rxjs/operators';
+import {EffectiveDeployableConfiguration} from '../deployable/effective-deployable-configuration';
+import {Project, ProjectDTO} from '../project/project';
+import {ProjectVersion} from '../project/project-version';
+import {ProjectRestClient} from './project-rest-client';
+import {ProjectExportDTO} from '../project/project-export';
 
 export class ProjectRestService implements ProjectRestClient {
 
@@ -34,6 +35,10 @@ export class ProjectRestService implements ProjectRestClient {
 
   public deleteProject(project: Project): Observable<void> {
     return this.http.delete(`${this.root_path}/${project.uuid}`).pipe(map(() => null));
+  }
+
+  public exportProject(project: Project): Observable<ProjectExportDTO> {
+    return this.http.get(`${this.root_path}/${project.uuid}/export`) as Observable<ProjectExportDTO>;
   }
 
   public deployProjectVersion(version: ProjectVersion, project: Project): Observable<Project> {

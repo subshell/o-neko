@@ -99,6 +99,7 @@ import {WebSocketServiceWrapper} from "./websocket/web-socket-service-wrapper.se
 import {WebSocketService} from "./websocket/web-socket.service";
 import {MonacoEditorModule} from "ngx-monaco-editor";
 import {configureSvgIcons} from "./configuration/configuration";
+import {DndDirective} from './form/upload/dnd.directive';
 
 @NgModule({
   declarations: [
@@ -154,7 +155,8 @@ import {configureSvgIcons} from "./configuration/configuration";
     ProjectmeshDashboardComponent,
     MeshComponentActionsComponent,
     DeployableActionsComponent,
-    ProjectVersionVariableActionsComponent
+    ProjectVersionVariableActionsComponent,
+    DndDirective
   ],
   imports: [
     BrowserModule,

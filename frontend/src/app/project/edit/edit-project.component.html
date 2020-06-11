@@ -1,7 +1,16 @@
 <navigation></navigation>
 <breadcrumbs *ngIf="project" [breadcrumbs]="[{label: 'home', link: ''}, {label: 'projects', link: '/projects'}, {label: project.name}]"></breadcrumbs>
 <div class="edit-project container full-page-form" *ngIf="project" fxLayout="column">
-  <h1 class="title">{{'Edit Project'}}</h1>
+  <div class="title" fxLayout="row" fxLayoutAlign="space-between center">
+    <h1>{{'Edit Project'}}</h1>
+    <button mat-button
+            routerLinkActive="active"
+            [routerLink]="'/projects/' + project.uuid + '/versions'"
+            color="primary">
+      <mat-icon svgIcon="view-list"></mat-icon>
+      Show Versions
+    </button>
+  </div>
   <div class="content">
     <div>
       <form fxLayout="column" #projectForm="ngForm" fxLayoutGap="1em">
@@ -59,10 +68,10 @@
       Save Project
     </button>
     <button mat-button
-            routerLinkActive="active"
-            [routerLink]="'/projects/' + project.uuid + '/versions'"
-            color="primary">
-      Show Versions
+            [disabled]="projectForm.form.invalid || !templatesValid"
+            color="primary"
+            (click)="exportProject()">
+      Export Project
     </button>
     <button mat-button
             [disabled]="!mayEditProjects()"

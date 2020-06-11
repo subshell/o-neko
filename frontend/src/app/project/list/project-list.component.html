@@ -2,12 +2,20 @@
 <breadcrumbs [breadcrumbs]="[{label: 'home', link: ''}, {label: 'projects'}]"></breadcrumbs>
 <div class="project-list container" fxLayout="column">
   <div fxLayout="row" fxLayoutAlign="space-between center">
-    <button mat-button (click)="createProject()">
-      <span fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="1em">
-        <mat-icon svgIcon="folder-plus"></mat-icon>
-        <span>Create Project</span>
-      </span>
-    </button>
+    <div>
+      <button mat-button (click)="createProject(false)">
+        <span fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="1em">
+          <mat-icon svgIcon="folder-plus"></mat-icon>
+          <span>Create Project</span>
+        </span>
+      </button>
+      <button mat-button (click)="createProject(true)">
+        <span fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="1em">
+          <mat-icon svgIcon="import"></mat-icon>
+          <span>Import Project</span>
+        </span>
+      </button>
+    </div>
     <mat-form-field>
       <mat-select placeholder="Columns" multiple [(ngModel)]="activeColumnKeys">
         <mat-option *ngFor="let col of allColumns" [value]="col.key">{{col.label}}</mat-option>
