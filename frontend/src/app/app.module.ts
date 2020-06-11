@@ -100,6 +100,7 @@ import {WebSocketService} from "./websocket/web-socket.service";
 import {MonacoEditorModule} from "ngx-monaco-editor";
 import {configureSvgIcons} from "./configuration/configuration";
 import {DndDirective} from './form/upload/dnd.directive';
+import { EditConfigurationTemplateDialogComponent } from './deployable/template-editor/edit-configuration-template-dialog/edit-configuration-template-dialog.component';
 
 @NgModule({
   declarations: [
@@ -156,7 +157,8 @@ import {DndDirective} from './form/upload/dnd.directive';
     MeshComponentActionsComponent,
     DeployableActionsComponent,
     ProjectVersionVariableActionsComponent,
-    DndDirective
+    DndDirective,
+    EditConfigurationTemplateDialogComponent
   ],
   imports: [
     BrowserModule,

@@ -1,8 +1,5 @@
 @import "../../../mixins.scss";
 
-.te-box{
-  margin: 5px;
-}
 .template-editor-wrapper {
   mat-form-field.box {
     width: 200px;
@@ -10,6 +7,10 @@
 
   label {
     float: right;
+  }
+
+  .file-metadata {
+    margin: 8px;
   }
 
   .code-editor-wrapper {

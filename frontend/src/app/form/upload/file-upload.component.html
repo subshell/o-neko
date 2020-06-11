@@ -1,18 +1,22 @@
-<div class="image-upload-container" *ngIf="displayType === 'button'; else fullWidthBlock">
+<div class="image-upload-container" *ngIf="displayType === 'button'">
   <button mat-flat-button color="primary" mat-button class="image-upload" (click)="imageFileInput.click()" [disabled]="disabled">
     {{label}}
   </button>
 </div>
 
-<ng-template #fullWidthBlock>
-  <div class="image-upload-container-full-width" (click)="!disabled && imageFileInput.click()" fxLayout="column" fxLayoutAlign="center center" onekoDnd (fileDropped)="filesSet({files: $event})">
-    <mat-icon svgIcon="upload"></mat-icon>
-    <h2>Drag and drop file here</h2>
-    <p>or</p>
-    <button mat-flat-button color="primary" mat-button class="image-upload" [disabled]="disabled">
-      {{label}}
-    </button>
-  </div>
-</ng-template>
+<div class="image-upload-container-full-width"
+     (click)="!disabled && imageFileInput.click()"
+     fxLayout="column"
+     fxLayoutAlign="center center"
+     onekoDnd
+     (fileDropped)="filesSet({files: $event})"
+     *ngIf="displayType === 'dnd'">
+  <mat-icon svgIcon="upload"></mat-icon>
+  <h2>Drag and drop file here</h2>
+  <p>or</p>
+  <button mat-flat-button color="primary" mat-button class="image-upload" [disabled]="disabled">
+    {{label}}
+  </button>
+</div>
 
 <input hidden [multiple]="multiple" type="file" [accept]="accept" #imageFileInput (change)="filesSet(imageFileInput)" [disabled]="disabled">
