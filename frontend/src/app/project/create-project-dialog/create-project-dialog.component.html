@@ -21,7 +21,7 @@
         <file-upload  *ngIf="!projectExport"
                       [multiple]="false"
                       (filesCallback)="onProjectExportUpload($event)"
-                      displayType="full-width"
+                      displayType="dnd"
                       accept=".json"
                       label="Upload project configuration"></file-upload>
         <div *ngIf="projectExport">

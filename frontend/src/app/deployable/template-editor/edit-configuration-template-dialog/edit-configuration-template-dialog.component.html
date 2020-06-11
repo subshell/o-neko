@@ -1,0 +1,18 @@
+<div class="edit-configuration-template-dialog">
+  <div mat-dialog-content>
+    <div class="box file-metadata" fxLayout="column" fxLayoutAlign="start space-between" fxLayoutGap="8px">
+      <mat-form-field class="box">
+        <input matInput [(ngModel)]="filename" placeholder="Name" required #templateName="ngModel"
+               [forbiddenValues]="getIllegalTemplateNamesFor(model)" (change)="checkValidNames()"/>
+        <mat-error *ngIf="templateName.invalid && templateName.errors.forbiddenValues">The name is in use by another template</mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="box">
+        <input matInput [(ngModel)]="description" placeholder="Description"/>
+      </mat-form-field>
+
+    </div>
+
+    <button mat-button [disabled]="!valid" (click)="close()">Ok</button>
+  </div>
+</div>

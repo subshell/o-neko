@@ -1,12 +1,48 @@
-<h4>{{label}}</h4>
+<div fxLayout="row" fxLayoutAlign="space-between center">
+  <h4>{{label}}</h4>
+  <div>
+    <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Options">
+      <mat-icon svgIcon="dots-vertical"></mat-icon>
+    </button>
+    <mat-menu #menu="matMenu">
+      <button mat-menu-item [disabled]="readonly" (click)="openEditConfigurationTemplateDialog(currentTemplateModel)">
+        <mat-icon svgIcon="pencil-outline"></mat-icon>
+        <span>Rename</span>
+      </button>
+      <hr />
+      <button mat-menu-item [disabled]="readonly" (click)="onAddNewTemplate()">
+        <mat-icon svgIcon="plus-outline"></mat-icon>
+        <span>Create new template</span>
+      </button>
+      <button mat-menu-item [disabled]="readonly">
+        <mat-icon svgIcon="upload-outline"></mat-icon>
+        <span>Upload configuration file</span>
+      </button>
+      <hr />
+      <button mat-menu-item>
+        <mat-icon svgIcon="download-outline"></mat-icon>
+        <span>Download current file</span>
+      </button>
+      <button mat-menu-item>
+        <mat-icon svgIcon="download-outline"></mat-icon>
+        <span>Download all files (.zip)</span>
+      </button>
+    </mat-menu>
+    <file-upload [multiple]="true" (filesCallback)="onConfigUpload($event)" displayType="menu-item" label="Upload YAML file"></file-upload>
+  </div>
+</div>
 
-<div class="te-box" fxLayout="row" fxLayoutGap="1em" *ngIf="!readonly">
-  <file-upload [multiple]="true" (filesCallback)="onConfigUpload($event)" label="Upload YAML file"></file-upload>
-  <button mat-stroked-button="" color="primary" mat-button (click)="onAddNewTemplate()">Create new template</button>
+<div *ngIf="readonly && currentTemplateModel.description">
+  <span class="mat-caption">{{currentTemplateModel.description}}</span>
+</div>
+
+<div class="box" *ngIf="!currentTemplateModel.isOriginal()">
+  <i *ngIf="!currentTemplateModel.isOverwriting()" class="mat-caption italic">This is an inherited configuration.</i>
+  <i *ngIf="currentTemplateModel.isOverwriting()" class="mat-caption italic">This overwrites an inherited configuration.</i>
 </div>
 
 <div class="template-editor-wrapper">
-  <mat-tab-group [selectedIndex]="selectedTab.value" (selectedIndexChange)="selectedTab.setValue($event)">
+  <mat-tab-group [selectedIndex]="selectedTab.value" (selectedIndexChange)="selectedTab.setValue($event)" animationDuration="0ms">
 
     <!-- Default Templates -->
     <mat-tab [label]="template.name" *ngFor="let template of configurationTemplatesModels; let i = index">
@@ -16,29 +52,9 @@
         <button *ngIf="template.isOriginal() && !readonly" mat-icon-button (click)="removeTemplateWithConfirmation(template)"><mat-icon svgIcon="mdi:close"></mat-icon></button>
         <button *ngIf="template.isOverwriting() && !readonly" mat-icon-button (click)="useDefaultProjectConfigurationTemplate(template)"><mat-icon svgIcon="mdi:undo-variant"></mat-icon></button>
       </ng-template>
-
-      <div class="box">
-        <mat-form-field class="box" *ngIf="!readonly">
-          <input [disabled]="!template.isOriginal()" matInput [(ngModel)]="template.name" placeholder="Name" required #templatename="ngModel" [forbiddenValues]="getIllegalTemplateNamesFor(template)" (change)="checkValidNames()"/>
-          <mat-error *ngIf="templatename.invalid && templatename.errors.forbiddenValues">The name is in use by another template</mat-error>
-        </mat-form-field>
-
-        <mat-form-field class="box" *ngIf="!readonly">
-          <input matInput [(ngModel)]="template.description" placeholder="Description" />
-        </mat-form-field>
-
-        <div *ngIf="readonly && template.description">
-          <span class="mat-caption">{{template.description}}</span>
-        </div>
-      </div>
-
-      <div class="box" *ngIf="!template.isOriginal()">
-        <i *ngIf="!template.isOverwriting()" class="mat-caption italic">This is an inherited configuration.</i>
-        <i *ngIf="template.isOverwriting()" class="mat-caption italic">This overwrites an inherited configuration.</i>
-      </div>
     </mat-tab>
   </mat-tab-group>
-  <div class="code-editor-wrapper" *ngIf="configurationTemplatesModels[selectedTab.value]">
-    <ngx-monaco-editor class="code-editor" [options]="editorOptions" [ngModel]="configurationTemplatesModels[selectedTab.value].effectiveTemplate.content" (ngModelChange)="onTextOverwrite($event, configurationTemplatesModels[selectedTab.value])"></ngx-monaco-editor>
+  <div class="code-editor-wrapper" *ngIf="currentTemplateModel">
+    <ngx-monaco-editor class="code-editor" [options]="editorOptions" [ngModel]="currentTemplateModel.effectiveTemplate.content" (ngModelChange)="onTextOverwrite($event, currentTemplateModel)"></ngx-monaco-editor>
   </div>
 </div>

@@ -1,15 +1,15 @@
-import {Component, EventEmitter, Input, OnInit, Output, ViewChild, ViewEncapsulation} from "@angular/core";
-import {FormControl, NG_VALUE_ACCESSOR} from "@angular/forms";
-import {MatDialog} from "@angular/material/dialog";
-import {MatSnackBar} from "@angular/material/snack-bar";
-import {FileReaderService} from "../../form/upload/file-reader.service";
-import {ConfirmDialog} from "../../util/confirm-dialog/confirm-dialog.component";
-import {ConfigurationTemplate} from "../configuration-template";
+import {Component, EventEmitter, Input, OnInit, Output, ViewChild, ViewEncapsulation} from '@angular/core';
+import {FormControl, NG_VALUE_ACCESSOR} from '@angular/forms';
+import {MatDialog} from '@angular/material/dialog';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {FileReaderService} from '../../form/upload/file-reader.service';
+import {ConfirmDialog} from '../../util/confirm-dialog/confirm-dialog.component';
+import {ConfigurationTemplate} from '../configuration-template';
+import {EditConfigurationTemplateDialogComponent} from './edit-configuration-template-dialog/edit-configuration-template-dialog.component';
 import IStandaloneEditorConstructionOptions = monaco.editor.IStandaloneEditorConstructionOptions;
 import {Select, Store} from "@ngxs/store";
 import {ThemingState} from "../../store/theming/theming.state";
 import {Observable} from "rxjs";
-import {EditorComponent} from "ngx-monaco-editor";
 
 export class ConfigurationTemplateEditorModel {
   constructor(public template?: ConfigurationTemplate, public defaultTemplate?: ConfigurationTemplate) {
@@ -87,7 +87,7 @@ export class TemplateEditorComponent implements OnInit {
 
   public readonly editorOptions: IStandaloneEditorConstructionOptions = {
     theme: 'vs-light',
-    renderLineHighlight: "gutter",
+    renderLineHighlight: 'gutter',
     language: 'yaml',
     fontSize: 12,
     scrollBeyondLastLine: false,
@@ -98,7 +98,12 @@ export class TemplateEditorComponent implements OnInit {
     tabSize: 2
   };
 
-  constructor(private snackBar: MatSnackBar, private dialog: MatDialog, private store: Store) {
+  public get currentTemplateModel(): ConfigurationTemplateEditorModel {
+    return this.configurationTemplatesModels[this.selectedTab.value];
+  }
+
+  constructor(private readonly snackBar: MatSnackBar,
+              private readonly dialog: MatDialog, private store: Store) {
     this._fileReaderService = new FileReaderService();
     this.isDarkTheme$.subscribe(isDark => {
       this.editorOptions.theme = isDark ? 'vs-dark' : 'vs-light';
@@ -207,25 +212,21 @@ export class TemplateEditorComponent implements OnInit {
     });
   }
 
-  private getIllegalTemplateNamesFor(template: ConfigurationTemplateEditorModel): Array<string> {
-    return this.configurationTemplatesModels
-      .filter(t => t !== template)
-      .map(t => t.name);
-  }
-
-  private checkValidNames(): void {
-    const names = this.configurationTemplatesModels
-      .map(ct => ct.name);
-    let counts = [];
-    let namesValid = true;
-    for (let name of names) {
-      if (name && counts[name] === undefined) {
-        counts[name] = 1;
-      } else {
-        namesValid = false;
+  public openEditConfigurationTemplateDialog(currentTemplateModel: ConfigurationTemplateEditorModel) {
+    const dialogRef = this.dialog.open(EditConfigurationTemplateDialogComponent, {
+      width: '250px',
+      data: {
+        model: currentTemplateModel,
+        models: this.configurationTemplatesModels
       }
-    }
-    this.templatesValid.emit(namesValid);
-  }
+    });
 
+    dialogRef.afterClosed().subscribe(({valid, filename, description}) => {
+      if (valid) {
+        this.currentTemplateModel.name = filename;
+        this.currentTemplateModel.description = description;
+        this.templatesValid.emit(valid);
+      }
+    });
+  }
 }

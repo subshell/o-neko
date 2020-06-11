@@ -111,6 +111,7 @@ import {appStates} from "./store";
 import {ThemingState} from "./store/theming/theming.state";
 import {ThemeSwitcherComponent} from "./components/theme-switcher/theme-switcher.component";
 import {DndDirective} from './form/upload/dnd.directive';
+import { EditConfigurationTemplateDialogComponent } from './deployable/template-editor/edit-configuration-template-dialog/edit-configuration-template-dialog.component';
 
 @NgModule({
   declarations: [
@@ -170,7 +171,8 @@ import {DndDirective} from './form/upload/dnd.directive';
     MainComponent,
     ExpandableMenuComponent,
     ThemeSwitcherComponent,
-    DndDirective
+    DndDirective,
+    EditConfigurationTemplateDialogComponent
   ],
   imports: [
     BrowserModule,
