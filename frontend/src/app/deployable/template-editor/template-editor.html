@@ -14,10 +14,7 @@
         <mat-icon svgIcon="plus-outline"></mat-icon>
         <span>Create new template</span>
       </button>
-      <button mat-menu-item [disabled]="readonly">
-        <mat-icon svgIcon="upload-outline"></mat-icon>
-        <span>Upload configuration file</span>
-      </button>
+      <file-upload [multiple]="true" (filesCallback)="onConfigUpload($event)" displayType="menu-item" label="Upload YAML file" [disabled]="readonly"></file-upload>
       <hr />
       <button mat-menu-item>
         <mat-icon svgIcon="download-outline"></mat-icon>
@@ -28,7 +25,7 @@
         <span>Download all files (.zip)</span>
       </button>
     </mat-menu>
-    <file-upload [multiple]="true" (filesCallback)="onConfigUpload($event)" displayType="menu-item" label="Upload YAML file"></file-upload>
+
   </div>
 </div>
 

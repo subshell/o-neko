@@ -7,7 +7,7 @@ import {Component, EventEmitter, Input, Output} from '@angular/core';
 })
 export class FileUploadComponent {
 
-  @Input() displayType: 'button' | 'menu-item' | 'none'  = 'button';
+  @Input() displayType: 'button' | 'menu-item' | 'dnd'  = 'button';
   @Input() disabled: boolean = false;
   @Input() multiple: boolean = true;
   @Input() label: string = 'upload';
