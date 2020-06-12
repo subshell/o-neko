@@ -17,7 +17,7 @@
           color: white;
         }
 
-        @if (isDark) {
+        @if ($isDark) {
           background: linear-gradient(225deg, mat-color($primary, 700) 0%, adjust_hue(mat-color($primary, 500), -25) 100%);
         } @else {
           background: linear-gradient(225deg, mat-color($primary, 700) 0%, mat-color($accent, 900) 100%);
