@@ -1,0 +1,6 @@
+@import "~@angular/material/theming";
+@import "./fonts/varela";
+@import "./fonts/barlow";
+
+$custom-typography: mat-typography-config($font-family: 'Barlow, -apple-system, BlinkMacSystemFont, Segoe UI, IBM Plex Sans, Roboto, Helvetica, sans-serif');
+@include mat-core($custom-typography);

@@ -11,7 +11,10 @@
     <mat-list dense>
       <ng-container *ngFor="let project of selectedProjects">
         <div class="project-header" fxLayout="row" fxLayoutAlign="start center">
-          <a mat-subheader matRipple class="o-neko-internal-link versions-link" [routerLink]="'/projects/' + project.uuid + '/versions'">{{project.name}}</a>
+          <a mat-subheader matRipple class="o-neko-internal-link versions-link" [routerLink]="'/projects/' + project.uuid + '/versions'">
+            <mat-icon svgIcon="mdi:folder"></mat-icon>
+            <span>{{project.name}}</span>
+          </a>
           <div class="tool-container" fxLayout="row">
             <a mat-icon-button class="settings-link" [routerLink]="'/projects/' + project.uuid">
               <mat-icon svgIcon="mdi:tune"></mat-icon>

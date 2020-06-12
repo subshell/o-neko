@@ -26,8 +26,22 @@
               }
             ],
             "styles": [
-              "src/styles.scss"
-            ],
+              {
+                "input": "src/styles.scss",
+                "inject": true,
+                "bundleName": "styles"
+              },
+              {
+                "input": "src/styles/light-theme.scss",
+                "inject": true,
+                "bundleName": "light-theme"
+              },
+              {
+                "input": "src/styles/dark-theme.scss",
+                "inject": true,
+                "bundleName": "dark-theme"
+              }
+            ]
           },
           "configurations": {
             "production": {
@@ -80,7 +94,21 @@
             "polyfills": "src/polyfills.ts",
             "tsConfig": "src/tsconfig.spec.json",
             "styles": [
-              "src/styles.scss"
+              {
+                "input": "src/styles.scss",
+                "inject": true,
+                "bundleName": "styles"
+              },
+              {
+                "input": "src/styles/light-theme.scss",
+                "inject": true,
+                "bundleName": "light-theme"
+              },
+              {
+                "input": "src/styles/dark-theme.scss",
+                "inject": true,
+                "bundleName": "dark-theme"
+              }
             ],
             "assets": [
               "src/assets"

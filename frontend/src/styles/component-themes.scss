@@ -25,7 +25,6 @@
   @include login-component-theme($theme);
   @include me-component-theme($theme);
   @include create-dialog-theme($theme);
-  @include full-page-form-theme($theme);
   @include table-page-theme($theme);
   @include project-list-theme($theme);
   @include docker-registry-list-component-theme($theme);
@@ -42,4 +41,5 @@
   @include deployable-actions-component-theme($theme);
   @include deployable-status-component-theme($theme);
   @include file-upload-component-theme($theme);
+  @include full-page-form-theme($theme);
 }
