@@ -2,6 +2,10 @@
 @import "src/styles/mixins";
 @import "src/styles/component-themes";
 
+$o-neko-primary: mat-palette($blue-palette);
+$o-neko-accent: mat-palette($old-yellow);
+$o-neko-warn: mat-palette($pink-palette);
+
 $o-neko-dark-theme: (
   primary: $o-neko-primary,
   accent: $o-neko-accent,
@@ -26,20 +30,20 @@ $o-neko-dark-theme: (
   ),
   background: (
     status-bar: black, // default from mat-dark-theme
-    app-bar:    mix(map_get($mat-grey, 900), mat-color($o-neko-primary, 900), 98%),
-    background: mix(#303030, mat-color($o-neko-primary, 900), 98%),
+    app-bar:    mix(map_get($mat-grey, 900), mat-color($o-neko-primary, 900), 96%),
+    background: mix(#303030, mat-color($o-neko-primary, 900), 96%),
     hover:      rgba(white, 0.04), // default from mat-dark-theme
-    card:       mix(map_get($mat-grey, 800), mat-color($o-neko-primary, 900), 98%),
-    dialog:     mix(map_get($mat-grey, 800), mat-color($o-neko-primary, 900), 98%),
+    card:       mix(map_get($mat-grey, 800), mat-color($o-neko-primary, 900), 96%),
+    dialog:     mix(map_get($mat-grey, 800), mat-color($o-neko-primary, 900), 96%),
     disabled-button: rgba(white, 0.12), // default from mat-dark-theme
-    raised-button: mix(map-get($mat-grey, 800), mat-color($o-neko-primary, 900), 98%),
+    raised-button: mix(map-get($mat-grey, 800), mat-color($o-neko-primary, 900), 96%),
     focused-button: $light-focused, // default from mat-dark-theme
-    selected-button: mix(map_get($mat-grey, 900), mat-color($o-neko-primary, 900), 98%),
-    selected-disabled-button: mix(map_get($mat-grey, 800), mat-color($o-neko-primary, 900), 98%),
-    disabled-button-toggle: mix(black, mat-color($o-neko-primary, 900), 98%),
-    unselected-chip: mix(map_get($mat-grey, 700), mat-color($o-neko-primary, 900), 98%),
-    disabled-list-option: mix(black, mat-color($o-neko-primary, 900), 98%),
-    tooltip: mix(map_get($mat-grey, 700), mat-color($o-neko-primary, 900), 98%),
+    selected-button: mix(map_get($mat-grey, 900), mat-color($o-neko-primary, 900), 96%),
+    selected-disabled-button: mix(map_get($mat-grey, 800), mat-color($o-neko-primary, 900), 96%),
+    disabled-button-toggle: mix(black, mat-color($o-neko-primary, 900), 96%),
+    unselected-chip: mix(map_get($mat-grey, 700), mat-color($o-neko-primary, 900), 96%),
+    disabled-list-option: mix(black, mat-color($o-neko-primary, 900), 96%),
+    tooltip: mix(map_get($mat-grey, 700), mat-color($o-neko-primary, 900), 96%),
   ),
 );
 
