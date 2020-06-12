@@ -1,5 +1,5 @@
 <breadcrumbs *ngIf="project" [breadcrumbs]="[{label: 'home', link: ''}, {label: 'projects', link: '/projects'}, {label: project.name}]"></breadcrumbs>
-<div class="main-content-padding">
+<div class="main-content-padding" *ngIf="project">
   <div class="title" fxLayout="row" fxLayoutAlign="space-between center">
     <h2 fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="12px">
       <mat-icon svgIcon="edit"></mat-icon>
@@ -7,13 +7,13 @@
     </h2>
     <button mat-button
             routerLinkActive="active"
-            [routerLink]="'/projects/' + project.uuid + '/versions'"
+            [routerLink]="'/projects/' + project?.uuid + '/versions'"
             color="primary">
       <mat-icon svgIcon="view-list"></mat-icon>
       Show Versions
     </button>
   </div>
-  <div class="edit-project full-page-form" *ngIf="project" fxLayout="column">
+  <div class="edit-project full-page-form" fxLayout="column">
     <div class="content">
       <div>
         <form fxLayout="column" #projectForm="ngForm" fxLayoutGap="1em">

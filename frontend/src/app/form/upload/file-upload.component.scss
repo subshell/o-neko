@@ -13,18 +13,9 @@
 
   margin: 32px;
   padding: 32px;
-  border: 2px dashed mat-color($mat-gray, 400);
   border-radius: 8px;
 
   mat-icon {
     @include mat-icon-size(30px);
-  }
-
-  &.fileover {
-    background-color: mat-color($mat-gray, 100);
-  }
-
-  &:hover {
-    border: 2px dashed mat-color($mat-gray, 700);
   }
 }
