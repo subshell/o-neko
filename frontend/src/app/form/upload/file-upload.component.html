@@ -19,4 +19,9 @@
   </button>
 </div>
 
+<button mat-menu-item [disabled]="disabled" *ngIf="displayType === 'menu-item'" (click)="!disabled && imageFileInput.click()">
+  <mat-icon svgIcon="upload-outline"></mat-icon>
+  <span>{{label}}</span>
+</button>
+
 <input hidden [multiple]="multiple" type="file" [accept]="accept" #imageFileInput (change)="filesSet(imageFileInput)" [disabled]="disabled">
