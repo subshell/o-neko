@@ -16,7 +16,7 @@
 
   on-main {
     .mat-sidenav {
-      background-color: desaturate(darken(mat-color($primary, 900), 28%), 60%);
+      background-color: desaturate(darken(mat-color($primary, 900), 26%), 60%);
 
       on-expandable-menu, mat-nav-list.menu-nav-list {
         mat-icon {

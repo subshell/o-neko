@@ -19,6 +19,7 @@
 @import "../app/deployable/deployable-actions/deployable-actions.theme";
 @import "../app/deployable/deployable-status/deployable-status.component.theme";
 @import "../app/form/upload/file-upload.component.theme";
+@import "../app/components/footer/footer.component.theme";
 
 @mixin component-themes($theme) {
   @include main-component-theme($theme);
@@ -42,4 +43,5 @@
   @include deployable-status-component-theme($theme);
   @include file-upload-component-theme($theme);
   @include full-page-form-theme($theme);
+  @include footer-theme($theme);
 }

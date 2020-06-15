@@ -10,3 +10,10 @@ $mat-radius: 4px;
 @function gradient($from, $to) {
   @return linear-gradient(225deg, $from 0%, $to 100%);
 }
+
+@mixin text-gradient($from, $to, $angle: 90deg) {
+  background: linear-gradient($angle, $from, $to);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: $from; // fallback
+}
