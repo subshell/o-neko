@@ -12,7 +12,7 @@ export interface ThemingStateModel {
 
 const defaultState: ThemingStateModel = {
   darkMode: false,
-  mode: 'light'
+  mode: 'auto'
 };
 
 export class SetTheme {
