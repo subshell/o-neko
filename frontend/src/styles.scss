@@ -46,6 +46,13 @@ img {
 $full-page-form-full-padding: 2em;
 $full-page-form-slim-padding: 1em;
 
+.full-page-width {
+  padding: $full-page-form-slim-padding $full-page-form-full-padding;
+  margin: $full-page-form-slim-padding 0;
+  max-width: 1500px;
+  box-sizing: border-box;
+}
+
 .full-page-form {
   border-radius: $mat-radius;
   padding: $full-page-form-slim-padding $full-page-form-full-padding;

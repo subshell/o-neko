@@ -5,8 +5,8 @@ export class FileDownloadService {
     FileDownloadService.downloadBlob(blob, filename);
   }
 
-  public static downloadFle(text: string, filename: string = 'file.json'): void {
-    const blob = new Blob([text], {type: 'application/text'});
+  public static downloadFle(text: string, filename: string = 'file.json', fileType: string = 'application/text'): void {
+    const blob = new Blob([text], {type: fileType});
     FileDownloadService.downloadBlob(blob, filename);
   }
 

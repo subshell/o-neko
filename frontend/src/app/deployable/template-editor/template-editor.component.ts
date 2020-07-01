@@ -10,6 +10,7 @@ import IStandaloneEditorConstructionOptions = monaco.editor.IStandaloneEditorCon
 import {Select, Store} from "@ngxs/store";
 import {ThemingState} from "../../store/theming/theming.state";
 import {Observable} from "rxjs";
+import {FileDownloadService} from '../../util/file-download.service';
 
 export class ConfigurationTemplateEditorModel {
   constructor(public template?: ConfigurationTemplate, public defaultTemplate?: ConfigurationTemplate) {
@@ -228,5 +229,9 @@ export class TemplateEditorComponent implements OnInit {
         this.templatesValid.emit(valid);
       }
     });
+  }
+
+  public onDownloadCurrentFile(currentTemplateModel: ConfigurationTemplateEditorModel): void {
+    FileDownloadService.downloadFle(currentTemplateModel.template.content, `${currentTemplateModel.name}.yaml`, 'text/yaml');
   }
 }
