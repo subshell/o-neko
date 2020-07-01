@@ -1,6 +1,6 @@
 import {Component, Inject} from "@angular/core";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
-import {zip} from "rxjs/internal/observable/zip";
+import {zip} from "rxjs";
 import {RestService} from "../../rest/rest.service";
 import {User} from "../user";
 import {UserRole} from "../user-role";

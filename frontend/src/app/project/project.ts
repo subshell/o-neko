@@ -1,4 +1,3 @@
-import {isNil, map} from 'lodash';
 import {ConfigurationTemplate, ConfigurationTemplateDTO} from '../deployable/configuration-template';
 import {ProjectVersion} from './project-version';
 import {ProjectExportDTO, SUPPORTED_VERSION} from './project-export';
@@ -59,7 +58,7 @@ export class Project implements ProjectDTO {
     project.defaultConfigurationTemplates = from.defaultConfigurationTemplates || [];
     project.templateVariables = from.templateVariables || [];
     project.dockerRegistryUUID = from.dockerRegistryUUID;
-    project.versions = map(from.versions, version => ProjectVersion.from(version));
+    project.versions = from.versions.map(version => ProjectVersion.from(version));
     project.status = from.status;
     project.defaultLifetimeBehaviour = from.defaultLifetimeBehaviour;
 
@@ -99,7 +98,7 @@ export class Project implements ProjectDTO {
    * @returns {boolean}
    */
   public isNew(): boolean {
-    return isNil(this.uuid);
+    return !!!this.uuid;
   }
 
   public isOrphan(): boolean {
