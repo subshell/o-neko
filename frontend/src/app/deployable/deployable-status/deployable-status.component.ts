@@ -1,5 +1,5 @@
 import {Component, Input, OnDestroy} from "@angular/core";
-import {interval} from "rxjs/internal/observable/interval";
+import {interval} from "rxjs";
 import {Subscription} from "rxjs/internal/Subscription";
 import {DeployableStatus} from "../deployment";
 
