@@ -5,7 +5,8 @@ spring:
   codec:
     max-in-memory-size: 10MB
 logging:
-  path: logs
+  file:
+    path: logs
   level:
     io.oneko: debug
 
@@ -21,9 +22,11 @@ spring:
   data:
     mongodb:
       uri: mongodb://localhost:27017/o-neko?
+      autoIndexCreation: true
 
 logging:
-  path: logs
+  file:
+    path: logs
   level:
     io.oneko: trace
 

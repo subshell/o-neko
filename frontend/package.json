@@ -36,15 +36,15 @@
     "ngx-infinite-scroll": "9.0.0",
     "ngx-mat-select-search": "3.0.0",
     "ngx-monaco-editor": "9.0.0",
-    "rxjs": "6.5.5",
+    "rxjs": "6.6.0",
     "tslib": "^2.0.0",
     "typescript-logging": "0.6.4",
     "web-animations-js": "2.3.2",
     "zone.js": "~0.10.3"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "~0.1000.0",
-    "@angular/cli": "10.0.0",
+    "@angular-devkit/build-angular": "~0.1000.1",
+    "@angular/cli": "10.0.1",
     "@angular/compiler-cli": "10.0.2",
     "@angular/language-service": "10.0.2",
     "@ngxs/devtools-plugin": "^3.6.2",
@@ -52,8 +52,8 @@
     "@types/jasminewd2": "2.0.8",
     "@types/lodash": "4.14.157",
     "@types/node": "14.0.14",
-    "codelyzer": "5.2.2",
-    "gzipper": "3.7.0",
+    "codelyzer": "6.0.0",
+    "gzipper": "4.0.0",
     "jasmine-core": "~3.5.0",
     "jasmine-spec-reporter": "~5.0.0",
     "karma": "~5.1.0",
@@ -65,6 +65,6 @@
     "protractor": "~7.0.0",
     "ts-node": "8.10.2",
     "tslint": "~6.1.0",
-    "typescript": "3.9.5"
+    "typescript": "3.9.6"
   }
 }
