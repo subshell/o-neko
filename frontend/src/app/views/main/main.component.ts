@@ -37,40 +37,40 @@ export class MainComponent {
     this.rest.currentUser().subscribe(user => {
       this.menuStructure = [
         {
-          title: 'Home',
+          title: 'menu.home',
           icon: 'home',
           href: '',
           isSingleEntry: true
         },
         {
-          title: 'Project Management',
+          title: 'menu.projectManagement.projectManagement',
           icon: 'folder',
           children: [{
-            title: 'Projects',
+            title: 'menu.projectManagement.projects',
             href: '/projects'
           },{
-            title: 'Project Meshes',
+            title: 'menu.projectManagement.projectMeshes',
             href: '/project-meshes'
           },{
-            title: 'Namespaces',
+            title: 'menu.projectManagement.namespaces',
             href: '/namespaces',
             hidden: !user.hasAnyPermission(UserRole.ADMIN, UserRole.DOER)
           }]
         },
         {
-          title: 'Administration',
+          title: 'menu.administration.administration',
           icon: 'settings',
           hidden: !user.hasAnyPermission(UserRole.ADMIN, UserRole.DOER),
           children: [{
-            title: 'Docker Registries',
+            title: 'menu.administration.dockerRegistries',
             href: '/docker-registries',
             hidden: !user.hasAnyPermission(UserRole.ADMIN, UserRole.DOER)
           },{
-            title: 'Users',
+            title: 'menu.administration.users',
             href: '/users',
             hidden: !user.hasAnyPermission(UserRole.ADMIN)
           },{
-            title: 'Activity Log',
+            title: 'menu.administration.activityLog',
             href: '/logs',
             hidden: !user.hasAnyPermission(UserRole.ADMIN, UserRole.DOER)
           }]

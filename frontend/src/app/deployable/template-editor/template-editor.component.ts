@@ -11,6 +11,7 @@ import {Select, Store} from "@ngxs/store";
 import {ThemingState} from "../../store/theming/theming.state";
 import {Observable} from "rxjs";
 import {FileDownloadService} from '../../util/file-download.service';
+import {TranslateService} from "@ngx-translate/core";
 
 export class ConfigurationTemplateEditorModel {
   constructor(public template?: ConfigurationTemplate, public defaultTemplate?: ConfigurationTemplate) {
@@ -104,7 +105,9 @@ export class TemplateEditorComponent implements OnInit {
   }
 
   constructor(private readonly snackBar: MatSnackBar,
-              private readonly dialog: MatDialog, private store: Store) {
+              private readonly dialog: MatDialog,
+              private store: Store,
+              private translate: TranslateService) {
     this._fileReaderService = new FileReaderService();
     this.isDarkTheme$.subscribe(isDark => {
       this.editorOptions.theme = isDark ? 'vs-dark' : 'vs-light';
@@ -136,7 +139,7 @@ export class TemplateEditorComponent implements OnInit {
 
     for (let file of files) {
       if (typeof file.content !== 'string') {
-        this.snackBar.open(`Could not upload file ${file.name}`, null, {
+        this.snackBar.open(this.translate.instant('components.templateEditor.uploadFailedError', {filename: file.name}), null, {
           duration: 1000
         });
         return;
@@ -169,7 +172,7 @@ export class TemplateEditorComponent implements OnInit {
       width: '250px',
       data: {
         message: '',
-        title: 'Do you really want to delete this template?'
+        title: this.translate.instant('components.templateEditor.confirmDeletionOfTemplate')
       }
     });
 

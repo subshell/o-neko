@@ -10,7 +10,7 @@ jobs:
       - run:
           name: Installing dependencies
           working_directory: ./frontend
-          command: npm install
+          command: npm ci
       - save_cache:
           key: oneko-npm-dependencies-{{ checksum "frontend/package.json" }}
           paths:

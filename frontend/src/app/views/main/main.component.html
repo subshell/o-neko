@@ -20,7 +20,7 @@
           <a mat-list-item [routerLink]="entry.href" routerLinkActive="active" [routerLinkActiveOptions]="(entry.href === '' || entry.href === '/') ? {exact: true} : {exact: false}">
             <mat-icon matListIcon [svgIcon]="entry.icon"></mat-icon>
             <span matLine fxLayout="row" fxLayoutAlign="space-between center">
-            <span>{{entry.title}}</span>
+            <span>{{entry.title | translate}}</span>
           </span>
           </a>
         </mat-nav-list>

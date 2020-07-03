@@ -8,14 +8,14 @@
         <h1>O-NEKO</h1>
 
         <mat-form-field appearance="outline" color="warn">
-          <input matInput [(ngModel)]="username" placeholder="Username"/>
+          <input matInput [(ngModel)]="username" [placeholder]="'general.username' | translate"/>
         </mat-form-field>
 
         <mat-form-field appearance="outline" color="warn">
-          <input type="password" [(ngModel)]="password" matInput placeholder="Password">
+          <input type="password" [(ngModel)]="password" matInput [placeholder]="'general.password' | translate" />
         </mat-form-field>
 
-        <button mat-raised-button (click)="login()">Login</button>
+        <button mat-raised-button (click)="login()">{{'views.login.doLogin' | translate}}</button>
       </div>
       <div fxLayout="row" fxLayoutAlign="end">
         <on-theme-switcher></on-theme-switcher>

@@ -1,4 +1,84 @@
 {
+  "general": {
+    "username": "Benutzername",
+    "password": "Passwort",
+    "ok": "Ok",
+    "name": "Name",
+    "description": "Beschreibung",
+    "rename": "Umbenennen",
+    "options": "Optionen"
+  },
+  "menu": {
+    "home": "Home",
+    "projectManagement": {
+      "projectManagement": "Projektverwaltung",
+      "projects": "Projekte",
+      "projectMeshes": "Projekt-Meshes",
+      "namespaces": "Namespaces"
+    },
+    "administration": {
+      "administration": "Administration",
+      "dockerRegistries": "Docker Registries",
+      "users": "Benutzer",
+      "activityLog": "!alias:views.logs.activityLog"
+    }
+  },
+  "views": {
+    "login": {
+      "doLogin": "Einloggen"
+    },
+    "logs": {
+      "activityLog": "Ereignisse"
+    },
+    "deploymentsDashboard": {
+      "activeDeployments": "Aktive Deployments"
+    }
+  },
+  "components": {
+    "themeSwitcher": {
+      "auto": "Auto",
+      "light": "Hell",
+      "dark": "Dunkel"
+    },
+    "activityLog": {
+      "openEntity": "{entity} öffnen",
+      "openUsersPage": "Benutzerliste öffnen",
+      "openDockerRegistryPage": "Docker-Registry-Liste öffnen",
+      "openNamespacesPage": "Namespace-Liste öffnen",
+      "changedProperty": "Geänderter Wert"
+    },
+    "deployableActions": {
+      "deploy": "Starten",
+      "reDeploy": "Erneut starten",
+      "stop": "Stoppen"
+    },
+    "deployableStatus": {
+      "runningOutdated": "Dieses Deployment läuft mit einer veralteten Konfiguration",
+      "NotScheduled": "Nicht ausgeführt",
+      "Unknown": "Unbekannt",
+      "Failed": "Fehlgeschlagen",
+      "Succeeded": "Erfolgreich",
+      "Pending": "Startend",
+      "Running": "Aktiv"
+    },
+    "showDeployableConfigurationDialog": {
+      "effectiveConfigurationOfEntity": "Effektive Konfiguration von {entity}",
+      "calculatedConfiguration": "Errechnete Konfiguration",
+      "availableConfigurationParameters": "Verfügbare Konfigurationsparameter"
+    },
+    "templateEditor": {
+      "editConfigurationTemplateDialog": {
+        "nameAlreadyInUse": "Dieser Name wird bereits von einem anderen Template verwendet"
+      },
+      "uploadFailedError": "{filename} konnte nicht hochgeladen werden",
+      "confirmDeletionOfTemplate": "Soll dieses Template wirklich gelöscht werden?",
+      "uploadYaml": "YAML Datei hochladen",
+      "createNewTemplate": "Neues Template erstellen",
+      "downloadCurrentFile": "Aktuelle Datei herunterladen",
+      "thisIsAnInheritedConfiguration": "Das ist eine geerbte Konfiguration.",
+      "overwritesInheritedConfiguration": "Das überschreibt eine geerbte Konfiguration."
+    }
+  },
   "material": {
     "paginator": {
       "nextPage": "Nächste Seite",

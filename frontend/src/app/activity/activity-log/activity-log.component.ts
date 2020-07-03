@@ -95,8 +95,6 @@ export class ActivityLogComponent implements OnInit, OnDestroy {
   }
 
   public loadMore() {
-    console.log("LOAD MORE");
-
     if (this.infiniteScrollDisabled) {
       return;
     }
