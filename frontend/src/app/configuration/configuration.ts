@@ -3,6 +3,8 @@ import {DomSanitizer} from '@angular/platform-browser';
 import {MDI_SVG_ICONS} from './generated/mdi';
 import {TWO_TONE_ICONS} from './generated/two-tone';
 import {AnimationDriver, ɵNoopAnimationDriver as NoopAnimationDriver, ɵWebAnimationsDriver as WebAnimationsDriver} from '@angular/animations/browser';
+import {TranslateService} from "@ngx-translate/core";
+import {MatPaginatorIntl} from "@angular/material/paginator";
 
 export const configureSvgIcons = (iconRegistry: MatIconRegistry, domSanitizer: DomSanitizer) => {
   // If the following produces errors in your IDE you need to install the npm dependencies
@@ -21,3 +23,51 @@ export const provideAnimationDriverBasedOnUserPreferences = (): AnimationDriver 
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   return prefersReducedMotion ? noop : driver;
 };
+
+export const configureTranslations = (translate: TranslateService) => {
+  translate.setDefaultLang('en');
+  translate.use(translate.getBrowserLang());
+};
+
+export const configureMatPaginatorI18n = (translate: TranslateService): MatPaginatorIntl => {
+  return new TranslatedMatPaginatorIntl(translate);
+};
+
+class TranslatedMatPaginatorIntl extends MatPaginatorIntl {
+
+  constructor(private translate: TranslateService) {
+    super();
+    this.initialize();
+  }
+
+  private initialize() {
+    const firstPage = 'material.paginator.firstPage';
+    const previousPage = 'material.paginator.previousPage';
+    const nextPage = 'material.paginator.nextPage';
+    const lastPage = 'material.paginator.lastPage';
+    const itemsPerPage = 'material.paginator.itemsPerPage';
+    this.translate.get([
+      firstPage,
+      previousPage,
+      nextPage,
+      lastPage,
+      itemsPerPage
+    ]).subscribe((translations) => {
+      this.firstPageLabel = translations[firstPage];
+      this.nextPageLabel = translations[nextPage];
+      this.previousPageLabel = translations[previousPage];
+      this.lastPageLabel = translations[lastPage];
+      this.itemsPerPageLabel = translations[itemsPerPage];
+      this.changes.next();
+    });
+    this.getRangeLabel = (page, pageSize, length) => {
+      if (length === 0 || pageSize === 0) {
+        return `0 of ${length}`;
+      }
+      length = Math.max(length, 0);
+      const startIndex = page * pageSize;
+      const endIndex = startIndex < length ? Math.min(startIndex + pageSize, length) : startIndex + pageSize;
+      return this.translate.instant('material.paginator.itemsVisible', {from: startIndex + 1, to: endIndex, length});
+    };
+  }
+}

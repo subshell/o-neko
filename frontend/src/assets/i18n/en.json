@@ -1,0 +1,12 @@
+{
+  "material": {
+    "paginator": {
+      "nextPage": "Next page",
+      "lastPage": "Last page",
+      "previousPage": "Previous page",
+      "firstPage": "First page",
+      "itemsPerPage": "Items per page:",
+      "itemsVisible": "{from}-{to} of {length}"
+    }
+  }
+}
