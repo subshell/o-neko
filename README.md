@@ -7,7 +7,7 @@ development versions of your software into Kubernetes to allow everybody to try 
 
 |       |       |       |
 | ----- | ----- | ----- |
-| ![O-Neko login screen](./docs/images/login.png) | ![O-Neko dashboard](./docs/images/dashboard.png) | ![O-Neko project overview](./docs/images/project.png) |
+| ![O-Neko login screen](./docs/images/login.png) | ![O-Neko dashboard](./docs/images/dashboard.png) | ![O-Neko project list](./docs/images/projects.png) |
 
 ## Documentation and installation guide
 
