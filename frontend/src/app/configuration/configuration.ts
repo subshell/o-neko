@@ -26,7 +26,8 @@ export const provideAnimationDriverBasedOnUserPreferences = (): AnimationDriver 
 
 export const configureTranslations = (translate: TranslateService) => {
   translate.setDefaultLang('en');
-  translate.use(translate.getBrowserLang());
+  //translate.use(translate.getBrowserLang()); // todo: use once translation is finished
+  translate.use('en'); // todo: remove once translation is finished
 };
 
 export const configureMatPaginatorI18n = (translate: TranslateService): MatPaginatorIntl => {

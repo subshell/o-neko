@@ -20,7 +20,7 @@
 
       on-expandable-menu, mat-nav-list.menu-nav-list {
         mat-icon {
-          color: rgba(mat-color($primary, 500), 0.4);
+          color: rgba(mat-color($primary, 500), 0.6);
         }
 
         .mat-line {
@@ -28,7 +28,7 @@
         }
 
         .mat-list-item {
-          color: rgba(white, 0.44);
+          color: rgba(white, 0.6);
 
           &:hover {
             @include active-mat-list-item($primary);
