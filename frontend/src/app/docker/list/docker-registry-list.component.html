@@ -1,13 +1,13 @@
 <div class="docker-registries table-page main-content-padding" fxLayout="column">
   <h2 fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="12px">
     <mat-icon svgIcon="mdi:docker"></mat-icon>
-    <span>Docker Registries</span>
+    <span>{{'components.dockerRegistry.dockerRegistries' | translate}}</span>
   </h2>
   <div fxLayout="row" fxLayoutAlign="space-between center">
     <button *ngIf="mayCreateDockerRegistry()" mat-button (click)="createDockerRegistry()">
       <span fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="1em">
         <mat-icon svgIcon="mdi:docker"></mat-icon>
-        <span>Create Docker Registry</span>
+        <span>{{'components.dockerRegistry.createDockerRegistry' | translate}}</span>
       </span>
     </button>
     <span *ngIf="!mayCreateDockerRegistry()" class="place-holder"></span>
@@ -19,22 +19,22 @@
 
   <table matSort (matSortChange)="sortDockerRegistries($event)">
     <tr>
-      <th mat-sort-header="name">Name</th>
-      <th mat-sort-header="registryUrl">URL</th>
+      <th mat-sort-header="name">{{'general.name' | translate}}</th>
+      <th mat-sort-header="registryUrl">{{'general.url' | translate}}</th>
       <th></th>
     </tr>
     <tr *ngFor="let dockerRegistry of sortedDockerRegistries">
       <td>{{dockerRegistry.name}}</td>
-      <td><div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="6px"><mat-icon [matTooltip]="dockerRegistry.trustInsecureCertificate ? 'O-Neko is configured to trust insecure certificates from this registry.' : 'O-Neko does not trust insecure certificates from this registry.'" class="shield-icon" [svgIcon]="dockerRegistry.trustInsecureCertificate ? 'mdi:shield-alert' : 'mdi:shield-check'" [class.insecure]="dockerRegistry.trustInsecureCertificate"></mat-icon><span>{{dockerRegistry.registryUrl}}</span></div></td>
+      <td><div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="6px"><mat-icon [matTooltip]="(dockerRegistry.trustInsecureCertificate ? 'components.dockerRegistry.trustsInsecureCertificates' : 'components.dockerRegistry.doesNotTrustInsecureCertificates') | translate" class="shield-icon" [svgIcon]="dockerRegistry.trustInsecureCertificate ? 'mdi:shield-alert' : 'mdi:shield-check'" [class.insecure]="dockerRegistry.trustInsecureCertificate"></mat-icon><span>{{dockerRegistry.registryUrl}}</span></div></td>
       <td>
         <div fxLayout="row" fxLayoutAlign="end center">
-          <button *ngIf="mayShowDockerRegistryDetails()" mat-icon-button (click)="showDockerRegistryDetails(dockerRegistry)" matTooltip="View details">
+          <button *ngIf="mayShowDockerRegistryDetails()" mat-icon-button (click)="showDockerRegistryDetails(dockerRegistry)" [matTooltip]="'general.viewDetails' | translate">
             <mat-icon svgIcon="mdi:information-outline"></mat-icon>
           </button>
-          <button *ngIf="mayEditDockerRegistry()" mat-icon-button (click)="editDockerRegistry(dockerRegistry)" matTooltip="Edit">
+          <button *ngIf="mayEditDockerRegistry()" mat-icon-button (click)="editDockerRegistry(dockerRegistry)" [matTooltip]="'general.edit' | translate">
             <mat-icon svgIcon="mdi:pencil"></mat-icon>
           </button>
-          <button *ngIf="mayDeleteDockerRegistry()" mat-icon-button (click)="deleteDockerRegistry(dockerRegistry)" matTooltip="Delete">
+          <button *ngIf="mayDeleteDockerRegistry()" mat-icon-button (click)="deleteDockerRegistry(dockerRegistry)" [matTooltip]="'general.delete' | translate">
             <mat-icon svgIcon="mdi:delete"></mat-icon>
           </button>
         </div>

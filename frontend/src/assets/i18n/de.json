@@ -6,7 +6,15 @@
     "name": "Name",
     "description": "Beschreibung",
     "rename": "Umbenennen",
-    "options": "Optionen"
+    "options": "Optionen",
+    "warning": "Warnung",
+    "delete": "Löschen",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "close": "Schließen",
+    "url": "URL",
+    "edit": "Bearbeiten",
+    "viewDetails": "Details öffnen"
   },
   "menu": {
     "home": "Home",
@@ -77,6 +85,34 @@
       "downloadCurrentFile": "Aktuelle Datei herunterladen",
       "thisIsAnInheritedConfiguration": "Das ist eine geerbte Konfiguration.",
       "overwritesInheritedConfiguration": "Das überschreibt eine geerbte Konfiguration."
+    },
+    "dockerRegistry": {
+      "deletionDialog": {
+        "registryIsUsedByProject": "Die Docker Registry <b>{registry}</b> wird von folgenden Projekten verwendet:",
+        "usedRegistryWarningText": "<p>Wenn diese Registry gelöscht wird, verwaisen diese Projekte.</p><p>Sie können danach nicht mehr deployed oder anderweitig verwendet werden, solang ihnen keine neue Registry zugewiesen wird, die die Images unter dem selben Namen bereitstellt.</p>",
+        "confirmDeletionText": "Bitte bestätigen Sie das Löschen der Registry indem Sie ihren Namen in das Eingabefeld tippen. Das Löschen kann nicht rückgängig gemacht werden.",
+        "confirmName": "Namen der Registry bestätigen"
+      },
+      "editDialog": {
+        "createRegistry": "Docker Registry anlegen",
+        "editRegistry": "Docker Registry bearbeiten",
+        "trustInsecureCertificates": "Unsicheren Zertifikaten vertrauen",
+        "trustInsecureRegistryHint": "Sie sollten diese Option nicht auswählen, wenn es sich um eine produktive Installation von O-Neko handelt. Stellen Sie lieber sicher, gültige und vertrauenswürdige Zertifikate in der Registry zu installieren. Sie müssen außerdem sicherstellen, dass Ihr Kubernetes Cluster dieser Registry vertraut, andernfalls wird auch das Auswählen dieser Option nicht helfen.",
+        "registryHasBeenModifiedByAction": "Die Docker Registry {registry} wurde {action, select, created{angelegt} deleted{gelöscht} saved{gespeichert} other{bearbeitet}}."
+      },
+      "registryUrl": "Registry URL",
+      "dockerRegistries": "!alias:menu.administration.dockerRegistries",
+      "createDockerRegistry": "!alias:components.dockerRegistry.editDialog.createRegistry",
+      "trustsInsecureCertificates": "O-Neko wurde konfiguriert, unsicheren Zertifikaten dieser Registry zu vertrauen.",
+      "doesNotTrustInsecureCertificates": "O-Neko vertraut unseren Zertifikaten dieser Registry nicht."
+    },
+    "forms": {
+      "errors": {
+        "fieldIsRequired": "Dieses Feld ist ein Pflichtfeld.",
+        "passwordsMustMatch": "Die Passwörter müssen übereinstimmen."
+      },
+      "changePassword": "Passwort ändern",
+      "repeatPassword": "Passwort wiederholen"
     }
   },
   "material": {

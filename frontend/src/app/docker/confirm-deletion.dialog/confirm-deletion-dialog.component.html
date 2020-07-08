@@ -1,23 +1,20 @@
 <h2 mat-dialog-title>{{'Delete ' + dockerRegistry.name + '?'}}</h2>
 <mat-dialog-content>
   <div *ngIf="projectNames.length > 0">
-    <h3>Warning</h3>
-    <p>
-      The docker registry <b>{{dockerRegistry.name}}</b> is used by these projects:
-    </p>
+    <h3>{{'general.warning' | translate}}</h3>
+    <p [innerHTML]="'components.dockerRegistry.deletionDialog.registryIsUsedByProject' | translate: {registry: dockerRegistry.name}"></p>
     <ul>
       <li *ngFor="let projectName of projectNames">{{projectName}}</li>
     </ul>
-    <p>If you delete this registry then those projects will remain in an orphaned state.</p>
-    <p>They can no longer be deployed or used otherwise until they are assigned to a new registry serving images with the same name.</p>
+    <div [innerHTML]="'components.dockerRegistry.deletionDialog.usedRegistryWarningText' | translate"></div>
   </div>
-  <p>Please confirm the deletion of this docker registry by entering its name below. This action cannot be undone.</p>
+  <p>{{ 'components.dockerRegistry.deletionDialog.confirmDeletionText' | translate }}</p>
   <mat-form-field>
-    <input type="text" matInput [(ngModel)]="confirmedName" autocomplete="off" required name="name" id="name" placeholder="Confirm name" #name="ngModel">
+    <input type="text" matInput [(ngModel)]="confirmedName" autocomplete="off" required name="name" id="name" [placeholder]="'components.dockerRegistry.deletionDialog.confirmName' | translate" #name="ngModel">
   </mat-form-field>
 </mat-dialog-content>
 <mat-dialog-actions fxLayoutAlign="space-between center">
-  <button mat-button (click)="confirm()" [disabled]="confirmedName !== dockerRegistry.name">Delete</button>
-  <button mat-button (click)="deny()">Cancel</button>
+  <button mat-button (click)="confirm()" [disabled]="confirmedName !== dockerRegistry.name">{{'general.delete' | translate}}</button>
+  <button mat-button (click)="deny()">{{'general.cancel' | translate}}</button>
 </mat-dialog-actions>
 

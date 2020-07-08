@@ -3,6 +3,7 @@ import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {RestService} from "../../rest/rest.service";
 import {DockerRegistry} from "../docker-registry";
+import {TranslateService} from "@ngx-translate/core";
 
 @Component({
   selector: 'confirm-deletion-of-docker-registry-dialog',
@@ -16,7 +17,8 @@ export class ConfirmDeletionDialogComponent {
   constructor(public dialogRef: MatDialogRef<ConfirmDeletionDialogComponent>,
               @Inject(MAT_DIALOG_DATA) private data: { registry: DockerRegistry, projectNames: Array<String> },
               private rest: RestService,
-              private snackBar: MatSnackBar) {
+              private snackBar: MatSnackBar,
+              private translate: TranslateService) {
   }
 
   get dockerRegistry(): DockerRegistry {
@@ -29,7 +31,8 @@ export class ConfirmDeletionDialogComponent {
 
   public confirm(): void {
     this.rest.docker().deleteDockerRegistry(this.dockerRegistry).subscribe(() => {
-      this.snackBar.open(`Docker registry ${this.dockerRegistry.name} has been deleted.`, null, {
+      const text = this.translate.instant('components.dockerRegistry.editDialog.registryHasBeenModifiedByAction', {registry: this.dockerRegistry.name, action: 'deleted'});
+      this.snackBar.open(text, null, {
         duration: 1000
       });
       this.dialogRef.close(this.dockerRegistry);

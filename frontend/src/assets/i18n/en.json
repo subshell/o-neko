@@ -6,7 +6,15 @@
     "name": "Name",
     "description": "Description",
     "rename": "Rename",
-    "options": "Options"
+    "options": "Options",
+    "warning": "Warning",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "save": "Save",
+    "close": "Close",
+    "url": "URL",
+    "edit": "Edit",
+    "viewDetails": "View details"
   },
   "menu": {
     "home": "Home",
@@ -77,6 +85,34 @@
       "downloadCurrentFile": "Download current file",
       "thisIsAnInheritedConfiguration": "This is an inherited configuration.",
       "overwritesInheritedConfiguration": "This overwrites an inherited configuration."
+    },
+    "dockerRegistry": {
+      "deletionDialog": {
+        "registryIsUsedByProject": "The docker registry <b>{registry}</b> is used by these projects:",
+        "usedRegistryWarningText": "<p>If you delete this registry then those projects will remain in an orphaned state.</p><p>They can no longer be deployed or used otherwise until they are assigned to a new registry serving images with the same name.</p>",
+        "confirmDeletionText": "Please confirm the deletion of this docker registry by entering its name below. This action cannot be undone.",
+        "confirmName": "Confirm name"
+      },
+      "editDialog": {
+        "createRegistry": "Create Docker Registry",
+        "editRegistry": "Edit Docker Registry",
+        "trustInsecureCertificates": "Trust insecure certificates",
+        "trustInsecureRegistryHint": "You should not check this if you are running O-Neko in production. Make sure to install valid and trusted certificates in your registry instead. You also have to make sure that your Kubernetes cluster trusts your registry. Otherwise even setting this option will not help you.",
+        "registryHasBeenModifiedByAction": "Docker Registry {registry} has been {action, select, created{created} deleted{deleted} saved{saved} other{modified}}."
+      },
+      "registryUrl": "Registry URL",
+      "dockerRegistries": "!alias:menu.administration.dockerRegistries",
+      "createDockerRegistry": "!alias:components.dockerRegistry.editDialog.createRegistry",
+      "trustsInsecureCertificates": "O-Neko is configured to trust insecure certificates from this registry.",
+      "doesNotTrustInsecureCertificates": "O-Neko does not trust insecure certificates from this registry."
+    },
+    "forms": {
+      "errors": {
+        "fieldIsRequired": "This field is required.",
+        "passwordsMustMatch": "The passwords must match."
+      },
+      "changePassword": "Change password",
+      "repeatPassword": "Repeat password"
     }
   },
   "material": {
