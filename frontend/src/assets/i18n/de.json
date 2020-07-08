@@ -22,7 +22,7 @@
       "projectManagement": "Projektverwaltung",
       "projects": "Projekte",
       "projectMeshes": "Projekt-Meshes",
-      "namespaces": "Namespaces"
+      "namespaces": "!alias:views.namespaces.namespaces"
     },
     "administration": {
       "administration": "Administration",
@@ -40,6 +40,9 @@
     },
     "deploymentsDashboard": {
       "activeDeployments": "Aktive Deployments"
+    },
+    "namespaces": {
+      "namespaces": "Namespaces"
     }
   },
   "components": {
@@ -113,6 +116,7 @@
       },
       "changePassword": "Passwort ändern",
       "repeatPassword": "Passwort wiederholen",
+      "confirmName": "Namen bestätigen",
       "deploymentBehaviourInput": {
         "deploymentBehaviour": "Deploymentverhalten",
         "automatically": "Neue Images automatisch deployen",
@@ -134,7 +138,26 @@
       "fileUpload": {
         "dndFiles": "Ziehen Sie Dateien hier hin",
         "upload": "Hochladen"
+      },
+      "navigation": {
+        "account": "Account",
+        "logout": "Ausloggen"
       }
+    },
+    "namespace": {
+      "createDialog": {
+        "define": "Namespace definieren",
+        "description": "Sie sind dabei einen Namespace in O-Neko zu definieren. Dabei ist es absolut möglich einen Namespace einzutragen, der bereits in Kubernetes existiert.<br/>Wenn Sie einen Namespace eintragen, der nicht existiert, dann wird dieser nicht erstellt, bis ein mit O-Neko verwaltetes Projekt darin deployt wird.",
+        "errorPattern": "Der Name darf nur alphanumerische Kleinbuchstaben sowie Bindestriche dazwischen enthalten.",
+        "errorMaxLength": "Der Name darf maximal 63 Zeichen lang sein."
+      },
+      "namespaceAction": "Der Namespace {namespace} wurde {action, select, created{erstellt} deleted{gelöscht} other{bearbeitet}}.",
+      "deleteDialog": {
+        "deleteNamespace": "{namespace} löschen?",
+        "disclaimer": "Disclaimer",
+        "description": "<p>Sie sind dabei den definierten Namespace <b>{namespace}</b> zu löschen. Alle Projektversionen, die diesen Namespace aktuell verwenden, werden auf ihren Default-Namespace zurückgreifen.</p><p>Der Namespace in Kubernetes wird nicht gelöscht.</p><p>Bitte bestätigen Sie die Löschung. Diese Aktion kann nicht rückgängig gemacht werden.</p>"
+      },
+      "createNamespace": "Namespace erstellen"
     }
   },
   "material": {

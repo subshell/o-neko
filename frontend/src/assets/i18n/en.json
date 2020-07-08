@@ -22,7 +22,7 @@
       "projectManagement": "Project Management",
       "projects": "Projects",
       "projectMeshes": "Project Meshes",
-      "namespaces": "Namespaces"
+      "namespaces": "!alias:views.namespaces.namespaces"
     },
     "administration": {
       "administration": "Administration",
@@ -40,6 +40,9 @@
     },
     "deploymentsDashboard": {
       "activeDeployments": "Active Deployments"
+    },
+    "namespaces": {
+      "namespaces": "Namespaces"
     }
   },
   "components": {
@@ -91,7 +94,7 @@
         "registryIsUsedByProject": "The docker registry <b>{registry}</b> is used by these projects:",
         "usedRegistryWarningText": "<p>If you delete this registry then those projects will remain in an orphaned state.</p><p>They can no longer be deployed or used otherwise until they are assigned to a new registry serving images with the same name.</p>",
         "confirmDeletionText": "Please confirm the deletion of this docker registry by entering its name below. This action cannot be undone.",
-        "confirmName": "Confirm name"
+        "confirmName": "!alias:components.forms.confirmName"
       },
       "editDialog": {
         "createRegistry": "Create Docker Registry",
@@ -113,6 +116,7 @@
       },
       "changePassword": "Change password",
       "repeatPassword": "Repeat password",
+      "confirmName": "Confirm name",
       "deploymentBehaviourInput": {
         "deploymentBehaviour": "Deployment behaviour",
         "automatically": "Deploy new images automatically",
@@ -134,7 +138,26 @@
       "fileUpload": {
         "dndFiles": "Drag and drop files here",
         "upload": "Upload"
+      },
+      "navigation": {
+        "account": "Account",
+        "logout": "Logout"
       }
+    },
+    "namespace": {
+      "createDialog": {
+        "define": "Define Namespace",
+        "description": "You are about to define a new namespace in O-Neko. You totally can type in a namespace that already exists in Kubernetes.<br/>If you define a namespace that is not yet existing then it will not be created until a project version using this namespace really is deployed.",
+        "errorPattern": "The name must only contain alpha-numeric lowercase characters and dashes inbetween.",
+        "errorMaxLength": "The name must be 63 characters or less."
+      },
+      "namespaceAction": "The namespace {namespace} has been {action, select, created{created} deleted{deleted} other{modified}}.",
+      "deleteDialog": {
+        "deleteNamespace": "Delete {namespace}?",
+        "disclaimer": "Disclaimer",
+        "description": "<p>You are about to delete the defined namespace <b>{namespace}</b>. All project versions currently using this namespace will fall back to their default namespace.</p><p>This will not remove these namespace from Kubernetes.</p><p>Please confirm this deletion by entering the namespace below. This action cannot be undone.</p>"
+      },
+      "createNamespace": "Create namespace"
     }
   },
   "material": {
