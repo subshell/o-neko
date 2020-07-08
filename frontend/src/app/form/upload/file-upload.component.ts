@@ -1,4 +1,5 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {TranslateService} from "@ngx-translate/core";
 
 @Component({
   selector: 'file-upload',
@@ -14,6 +15,11 @@ export class FileUploadComponent {
   @Input() accept: string = '.yaml, .yml';
 
   @Output() public filesCallback = new EventEmitter<FileList | File[]>();
+
+  constructor(translate: TranslateService) {
+    this.label = translate.instant('components.forms.fileUpload.upload');
+  }
+
 
   public filesSet({files}) {
     if (files && files[0]) {

@@ -1,11 +1,11 @@
 <div class="key-value-input" fxLayout="column">
   <div *ngFor="let key of orderedKeys" class="existing-key-values" fxLayout="row" fxLayoutGap="5px">
     <mat-form-field>
-      <input type="text" matInput [value]="key" autocomplete="off" placeholder="Parameter name" [name]="key" (change)="changeKey($event, key)" [disabled]="readonly">
+      <input type="text" matInput [value]="key" autocomplete="off" [placeholder]="'components.forms.keyValueInput.parameterName' | translate" [name]="key" (change)="changeKey($event, key)" [disabled]="readonly">
     </mat-form-field>
 
     <mat-form-field>
-      <input type="text" matInput [value]="keyValues.get(key)" placeholder="{{'Parameter value for ' + key}}" [name]="key + '_value'" (change)="emitEvent(key, $event.target.value)" [disabled]="readonly">
+      <input type="text" matInput [value]="keyValues.get(key)" [placeholder]="'components.forms.keyValueInput.parameterValueFor' | translate: {key: key}" [name]="key + '_value'" (change)="emitEvent(key, $event.target.value)" [disabled]="readonly">
     </mat-form-field>
 
     <button mat-icon-button (click)="removeVariable(key)" *ngIf="!readonly">
@@ -15,6 +15,6 @@
 
   <!-- new item -->
   <mat-list-item *ngIf="isAddingNewVariableAllowed()">
-    <button class="add-button" mat-stroked-button class="add-button" color="primary" [disabled]="readonly" (click)="addVariable()">Add Variable</button>
+    <button class="add-button" mat-stroked-button class="add-button" color="primary" [disabled]="readonly" (click)="addVariable()">{{'components.forms.keyValueInput.addVariable' | translate}}</button>
   </mat-list-item>
 </div>

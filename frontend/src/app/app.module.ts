@@ -116,11 +116,10 @@ import {appStates} from "./store";
 import {ThemingState} from "./store/theming/theming.state";
 import {ThemeSwitcherComponent} from "./components/theme-switcher/theme-switcher.component";
 import {DndDirective} from './form/upload/dnd.directive';
-import { EditConfigurationTemplateDialogComponent } from './deployable/template-editor/edit-configuration-template-dialog/edit-configuration-template-dialog.component';
+import {EditConfigurationTemplateDialogComponent} from './deployable/template-editor/edit-configuration-template-dialog/edit-configuration-template-dialog.component';
 import {FooterComponent} from "./components/footer/footer.component";
 import {TranslateCompiler, TranslateLoader, TranslateModule, TranslateService} from "@ngx-translate/core";
 import {TranslateHttpLoader} from "@ngx-translate/http-loader";
-import {TranslateMessageFormatCompiler} from "ngx-translate-messageformat-compiler";
 import {AliasingTranslateCompiler} from "./util/aliasing-translate-compiler";
 
 @NgModule({

@@ -112,7 +112,29 @@
         "passwordsMustMatch": "The passwords must match."
       },
       "changePassword": "Change password",
-      "repeatPassword": "Repeat password"
+      "repeatPassword": "Repeat password",
+      "deploymentBehaviourInput": {
+        "deploymentBehaviour": "Deployment behaviour",
+        "automatically": "Deploy new images automatically",
+        "manually": "Deploy new images only on user request",
+        "required": "You must set a deployment behaviour"
+      },
+      "keyValueInput": {
+        "parameterName": "Parameter name",
+        "parameterValueFor": "Parameter value for {key}",
+        "addVariable": "Add variable"
+      },
+      "lifetimeBehaviourInput": {
+        "lifetimeBehaviour": "Lifetime behaviour",
+        "days": "{count} {count, plural, one{Day} other{Days}}",
+        "weeks": "{count} {count, plural, one{Week} other{Weeks}}",
+        "infinite": "Infinite",
+        "hint": "Choose how long deployed resources should be kept alive after their last deployment"
+      },
+      "fileUpload": {
+        "dndFiles": "Drag and drop files here",
+        "upload": "Upload"
+      }
     }
   },
   "material": {

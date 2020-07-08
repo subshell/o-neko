@@ -12,7 +12,7 @@
      (fileDropped)="filesSet({files: $event})"
      *ngIf="displayType === 'dnd'">
   <mat-icon svgIcon="mdi:upload"></mat-icon>
-  <h2>Drag and drop file here</h2>
+  <h2>{{'components.forms.fileUpload.dndFiles' | translate}}</h2>
   <p>or</p>
   <button mat-flat-button color="primary" mat-button class="image-upload" [disabled]="disabled">
     {{label}}

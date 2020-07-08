@@ -112,7 +112,29 @@
         "passwordsMustMatch": "Die Passwörter müssen übereinstimmen."
       },
       "changePassword": "Passwort ändern",
-      "repeatPassword": "Passwort wiederholen"
+      "repeatPassword": "Passwort wiederholen",
+      "deploymentBehaviourInput": {
+        "deploymentBehaviour": "Deploymentverhalten",
+        "automatically": "Neue Images automatisch deployen",
+        "manually": "Neue Images nur auf Anfrage deployen",
+        "required": "Sie müssen ein Deploymentverhalten auswählen."
+      },
+      "keyValueInput": {
+        "parameterName": "Parametername",
+        "parameterValueFor": "Parameterwert für {key}",
+        "addVariable": "Variable hinzufügen"
+      },
+      "lifetimeBehaviourInput": {
+        "lifetimeBehaviour": "Lebensdauerverhalten",
+        "days": "{count} {count, plural, one{Tag} other{Tage}}",
+        "weeks": "{count} {count, plural, one{Woche} other{Wochen}}",
+        "infinite": "Unendlich",
+        "hint": "Wählen Sie wie lang deployte Ressourcen nach ihrem letzten Deployment am Leben erhalten bleiben sollen."
+      },
+      "fileUpload": {
+        "dndFiles": "Ziehen Sie Dateien hier hin",
+        "upload": "Hochladen"
+      }
     }
   },
   "material": {

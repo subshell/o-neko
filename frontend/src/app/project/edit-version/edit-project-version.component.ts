@@ -44,7 +44,7 @@ export class EditProjectVersionComponent implements OnInit, OnDestroy {
   public lifetimeBehaviourOptions: Array<LabeledLifetimeBehaviour> = [{
     label: 'Inherit from project',
     value: -1
-  }].concat(...LifetimeBehaviourInputComponent.defaultLifetimeBehaviourOptions);
+  }];
   public projectVariables: ValueInfoMap = {};
   public projectVersionVariables: Map<string, string> = new Map();
   private editingUser: User;
