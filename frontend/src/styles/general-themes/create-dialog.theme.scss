@@ -1,0 +1,19 @@
+@import "../mixins";
+
+@mixin create-dialog-theme($theme) {
+  $warn: map-get($theme, warn);
+  $background: map-get($theme, background);
+  .create-dialog {
+    form {
+      figure.warning {
+        border-left: mat-color($warn, 600) 2px solid;
+        border-top-right-radius: $mat-radius;
+        border-bottom-right-radius: $mat-radius;
+        background-color: mat-color($background, background, .5);
+        figcaption {
+          color: mat-color($warn, 600);
+        }
+      }
+    }
+  }
+}

@@ -1,4 +1,4 @@
-import {cloneDeep, map} from "lodash";
+import {cloneDeep} from "lodash";
 import {ConfigurationTemplate, ConfigurationTemplateDTO} from "../deployable/configuration-template";
 import {Deployment, DeploymentDTO, DesiredState} from "../deployable/deployment";
 import {Namespace} from "../namespace/namespace";
@@ -40,7 +40,7 @@ export class MeshComponent implements MeshComponentDTO {
     component.projectId = from.projectId;
     component.projectVersionId = from.projectVersionId;
     component.templateVariables = cloneDeep(from.templateVariables);
-    component.configurationTemplates = map(from.configurationTemplates, ct => ConfigurationTemplate.from(ct));
+    component.configurationTemplates = from.configurationTemplates.map(ct => ConfigurationTemplate.from(ct));
     component.outdated = from.outdated;
     component.urls = from.urls;
     component.deployment = Deployment.from(from.deployment);

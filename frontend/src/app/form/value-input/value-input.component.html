@@ -17,7 +17,7 @@
       <input type="text" matInput [(ngModel)]="valuesByKey[id].selectedValue" (change)="emitChange(id)" placeholder="Set value" [name]="id + '_value'" [disabled]="readonly">
     </mat-form-field>
 
-    <button mat-icon-button [disabled]="valuesByKey[id].selectedValue === valuesByKey[id].defaultValue" (click)="valuesByKey[id].selectedValue = valuesByKey[id].defaultValue; emitChange(id)"><mat-icon svgIcon="restore"></mat-icon></button>
+    <button mat-icon-button [disabled]="valuesByKey[id].selectedValue === valuesByKey[id].defaultValue" (click)="valuesByKey[id].selectedValue = valuesByKey[id].defaultValue; emitChange(id)"><mat-icon svgIcon="mdi:restore"></mat-icon></button>
   </div>
 </div>
 

@@ -1,6 +1,27 @@
-<div class="image-upload-container">
-  <button mat-flat-button="" color="primary" mat-button class="image-upload" (click)="imageFileInput.click()" [disabled]="disabled">
-    Upload YAML file
+<div class="image-upload-container" *ngIf="displayType === 'button'">
+  <button mat-flat-button color="primary" mat-button class="image-upload" (click)="imageFileInput.click()" [disabled]="disabled">
+    {{label}}
   </button>
-  <input hidden [multiple]="multiple" type="file" accept=".yaml, .yml" #imageFileInput (change)="filesSet(imageFileInput)" [disabled]="disabled">
 </div>
+
+<div class="image-upload-container-full-width"
+     (click)="!disabled && imageFileInput.click()"
+     fxLayout="column"
+     fxLayoutAlign="center center"
+     onekoDnd
+     (fileDropped)="filesSet({files: $event})"
+     *ngIf="displayType === 'dnd'">
+  <mat-icon svgIcon="mdi:upload"></mat-icon>
+  <h2>{{'components.forms.fileUpload.dndFiles' | translate}}</h2>
+  <p>or</p>
+  <button mat-flat-button color="primary" mat-button class="image-upload" [disabled]="disabled">
+    {{label}}
+  </button>
+</div>
+
+<button mat-menu-item [disabled]="disabled" *ngIf="displayType === 'menu-item'" (click)="!disabled && imageFileInput.click()">
+  <mat-icon svgIcon="mdi:upload-outline"></mat-icon>
+  <span>{{label}}</span>
+</button>
+
+<input hidden [multiple]="multiple" type="file" [accept]="accept" #imageFileInput (change)="filesSet(imageFileInput)" [disabled]="disabled">

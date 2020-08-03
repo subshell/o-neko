@@ -1,0 +1,47 @@
+@import "../app/views/main/main.component.theme";
+@import "../app/views/login/login.component.theme";
+@import "../app/user/me/me.component.theme";
+@import "../app/project/list/project-list.component.theme";
+@import "general-themes/create-dialog.theme";
+@import "general-themes/full-page-form.theme";
+@import "general-themes/table-page.theme";
+@import "../app/docker/list/docker-registry-list.component.theme";
+@import "../app/components/theme-switcher/theme-switcher.component.theme";
+@import "../app/activity/activity-log/activity-log.component.theme";
+@import "src/app/components/breadcrumbs/breadcrumb.component.theme";
+@import "general-themes/internal-link.theme";
+@import "general-themes/mat-customized.themes";
+@import "../app/util/timeout-with-ui/timeout-with-ui.theme";
+@import "../app/projectmesh/dashboard/projectmesh-dashboard.component.theme";
+@import "../app/project/dashboard/project-dashboard.component.theme";
+@import "../app/project/template-variables/template-variables.component.theme";
+@import "../app/navigation/navigation.component.theme";
+@import "../app/deployable/deployable-actions/deployable-actions.theme";
+@import "../app/deployable/deployable-status/deployable-status.component.theme";
+@import "../app/form/upload/file-upload.component.theme";
+@import "../app/components/footer/footer.component.theme";
+
+@mixin component-themes($theme) {
+  @include main-component-theme($theme);
+  @include login-component-theme($theme);
+  @include me-component-theme($theme);
+  @include create-dialog-theme($theme);
+  @include table-page-theme($theme);
+  @include project-list-theme($theme);
+  @include docker-registry-list-component-theme($theme);
+  @include theme-switcher-component-theme($theme);
+  @include activity-log-component-theme($theme);
+  @include breadcrumb-component-theme($theme);
+  @include internal-link-theme($theme);
+  @include custom-mat-tooltip-theme($theme);
+  @include timeout-with-ui-component-theme($theme);
+  @include project-mesh-dashboard-component-theme($theme);
+  @include project-dashboard-component-theme($theme);
+  @include template-variables-component-theme($theme);
+  @include navigation-component-theme($theme);
+  @include deployable-actions-component-theme($theme);
+  @include deployable-status-component-theme($theme);
+  @include file-upload-component-theme($theme);
+  @include full-page-form-theme($theme);
+  @include footer-theme($theme);
+}

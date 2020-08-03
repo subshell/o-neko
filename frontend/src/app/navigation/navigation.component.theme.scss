@@ -1,0 +1,10 @@
+@import "src/styles/mixins";
+
+@mixin navigation-component-theme($theme) {
+  navigation {
+    mat-toolbar {
+      box-shadow: 0 10px 30px 0 rgba(105, 63, 71, 0.14);
+    }
+  }
+}
+

@@ -1,0 +1,38 @@
+@import "src/styles/mixins";
+
+.login {
+  .o-neko-logo {
+    z-index: 1000;
+    img {
+      max-width: 280px;
+      display: block;
+      margin: 4em auto 2em;
+      transition: all ease 0.8s;
+    }
+    &.rotate {
+      img {
+        transform: scale(2);
+      }
+    }
+  }
+  .login-form {
+    position: relative;
+    h1 {
+      text-align: center;
+      font-weight: 500;
+      font-family: "Varela Round", sans-serif;
+      font-size: 36px;
+      mix-blend-mode: overlay;
+    }
+    border-radius: $mat-radius * 2;
+    padding: 2em;
+    min-width: 280px;
+    @include mat-elevation(4);
+
+    mat-form-field {
+      .mat-form-field-outline {
+        border-radius: 5px;
+      }
+    }
+  }
+}

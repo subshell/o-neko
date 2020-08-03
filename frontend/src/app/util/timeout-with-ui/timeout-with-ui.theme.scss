@@ -1,0 +1,12 @@
+@import "src/styles/mixins";
+
+@mixin timeout-with-ui-component-theme($theme) {
+  $primary: map-get($theme, primary);
+  timeout-with-ui {
+    .progress-container {
+      mat-icon {
+        color: mat-color($primary, 500);
+      }
+    }
+  }
+}

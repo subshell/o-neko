@@ -1,13 +1,9 @@
-import {isArray} from 'lodash';
 import {UploadedFile} from "./uploaded-file";
 
 export class FileReaderService {
 
-  constructor() {
-  }
-
   private static fileListToArray(fileList: FileList | File[]): File[] {
-    if (isArray(fileList)) {
+    if (Array.isArray(fileList)) {
       return fileList;
     }
 

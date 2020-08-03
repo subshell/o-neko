@@ -1,0 +1,173 @@
+{
+  "general": {
+    "username": "Username",
+    "password": "Password",
+    "ok": "Okay",
+    "name": "Name",
+    "description": "Description",
+    "rename": "Rename",
+    "options": "Options",
+    "warning": "Warning",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "save": "Save",
+    "close": "Close",
+    "url": "URL",
+    "edit": "Edit",
+    "viewDetails": "View details"
+  },
+  "menu": {
+    "home": "Home",
+    "projectManagement": {
+      "projectManagement": "Project Management",
+      "projects": "Projects",
+      "projectMeshes": "Project Meshes",
+      "namespaces": "!alias:views.namespaces.namespaces"
+    },
+    "administration": {
+      "administration": "Administration",
+      "dockerRegistries": "Docker Registries",
+      "users": "Users",
+      "activityLog": "!alias:views.logs.activityLog"
+    }
+  },
+  "views": {
+    "login": {
+      "doLogin": "Login"
+    },
+    "logs": {
+      "activityLog": "Activity Log"
+    },
+    "deploymentsDashboard": {
+      "activeDeployments": "Active Deployments"
+    },
+    "namespaces": {
+      "namespaces": "Namespaces"
+    }
+  },
+  "components": {
+    "themeSwitcher": {
+      "auto": "Auto",
+      "light": "Light",
+      "dark": "Dark"
+    },
+    "activityLog": {
+      "openEntity": "Open {entity}",
+      "openUsersPage": "Open user list",
+      "openDockerRegistryPage": "Open docker registry list",
+      "openNamespacesPage": "Open namespaces list",
+      "changedProperty": "Changed property"
+    },
+    "deployableActions": {
+      "deploy": "Deploy",
+      "reDeploy": "Re-Deploy",
+      "stop": "Stop"
+    },
+    "deployableStatus": {
+      "runningOutdated": "This deployment is running with an outdated configuration",
+      "NotScheduled": "Not scheduled",
+      "Unknown": "Unknown",
+      "Failed": "Failed",
+      "Succeeded": "Succeeded",
+      "Pending": "Pending",
+      "Running": "Running"
+    },
+    "showDeployableConfigurationDialog": {
+      "effectiveConfigurationOfEntity": "Effective configuration of {entity}",
+      "calculatedConfiguration": "Calculated configuration",
+      "availableConfigurationParameters": "Available configuration parameters"
+    },
+    "templateEditor": {
+      "editConfigurationTemplateDialog": {
+        "nameAlreadyInUse": "The name is already in use by another template"
+      },
+      "uploadFailedError": "Could not upload file {filename}",
+      "confirmDeletionOfTemplate": "Do you really want to delete this template?",
+      "uploadYaml": "Upload YAML file",
+      "createNewTemplate": "Create new template",
+      "downloadCurrentFile": "Download current file",
+      "thisIsAnInheritedConfiguration": "This is an inherited configuration.",
+      "overwritesInheritedConfiguration": "This overwrites an inherited configuration."
+    },
+    "dockerRegistry": {
+      "deletionDialog": {
+        "registryIsUsedByProject": "The docker registry <b>{registry}</b> is used by these projects:",
+        "usedRegistryWarningText": "<p>If you delete this registry then those projects will remain in an orphaned state.</p><p>They can no longer be deployed or used otherwise until they are assigned to a new registry serving images with the same name.</p>",
+        "confirmDeletionText": "Please confirm the deletion of this docker registry by entering its name below. This action cannot be undone.",
+        "confirmName": "!alias:components.forms.confirmName"
+      },
+      "editDialog": {
+        "createRegistry": "Create Docker Registry",
+        "editRegistry": "Edit Docker Registry",
+        "trustInsecureCertificates": "Trust insecure certificates",
+        "trustInsecureRegistryHint": "You should not check this if you are running O-Neko in production. Make sure to install valid and trusted certificates in your registry instead. You also have to make sure that your Kubernetes cluster trusts your registry. Otherwise even setting this option will not help you.",
+        "registryHasBeenModifiedByAction": "Docker Registry {registry} has been {action, select, created{created} deleted{deleted} saved{saved} other{modified}}."
+      },
+      "registryUrl": "Registry URL",
+      "dockerRegistries": "!alias:menu.administration.dockerRegistries",
+      "createDockerRegistry": "!alias:components.dockerRegistry.editDialog.createRegistry",
+      "trustsInsecureCertificates": "O-Neko is configured to trust insecure certificates from this registry.",
+      "doesNotTrustInsecureCertificates": "O-Neko does not trust insecure certificates from this registry."
+    },
+    "forms": {
+      "errors": {
+        "fieldIsRequired": "This field is required.",
+        "passwordsMustMatch": "The passwords must match."
+      },
+      "changePassword": "Change password",
+      "repeatPassword": "Repeat password",
+      "confirmName": "Confirm name",
+      "deploymentBehaviourInput": {
+        "deploymentBehaviour": "Deployment behaviour",
+        "automatically": "Deploy new images automatically",
+        "manually": "Deploy new images only on user request",
+        "required": "You must set a deployment behaviour"
+      },
+      "keyValueInput": {
+        "parameterName": "Parameter name",
+        "parameterValueFor": "Parameter value for {key}",
+        "addVariable": "Add variable"
+      },
+      "lifetimeBehaviourInput": {
+        "lifetimeBehaviour": "Lifetime behaviour",
+        "days": "{count} {count, plural, one{Day} other{Days}}",
+        "weeks": "{count} {count, plural, one{Week} other{Weeks}}",
+        "infinite": "Infinite",
+        "hint": "Choose how long deployed resources should be kept alive after their last deployment"
+      },
+      "fileUpload": {
+        "dndFiles": "Drag and drop files here",
+        "upload": "Upload"
+      },
+      "navigation": {
+        "account": "Account",
+        "logout": "Logout"
+      }
+    },
+    "namespace": {
+      "createDialog": {
+        "define": "Define Namespace",
+        "description": "You are about to define a new namespace in O-Neko. You totally can type in a namespace that already exists in Kubernetes.<br/>If you define a namespace that is not yet existing then it will not be created until a project version using this namespace really is deployed.",
+        "errorPattern": "The name must only contain alpha-numeric lowercase characters and dashes inbetween.",
+        "errorMaxLength": "The name must be 63 characters or less."
+      },
+      "namespaceAction": "The namespace {namespace} has been {action, select, created{created} deleted{deleted} other{modified}}.",
+      "deleteDialog": {
+        "deleteNamespace": "Delete {namespace}?",
+        "disclaimer": "Disclaimer",
+        "description": "<p>You are about to delete the defined namespace <b>{namespace}</b>. All project versions currently using this namespace will fall back to their default namespace.</p><p>This will not remove these namespace from Kubernetes.</p><p>Please confirm this deletion by entering the namespace below. This action cannot be undone.</p>"
+      },
+      "createNamespace": "Create namespace"
+    }
+  },
+  "material": {
+    "paginator": {
+      "nextPage": "Next page",
+      "lastPage": "Last page",
+      "previousPage": "Previous page",
+      "firstPage": "First page",
+      "itemsPerPage": "Items per page:",
+      "itemsVisible": "{from}-{to} of {length}"
+    }
+  }
+}

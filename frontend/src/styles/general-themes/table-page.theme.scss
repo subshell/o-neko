@@ -1,0 +1,38 @@
+@import "../mixins";
+
+@mixin table-page-theme($theme) {
+  .table-page {
+    $foreground: map-get($theme, foreground);
+    table {
+      tr {
+        td {
+          mat-icon {
+            &.yellow {
+              color: rgb(249, 208, 48);
+            }
+            &.red {
+              color: mat-color($red-palette, 500);
+            }
+            &.green {
+              color: mat-color($green-palette, 500);
+            }
+            &.blue {
+              color: mat-color($blue-palette, 500);
+            }
+          }
+        }
+        &:not(:last-of-type) {
+          th {
+            border-bottom: 1px solid rgba(mat-color($foreground, text), .12);
+          }
+          td {
+            border-bottom: 1px solid rgba(mat-color($foreground, text), .12);
+          }
+        }
+      }
+    }
+    .mat-paginator {
+      background: transparent;
+    }
+  }
+}

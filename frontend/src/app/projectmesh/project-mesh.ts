@@ -1,4 +1,3 @@
-import {map} from 'lodash';
 import {Namespace, NamespaceDTO} from "../namespace/namespace";
 import {AggregatedDeploymentStatus, DeploymentBehaviour, LifetimeBehaviour} from "../project/project";
 import {MeshComponent, MeshComponentDTO} from "./mesh-component";
@@ -35,7 +34,7 @@ export class ProjectMesh implements ProjectMeshDTO {
     mesh.implicitNamespace = Namespace.from(from.implicitNamespace);
     mesh.deploymentBehaviour = from.deploymentBehaviour;
     mesh.lifetimeBehaviour = from.lifetimeBehaviour;
-    mesh.components = map(from.components, component => MeshComponent.from(component));
+    mesh.components = from.components.map(component => MeshComponent.from(component));
     mesh.status = from.status;
     let orderedByDeploymentDate = mesh.components.filter(component => component.deployment && component.deployment.timestamp)
       .sort((comp1, comp2) => comp1.deployment.timestamp.getTime() - comp2.deployment.timestamp.getTime());

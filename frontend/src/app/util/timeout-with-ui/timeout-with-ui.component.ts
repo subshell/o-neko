@@ -1,6 +1,5 @@
 import {ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
-import {Observable, Subscription} from "rxjs";
-import {interval} from "rxjs/internal/observable/interval";
+import {Observable, Subscription, interval} from "rxjs";
 
 @Component({
   selector: 'timeout-with-ui',

@@ -1,4 +1,4 @@
-@import "../../../mixins";
+@import "src/styles/mixins";
 
 .project-dashboard {
   margin: 0 5px 45px;
@@ -11,14 +11,10 @@
 
   .project-header {
     margin: 15px 0;
-    background: gradient(rgba(mat-color($o-neko-primary, 700), 0.1), rgba(mat-color($o-neko-primary, 300), 0.1));
     border-top-right-radius: $mat-radius;
     border-top-left-radius: $mat-radius;
 
-    border-bottom: 1px solid rgba(mat-color($o-neko-primary, 600), 0.2);
-
     .tool-container {
-      background: gradient(mat-color($o-neko-primary, 700), mat-color($o-neko-primary, 300));
       border-top-right-radius: $mat-radius;
     }
 
@@ -29,10 +25,6 @@
     .versions-link {
       width: 100%;
     }
-
-    .settings-link {
-      color: white;
-    }
   }
 
   div[mat-list-item] {
@@ -40,18 +32,9 @@
       padding: 6px;
       border-radius: $mat-radius;
 
-      &:hover {
-        background: rgba(black, 0.06);
-      }
-
       a {
         text-decoration: none;
         transition: background 0.05s ease;
-        color: currentColor;
-
-        p {
-          color: rgba(black, 0.4);
-        }
       }
 
       h4, p {
@@ -63,6 +46,4 @@
   span[mat-list-item] {
     margin: 1em;
   }
-
-
 }

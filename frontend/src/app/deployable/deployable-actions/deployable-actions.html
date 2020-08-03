@@ -3,12 +3,12 @@
           [disabled]="isDeployDisabled"
           class="deploy-button"
           mat-button
-          matTooltip="Deploy"
+          [matTooltip]="(isDeployed ? 'components.deployableActions.reDeploy' : 'components.deployableActions.deploy') | translate"
           matTooltipShowDelay="500"
           (click)="deploy(); $event.stopPropagation()">
     <span fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="6px">
-      <mat-icon svgIcon="play-circle"></mat-icon>
-      <span>{{ isDeployed ? 'Re-Deploy' : 'Deploy' }}</span>
+      <mat-icon svgIcon="mdi:play-circle"></mat-icon>
+      <span>{{ (isDeployed ? 'components.deployableActions.reDeploy' : 'components.deployableActions.deploy') | translate }}</span>
     </span>
   </button>
 
@@ -16,12 +16,12 @@
           [disabled]="isStopDisabled"
           class="stop-button"
           mat-button
-          matTooltip="Stop"
+          [matTooltip]="'components.deployableActions.stop' | translate"
           matTooltipShowDelay="500"
           (click)="stop(); $event.stopPropagation()">
     <span fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="6px">
-      <mat-icon svgIcon="stop-circle"></mat-icon>
-      <span>Stop</span>
+      <mat-icon svgIcon="mdi:stop-circle"></mat-icon>
+      <span>{{'components.deployableActions.stop' | translate}}</span>
     </span>
   </button>
 </div>

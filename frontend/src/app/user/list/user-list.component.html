@@ -1,10 +1,12 @@
-<navigation></navigation>
-<breadcrumbs [breadcrumbs]="[{label: 'home', link: ''}, {label: 'users'}]"></breadcrumbs>
-<div class="user-list container" fxLayout="column">
+<div class="user-list table-page main-content-padding" fxLayout="column">
+  <h2 fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="12px">
+    <mat-icon svgIcon="supervised-user-circle"></mat-icon>
+    <span>User Management</span>
+  </h2>
   <div fxLayout="row" fxLayoutAlign="space-between center">
     <button mat-button (click)="createUser()">
       <span fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="1em">
-        <mat-icon svgIcon="account-plus"></mat-icon>
+        <mat-icon svgIcon="mdi:account-plus"></mat-icon>
         <span>Create User</span>
       </span>
     </button>
@@ -37,10 +39,10 @@
       <td>
         <div fxLayout="row" fxLayoutAlign="end center">
           <button mat-icon-button (click)="editUser(user)" matTooltip="Edit">
-            <mat-icon svgIcon="pencil"></mat-icon>
+            <mat-icon svgIcon="mdi:pencil"></mat-icon>
           </button>
           <button mat-icon-button (click)="deleteUser(user)" matTooltip="Delete">
-            <mat-icon svgIcon="delete"></mat-icon>
+            <mat-icon svgIcon="mdi:delete"></mat-icon>
           </button>
         </div>
       </td>

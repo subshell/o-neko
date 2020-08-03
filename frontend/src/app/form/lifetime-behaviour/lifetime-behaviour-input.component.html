@@ -1,8 +1,8 @@
 <div class="lifetime-behaviour-input" fxLayout="column">
   <mat-form-field>
-    <mat-select placeholder="{{name}}" [required]="required" [(ngModel)]="model.daysToLive" name="lifetimeBehaviour" id="lifetimeBehaviour" [disabled]="readonly">
+    <mat-select [placeholder]="name" [required]="required" [(ngModel)]="model.daysToLive" name="lifetimeBehaviour" id="lifetimeBehaviour" [disabled]="readonly">
       <mat-option *ngFor="let option of lifetimeBehaviourOptions" [value]="option.value">{{option.label}}</mat-option>
     </mat-select>
-    <mat-hint>Choose how long deployed resources should be kept alive after their last deployment</mat-hint>
+    <mat-hint>{{'components.forms.lifetimeBehaviourInput.hint' | translate}}</mat-hint>
   </mat-form-field>
 </div>

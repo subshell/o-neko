@@ -1,0 +1,19 @@
+@import "src/styles/mixins";
+
+.breadcrumb-container {
+  margin: 1em 2em;
+  display: inline-block;
+}
+
+.breadcrumb-list {
+  list-style: none;
+  border-radius: $mat-radius;
+  padding: 4px 8px;
+}
+
+.breadcrumb-item {
+  font-size: 14px;
+  mat-icon {
+    @include mat-icon-size(18px);
+  }
+}

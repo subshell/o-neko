@@ -5,6 +5,7 @@ import {RestService} from "../../rest/rest.service";
 import {User} from "../../user/user";
 import {UserService} from "../../user/user.service";
 import {DefinedNamespace} from "../defined-namespace";
+import {TranslateService} from "@ngx-translate/core";
 
 @Component({
   selector: 'create-namespace-dialog',
@@ -19,7 +20,8 @@ export class CreateNamespaceDialogComponent {
   constructor(public dialogRef: MatDialogRef<CreateNamespaceDialogComponent>,
               private rest: RestService,
               private userService: UserService,
-              private snackBar: MatSnackBar) {
+              private snackBar: MatSnackBar,
+              private translateService: TranslateService) {
     this.userService.currentUser().subscribe(cu => this.editingUser = cu);
     this.namespace = new DefinedNamespace();
   }
@@ -27,7 +29,11 @@ export class CreateNamespaceDialogComponent {
   public save(): void {
     this.rest.namespace().persistDefinedNamespace(this.namespace)
       .subscribe(savedNamespace => {
-        this.snackBar.open(`Namespace ${savedNamespace.name} has been created`, null, {
+        const text = this.translateService.instant('components.namespace.namespaceAction', {
+          namespace: savedNamespace.name,
+          action: 'created'
+        });
+        this.snackBar.open(text, null, {
           duration: 1000
         });
         this.dialogRef.close(savedNamespace);

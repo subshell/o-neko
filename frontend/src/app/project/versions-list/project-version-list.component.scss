@@ -1,12 +1,6 @@
-@import "../../../mixins";
+@import "src/styles/mixins";
 .project-version-list {
-
-  .mat-paginator {
-    background: transparent;
-  }
-
   table {
-    background-color: white;
     border-collapse: separate;
     border-spacing: 0;
     border-radius: $mat-radius;
@@ -16,12 +10,10 @@
 
     tr {
       th {
-        color: rgba(0, 0, 0, 0.54);
         font-size: 0.85em;
         font-weight: 500;
         height: 4em;
         padding: 0 24px;
-        border-bottom: 1px solid rgba(0, 0, 0, .12);
         .mat-sort-header-container {
           align-items: center;
           .mat-sort-header-indicator {
@@ -32,7 +24,6 @@
       td {
         padding: 0 24px;
         height: 48px;
-        border-bottom: 1px solid rgba(0, 0, 0, .12);
       }
     }
   }

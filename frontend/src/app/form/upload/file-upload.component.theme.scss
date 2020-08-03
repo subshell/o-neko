@@ -1,0 +1,16 @@
+@import "../../../styles/mixins";
+
+@mixin file-upload-component-theme($theme) {
+  $foreground: map-get($theme, foreground);
+  file-upload {
+    .image-upload-container-full-width {
+      border: 2px dashed mat-color($foreground, text, 0.2);
+      &.fileover {
+        background-color: mat-color($foreground, text, 0.1);
+      }
+      &.fileover, &:hover {
+        border: 2px dashed mat-color($foreground, text, 0.6);
+      }
+    }
+  }
+}

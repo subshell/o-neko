@@ -1,0 +1,37 @@
+@import "src/styles/mixins";
+
+@mixin project-mesh-dashboard-component-theme($theme) {
+  $primary: map-get($theme, primary);
+  $foreground: map-get($theme, foreground);
+
+  projectmesh-dashboard {
+    .meshes-selected {
+      .mesh-header {
+        background: gradient(rgba(mat-color($primary, 700), 0.1), rgba(mat-color($primary, 300), 0.1));
+
+        border-bottom: 1px solid rgba(mat-color($primary, 600), 0.2);
+
+        .tool-container {
+          background: gradient(mat-color($primary, 700), mat-color($primary, 300));
+        }
+        .settings-link {
+          color: mat-contrast($primary, 700);
+        }
+      }
+      div[mat-list-item] {
+        > div {
+          &:hover {
+            background: mat-color($foreground, text, 0.06);
+          }
+          a {
+            color: currentColor;
+
+            p {
+              color: mat-color($foreground, text, 0.4);
+            }
+          }
+        }
+      }
+    }
+  }
+}

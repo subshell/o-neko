@@ -1,6 +1,5 @@
-<navigation></navigation>
 <breadcrumbs *ngIf="project" [breadcrumbs]="[{label: 'home', link: ''}, {label: 'projects', link: '/projects'}, {label: project.name, link: '/projects/' + project.uuid}, {label: 'versions'}]"></breadcrumbs>
-<div class="project-version-list container" fxLayout="column">
+<div class="project-version-list table-page main-content-padding" fxLayout="column">
   <div fxLayout="row" fxLayoutAlign="space-between center">
     <span fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="1em">
       <mat-form-field>
@@ -36,7 +35,7 @@
       </td>
       <td *ngIf="isColumnActive(urlColumn.key)">
         <mat-nav-list>
-          <a mat-list-item [href]="'https://'+ url" target="_blank" referrerpolicy="no-referrer" *ngFor="let url of projectVersion.urls"><small>{{ url }}</small><mat-icon svgIcon="open-in-new"></mat-icon></a>
+          <a mat-list-item [href]="'https://'+ url" target="_blank" referrerpolicy="no-referrer" *ngFor="let url of projectVersion.urls"><small>{{ url }}</small><mat-icon svgIcon="mdi:open-in-new"></mat-icon></a>
         </mat-nav-list>
       </td>
       <td *ngIf="isColumnActive(deploymentStatusColumn.key)">

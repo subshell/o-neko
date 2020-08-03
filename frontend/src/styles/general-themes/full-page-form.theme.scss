@@ -1,0 +1,11 @@
+@import "../mixins";
+
+@mixin full-page-form-theme($theme) {
+  $background: map-get($theme, background);
+  .full-page-form {
+    background-color: mat-color($background, card, 0.6);
+    .form-field-group {
+      background-color: mat-color($background, card);
+    }
+  }
+}

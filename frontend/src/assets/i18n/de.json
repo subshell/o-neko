@@ -1,0 +1,173 @@
+{
+  "general": {
+    "username": "Benutzername",
+    "password": "Passwort",
+    "ok": "Ok",
+    "name": "Name",
+    "description": "Beschreibung",
+    "rename": "Umbenennen",
+    "options": "Optionen",
+    "warning": "Warnung",
+    "delete": "Löschen",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "close": "Schließen",
+    "url": "URL",
+    "edit": "Bearbeiten",
+    "viewDetails": "Details öffnen"
+  },
+  "menu": {
+    "home": "Home",
+    "projectManagement": {
+      "projectManagement": "Projektverwaltung",
+      "projects": "Projekte",
+      "projectMeshes": "Projekt-Meshes",
+      "namespaces": "!alias:views.namespaces.namespaces"
+    },
+    "administration": {
+      "administration": "Administration",
+      "dockerRegistries": "Docker Registries",
+      "users": "Benutzer",
+      "activityLog": "!alias:views.logs.activityLog"
+    }
+  },
+  "views": {
+    "login": {
+      "doLogin": "Einloggen"
+    },
+    "logs": {
+      "activityLog": "Ereignisse"
+    },
+    "deploymentsDashboard": {
+      "activeDeployments": "Aktive Deployments"
+    },
+    "namespaces": {
+      "namespaces": "Namespaces"
+    }
+  },
+  "components": {
+    "themeSwitcher": {
+      "auto": "Auto",
+      "light": "Hell",
+      "dark": "Dunkel"
+    },
+    "activityLog": {
+      "openEntity": "{entity} öffnen",
+      "openUsersPage": "Benutzerliste öffnen",
+      "openDockerRegistryPage": "Docker-Registry-Liste öffnen",
+      "openNamespacesPage": "Namespace-Liste öffnen",
+      "changedProperty": "Geänderter Wert"
+    },
+    "deployableActions": {
+      "deploy": "Starten",
+      "reDeploy": "Erneut starten",
+      "stop": "Stoppen"
+    },
+    "deployableStatus": {
+      "runningOutdated": "Dieses Deployment läuft mit einer veralteten Konfiguration",
+      "NotScheduled": "Nicht ausgeführt",
+      "Unknown": "Unbekannt",
+      "Failed": "Fehlgeschlagen",
+      "Succeeded": "Erfolgreich",
+      "Pending": "Startend",
+      "Running": "Aktiv"
+    },
+    "showDeployableConfigurationDialog": {
+      "effectiveConfigurationOfEntity": "Effektive Konfiguration von {entity}",
+      "calculatedConfiguration": "Errechnete Konfiguration",
+      "availableConfigurationParameters": "Verfügbare Konfigurationsparameter"
+    },
+    "templateEditor": {
+      "editConfigurationTemplateDialog": {
+        "nameAlreadyInUse": "Dieser Name wird bereits von einem anderen Template verwendet"
+      },
+      "uploadFailedError": "{filename} konnte nicht hochgeladen werden",
+      "confirmDeletionOfTemplate": "Soll dieses Template wirklich gelöscht werden?",
+      "uploadYaml": "YAML Datei hochladen",
+      "createNewTemplate": "Neues Template erstellen",
+      "downloadCurrentFile": "Aktuelle Datei herunterladen",
+      "thisIsAnInheritedConfiguration": "Das ist eine geerbte Konfiguration.",
+      "overwritesInheritedConfiguration": "Das überschreibt eine geerbte Konfiguration."
+    },
+    "dockerRegistry": {
+      "deletionDialog": {
+        "registryIsUsedByProject": "Die Docker Registry <b>{registry}</b> wird von folgenden Projekten verwendet:",
+        "usedRegistryWarningText": "<p>Wenn diese Registry gelöscht wird, verwaisen diese Projekte.</p><p>Sie können danach nicht mehr deployed oder anderweitig verwendet werden, solang ihnen keine neue Registry zugewiesen wird, die die Images unter dem selben Namen bereitstellt.</p>",
+        "confirmDeletionText": "Bitte bestätigen Sie das Löschen der Registry indem Sie ihren Namen in das Eingabefeld tippen. Das Löschen kann nicht rückgängig gemacht werden.",
+        "confirmName": "Namen der Registry bestätigen"
+      },
+      "editDialog": {
+        "createRegistry": "Docker Registry anlegen",
+        "editRegistry": "Docker Registry bearbeiten",
+        "trustInsecureCertificates": "Unsicheren Zertifikaten vertrauen",
+        "trustInsecureRegistryHint": "Sie sollten diese Option nicht auswählen, wenn es sich um eine produktive Installation von O-Neko handelt. Stellen Sie lieber sicher, gültige und vertrauenswürdige Zertifikate in der Registry zu installieren. Sie müssen außerdem sicherstellen, dass Ihr Kubernetes Cluster dieser Registry vertraut, andernfalls wird auch das Auswählen dieser Option nicht helfen.",
+        "registryHasBeenModifiedByAction": "Die Docker Registry {registry} wurde {action, select, created{angelegt} deleted{gelöscht} saved{gespeichert} other{bearbeitet}}."
+      },
+      "registryUrl": "Registry URL",
+      "dockerRegistries": "!alias:menu.administration.dockerRegistries",
+      "createDockerRegistry": "!alias:components.dockerRegistry.editDialog.createRegistry",
+      "trustsInsecureCertificates": "O-Neko wurde konfiguriert, unsicheren Zertifikaten dieser Registry zu vertrauen.",
+      "doesNotTrustInsecureCertificates": "O-Neko vertraut unseren Zertifikaten dieser Registry nicht."
+    },
+    "forms": {
+      "errors": {
+        "fieldIsRequired": "Dieses Feld ist ein Pflichtfeld.",
+        "passwordsMustMatch": "Die Passwörter müssen übereinstimmen."
+      },
+      "changePassword": "Passwort ändern",
+      "repeatPassword": "Passwort wiederholen",
+      "confirmName": "Namen bestätigen",
+      "deploymentBehaviourInput": {
+        "deploymentBehaviour": "Deploymentverhalten",
+        "automatically": "Neue Images automatisch deployen",
+        "manually": "Neue Images nur auf Anfrage deployen",
+        "required": "Sie müssen ein Deploymentverhalten auswählen."
+      },
+      "keyValueInput": {
+        "parameterName": "Parametername",
+        "parameterValueFor": "Parameterwert für {key}",
+        "addVariable": "Variable hinzufügen"
+      },
+      "lifetimeBehaviourInput": {
+        "lifetimeBehaviour": "Lebensdauerverhalten",
+        "days": "{count} {count, plural, one{Tag} other{Tage}}",
+        "weeks": "{count} {count, plural, one{Woche} other{Wochen}}",
+        "infinite": "Unendlich",
+        "hint": "Wählen Sie wie lang deployte Ressourcen nach ihrem letzten Deployment am Leben erhalten bleiben sollen."
+      },
+      "fileUpload": {
+        "dndFiles": "Ziehen Sie Dateien hier hin",
+        "upload": "Hochladen"
+      },
+      "navigation": {
+        "account": "Account",
+        "logout": "Ausloggen"
+      }
+    },
+    "namespace": {
+      "createDialog": {
+        "define": "Namespace definieren",
+        "description": "Sie sind dabei einen Namespace in O-Neko zu definieren. Dabei ist es absolut möglich einen Namespace einzutragen, der bereits in Kubernetes existiert.<br/>Wenn Sie einen Namespace eintragen, der nicht existiert, dann wird dieser nicht erstellt, bis ein mit O-Neko verwaltetes Projekt darin deployt wird.",
+        "errorPattern": "Der Name darf nur alphanumerische Kleinbuchstaben sowie Bindestriche dazwischen enthalten.",
+        "errorMaxLength": "Der Name darf maximal 63 Zeichen lang sein."
+      },
+      "namespaceAction": "Der Namespace {namespace} wurde {action, select, created{erstellt} deleted{gelöscht} other{bearbeitet}}.",
+      "deleteDialog": {
+        "deleteNamespace": "{namespace} löschen?",
+        "disclaimer": "Disclaimer",
+        "description": "<p>Sie sind dabei den definierten Namespace <b>{namespace}</b> zu löschen. Alle Projektversionen, die diesen Namespace aktuell verwenden, werden auf ihren Default-Namespace zurückgreifen.</p><p>Der Namespace in Kubernetes wird nicht gelöscht.</p><p>Bitte bestätigen Sie die Löschung. Diese Aktion kann nicht rückgängig gemacht werden.</p>"
+      },
+      "createNamespace": "Namespace erstellen"
+    }
+  },
+  "material": {
+    "paginator": {
+      "nextPage": "Nächste Seite",
+      "lastPage": "Letzte Seite",
+      "previousPage": "Vorherige Seite",
+      "firstPage": "Erste Seite",
+      "itemsPerPage": "Einträge pro Seite:",
+      "itemsVisible": "{from}-{to} von {length}"
+    }
+  }
+}

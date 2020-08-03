@@ -1,13 +1,14 @@
-import {Component, OnInit} from "@angular/core";
-import {ActivatedRoute, ParamMap, Router} from "@angular/router";
-import {switchMap} from "rxjs/operators";
-import {ConfigurationTemplate} from "../../deployable/configuration-template";
-import {DockerRegistry} from "../../docker/docker-registry";
-import {RestService} from "../../rest/rest.service";
-import {User} from "../../user/user";
-import {UserService} from "../../user/user.service";
-import {DeploymentBehaviour, Project, TemplateVariable} from "../project";
-import {ProjectService} from "../project.service";
+import {Component, OnInit} from '@angular/core';
+import {ActivatedRoute, ParamMap, Router} from '@angular/router';
+import {switchMap} from 'rxjs/operators';
+import {ConfigurationTemplate} from '../../deployable/configuration-template';
+import {DockerRegistry} from '../../docker/docker-registry';
+import {RestService} from '../../rest/rest.service';
+import {User} from '../../user/user';
+import {UserService} from '../../user/user.service';
+import {DeploymentBehaviour, Project, TemplateVariable} from '../project';
+import {ProjectService} from '../project.service';
+import {FileDownloadService} from '../../util/file-download.service';
 
 @Component({
   selector: 'edit-project',
@@ -84,5 +85,11 @@ export class EditProjectComponent implements OnInit {
   onDeleteTemplateVariable(templateVariable: TemplateVariable) {
     const index = this.project.templateVariables.indexOf(templateVariable);
     this.project.templateVariables.splice(index, 1);
+  }
+
+  public exportProject(): void {
+    this.projectService.exportProject(this.project, this.editingUser).subscribe(projectExport => {
+      FileDownloadService.downloadJSON(projectExport, `${projectExport.name}.json`);
+    });
   }
 }

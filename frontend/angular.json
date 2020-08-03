@@ -19,16 +19,29 @@
             "polyfills": "src/polyfills.ts",
             "assets": [
               "src/assets",
-              { 
-                "glob": "**/*", 
-                "input": "node_modules/ngx-monaco-editor/assets/monaco", 
-                "output": "./assets/monaco/" 
+              {
+                "glob": "**/*",
+                "input": "node_modules/ngx-monaco-editor/assets/monaco",
+                "output": "./assets/monaco/"
               }
             ],
             "styles": [
-              "src/mat-theme.scss",
-              "src/styles.scss"
-            ],
+              {
+                "input": "src/styles.scss",
+                "inject": true,
+                "bundleName": "styles"
+              },
+              {
+                "input": "src/styles/light-theme.scss",
+                "inject": true,
+                "bundleName": "light-theme"
+              },
+              {
+                "input": "src/styles/dark-theme.scss",
+                "inject": true,
+                "bundleName": "dark-theme"
+              }
+            ]
           },
           "configurations": {
             "production": {
@@ -81,8 +94,21 @@
             "polyfills": "src/polyfills.ts",
             "tsConfig": "src/tsconfig.spec.json",
             "styles": [
-              "src/mat-theme.scss",
-              "src/styles.scss"
+              {
+                "input": "src/styles.scss",
+                "inject": true,
+                "bundleName": "styles"
+              },
+              {
+                "input": "src/styles/light-theme.scss",
+                "inject": true,
+                "bundleName": "light-theme"
+              },
+              {
+                "input": "src/styles/dark-theme.scss",
+                "inject": true,
+                "bundleName": "dark-theme"
+              }
             ],
             "assets": [
               "src/assets"

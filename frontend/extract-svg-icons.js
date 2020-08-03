@@ -50,4 +50,10 @@ function extractMdiIconSet() {
   writeSvgDefinitionFile('./src/app/configuration/generated/mdi.ts', 'MDI_SVG_ICONS', 'assets/icons/mdi', iconNames);
 }
 
+function extractTwoToneIcons() {
+  const iconNames = getSvgIconNamesFromDirectory('./src/assets/icons/two-tone');
+  writeSvgDefinitionFile('./src/app/configuration/generated/two-tone.ts', 'TWO_TONE_ICONS', 'assets/icons/two-tone', iconNames);
+}
+
 extractMdiIconSet();
+extractTwoToneIcons();

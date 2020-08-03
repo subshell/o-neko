@@ -1,4 +1,4 @@
-@import "../../../mixins";
+@import "src/styles/mixins";
 
 .me {
   .username {
@@ -9,10 +9,8 @@
     width: 160px;
     height: 160px;
     border-radius: 50%;
-    background-color: mat-color($o-neko-primary, 100);
     mat-icon {
       @include mat-icon-size(96px);
-      color: white;
     }
   }
 }

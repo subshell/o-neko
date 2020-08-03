@@ -1,24 +1,10 @@
-@import "../../../mixins";
+@import "src/styles/mixins";
 
 .deployment-status {
   position: relative;
 
   .pending {
     $diameter: 18px;
-
-    > div {
-      &.active {
-        > mat-icon {
-          color: rgb(51, 94, 237);
-        }
-      }
-
-      &:not(.active) {
-        > mat-icon {
-          color: rgb(211, 217, 235);
-        }
-      }
-    }
   }
 
   .icon-container {
@@ -30,34 +16,14 @@
     @include mat-elevation(2);
     padding: 3px;
 
-    mat-icon {
-      &.gray {
-        color: rgb(51, 94, 237);
-      }
-
-      &.yellow {
-        color: rgb(249, 208, 48);
-      }
-
-      &.red {
-        color: mat-color($red-palette, 500);
-      }
-
-      &.green {
-        color: mat-color($green-palette, 500);
-      }
-    }
-
     .outdated-icon {
       border-radius: 50%;
-      background-color: rgba(white, 0.8);
       padding: 2px;
       @include mat-elevation(1);
       @include mat-icon-size(16px);
       position: absolute;
       bottom: -8px;
       right: -12px;
-      color: mat-color($mat-orange, 400);
     }
   }
 

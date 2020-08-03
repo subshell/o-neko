@@ -1,7 +1,8 @@
 import {Component, Input, OnDestroy} from "@angular/core";
-import {interval} from "rxjs/internal/observable/interval";
+import {EMPTY, interval, Observable} from "rxjs";
 import {Subscription} from "rxjs/internal/Subscription";
 import {DeployableStatus} from "../deployment";
+import {TranslateService} from "@ngx-translate/core";
 
 
 @Component({
@@ -22,13 +23,20 @@ export class DeployableStatusComponent implements OnDestroy {
     return this._status;
   }
 
+  tooltip: Observable<string> = EMPTY;
+
+
   @Input() set status(status: DeployableStatus) {
     this._status = status;
+    this.tooltip = this.translateService.get(`components.deployableStatus.${this.status || 'Unknown'}`);
     if (status === DeployableStatus.Pending) {
       this.createInterval();
     } else {
       this.destroyInterval();
     }
+  }
+
+  constructor(private translateService: TranslateService) {
   }
 
   get iconName(): string {
@@ -58,23 +66,6 @@ export class DeployableStatusComponent implements OnDestroy {
         return 'green';
       default:
         return 'green';
-    }
-  }
-
-  get tooltip(): string {
-    switch (this.status) {
-      case DeployableStatus.NotScheduled:
-        return 'Not Scheduled';
-      case DeployableStatus.Unknown:
-        return 'Unknown';
-      case DeployableStatus.Failed:
-        return 'Failed';
-      case DeployableStatus.Succeeded:
-        return 'Succeeded';
-      case DeployableStatus.Pending:
-        return 'Pending';
-      case DeployableStatus.Running:
-        return 'Running';
     }
   }
 
