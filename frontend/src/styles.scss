@@ -1,74 +1,82 @@
-@import "mixins";
+@import "src/styles/general-theming";
+@import "styles/mixins";
 
-html {
+html, body {
   height: 100%;
-  body {
-    margin: 0;
-    height: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+main {
+  .main-content-padding {
+    padding: 1em;
   }
 }
 
-.container {
-  margin: 1em 2em;
+a,
+a:hover {
+  text-decoration: none;
+}
+*:focus {
+  outline: none;
 }
 
-$full-page-form-border-style: mat-color($o-neko-primary) 2px solid;
-$full-page-form-full-padding: 36px;
-$full-page-form-slim-padding: 12px;
-.full-page-form {
-  background-color: mat-color($gray-palette, 50, .5);
-  border-radius: $mat-radius;
-  padding: 0 $full-page-form-full-padding;
-  margin: $full-page-form-slim-padding auto;
+img {
+  border: 0;
+  border-top-color: initial;
+  border-top-style: initial;
+  border-top-width: 0px;
+  border-right-color: initial;
+  border-right-style: initial;
+  border-right-width: 0px;
+  border-bottom-color: initial;
+  border-bottom-style: initial;
+  border-bottom-width: 0px;
+  border-left-color: initial;
+  border-left-style: initial;
+  border-left-width: 0px;
+  border-image-source: initial;
+  border-image-slice: initial;
+  border-image-width: initial;
+  border-image-outset: initial;
+  border-image-repeat: initial;
+  vertical-align: middle;
+}
+
+$full-page-form-full-padding: 2em;
+$full-page-form-slim-padding: 1em;
+
+.full-page-width {
+  padding: $full-page-form-slim-padding $full-page-form-full-padding;
+  margin: $full-page-form-slim-padding 0;
   max-width: 1500px;
   box-sizing: border-box;
-  box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12);
+}
 
-  .title {
-    padding: $full-page-form-slim-padding $full-page-form-full-padding 0 $full-page-form-full-padding;
-    margin: 0 (-$full-page-form-full-padding) $full-page-form-slim-padding;
-    color: mat-color($o-neko-primary);
-    border-bottom: $full-page-form-border-style;
-  }
+.full-page-form {
+  border-radius: $mat-radius;
+  padding: $full-page-form-slim-padding $full-page-form-full-padding;
+  margin: $full-page-form-slim-padding 0;
+  max-width: 1500px;
+  box-sizing: border-box;
+  @include mat-elevation(3);
 
   .form-field-group {
     padding: $full-page-form-slim-padding;
     border-radius: $mat-radius;
-    background-color: white;
     @include mat-elevation(2);
   }
-
   .bottom-toolbar {
-    padding: $full-page-form-slim-padding $full-page-form-full-padding 0 $full-page-form-full-padding;
-    margin: $full-page-form-slim-padding (-$full-page-form-full-padding) $full-page-form-slim-padding;
-    border-top: $full-page-form-border-style;
-    button[mat-flat-button] {
-      color: white;
-    }
+    margin-top: 1em;
   }
 }
 
 .o-neko-internal-link {
   text-decoration: none;
   background-color: transparent;
-  color: mat-color($o-neko-primary);
 }
 
 .mat-tooltip {
-  color: rgba(white, 0.95) !important;
   font-size: 12px !important;
   font-weight: 400 !important;
-  background-color: rgba(0, 0, 0, 0.7) !important;
 }
-
-/* Apparently the following fixes icons not being aligned properly when used in a menu item.
- * Source: https://materialdesignicons.com/getting-started
- */
-button.mat-menu-item {
-  line-height: 24px !important;
-}
-.mat-icon svg {
-  height: 24px;
-  width: 24px;
-}
-/**/

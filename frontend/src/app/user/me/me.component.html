@@ -1,13 +1,12 @@
-<navigation></navigation>
-<div class="container me" *ngIf="me" fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="4em">
+<div class="main-content-padding me" *ngIf="me" fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="4em">
   <div fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="1em">
     <div class="portrait-container" fxLayout="row" fxLayoutAlign="center center">
-      <mat-icon svgIcon="account"></mat-icon>
+      <mat-icon svgIcon="mdi:account"></mat-icon>
     </div>
     <div fxLayout="row" fxLayoutGap="0.4em" fxLayoutAlign="center center">
       <div class="username">{{me.displayName()}}</div>
       <button mat-icon-button mat-raised-button (click)="editAccount()" matTooltip="Edit">
-        <mat-icon svgIcon="account-edit"></mat-icon>
+        <mat-icon svgIcon="mdi:account-edit"></mat-icon>
       </button>
     </div>
   </div>

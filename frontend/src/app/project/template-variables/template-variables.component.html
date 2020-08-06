@@ -3,7 +3,7 @@
   <div class="template-variables-list">
     <mat-action-list>
       <mat-list-item [ngClass]="{'selected': selectedTemplateVariable === templateVariable}" (click)="selectedTemplateVariable = templateVariable" *ngFor="let templateVariable of customTemplateVariables">
-        <button mat-icon-button (click)="deleteTemplateVariable(templateVariable)"><mat-icon svgIcon="delete-outline"></mat-icon></button>
+        <button mat-icon-button (click)="deleteTemplateVariable(templateVariable)"><mat-icon svgIcon="mdi:delete-outline"></mat-icon></button>
         <span mat-line>{{templateVariable.label}}</span>
       </mat-list-item>
       <div class="custom-variables-header" fxLayout="row" fxLayoutAlign="space-between center">

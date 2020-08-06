@@ -1,10 +1,12 @@
-<navigation></navigation>
-<breadcrumbs [breadcrumbs]="[{label: 'home', link: ''}, {label: 'project meshes'}]"></breadcrumbs>
-<div class="project-mesh-list container" fxLayout="column">
+<div class="project-mesh-list table-page main-content-padding" fxLayout="column">
+  <h2 fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="12px">
+    <mat-icon svgIcon="table-chart"></mat-icon>
+    <span>Project Meshes</span>
+  </h2>
   <div fxLayout="row" fxLayoutAlign="space-between center">
     <button mat-button (click)="createProjectMesh()">
       <span fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="1em">
-        <mat-icon svgIcon="table-plus"></mat-icon>
+        <mat-icon svgIcon="mdi:table-plus"></mat-icon>
         <span>Create Project Mesh</span>
       </span>
     </button>
@@ -32,10 +34,10 @@
         <a class="o-neko-internal-link" [routerLink]="'/project-meshes/' + mesh.id">{{nameColumn.getValue(mesh)}}</a>
       </td>
       <td *ngIf="isColumnActive(statusColumn.key)">
-        <mat-icon *ngIf="mesh.status === 'Ok'" svgIcon="check-circle-outline" matTooltip="OK" class="green"></mat-icon>
-        <mat-icon *ngIf="mesh.status === 'Pending'" svgIcon="timelapse" matTooltip="Pending" class="blue"></mat-icon>
-        <mat-icon *ngIf="mesh.status === 'Error'" svgIcon="close-circle-outline" matTooltip="Error" class="red"></mat-icon>
-        <mat-icon *ngIf="mesh.status === 'NotDeployed'" svgIcon="alarm-off" matTooltip="Not deployed" class="blue"></mat-icon>
+        <mat-icon *ngIf="mesh.status === 'Ok'" svgIcon="mdi:check-circle-outline" matTooltip="OK" class="green"></mat-icon>
+        <mat-icon *ngIf="mesh.status === 'Pending'" svgIcon="mdi:timelapse" matTooltip="Pending" class="blue"></mat-icon>
+        <mat-icon *ngIf="mesh.status === 'Error'" svgIcon="mdi:close-circle-outline" matTooltip="Error" class="red"></mat-icon>
+        <mat-icon *ngIf="mesh.status === 'NotDeployed'" svgIcon="mdi:alarm-off" matTooltip="Not deployed" class="blue"></mat-icon>
       </td>
       <td *ngIf="isColumnActive(componentsColumn.key)">
         <a class="o-neko-internal-link" [routerLink]="'/project-meshes/' + mesh.id + '/components'">{{componentsColumn.getValue(mesh)}}</a>
@@ -54,7 +56,7 @@
                   matTooltip="Delete"
                   matTooltipShowDelay="500"
                   (click)="deleteProjectMesh(mesh)">
-            <mat-icon svgIcon="delete"></mat-icon>
+            <mat-icon svgIcon="mdi:delete"></mat-icon>
           </button>
 
         </div>

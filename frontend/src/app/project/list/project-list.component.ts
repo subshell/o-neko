@@ -1,14 +1,14 @@
-import {Component} from "@angular/core";
-import {MatDialog} from "@angular/material/dialog";
-import {PageEvent} from "@angular/material/paginator";
-import {Sort} from "@angular/material/sort";
-import {Router} from "@angular/router";
-import {RestService} from "../../rest/rest.service";
-import {User} from "../../user/user";
-import {UserService} from "../../user/user.service";
-import {CreateProjectDialogComponent} from "../create-project-dialog/create-project-dialog.component";
-import {Project} from "../project";
-import {ProjectService} from "../project.service";
+import {Component} from '@angular/core';
+import {MatDialog} from '@angular/material/dialog';
+import {PageEvent} from '@angular/material/paginator';
+import {Sort} from '@angular/material/sort';
+import {Router} from '@angular/router';
+import {RestService} from '../../rest/rest.service';
+import {User} from '../../user/user';
+import {UserService} from '../../user/user.service';
+import {CreateProjectDialogComponent, CreateProjectDialogComponentData} from '../create-project-dialog/create-project-dialog.component';
+import {Project} from '../project';
+import {ProjectService} from '../project.service';
 
 class ColumnDefinition {
 
@@ -70,15 +70,18 @@ export class ProjectListComponent {
     return this.projectService.isUserAllowedToEditProjects(this.editingUser);
   }
 
-  public createProject() {
-    this.dialog.open(CreateProjectDialogComponent, {
-      width: "80%",
-      data: this.projects
+  public createProject(allowImport: boolean = false) {
+    this.dialog.open<CreateProjectDialogComponent, CreateProjectDialogComponentData>(CreateProjectDialogComponent, {
+      width: '80%',
+      data: {
+        projects: this.projects,
+        showImport: allowImport
+      }
     }).afterClosed().subscribe((newProject: Project) => {
       if (newProject) {
         this.projectService.saveProject(newProject, this.editingUser).subscribe(savedProject => {
           this.router.navigateByUrl(`/projects/${savedProject.uuid}`);
-        })
+        });
       }
     });
   }

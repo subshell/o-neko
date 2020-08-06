@@ -1,0 +1,13 @@
+@import "src/styles/mixins";
+
+@mixin docker-registry-list-component-theme($theme){
+
+  docker-registry-list {
+    .shield-icon {
+      color: #60c54e;
+      &.insecure {
+        color: #ffcf00;
+      }
+    }
+  }
+}

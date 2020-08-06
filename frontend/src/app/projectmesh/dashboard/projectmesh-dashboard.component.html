@@ -18,7 +18,7 @@
           </span>
           <div class="tool-container" fxLayout="row">
             <a mat-icon-button class="settings-link" [routerLink]="'/project-meshes/' + mesh.id">
-              <mat-icon svgIcon="tune"></mat-icon>
+              <mat-icon svgIcon="mdi:tune"></mat-icon>
             </a>
           </div>
         </div>
@@ -34,10 +34,10 @@
               <p mat-line> {{component.deployment.formattedTimestamp}}</p>
             </a>
             <a mat-icon-button *ngIf="component.urls.length === 1" [href]="'https://'+ component.urls[0]" [matTooltip]="'https://'+ component.urls[0]" target="_blank" referrerpolicy="no-referrer">
-              <mat-icon svgIcon="open-in-new"></mat-icon>
+              <mat-icon svgIcon="mdi:open-in-new"></mat-icon>
             </a>
             <button mat-icon-button *ngIf="component.urls.length > 1" [matMenuTriggerFor]="urlMenu">
-              <mat-icon svgIcon="open-in-new"></mat-icon>
+              <mat-icon svgIcon="mdi:open-in-new"></mat-icon>
               <mat-menu #urlMenu="matMenu">
                 <a mat-menu-item *ngFor="let url of component.urls" [href]="'https://'+ url" target="_blank" referrerpolicy="no-referrer">{{'https://' + url}}</a>
               </mat-menu>

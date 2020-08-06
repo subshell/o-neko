@@ -1,0 +1,12 @@
+@import "~@angular/material/theming";
+@import "src/styles/mixins";
+@import "src/styles/component-themes";
+
+$o-neko-primary: mat-palette($pink-palette);
+$o-neko-accent: mat-palette($old-yellow);
+$o-neko-warn: mat-palette($red-palette);
+
+$o-neko-light-theme: mat-light-theme($o-neko-primary, $o-neko-accent, $o-neko-warn);
+
+@include angular-material-theme($o-neko-light-theme);
+@include component-themes($o-neko-light-theme);

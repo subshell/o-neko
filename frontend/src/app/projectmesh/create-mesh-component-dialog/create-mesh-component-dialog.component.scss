@@ -1,4 +1,4 @@
-@import "../../../mixins";
+@import "src/styles/mixins";
 
 form {
   mat-form-field {
@@ -6,14 +6,7 @@ form {
   }
 
   figure.warning {
-    border-left: mat-color($o-neko-warn, 600) 2px solid;
-    border-radius: $mat-radius;
-    background-color: mat-color($gray-palette, 50, .5);
     margin-left: 1em;
     padding-left: 1em;
-
-    figcaption {
-      color: mat-color($o-neko-warn, 600);
-    }
   }
 }

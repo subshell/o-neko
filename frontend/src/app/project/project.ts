@@ -1,7 +1,6 @@
-import {isNil, map} from 'lodash';
-import {ConfigurationTemplate} from "../deployable/configuration-template";
-import {ValueInfo} from "../form/value-input/value-info";
-import {ProjectVersion} from "./project-version";
+import {ConfigurationTemplate, ConfigurationTemplateDTO} from '../deployable/configuration-template';
+import {ProjectVersion} from './project-version';
+import {ProjectExportDTO, SUPPORTED_VERSION} from './project-export';
 
 export type DeploymentBehaviour = 'automatically' | 'manually';
 
@@ -59,9 +58,36 @@ export class Project implements ProjectDTO {
     project.defaultConfigurationTemplates = from.defaultConfigurationTemplates || [];
     project.templateVariables = from.templateVariables || [];
     project.dockerRegistryUUID = from.dockerRegistryUUID;
-    project.versions = map(from.versions, version => ProjectVersion.from(version));
+    project.versions = from.versions.map(version => ProjectVersion.from(version));
     project.status = from.status;
     project.defaultLifetimeBehaviour = from.defaultLifetimeBehaviour;
+
+    return project;
+  }
+
+  static fromProjectExport(from: ProjectExportDTO): Project {
+    const version = from?.exportMetadata?.version;
+    if (version === undefined || version === null) {
+      throw new Error(`Project export configuration is invalid.`);
+    }
+    if (version !== SUPPORTED_VERSION) {
+      throw new Error(`Project export version ${version} is not supported.`);
+    }
+
+    const project = new Project();
+
+    project.name = from.name;
+    project.imageName = from.imageName;
+    project.newVersionsDeploymentBehaviour = from.newVersionsDeploymentBehaviour;
+    project.dockerRegistryUUID = from.dockerRegistryUUID;
+    project.status = from.status;
+    project.defaultLifetimeBehaviour = from.defaultLifetimeBehaviour;
+
+    // remove potentially existing ids
+    project.defaultConfigurationTemplates = (from.defaultConfigurationTemplates as Array<ConfigurationTemplateDTO> ?? [])
+      .map(({id, ...configurationTemplate}) => ConfigurationTemplate.from(configurationTemplate as ConfigurationTemplateDTO));
+    project.templateVariables = (from.templateVariables as Array<TemplateVariable> ?? [])
+      .map(({id, ...templateVariable}) => templateVariable as TemplateVariable);
 
     return project;
   }
@@ -72,7 +98,7 @@ export class Project implements ProjectDTO {
    * @returns {boolean}
    */
   public isNew(): boolean {
-    return isNil(this.uuid);
+    return !!!this.uuid;
   }
 
   public isOrphan(): boolean {

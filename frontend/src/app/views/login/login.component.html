@@ -1,0 +1,27 @@
+<div fxLayout="column" fxFlexFill>
+  <div class="login" fxLayoutAlign="center top" fxLayout="row">
+    <div fxFlex="0 1 520px">
+      <div class="o-neko-logo" [class.rotate]="loggingIn">
+        <img src="../../../assets/oneko.svg"/>
+      </div>
+      <div class="login-form" fxLayout="column" (keydown.enter)="login()">
+        <h1>O-NEKO</h1>
+
+        <mat-form-field appearance="outline" color="warn">
+          <input matInput [(ngModel)]="username" [placeholder]="'general.username' | translate"/>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" color="warn">
+          <input type="password" [(ngModel)]="password" matInput [placeholder]="'general.password' | translate" />
+        </mat-form-field>
+
+        <button mat-raised-button (click)="login()">{{'views.login.doLogin' | translate}}</button>
+      </div>
+      <div fxLayout="row" fxLayoutAlign="end">
+        <on-theme-switcher></on-theme-switcher>
+      </div>
+    </div>
+  </div>
+  <div fxFlex="shrink"><!--push footer to the bottom--></div>
+  <on-footer></on-footer>
+</div>

@@ -1,43 +1,43 @@
 <div class="docker-registry-edit-dialog">
-  <h1 mat-dialog-title>{{dockerRegistry.isNew() ? 'Create Docker Registry' : 'Edit Docker Registry'}}</h1>
+  <h1 mat-dialog-title>{{(dockerRegistry.isNew() ? 'components.dockerRegistry.editDialog.createRegistry' : 'components.dockerRegistry.editDialog.editRegistry') | translate}}</h1>
   <div mat-dialog-content="">
     <div>
       <form fxLayout="column" #dockerRegistryForm="ngForm" fxLayoutGap="1em">
         <div fxLayout="row" fxLayoutGap="1em">
           <mat-form-field>
             <input type="text" matInput [(ngModel)]="dockerRegistry.name" autocomplete="off" required name="name" id="name"
-                   placeholder="Name" #name="ngModel" [disabled]="isReadonly()">
-            <mat-error *ngIf="name.invalid && name.errors.required">A name is required.</mat-error>
+                   [placeholder]="'general.name' | translate" #name="ngModel" [disabled]="isReadonly()">
+            <mat-error *ngIf="name.invalid && name.errors.required">{{'components.forms.errors.fieldIsRequired' | translate}}</mat-error>
           </mat-form-field>
           <mat-form-field>
             <input type="text" matInput [(ngModel)]="dockerRegistry.registryUrl" autocomplete="off" required name="url" id="url"
-                   placeholder="Registry URL" #url="ngModel" [disabled]="isReadonly()">
-            <mat-error *ngIf="url.invalid && url.errors.required">A URL is required.</mat-error>
+                   [placeholder]="'components.dockerRegistry.registryUrl' | translate" #url="ngModel" [disabled]="isReadonly()">
+            <mat-error *ngIf="url.invalid && url.errors.required">{{'components.forms.errors.fieldIsRequired' | translate}}</mat-error>
           </mat-form-field>
         </div>
         <div fxLayout="column">
-          <mat-checkbox [checked]="dockerRegistry.trustInsecureCertificate" (change)="dockerRegistry.trustInsecureCertificate = $event.checked">Trust insecure certificates</mat-checkbox>
-          <mat-hint>You should not check this if you are running O-Neko in production. Make sure to install valid and trusted certificates in your registry instead. You also have to make sure that your Kubernetes cluster trusts your registry. Otherwise even setting this option will not help you.</mat-hint>
+          <mat-checkbox [checked]="dockerRegistry.trustInsecureCertificate" (change)="dockerRegistry.trustInsecureCertificate = $event.checked">{{'components.dockerRegistry.editDialog.trustInsecureCertificates' | translate}}</mat-checkbox>
+          <mat-hint>{{'components.dockerRegistry.editDialog.trustInsecureRegistryHint' | translate}}</mat-hint>
         </div>
         <div fxLayout="row" fxLayoutGap="1em">
           <mat-form-field>
-            <input type="text" #userName="ngModel" matInput [(ngModel)]="dockerRegistry.userName" name="userName" id="userName" placeholder="User name" [disabled]="isReadonly()">
+            <input type="text" #userName="ngModel" matInput [(ngModel)]="dockerRegistry.userName" name="userName" id="userName" [placeholder]="'general.username' | translate" [disabled]="isReadonly()">
           </mat-form-field>
         </div>
         <div *ngIf="passwordFieldsVisible && !isReadonly()" fxLayout="row" fxLayoutGap="1em">
           <mat-form-field>
-            <input type="password" matInput #password="ngModel" [(ngModel)]="newPassword" name="password" id="password" placeholder="Password">
+            <input type="password" matInput #password="ngModel" [(ngModel)]="newPassword" name="password" id="password" [placeholder]="'general.password' | translate">
           </mat-form-field>
           <mat-form-field>
-            <input #verify_password="ngModel" type="password" matInput [mustMatch]="newPassword" [(ngModel)]="passwordVerification" name="verify_password" id="verify_password" placeholder="Repeat Password">
-            <mat-error *ngIf="verify_password.invalid && verify_password.errors.mustMatch">The passwords must match.</mat-error>
+            <input #verify_password="ngModel" type="password" matInput [mustMatch]="newPassword" [(ngModel)]="passwordVerification" name="verify_password" id="verify_password" [placeholder]="'components.forms.repeatPassword' | translate">
+            <mat-error *ngIf="verify_password.invalid && verify_password.errors.mustMatch">{{'components.forms.errors.passwordsMustMatch' | translate}}</mat-error>
           </mat-form-field>
         </div>
         <div *ngIf="!passwordFieldsVisible && !isReadonly()">
           <button mat-button color="primary" (click)="passwordFieldsVisible = true;">
             <span fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="0.3em">
-              <mat-icon svgIcon="lock-reset"></mat-icon>
-              <span>Change password</span>
+              <mat-icon svgIcon="mdi:lock-reset"></mat-icon>
+              <span>{{'components.forms.changePassword' | translate}}</span>
             </span>
           </button>
         </div>
@@ -46,8 +46,8 @@
     </div>
   </div>
   <div mat-dialog-actions fxLayoutAlign="space-between center">
-    <button *ngIf="!isReadonly()" mat-button [disabled]="dockerRegistryForm.form.invalid" color="primary" (click)="save()">Save</button>
-    <button *ngIf="!isReadonly()" mat-button (click)="cancel()">Cancel</button>
-    <button *ngIf="isReadonly()" mat-button (click)="cancel()">Close</button>
+    <button *ngIf="!isReadonly()" mat-button [disabled]="dockerRegistryForm.form.invalid" color="primary" (click)="save()">{{'general.save' | translate}}</button>
+    <button *ngIf="!isReadonly()" mat-button (click)="cancel()">{{'general.cancel' | translate}}</button>
+    <button *ngIf="isReadonly()" mat-button (click)="cancel()">{{'general.close' | translate}}</button>
   </div>
 </div>

@@ -1,0 +1,18 @@
+@import "src/styles/mixins";
+
+@mixin activity-log-component-theme($theme) {
+  $foreground: map-get($theme, foreground);
+  activity-log {
+    .activity-log-results {
+      .item-date {
+        color: mat-color($foreground, text, 0.7);
+      }
+
+      .mat-list-item {
+        &:not(:last-of-type) {
+          border-bottom: 1px solid mat-color($foreground, text, 0.1);
+        }
+      }
+    }
+  }
+}

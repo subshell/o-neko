@@ -2,12 +2,12 @@ import {Component} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {Router} from "@angular/router";
 
-import {zip} from "rxjs/internal/observable/zip";
 import {RestService} from "../../rest/rest.service";
 import {AuthService} from "../../session/auth.service";
 import {ConfirmDialog, ConfirmDialogData} from "../../util/confirm-dialog/confirm-dialog.component";
 import {UserEditDialog} from "../edit-dialog/user-edit-dialog.component";
 import {User} from "../user";
+import {zip} from "rxjs";
 
 @Component({
   selector: 'me',

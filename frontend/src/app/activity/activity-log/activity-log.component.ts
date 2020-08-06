@@ -1,6 +1,5 @@
 import {animate, style, transition, trigger} from "@angular/animations";
 import {Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild} from "@angular/core";
-import {sortBy, values} from 'lodash';
 import {Subscription} from "rxjs";
 import {ActivityRestService} from "../../rest/activity-rest.service";
 import {RestService} from "../../rest/rest.service";
@@ -16,7 +15,7 @@ const activityIconMap = {
     icon: 'help-circle-outline'
   },
   ScheduledTask: {
-    icon: 'restore-clock'
+    icon: 'history'
   },
   UserRequest: {
     icon: 'account-circle-outline'
@@ -96,8 +95,6 @@ export class ActivityLogComponent implements OnInit, OnDestroy {
   }
 
   public loadMore() {
-    console.log("LOAD MORE");
-
     if (this.infiniteScrollDisabled) {
       return;
     }
@@ -131,10 +128,10 @@ export class ActivityLogComponent implements OnInit, OnDestroy {
   }
 
   private putActivitiesInOrder(newlyLoadedActivities: Array<Activity>) {
-    const resultMap: { [id: string]: Activity } = {};
-    this._results.forEach(activity => resultMap[activity.id] = activity);
-    newlyLoadedActivities.forEach(activity => resultMap[activity.id] = activity);
-    let sorted: Array<Activity> = sortBy(values(resultMap), (activity: Activity) => -activity.date);
+    const resultMap = new Map<string, Activity>();
+    this._results.forEach(activity => resultMap.set(activity.id, activity));
+    newlyLoadedActivities.forEach(activity => resultMap.set(activity.id, activity));
+    const sorted = Array.from(resultMap.values()).sort((a, b) => a.date.getTime() - b.date.getTime());
     if (sorted.length > 0) {
       this.mostRecentDate = sorted[0].date;
     }

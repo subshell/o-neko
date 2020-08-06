@@ -1,0 +1,20 @@
+@import '../../../styles/mixins';
+
+@mixin footer-theme($theme) {
+  $background: map-get($theme, background);
+  $primary: map-get($theme, primary);
+  $accent: map-get($theme, accent);
+
+  on-footer {
+    footer {
+      background-color: mat-color($background, card);
+      .powered-by {
+        span {
+          $c1: mat-color($primary, 700);
+          $c2: mat-color($accent, 900);
+          @include text-gradient($c1, $c2);
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,44 @@
+@import 'src/styles/mixins';
+
+.o-neko {
+  span {
+    font-family: "Varela Round", sans-serif;
+    font-weight: 500;
+  }
+  img {
+    height: 2em;
+  }
+}
+
+mat-sidenav-container {
+  height: 100%;
+
+  mat-sidenav {
+    min-width: 240px;
+    border-right: none;
+    mat-toolbar {
+      height: 3.4rem;
+
+      h1 {
+        img {
+          max-height: 1em;
+        }
+        font-size: 1.6em;
+        font-weight: 700;
+        margin: 0;
+      }
+    }
+  }
+
+  main {
+    ::ng-deep h2 {
+      font-size: 3em;
+      font-weight: 300;
+      margin: 0 0 1rem;
+
+      mat-icon {
+        @include mat-icon-size(1.2em);
+      }
+    }
+  }
+}

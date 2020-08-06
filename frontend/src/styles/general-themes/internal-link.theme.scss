@@ -1,0 +1,13 @@
+@import "../mixins";
+
+@mixin internal-link-theme($theme) {
+  $primary: map-get($theme, primary);
+  $accent: map-get($theme, accent);
+  .o-neko-internal-link {
+    @if (map-get($theme, is-dark)) {
+     color: mat-color($accent);
+    } @else {
+      color: mat-color($primary);
+    }
+  }
+}

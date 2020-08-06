@@ -1,0 +1,23 @@
+<mat-nav-list *ngIf="!entry.hidden">
+  <a mat-list-item (click)="toggle()" [class.active]="subRouteIsActive | async">
+    <mat-icon matListIcon [svgIcon]="entry.icon"></mat-icon>
+    <span matLine fxLayout="row" fxLayoutAlign="space-between center">
+      <span>
+        <span>{{entry.title | translate}}</span>
+      </span>
+      <mat-icon class="expansion-indicator" [@indicatorRotate]="getExpandedState()"
+                svgIcon="keyboard-arrow-down"></mat-icon>
+    </span>
+  </a>
+  <div class="expandable-entries" [class.expanded]="expandedChange | async" [@bodyExpansion]="getExpandedState()">
+    <ng-container *ngFor="let child of entry.children">
+      <a mat-list-item *ngIf="!child.hidden" [routerLink]="child.href" routerLinkActive="active" [routerLinkActiveOptions]="(child.href === '' || child.href === '/') ? {exact: true} : {exact: false}"
+                     [class.disabled]="child.disabled">
+        <mat-icon *ngIf="child.icon" class="with-left-margin" matListIcon [svgIcon]="child.icon"></mat-icon>
+        <span [class.with-left-margin]="!child.icon" matLine>
+          <span>{{child.title | translate}}</span>
+        </span>
+      </a>
+    </ng-container>
+  </div>
+</mat-nav-list>

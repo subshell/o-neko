@@ -1,12 +1,13 @@
-<navigation></navigation>
-<breadcrumbs [breadcrumbs]="[{label: 'home', link: ''}, {label: 'namespaces'}]"></breadcrumbs>
-
-<div class="defined-namespaces container" fxLayout="column">
+<div class="defined-namespaces table-page main-content-padding" fxLayout="column">
+  <h2 fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="12px">
+    <mat-icon svgIcon="dns"></mat-icon>
+    <span>{{'views.namespaces.namespaces' | translate}}</span>
+  </h2>
   <div fxLayout="row" fxLayoutAlign="space-between center">
     <button *ngIf="mayCreateDefinedNamespace()" mat-button (click)="createDefinedNamespace()">
       <span fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="1em">
-        <mat-icon svgIcon="cat"></mat-icon>
-        <span>Create Namespace</span>
+        <mat-icon svgIcon="mdi:cat"></mat-icon>
+        <span>{{'components.namespace.createNamespace' | translate}}</span>
       </span>
     </button>
     <span *ngIf="!mayCreateDefinedNamespace()" class="place-holder"></span>
@@ -24,8 +25,8 @@
         <td>{{namespace.name}}</td>
         <td>
           <div fxLayout="row" fxLayoutAlign="end center">
-            <button *ngIf="mayDeleteDefinedNamespace()" mat-icon-button (click)="deleteDefinedNamespace(namespace)" matTooltip="Delete">
-              <mat-icon svgIcon="delete"></mat-icon>
+            <button *ngIf="mayDeleteDefinedNamespace()" mat-icon-button (click)="deleteDefinedNamespace(namespace)" [matTooltip]="'general.delete' | translate">
+              <mat-icon svgIcon="mdi:delete"></mat-icon>
             </button>
           </div>
         </td>

@@ -1,8 +1,7 @@
 import {Injectable} from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSnackBar } from "@angular/material/snack-bar";
-import {Observable} from "rxjs";
-import {throwError} from "rxjs/internal/observable/throwError";
+import {Observable, throwError} from "rxjs";
 import {filter, mergeMap, shareReplay} from 'rxjs/operators';
 import {DeployableStatus} from "../deployable/deployment";
 import {AggregatedDeploymentStatus} from "../project/project";

@@ -1,0 +1,25 @@
+@import "src/styles/mixins";
+
+@mixin deployable-actions-component-theme($theme) {
+  $foreground: map-get($theme, foreground);
+  deployable-actions {
+    .deployable-actions {
+      button {
+        &:not([disabled]) {
+          color: mat-color($foreground, text, 0.4);
+          &.deploy-button {
+            &:hover {
+              color: mat-color($mat-blue, 600);
+            }
+          }
+          &.stop-button {
+            &:hover {
+              color: mat-color($mat-red, 600);
+            }
+          }
+        }
+      }
+    }
+
+  }
+}

@@ -1,0 +1,19 @@
+@import "on-variables";
+
+$mat-radius: 4px;
+
+@mixin mat-icon-size($size: 24px) {
+  width: $size;
+  height: $size;
+}
+
+@function gradient($from, $to) {
+  @return linear-gradient(225deg, $from 0%, $to 100%);
+}
+
+@mixin text-gradient($from, $to, $angle: 90deg) {
+  background: linear-gradient($angle, $from, $to);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: $from; // fallback
+}

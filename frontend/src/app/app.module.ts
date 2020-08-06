@@ -1,4 +1,4 @@
-import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
+import {HTTP_INTERCEPTORS, HttpClient, HttpClientModule} from "@angular/common/http";
 import {NgModule} from '@angular/core';
 import {FlexLayoutModule} from "@angular/flex-layout";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
@@ -16,7 +16,7 @@ import {MatIconModule, MatIconRegistry} from "@angular/material/icon";
 import {MatInputModule} from "@angular/material/input";
 import {MatListModule} from "@angular/material/list";
 import {MatMenuModule} from "@angular/material/menu";
-import {MatPaginatorModule} from "@angular/material/paginator";
+import {MatPaginatorIntl, MatPaginatorModule} from "@angular/material/paginator";
 import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 import {MatSelectModule} from "@angular/material/select";
 import {MatSidenavModule} from "@angular/material/sidenav";
@@ -36,7 +36,7 @@ import {ActivityLogComponent} from "./activity/activity-log/activity-log.compone
 import {AppRoutingModule} from "./app-routes.module";
 
 import {AppComponent} from './app.component';
-import {BreadcrumbComponent} from "./breadcrumbs/breadcrumb.component";
+import {BreadcrumbComponent} from "./components/breadcrumbs/breadcrumb.component";
 import {DeployableActionsComponent} from "./deployable/deployable-actions/deployable-actions.component";
 import {DeployableStatusComponent} from "./deployable/deployable-status/deployable-status.component";
 import {DeploymentsDashboardComponent} from "./deployable/deployments-dashboard/deployments-dashboard.component";
@@ -51,7 +51,7 @@ import {LifetimeBehaviourInputComponent} from "./form/lifetime-behaviour/lifetim
 import {FileUploadComponent} from "./form/upload/file-upload.component";
 import {ValueInputComponent} from './form/value-input/value-input.component';
 import {HomeComponent} from "./home/home.component";
-import {LoginComponent} from "./login/login.component";
+import {LoginComponent} from "./views/login/login.component";
 import {LogsComponent} from "./logs/logs.component";
 import {CreateNamespaceDialogComponent} from "./namespace/create-namespace-dialog/create-namespace-dialog.component";
 import {DeleteNamespaceDialogComponent} from "./namespace/delete-namespace-dialog/delete-namespace-dialog.component";
@@ -98,64 +98,92 @@ import {UsernameAvailableValidator} from "./util/validators/username-available.v
 import {WebSocketServiceWrapper} from "./websocket/web-socket-service-wrapper.service";
 import {WebSocketService} from "./websocket/web-socket.service";
 import {MonacoEditorModule} from "ngx-monaco-editor";
-import {configureSvgIcons} from "./configuration/configuration";
+import {
+  configureMatPaginatorI18n,
+  configureSvgIcons,
+  configureTranslations,
+  provideAnimationDriverBasedOnUserPreferences
+} from "./configuration/configuration";
+import {MainComponent} from "./views/main/main.component";
+import {ExpandableMenuComponent} from "./components/expandable-menu/expandable-menu.component";
+import {NgxsModule} from "@ngxs/store";
+import {environment} from "../environments/environment.prod";
+import {NgxsStoragePluginModule} from "@ngxs/storage-plugin";
+import {NgxsReduxDevtoolsPluginModule} from "@ngxs/devtools-plugin";
+import {NgxsLoggerPluginModule} from "@ngxs/logger-plugin";
+import {AnimationDriver} from "@angular/animations/browser";
+import {appStates} from "./store";
+import {ThemingState} from "./store/theming/theming.state";
+import {ThemeSwitcherComponent} from "./components/theme-switcher/theme-switcher.component";
+import {DndDirective} from './form/upload/dnd.directive';
+import {EditConfigurationTemplateDialogComponent} from './deployable/template-editor/edit-configuration-template-dialog/edit-configuration-template-dialog.component';
+import {FooterComponent} from "./components/footer/footer.component";
+import {TranslateCompiler, TranslateLoader, TranslateModule, TranslateService} from "@ngx-translate/core";
+import {TranslateHttpLoader} from "@ngx-translate/http-loader";
+import {AliasingTranslateCompiler} from "./util/aliasing-translate-compiler";
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    HomeComponent,
-    LoginComponent,
-    TimeoutWithUiComponent,
-    TimeoutSnackbarComponent,
-    NavigationComponent,
-    BreadcrumbComponent,
-    UserListComponent,
-    UserEditDialog,
-    ConfirmDialog,
-    MustMatchValidatorDirective,
-    MeComponent,
-    UsernameAvailableValidator,
-    EmailAvailableValidator,
-    ConfirmWithTextDialog,
-    ShowDeployableConfigurationDialog,
-    LoginComponent,
-    DockerRegistryListComponent,
-    DockerRegistryEditDialogComponent,
-    ConfirmDeletionDialogComponent,
-    KeyValueInputComponent,
-    LifetimeBehaviourInputComponent,
-    DeploymentBehaviourInputComponent,
-    DeployableStatusComponent,
-    ActivityLogComponent,
-    FileUploadComponent,
-    TemplateEditorComponent,
-    ForbiddenValuesValidator,
-    ProjectListComponent,
-    EditProjectComponent,
-    ProjectVersionListComponent,
-    EditProjectVersionComponent,
-    CreateProjectDialogComponent,
-    LogsComponent,
-    ProjectDashboardComponent,
-    ProjectVersionActionsComponent,
-    DefinedNamespacesListComponent,
-    CreateNamespaceDialogComponent,
-    DeleteNamespaceDialogComponent,
-    TemplateVariablesComponent,
-    TemplateVariableEditorComponent,
-    ValueInputComponent,
-    ProjectMeshListComponent,
-    CreateProjectMeshDialogComponent,
-    EditMeshComponent,
-    ManageMeshComponentsComponent,
-    CreateMeshComponentDialogComponent,
-    ProjectMeshActionsComponent,
-    DeploymentsDashboardComponent,
-    ProjectmeshDashboardComponent,
-    MeshComponentActionsComponent,
-    DeployableActionsComponent,
-    ProjectVersionVariableActionsComponent
-  ],
+    declarations: [
+        AppComponent,
+        HomeComponent,
+        LoginComponent,
+        TimeoutWithUiComponent,
+        TimeoutSnackbarComponent,
+        NavigationComponent,
+        BreadcrumbComponent,
+        UserListComponent,
+        UserEditDialog,
+        ConfirmDialog,
+        MustMatchValidatorDirective,
+        MeComponent,
+        UsernameAvailableValidator,
+        EmailAvailableValidator,
+        ConfirmWithTextDialog,
+        ShowDeployableConfigurationDialog,
+        LoginComponent,
+        DockerRegistryListComponent,
+        DockerRegistryEditDialogComponent,
+        ConfirmDeletionDialogComponent,
+        KeyValueInputComponent,
+        LifetimeBehaviourInputComponent,
+        DeploymentBehaviourInputComponent,
+        DeployableStatusComponent,
+        ActivityLogComponent,
+        FileUploadComponent,
+        TemplateEditorComponent,
+        ForbiddenValuesValidator,
+        ProjectListComponent,
+        EditProjectComponent,
+        ProjectVersionListComponent,
+        EditProjectVersionComponent,
+        CreateProjectDialogComponent,
+        LogsComponent,
+        ProjectDashboardComponent,
+        ProjectVersionActionsComponent,
+        DefinedNamespacesListComponent,
+        CreateNamespaceDialogComponent,
+        DeleteNamespaceDialogComponent,
+        TemplateVariablesComponent,
+        TemplateVariableEditorComponent,
+        ValueInputComponent,
+        ProjectMeshListComponent,
+        CreateProjectMeshDialogComponent,
+        EditMeshComponent,
+        ManageMeshComponentsComponent,
+        CreateMeshComponentDialogComponent,
+        ProjectMeshActionsComponent,
+        DeploymentsDashboardComponent,
+        ProjectmeshDashboardComponent,
+        MeshComponentActionsComponent,
+        DeployableActionsComponent,
+        ProjectVersionVariableActionsComponent,
+        MainComponent,
+        ExpandableMenuComponent,
+        ThemeSwitcherComponent,
+        DndDirective,
+        EditConfigurationTemplateDialogComponent,
+        FooterComponent
+    ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
@@ -194,7 +222,22 @@ import {configureSvgIcons} from "./configuration/configuration";
     InfiniteScrollModule,
     MatCheckboxModule,
     MatRadioModule,
-    NgxMatSelectSearchModule
+    NgxMatSelectSearchModule,
+    NgxsModule.forRoot(appStates, {developmentMode: !environment.production}),
+    NgxsStoragePluginModule.forRoot({key: [ThemingState]}),
+    NgxsReduxDevtoolsPluginModule.forRoot(),
+    NgxsLoggerPluginModule.forRoot(),
+    TranslateModule.forRoot({
+      compiler: {
+        provide: TranslateCompiler,
+        useValue: new AliasingTranslateCompiler()
+      },
+      loader: {
+        provide: TranslateLoader,
+        useFactory: (http: HttpClient) => new TranslateHttpLoader(http),
+        deps: [HttpClient]
+      }
+    }),
   ],
   providers: [
     RestService,
@@ -213,17 +256,27 @@ import {configureSvgIcons} from "./configuration/configuration";
         showDelay: 500
       }
     },
+    {
+      provide: MatPaginatorIntl,
+      deps: [TranslateService],
+      useFactory: (translate) => configureMatPaginatorI18n(translate),
+    },
     UserService,
     ProjectService,
     WebSocketService,
     WebSocketServiceWrapper,
     ProjectMeshService,
+    {
+      provide: AnimationDriver,
+      useFactory: () => provideAnimationDriverBasedOnUserPreferences()
+    }
   ],
   bootstrap: [AppComponent]
 })
 export class AppModule {
-  constructor(matIconRegistry: MatIconRegistry, domSanitizer: DomSanitizer, rest: RestService, auth: AuthService, ws: WebSocketService) {
+  constructor(translateService: TranslateService, matIconRegistry: MatIconRegistry, domSanitizer: DomSanitizer, rest: RestService, auth: AuthService, ws: WebSocketService) {
     configureSvgIcons(matIconRegistry, domSanitizer);
+    configureTranslations(translateService);
 
     auth.isAuthenticated().subscribe(authenticated => {
       if (authenticated) {
