@@ -1,7 +1,7 @@
 {
   "name": "release",
   "version": "1.0.0",
-  "description": "Creates an oneko with git tags",
+  "description": "Releases O-Neko with git-tags",
   "main": "index.js",
   "scripts": {
     "release": "node index.js"
