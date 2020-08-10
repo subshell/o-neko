@@ -60,6 +60,19 @@ jobs:
       - run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
       - run: docker push subshellgmbh/o-neko:latest-dev
 
+  release:
+    docker:
+      - image: docker:19
+    steps:
+      - checkout
+      - setup_remote_docker
+      - restore_cache:
+          key: oneko-artifacts-{{ .Environment.CIRCLE_SHA1 }}
+      - run: cp /home/circleci/project/circle-artifacts/*.jar .
+      - run: docker build --build-arg JAR_FILE=$(find . -type f -name '*.jar') -t subshellgmbh/o-neko:{{ .Environment.CIRCLE_TAG }} .
+      - run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      - run: docker push subshellgmbh/o-neko:{{ .Environment.CIRCLE_TAG }}
+
 workflows:
   version: 2
   build:
@@ -74,3 +87,13 @@ workflows:
           filters:
             branches:
               only: master
+      - release:
+          requires:
+            - backend
+          filters:
+            # ignore any commit on any branch by default
+            branches:
+              ignore: /.*/
+            # only act on version tags
+            tags:
+              only: /^v[0-9]+(\.[0-9]+)*$/

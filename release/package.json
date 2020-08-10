@@ -1,0 +1,15 @@
+{
+  "name": "release",
+  "version": "1.0.0",
+  "description": "Releases O-Neko with git-tags",
+  "main": "index.js",
+  "scripts": {
+    "release": "node index.js"
+  },
+  "dependencies": {
+    "simple-git": "1.132.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "Apache License 2.0"
+}
