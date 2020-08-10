@@ -75,14 +75,14 @@ const setAndGetNewPackageJsonVersion = (packageJsonDir, versionId) =>
     );
   }).then(s => s.replace(/(\r\n|\n|\r)/gm, ""));
 
-const setPomXmlVersion = (pomXmlDir, versionId) => {
+const setPomXmlVersion = (pomXmlDir, versionId) => 
   new Promise((res, rej) => {
     childProcess.exec(
       `cd ${pomXmlDir} && mvn versions:set -DnewVersion="${versionId}" -DgenerateBackupPoms=false`,
       (e, version) => (e ? rej(e) : res(version))
     );
   });
-};
+
 
 const askForConfirmation = () =>
   new Promise((res) => {
