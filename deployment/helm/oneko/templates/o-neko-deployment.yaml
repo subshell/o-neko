@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
         - env:
-          - name: JAVA_OPTS
+          - name: JDK_JAVA_OPTIONS
             value: "-XX:MaxRAMPercentage=60"
           name: o-neko
           image: subshellgmbh/o-neko:latest-dev
