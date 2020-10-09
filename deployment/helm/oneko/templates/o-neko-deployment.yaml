@@ -32,7 +32,7 @@ spec:
           - containerPort: 8080
           volumeMounts:
           - name: config
-            mountPath: "/config"
+            mountPath: "/app/config"
           livenessProbe:
             httpGet:
               path: /actuator/health
