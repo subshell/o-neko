@@ -52,7 +52,7 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 	private final ProjectMeshRepository projectMeshRepository;
 
 	KubernetesDeploymentManagerImpl(KubernetesAccess kubernetesAccess, DockerRegistryV2ClientFactory dockerRegistryV2ClientFactory,
-									ProjectRepository projectRepository, ProjectMeshRepository projectMeshRepository) {
+																	ProjectRepository projectRepository, ProjectMeshRepository projectMeshRepository) {
 		this.kubernetesAccess = kubernetesAccess;
 		this.dockerRegistryV2ClientFactory = dockerRegistryV2ClientFactory;
 		this.projectRepository = projectRepository;
@@ -155,6 +155,9 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 	}
 
 	private void addLabelToResource(HasMetadata resource, String key, String value) {
+		if (resource.getMetadata() == null) {
+			resource.setMetadata(new ObjectMeta());
+		}
 		if (resource instanceof Deployment) {
 			Deployment deployment = (Deployment) resource;
 			addLabelToMeta(deployment.getMetadata(), key, value);
@@ -169,18 +172,27 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 	}
 
 	private void setDeploymentUrlsTo(Deployable deployable, HasMetadata hasMetadata) {
+		List<String> urls = List.of();
 		if (hasMetadata instanceof Ingress) {
-			Ingress ingress = (Ingress) hasMetadata;
-
-			List<String> urls = ingress
+			var ingress = (Ingress) hasMetadata;
+			urls = ingress
 					.getSpec()
 					.getRules()
 					.stream()
 					.map(IngressRule::getHost)
 					.collect(Collectors.toList());
-			log.trace("Found urls {} of {} {}", urls, deployable.getClass().getSimpleName(), deployable.getName());
-			deployable.setUrls(urls);
+		} else if (hasMetadata instanceof io.fabric8.kubernetes.api.model.networking.v1beta1.Ingress) { // can't wait to repeat this code again for networking/v1
+			var ingress = (io.fabric8.kubernetes.api.model.networking.v1beta1.Ingress) hasMetadata;
+			urls = ingress
+					.getSpec()
+					.getRules()
+					.stream()
+					.map(io.fabric8.kubernetes.api.model.networking.v1beta1.IngressRule::getHost)
+					.collect(Collectors.toList());
 		}
+
+		log.trace("Found urls {} of {} {}", urls, deployable.getClass().getSimpleName(), deployable.getName());
+		deployable.setUrls(urls);
 	}
 
 	private Mono<Secret> createSecretIfNotExistent(DockerRegistry dockerRegistry, String namespace) {
