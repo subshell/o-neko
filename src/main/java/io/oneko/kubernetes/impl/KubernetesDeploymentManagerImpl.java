@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -122,7 +123,7 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 
 	private <T extends Deployable> Mono<T> updateDeployableWithCreatedResources(T deployable, List<HasMetadata> createdResources) {
 		ProjectVersion relatedVersion = deployable.getRelatedProjectVersion();
-		createdResources.forEach(hasMetadata -> setDeploymentUrlsTo(deployable, hasMetadata));
+		updateDeploymentUrls(deployable, createdResources);
 		deployable.setOutdated(false);
 		if (StringUtils.isEmpty(deployable.getDockerContentDigest())) {
 			//it seems completely wrong, that this is happening here...
@@ -171,25 +172,26 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 		}
 	}
 
-	private void setDeploymentUrlsTo(Deployable deployable, HasMetadata hasMetadata) {
-		List<String> urls = List.of();
-		if (hasMetadata instanceof Ingress) {
-			var ingress = (Ingress) hasMetadata;
-			urls = ingress
-					.getSpec()
-					.getRules()
-					.stream()
-					.map(IngressRule::getHost)
-					.collect(Collectors.toList());
-		} else if (hasMetadata instanceof io.fabric8.kubernetes.api.model.networking.v1beta1.Ingress) { // can't wait to repeat this code again for networking/v1
-			var ingress = (io.fabric8.kubernetes.api.model.networking.v1beta1.Ingress) hasMetadata;
-			urls = ingress
-					.getSpec()
-					.getRules()
-					.stream()
-					.map(io.fabric8.kubernetes.api.model.networking.v1beta1.IngressRule::getHost)
-					.collect(Collectors.toList());
-		}
+	private void updateDeploymentUrls(Deployable<?> deployable, List<HasMetadata> createdResources) {
+		List<String> urls = createdResources.stream()
+				.flatMap(hasMetadata -> {
+					if (hasMetadata instanceof Ingress) {
+						var ingress = (Ingress) hasMetadata;
+						return ingress
+								.getSpec()
+								.getRules()
+								.stream()
+								.map(IngressRule::getHost);
+					} else if (hasMetadata instanceof io.fabric8.kubernetes.api.model.networking.v1beta1.Ingress) { // can't wait to repeat this code again for networking/v1
+						var ingress = (io.fabric8.kubernetes.api.model.networking.v1beta1.Ingress) hasMetadata;
+						return ingress
+								.getSpec()
+								.getRules()
+								.stream()
+								.map(io.fabric8.kubernetes.api.model.networking.v1beta1.IngressRule::getHost);
+					}
+					return Stream.empty();
+				}).collect(Collectors.toList());
 
 		log.trace("Found urls {} of {} {}", urls, deployable.getClass().getSimpleName(), deployable.getName());
 		deployable.setUrls(urls);
