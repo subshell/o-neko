@@ -33,17 +33,13 @@ export class RestService {
    ------------------------------------------------------------*/
 
   public login(username: string, password: string): Observable<any> {
-    let params = new HttpParams({
-      fromObject: {
-        username: username,
-        password: password
-      }
+    const params = new URLSearchParams({
+      username,
+      password
     });
 
-    let options = {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/x-www-form-urlencoded'
-      })
+    const options = {
+      headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded')
     };
 
     return this.http.post('/api/session/login', params.toString(), options).pipe(tap(ev => {
