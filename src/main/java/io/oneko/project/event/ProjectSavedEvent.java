@@ -18,7 +18,7 @@ public class ProjectSavedEvent extends EntityChangedEvent {
 
 	public ProjectSavedEvent(WritableProject project, Collection<String> changedProperties, EventTrigger trigger) {
 		super(trigger, DescribingEntityChange.builder()
-				.id(project.getUuid())
+				.id(project.getId())
 				.name(project.getName())
 				.entityType(DescribingEntityChange.EntityType.Project)
 				.changeType(DescribingEntityChange.ChangeType.Saved)

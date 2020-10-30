@@ -9,7 +9,6 @@ import com.google.common.collect.ImmutableList;
 
 import io.oneko.automations.LifetimeBehaviour;
 import io.oneko.deployable.DeploymentBehaviour;
-import io.oneko.docker.ReadableDockerRegistry;
 import io.oneko.domain.Identifiable;
 import io.oneko.templates.ReadableConfigurationTemplate;
 import lombok.Builder;
@@ -18,27 +17,27 @@ import lombok.Getter;
 @Getter
 public class ReadableProject extends Identifiable implements Project<ReadableProject, ReadableProjectVersion> {
 
-	private final UUID uuid;
+	private final UUID id;
 	private final String name;
 	private final String imageName;
 	private final DeploymentBehaviour newVersionsDeploymentBehaviour;
 	private final ImmutableList<ReadableConfigurationTemplate> defaultConfigurationTemplates;
-	private final ReadableDockerRegistry dockerRegistry;
+	private final UUID dockerRegistryId;
 	private final LifetimeBehaviour defaultLifetimeBehaviour;
 	private final ImmutableList<ReadableTemplateVariable> templateVariables;
 	private final ImmutableList<ReadableProjectVersion> versions;
 
 	@Builder
-	public ReadableProject(UUID uuid, String name, String imageName, DeploymentBehaviour newVersionsDeploymentBehaviour,
+	public ReadableProject(UUID id, String name, String imageName, DeploymentBehaviour newVersionsDeploymentBehaviour,
 						   List<ReadableConfigurationTemplate> defaultConfigurationTemplates,
-						   ReadableDockerRegistry dockerRegistry, LifetimeBehaviour defaultLifetimeBehaviour,
+						   UUID dockerRegistryId, LifetimeBehaviour defaultLifetimeBehaviour,
 						   List<ReadableTemplateVariable> templateVariables, List<ReadableProjectVersion> versions) {
-		this.uuid = uuid;
+		this.id = id;
 		this.name = name;
 		this.imageName = imageName;
 		this.newVersionsDeploymentBehaviour = newVersionsDeploymentBehaviour;
 		this.defaultConfigurationTemplates = ImmutableList.copyOf(defaultConfigurationTemplates);
-		this.dockerRegistry = dockerRegistry;
+		this.dockerRegistryId = dockerRegistryId;
 		this.defaultLifetimeBehaviour = defaultLifetimeBehaviour;
 		this.templateVariables = ImmutableList.copyOf(templateVariables);
 		this.versions = ImmutableList.copyOf(versions);
@@ -47,7 +46,7 @@ public class ReadableProject extends Identifiable implements Project<ReadablePro
 
 	@Override
 	public UUID getId() {
-		return getUuid();
+		return id;
 	}
 
 	public Optional<LifetimeBehaviour> getDefaultLifetimeBehaviour() {
@@ -59,14 +58,14 @@ public class ReadableProject extends Identifiable implements Project<ReadablePro
 				.map(ReadableProjectVersion::writable)
 				.collect(Collectors.toList());
 		return WritableProject.builder()
-				.uuid(getUuid())
+				.id(getId())
 				.name(getName())
 				.imageName(getImageName())
 				.newVersionsDeploymentBehaviour(getNewVersionsDeploymentBehaviour())
 				.defaultConfigurationTemplates(getDefaultConfigurationTemplates().stream()
 					.map(ReadableConfigurationTemplate::writable)
 					.collect(Collectors.toList()))
-				.dockerRegistry(getDockerRegistry())
+				.dockerRegistryId(getDockerRegistryId())
 				.defaultLifetimeBehaviour(defaultLifetimeBehaviour)
 				.templateVariables(getTemplateVariables().stream()
 					.map(ReadableTemplateVariable::writable)

@@ -29,7 +29,7 @@ public interface Deployable<T> {
 
 	String getFullLabel();
 
-	DockerRegistry getDockerRegistry();
+	UUID getDockerRegistryId();
 
 	Project<?, ?> getRelatedProject();
 

@@ -21,7 +21,7 @@ public class ReadableDockerRegistry extends Identifiable implements DockerRegist
 
 	@Override
 	public UUID getId() {
-		return getId();
+		return uuid;
 	}
 
 	public WritableDockerRegistry writable() {

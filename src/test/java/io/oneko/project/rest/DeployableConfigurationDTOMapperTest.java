@@ -12,7 +12,6 @@ import org.apache.commons.collections4.map.HashedMap;
 import org.junit.Test;
 
 import io.oneko.project.WritableProject;
-import io.oneko.project.ProjectVersion;
 import io.oneko.project.WritableProjectVersion;
 import io.oneko.templates.WritableConfigurationTemplate;
 import io.oneko.templates.rest.ConfigurationTemplateDTOMapper;
@@ -29,8 +28,9 @@ public class DeployableConfigurationDTOMapperTest {
 		templateVariables.put("VAR_2", "2");
 
 		final WritableProject project1 = WritableProject.builder()
+				.versions(Collections.emptyList())
 				.name("project1")
-				.uuid(UUID.randomUUID())
+				.id(UUID.randomUUID())
 				.templateVariables(new ArrayList<>())
 				.build();
 		final WritableProjectVersion version = project1.createVersion("Name");

@@ -17,8 +17,6 @@ import com.google.common.collect.Sets;
 
 import io.oneko.automations.LifetimeBehaviour;
 import io.oneko.deployable.DeploymentBehaviour;
-import io.oneko.docker.DockerRegistry;
-import io.oneko.docker.ReadableDockerRegistry;
 import io.oneko.domain.ModificationAwareIdentifiable;
 import io.oneko.domain.ModificationAwareListProperty;
 import io.oneko.domain.ModificationAwareProperty;
@@ -33,7 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class WritableProject extends ModificationAwareIdentifiable implements Project<WritableProject, WritableProjectVersion> {
 
-	private final ModificationAwareProperty<UUID> uuid = new ModificationAwareProperty<>(this, "uuid");
+	private final ModificationAwareProperty<UUID> id = new ModificationAwareProperty<>(this, "id");
 	private final ModificationAwareProperty<String> name = new ModificationAwareProperty<>(this, "name");
 	private final ModificationAwareProperty<String> imageName = new ModificationAwareProperty<>(this, "imageName");
 	private final ModificationAwareProperty<DeploymentBehaviour> newVersionsDeploymentBehaviour = new ModificationAwareProperty<>(this, "newVersionsDeploymentBehaviour");
@@ -41,7 +39,7 @@ public class WritableProject extends ModificationAwareIdentifiable implements Pr
 	 * Default configuration template to be used for versions. Should be a multi line yaml-string.
 	 */
 	private final ModificationAwareProperty<List<WritableConfigurationTemplate>> defaultConfigurationTemplates = new ModificationAwareListProperty<>(this, "defaultConfigurationTemplates");
-	private final ModificationAwareProperty<ReadableDockerRegistry> dockerRegistry = new ModificationAwareProperty<>(this, "dockerRegistry");
+	private final ModificationAwareProperty<UUID> dockerRegistryId = new ModificationAwareProperty<>(this, "dockerRegistry");
 	private final ModificationAwareProperty<LifetimeBehaviour> defaultLifetimeBehaviour = new ModificationAwareProperty<>(this, "defaultLifetimeBehaviour");
 	private final List<WritableTemplateVariable> templateVariables;
 	private final List<WritableProjectVersion> versions;
@@ -50,9 +48,9 @@ public class WritableProject extends ModificationAwareIdentifiable implements Pr
 	/**
 	 * Creates a completely new project
 	 */
-	public WritableProject(ReadableDockerRegistry registry) {
-		this.uuid.set(UUID.randomUUID());
-		this.dockerRegistry.set(registry);
+	public WritableProject(UUID dockerRegistryId) {
+		this.id.set(UUID.randomUUID());
+		this.dockerRegistryId.set(dockerRegistryId);
 		this.versions = new ArrayList<>();
 		this.templateVariables = new ArrayList<>();
 		this.newVersionsDeploymentBehaviour.set(DeploymentBehaviour.automatically);
@@ -64,15 +62,15 @@ public class WritableProject extends ModificationAwareIdentifiable implements Pr
 	 * This constructor is intended to be used by persistence layers only.
 	 */
 	@Builder
-	public WritableProject(UUID uuid, String name, String imageName, DeploymentBehaviour newVersionsDeploymentBehaviour,
+	public WritableProject(UUID id, String name, String imageName, DeploymentBehaviour newVersionsDeploymentBehaviour,
 						   List<WritableConfigurationTemplate> defaultConfigurationTemplates, List<WritableTemplateVariable> templateVariables,
-						   ReadableDockerRegistry dockerRegistry, List<WritableProjectVersion> versions, LifetimeBehaviour defaultLifetimeBehaviour) {
-		this.uuid.init(uuid);
+						   UUID dockerRegistryId, List<WritableProjectVersion> versions, LifetimeBehaviour defaultLifetimeBehaviour) {
+		this.id.init(id);
 		this.name.init(name);
 		this.imageName.init(imageName);
 		this.newVersionsDeploymentBehaviour.init(newVersionsDeploymentBehaviour);
 		this.defaultConfigurationTemplates.init(defaultConfigurationTemplates);
-		this.dockerRegistry.init(dockerRegistry);
+		this.dockerRegistryId.init(dockerRegistryId);
 		this.defaultLifetimeBehaviour.init(defaultLifetimeBehaviour);
 		this.versions = new ArrayList<>(versions);
 		versions.forEach(v -> v.setProject(this));
@@ -82,11 +80,7 @@ public class WritableProject extends ModificationAwareIdentifiable implements Pr
 
 	@Override
 	public UUID getId() {
-		return this.uuid.get();
-	}
-
-	public UUID getUuid() {
-		return uuid.get();
+		return this.id.get();
 	}
 
 	public String getName() {
@@ -147,31 +141,12 @@ public class WritableProject extends ModificationAwareIdentifiable implements Pr
 		return implicitTemplateVariables;
 	}
 
-	/**
-	 * Short hand method for retrieving the {@link DockerRegistry#getUuid()} of this project's {@link #getDockerRegistry()}.
-	 */
-	public UUID getDockerRegistryUuid() {
-		if (this.isOrphan()) {
-			return null;
-		} else {
-			return this.getDockerRegistry().getUuid();
-		}
+	public UUID getDockerRegistryId() {
+		return this.dockerRegistryId.get();
 	}
 
-	public ReadableDockerRegistry getDockerRegistry() {
-		return dockerRegistry.get();
-	}
-
-	/**
-	 * An orphaned project has no docker registry assigned. This happens, when a registry is getting deleted.
-	 * No deployments can be performed on orphaned project's versions.
-	 */
-	public boolean isOrphan() {
-		return this.dockerRegistry.get() == null;
-	}
-
-	public void assignToNewRegistry(ReadableDockerRegistry registry) {
-		boolean registryChanged = this.dockerRegistry.set(registry);
+	public void assignToNewRegistry(UUID registryId) {
+		boolean registryChanged = this.dockerRegistryId.set(registryId);
 		if (registryChanged) {
 			//TODO...check whether images exist on new registry and remove them or do some other fancy shit...
 			return;
@@ -235,14 +210,14 @@ public class WritableProject extends ModificationAwareIdentifiable implements Pr
 				.map(WritableProjectVersion::readable)
 				.collect(Collectors.toList());
 		return ReadableProject.builder()
-				.uuid(getUuid())
+				.id(getId())
 				.name(getName())
 				.imageName(getImageName())
 				.newVersionsDeploymentBehaviour(getNewVersionsDeploymentBehaviour())
 				.defaultConfigurationTemplates(getDefaultConfigurationTemplates().stream()
 						.map(WritableConfigurationTemplate::readable)
 						.collect(Collectors.toList()))
-				.dockerRegistry(getDockerRegistry())
+				.dockerRegistryId(getDockerRegistryId())
 				.defaultLifetimeBehaviour(defaultLifetimeBehaviour.get())
 				.templateVariables(getTemplateVariables().stream()
 						.map(WritableTemplateVariable::readable)

@@ -9,8 +9,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import io.oneko.Profiles;
-import io.oneko.docker.DockerRegistryRepository;
-import io.oneko.docker.ReadableDockerRegistry;
 import io.oneko.event.EventDispatcher;
 import io.oneko.namespace.DefinedNamespaceRepository;
 import io.oneko.project.Project;
@@ -31,14 +29,12 @@ import reactor.core.publisher.Mono;
 class ProjectMongoRepository extends EventAwareProjectRepository {
 
 	private final ProjectMongoSpringRepository innerProjectRepo;
-	private final DockerRegistryRepository registryRepository;
 	private final DefinedNamespaceRepository definedNamespaceRepository;
 
 	@Autowired
-	ProjectMongoRepository(ProjectMongoSpringRepository innerProjectRepo, DockerRegistryRepository registryRepository, DefinedNamespaceRepository definedNamespaceRepository, EventDispatcher eventDispatcher) {
+	ProjectMongoRepository(ProjectMongoSpringRepository innerProjectRepo, DefinedNamespaceRepository definedNamespaceRepository, EventDispatcher eventDispatcher) {
 		super(eventDispatcher);
 		this.innerProjectRepo = innerProjectRepo;
-		this.registryRepository = registryRepository;
 		this.definedNamespaceRepository = definedNamespaceRepository;
 	}
 
@@ -90,7 +86,7 @@ class ProjectMongoRepository extends EventAwareProjectRepository {
 		if (project.isOrphan()) {
 			projectMongo.setDockerRegistryUUID(null);
 		} else {
-			projectMongo.setDockerRegistryUUID(project.getDockerRegistry().getUuid());
+			projectMongo.setDockerRegistryUUID(project.getDockerRegistryId());
 		}
 
 		List<ProjectVersionMongo> versionsMongo = project.getVersions().stream()
@@ -155,13 +151,6 @@ class ProjectMongoRepository extends EventAwareProjectRepository {
 	}
 
 	private Mono<ReadableProject> fromProjectMongo(ProjectMongo projectMongo) {
-		return this.registryRepository.getById(projectMongo.getDockerRegistryUUID())
-				.flatMap(registry -> this.fromProjectMongoAndRegistry(projectMongo, registry))
-				.switchIfEmpty(this.fromProjectMongoAndRegistry(projectMongo, null));
-	}
-
-	private Mono<ReadableProject> fromProjectMongoAndRegistry(ProjectMongo projectMongo, ReadableDockerRegistry registry) {
-
 		Flux<ReadableProjectVersion> projectVersionFlux = Flux.concat(
 				projectMongo.getVersions()
 						.stream()
@@ -170,13 +159,13 @@ class ProjectMongoRepository extends EventAwareProjectRepository {
 
 		return projectVersionFlux.collectList()
 				.map(versions -> ReadableProject.builder()
-						.uuid(projectMongo.getProjectUuid())
+						.id(projectMongo.getProjectUuid())
 						.name(projectMongo.getName())
 						.imageName(projectMongo.getImageName())
 						.newVersionsDeploymentBehaviour(projectMongo.getNewVersionsDeploymentBehaviour())
 						.defaultConfigurationTemplates(ConfigurationTemplateMongoMapper.fromConfigurationTemplateMongos(projectMongo.getDefaultConfigurationTemplates()))
 						.templateVariables(fromTemplateVariablesMongo(projectMongo.getTemplateVariables()))
-						.dockerRegistry(registry)
+						.dockerRegistryId(projectMongo.getDockerRegistryUUID())
 						.versions(versions)
 						.defaultLifetimeBehaviour(projectMongo.getDefaultLifetimeBehaviour())
 						.build());

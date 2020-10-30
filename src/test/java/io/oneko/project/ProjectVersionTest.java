@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import io.oneko.docker.ReadableDockerRegistry;
-import io.oneko.docker.WritableDockerRegistry;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
@@ -24,8 +23,7 @@ public class ProjectVersionTest {
 	@Test
 	public void testCalculateConfiguration() {
 		//have a bit of preparation here
-		ReadableDockerRegistry reg = new WritableDockerRegistry().readable();
-		WritableProject project = new WritableProject(reg);
+		WritableProject project = new WritableProject(UUID.randomUUID());
 
 		List<WritableConfigurationTemplate> templates = Collections.singletonList(
 				WritableConfigurationTemplate.builder()
@@ -65,8 +63,7 @@ public class ProjectVersionTest {
 
 	@Test
 	public void testOverwriteConfiguration() {        //have a bit of preparation here
-		ReadableDockerRegistry reg = new WritableDockerRegistry().readable();
-		WritableProject project = new WritableProject(reg);
+		WritableProject project = new WritableProject(UUID.randomUUID());
 
 		List<WritableConfigurationTemplate> templates = Arrays.asList(
 				WritableConfigurationTemplate.builder()
@@ -111,8 +108,7 @@ public class ProjectVersionTest {
 
 	@Test
 	public void testSetConfigurationTemplates() {
-		ReadableDockerRegistry dockerRegistry = new WritableDockerRegistry().readable();
-		WritableProject project = new WritableProject(dockerRegistry);
+		WritableProject project = new WritableProject(UUID.randomUUID());
 		WritableProjectVersion uut = project.createVersion("sample");
 
 		assertThat(uut.getConfigurationTemplates(), is(empty()));
@@ -142,8 +138,7 @@ public class ProjectVersionTest {
 
 	@Test
 	public void testDeployableConfigurationTemplates() {
-		ReadableDockerRegistry reg = new WritableDockerRegistry().readable();
-		WritableProject project = new WritableProject(reg);
+		WritableProject project = new WritableProject(UUID.randomUUID());
 		project.setName("project1");
 
 		List<WritableConfigurationTemplate> templates = Collections.singletonList(

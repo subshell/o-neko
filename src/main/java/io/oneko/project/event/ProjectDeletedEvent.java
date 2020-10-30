@@ -12,7 +12,7 @@ public class ProjectDeletedEvent extends EntityChangedEvent {
 
 	public ProjectDeletedEvent(Project project, EventTrigger trigger) {
 		super(trigger, DescribingEntityChange.builder()
-				.id(project.getUuid())
+				.id(project.getId())
 				.name(project.getName())
 				.entityType(DescribingEntityChange.EntityType.Project)
 				.changeType(DescribingEntityChange.ChangeType.Deleted)
