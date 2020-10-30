@@ -1,9 +1,11 @@
 package io.oneko.project.persistence;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import io.oneko.namespace.ReadableDefinedNamespace;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -20,8 +22,6 @@ import io.oneko.project.WritableProjectVersion;
 import io.oneko.project.WritableTemplateVariable;
 import io.oneko.project.event.EventAwareProjectRepository;
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 @Service
 @Slf4j
@@ -39,35 +39,34 @@ class ProjectMongoRepository extends EventAwareProjectRepository {
 	}
 
 	@Override
-	public Mono<ReadableProject> getById(UUID projectId) {
-		return this.innerProjectRepo.findById(projectId).flatMap(this::fromProjectMongo);
+	public Optional<ReadableProject> getById(UUID projectId) {
+		return this.innerProjectRepo.findById(projectId).map(this::fromProjectMongo);
 	}
 
 	@Override
-	public Mono<ReadableProject> getByName(String name) {
-		return this.innerProjectRepo.findByName(name).flatMap(this::fromProjectMongo);
+	public Optional<ReadableProject> getByName(String name) {
+		return this.innerProjectRepo.findByName(name).map(this::fromProjectMongo);
 	}
 
 	@Override
-	public Flux<ReadableProject> getByDockerRegistryUuid(UUID dockerRegistryUUID) {
-		return this.innerProjectRepo.findByDockerRegistryUUID(dockerRegistryUUID).flatMap(this::fromProjectMongo);
+	public List<ReadableProject> getByDockerRegistryUuid(UUID dockerRegistryUUID) {
+		return this.innerProjectRepo.findByDockerRegistryUUID(dockerRegistryUUID).stream().map(this::fromProjectMongo).collect(Collectors.toList());
 	}
 
 	@Override
-	public Flux<ReadableProject> getAll() {
-		return this.innerProjectRepo.findAll().flatMap(this::fromProjectMongo);
+	public List<ReadableProject> getAll() {
+		return this.innerProjectRepo.findAll().stream().map(this::fromProjectMongo).collect(Collectors.toList());
 	}
 
 	@Override
-	protected Mono<ReadableProject> addInternally(WritableProject project) {
+	protected ReadableProject addInternally(WritableProject project) {
 		ProjectMongo projectMongo = this.toProjectMongo(project);
-		return this.innerProjectRepo.save(projectMongo)
-				.flatMap(this::fromProjectMongo);
+		return this.fromProjectMongo(this.innerProjectRepo.save(projectMongo));
 	}
 
 	@Override
-	protected Mono<Void> removeInternally(Project<?, ?> project) {
-		return this.innerProjectRepo.deleteById(project.getId());
+	protected void removeInternally(Project<?, ?> project) {
+		this.innerProjectRepo.deleteById(project.getId());
 	}
 
     /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -150,29 +149,30 @@ class ProjectMongoRepository extends EventAwareProjectRepository {
 		return versionMongo;
 	}
 
-	private Mono<ReadableProject> fromProjectMongo(ProjectMongo projectMongo) {
-		Flux<ReadableProjectVersion> projectVersionFlux = Flux.concat(
+	private ReadableProject fromProjectMongo(ProjectMongo projectMongo) {
+		List<ReadableProjectVersion> versions =
 				projectMongo.getVersions()
 						.stream()
 						.map(this::fromProjectVersionMongo)
-						.collect(Collectors.toList()));
+						.collect(Collectors.toList());
 
-		return projectVersionFlux.collectList()
-				.map(versions -> ReadableProject.builder()
-						.id(projectMongo.getProjectUuid())
-						.name(projectMongo.getName())
-						.imageName(projectMongo.getImageName())
-						.newVersionsDeploymentBehaviour(projectMongo.getNewVersionsDeploymentBehaviour())
-						.defaultConfigurationTemplates(ConfigurationTemplateMongoMapper.fromConfigurationTemplateMongos(projectMongo.getDefaultConfigurationTemplates()))
-						.templateVariables(fromTemplateVariablesMongo(projectMongo.getTemplateVariables()))
-						.dockerRegistryId(projectMongo.getDockerRegistryUUID())
-						.versions(versions)
-						.defaultLifetimeBehaviour(projectMongo.getDefaultLifetimeBehaviour())
-						.build());
+		return ReadableProject.builder()
+				.id(projectMongo.getProjectUuid())
+				.name(projectMongo.getName())
+				.imageName(projectMongo.getImageName())
+				.newVersionsDeploymentBehaviour(projectMongo.getNewVersionsDeploymentBehaviour())
+				.defaultConfigurationTemplates(ConfigurationTemplateMongoMapper.fromConfigurationTemplateMongos(projectMongo.getDefaultConfigurationTemplates()))
+				.templateVariables(fromTemplateVariablesMongo(projectMongo.getTemplateVariables()))
+				.dockerRegistryId(projectMongo.getDockerRegistryUUID())
+				.versions(versions)
+				.defaultLifetimeBehaviour(projectMongo.getDefaultLifetimeBehaviour())
+				.build();
 	}
 
-	private Mono<ReadableProjectVersion> fromProjectVersionMongo(ProjectVersionMongo versionMongo) {
-		ReadableProjectVersion.ReadableProjectVersionBuilder projectVersionBuilder = ReadableProjectVersion.builder()
+	private ReadableProjectVersion fromProjectVersionMongo(ProjectVersionMongo versionMongo) {
+		UUID namespaceId = versionMongo.getNamespace();
+		ReadableDefinedNamespace readableDefinedNamespace1 = Optional.ofNullable(namespaceId).flatMap(definedNamespaceRepository::getById).orElse(null);
+		return ReadableProjectVersion.builder()
 				.uuid(versionMongo.getProjectVersionUuid())
 				.name(versionMongo.getName())
 				.deploymentBehaviour(versionMongo.getDeploymentBehaviour())
@@ -183,15 +183,7 @@ class ProjectMongoRepository extends EventAwareProjectRepository {
 				.configurationTemplates(ConfigurationTemplateMongoMapper.fromConfigurationTemplateMongos(versionMongo.getConfigurationTemplates()))
 				.lifetimeBehaviour(versionMongo.getLifetimeBehaviour())
 				.desiredState(versionMongo.getDesiredState())
-				.imageUpdatedDate(versionMongo.getImageUpdatedDate());
-
-		UUID namespaceId = versionMongo.getNamespace();
-		if (namespaceId != null) {
-			return definedNamespaceRepository.getById(namespaceId)
-					.map(namespace -> projectVersionBuilder.namespace(namespace).build())
-					.switchIfEmpty(Mono.just(projectVersionBuilder.build()));
-		}
-
-		return Mono.just(projectVersionBuilder.build());
+				.imageUpdatedDate(versionMongo.getImageUpdatedDate())
+				.namespace(readableDefinedNamespace1).build();
 	}
 }

@@ -5,7 +5,6 @@ import io.oneko.projectmesh.ProjectMesh;
 import io.oneko.projectmesh.ReadableProjectMesh;
 import io.oneko.projectmesh.WritableProjectMesh;
 import io.oneko.projectmesh.ProjectMeshRepository;
-import reactor.core.publisher.Mono;
 
 public abstract class EventAwareProjectMeshRepository implements ProjectMeshRepository {
 
@@ -16,28 +15,23 @@ public abstract class EventAwareProjectMeshRepository implements ProjectMeshRepo
 	}
 
 	@Override
-	public Mono<ReadableProjectMesh> add(WritableProjectMesh mesh) {
+	public ReadableProjectMesh add(WritableProjectMesh mesh) {
 		if (mesh.isDirty()) {
-			Mono<ReadableProjectMesh> meshMono = addInternally(mesh);
-			// we use the mesh as before it is persisted to have its dirty properties available for the event.
-			return this.eventDispatcher.createAndDispatchEvent(meshMono, (p, t) -> new ProjectMeshSavedEvent(mesh, t));
+			ReadableProjectMesh persisted = addInternally(mesh);
+			this.eventDispatcher.dispatch(new ProjectMeshSavedEvent(mesh, null));//TODO
+			return persisted;
 		} else {
-			return Mono.just(mesh.readable());
+			return mesh.readable();
 		}
 	}
 
-	protected abstract Mono<ReadableProjectMesh> addInternally(WritableProjectMesh mesh);
-
-	private void dispatchProjectDeletedEvent(ProjectMesh<?, ?> mesh) {
-		eventDispatcher.createAndDispatchEvent((trigger) -> new ProjectMeshDeletedEvent(mesh, trigger));
-	}
+	protected abstract ReadableProjectMesh addInternally(WritableProjectMesh mesh);
 
 	@Override
-	public Mono<Void> remove(ProjectMesh<?, ?> mesh) {
-		Mono<Void> voidMono = removeInternally(mesh);
-		dispatchProjectDeletedEvent(mesh);
-		return voidMono;
+	public void remove(ProjectMesh<?, ?> mesh) {
+		removeInternally(mesh);
+		eventDispatcher.dispatch(new ProjectMeshDeletedEvent(mesh, null));//TODO
 	}
 
-	protected abstract Mono<Void> removeInternally(ProjectMesh<?, ?> mesh);
+	protected abstract void removeInternally(ProjectMesh<?, ?> mesh);
 }

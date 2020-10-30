@@ -1,6 +1,9 @@
 package io.oneko.namespace.persistence;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -12,8 +15,6 @@ import io.oneko.namespace.DefinedNamespace;
 import io.oneko.namespace.ReadableDefinedNamespace;
 import io.oneko.namespace.WritableDefinedNamespace;
 import io.oneko.namespace.event.EventAwareDefinedNamespaceRepository;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 @Service
 @Profile(Profiles.MONGO)
@@ -28,28 +29,28 @@ public class DefinedNamespaceMongoRepository extends EventAwareDefinedNamespaceR
 	}
 
 	@Override
-	protected Mono<ReadableDefinedNamespace> addInternally(WritableDefinedNamespace namespace) {
-		return this.innerRepo.save(this.toNamespaceMongo(namespace)).map(this::fromNamespaceMongo);
+	protected ReadableDefinedNamespace addInternally(WritableDefinedNamespace namespace) {
+		return this.fromNamespaceMongo(this.innerRepo.save(this.toNamespaceMongo(namespace)));
 	}
 
 	@Override
-	protected Mono<Void> removeInternally(DefinedNamespace namespace) {
-		return innerRepo.deleteById(namespace.getId());
+	protected void removeInternally(DefinedNamespace namespace) {
+		innerRepo.deleteById(namespace.getId());
 	}
 
 	@Override
-	public Mono<ReadableDefinedNamespace> getById(UUID id) {
+	public Optional<ReadableDefinedNamespace> getById(UUID id) {
 		return this.innerRepo.findById(id).map(this::fromNamespaceMongo);
 	}
 
 	@Override
-	public Mono<ReadableDefinedNamespace> getByName(String name) {
+	public Optional<ReadableDefinedNamespace> getByName(String name) {
 		return this.innerRepo.findByName(name).map(this::fromNamespaceMongo);
 	}
 
 	@Override
-	public Flux<ReadableDefinedNamespace> getAll() {
-		return this.innerRepo.findAll().map(this::fromNamespaceMongo);
+	public List<ReadableDefinedNamespace> getAll() {
+		return this.innerRepo.findAll().stream().map(this::fromNamespaceMongo).collect(Collectors.toList());
 	}
 
 	/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

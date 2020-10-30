@@ -1,6 +1,9 @@
 package io.oneko.docker.persistence;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import io.oneko.Profiles;
 import io.oneko.docker.ReadableDockerRegistry;
@@ -14,8 +17,6 @@ import io.oneko.docker.DockerRegistry;
 import io.oneko.docker.event.EventAwareDockerRegistryRepository;
 import io.oneko.event.EventDispatcher;
 import io.oneko.security.AES;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 @Service
 @Profile(Profiles.MONGO)
@@ -31,29 +32,29 @@ class DockerRegistryMongoRepository extends EventAwareDockerRegistryRepository {
 	}
 
 	@Override
-	public Mono<ReadableDockerRegistry> getById(UUID registryId) {
+	public Optional<ReadableDockerRegistry> getById(UUID registryId) {
 		return this.innerRepo.findById(registryId).map(this::fromRegistryMongo);
 	}
 
 	@Override
-	public Mono<ReadableDockerRegistry> getByName(String name) {
+	public Optional<ReadableDockerRegistry> getByName(String name) {
 		return this.innerRepo.findByName(name).map(this::fromRegistryMongo);
 	}
 
 	@Override
-	public Flux<ReadableDockerRegistry> getAll() {
-		return this.innerRepo.findAll().map(this::fromRegistryMongo);
+	public List<ReadableDockerRegistry> getAll() {
+		return this.innerRepo.findAll().stream().map(this::fromRegistryMongo).collect(Collectors.toList());
 	}
 
 	@Override
-	protected Mono<ReadableDockerRegistry> addInternally(WritableDockerRegistry registry) {
+	protected ReadableDockerRegistry addInternally(WritableDockerRegistry registry) {
 		DockerRegistryMongo registryMongo = this.toRegistryMongo(registry);
-		return this.innerRepo.save(registryMongo).map(this::fromRegistryMongo);
+		return this.fromRegistryMongo(this.innerRepo.save(registryMongo));
 	}
 
 	@Override
-	protected Mono<Void> removeInternally(DockerRegistry registry) {
-		return this.innerRepo.deleteById(registry.getUuid());
+	protected void removeInternally(DockerRegistry registry) {
+		this.innerRepo.deleteById(registry.getUuid());
 	}
 
     /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

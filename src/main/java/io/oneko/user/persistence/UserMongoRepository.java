@@ -1,6 +1,9 @@
 package io.oneko.user.persistence;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -16,8 +19,6 @@ import io.oneko.user.WritableUser;
 import io.oneko.user.auth.PasswordBasedUserAuthentication;
 import io.oneko.user.auth.UserAuthentication;
 import io.oneko.user.event.EventAwareUserRepository;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 /**
  * Mongo implementation of UserRepository
@@ -38,36 +39,37 @@ class UserMongoRepository extends EventAwareUserRepository {
 	}
 
 	@Override
-	public Mono<ReadableUser> getById(UUID userId) {
+	public Optional<ReadableUser> getById(UUID userId) {
 		return this.innerUserRepo.findById(userId)
-				.flatMap(this::fromUserMongo);
+				.map(this::fromUserMongo);
 	}
 
 	@Override
-	public Mono<ReadableUser> getByUserName(String userName) {
-		return this.innerUserRepo.findByUsername(userName).flatMap(this::fromUserMongo);
+	public Optional<ReadableUser> getByUserName(String userName) {
+		return this.innerUserRepo.findByUsername(userName).map(this::fromUserMongo);
 	}
 
 	@Override
-	public Mono<ReadableUser> getByUserEmail(String userEmail) {
-		return this.innerUserRepo.findByEmail(userEmail).flatMap(this::fromUserMongo);
+	public Optional<ReadableUser> getByUserEmail(String userEmail) {
+		return this.innerUserRepo.findByEmail(userEmail).map(this::fromUserMongo);
 	}
 
 	@Override
-	public Flux<ReadableUser> getAll() {
-		return this.innerUserRepo.findAll().flatMap(this::fromUserMongo);
+	public List<ReadableUser> getAll() {
+		return this.innerUserRepo.findAll().stream().map(this::fromUserMongo).collect(Collectors.toList());
 	}
 
 	@Override
-	protected Mono<ReadableUser> addInternally(WritableUser user) {
-		return this.innerUserRepo.save(this.toUserMongo(user))
-				.zipWith(this.innerPasswordRepo.save(this.toPasswordMongo(user)), this::fromMongo);
+	protected ReadableUser addInternally(WritableUser user) {
+		UserMongo savedUser = this.innerUserRepo.save(this.toUserMongo(user));
+		PasswordBasedUserAuthenticationMongo savedAuth = this.innerPasswordRepo.save(this.toPasswordMongo(user));
+		return fromMongo(savedUser, savedAuth);
 	}
 
 	@Override
-	protected Mono<Void> removeInternally(User user) {
-		return Mono.zip(innerUserRepo.deleteById(user.getId()),
-				innerPasswordRepo.deleteById(user.getId())).then();
+	protected void removeInternally(User user) {
+		innerUserRepo.deleteById(user.getId());
+		innerPasswordRepo.deleteById(user.getId());
 	}
 
 	/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -113,8 +115,8 @@ class UserMongoRepository extends EventAwareUserRepository {
 	/**
 	 * Convenience mapper from UserMongo to User that implicitly loads the password entity and adds it to the user.
 	 */
-	private Mono<ReadableUser> fromUserMongo(UserMongo userMongo) {
-		return this.innerPasswordRepo.findById(userMongo.getUserUuid())
-				.map(p -> this.fromMongo(userMongo, p));
+	private ReadableUser fromUserMongo(UserMongo userMongo) {
+		//TODO: what if this is null?
+		return fromMongo(userMongo, this.innerPasswordRepo.findById(userMongo.getUserUuid()).orElse(null));
 	}
 }

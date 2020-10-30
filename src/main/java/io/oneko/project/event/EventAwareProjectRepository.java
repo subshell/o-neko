@@ -5,7 +5,6 @@ import io.oneko.project.Project;
 import io.oneko.project.ReadableProject;
 import io.oneko.project.WritableProject;
 import io.oneko.project.ProjectRepository;
-import reactor.core.publisher.Mono;
 
 public abstract class EventAwareProjectRepository implements ProjectRepository {
 
@@ -16,28 +15,23 @@ public abstract class EventAwareProjectRepository implements ProjectRepository {
 	}
 
 	@Override
-	public Mono<ReadableProject> add(WritableProject project) {
+	public ReadableProject add(WritableProject project) {
 		if (project.isDirty()) {
-			Mono<ReadableProject> projectMono = addInternally(project);
-			// we use the project as before it is persisted to have its dirty properties available for the event.
-			return this.eventDispatcher.createAndDispatchEvent(projectMono, (p, t) -> new ProjectSavedEvent(project, t));
+			ReadableProject persistedProject = addInternally(project);
+			this.eventDispatcher.dispatch(new ProjectSavedEvent(project, null));//TODO
+			return persistedProject;
 		} else {
-			return Mono.just(project.readable());
+			return project.readable();
 		}
 	}
 
-	protected abstract Mono<ReadableProject> addInternally(WritableProject project);
-
-	private void dispatchProjectDeletedEvent(Project<?, ?> project) {
-		eventDispatcher.createAndDispatchEvent((trigger) -> new ProjectDeletedEvent(project, trigger));
-	}
+	protected abstract ReadableProject addInternally(WritableProject project);
 
 	@Override
-	public Mono<Void> remove(Project<?, ?> project) {
-		Mono<Void> voidMono = removeInternally(project);
-		dispatchProjectDeletedEvent(project);
-		return voidMono;
+	public void remove(Project<?, ?> project) {
+		removeInternally(project);
+		eventDispatcher.dispatch(new ProjectDeletedEvent(project, null));//TODO
 	}
 
-	protected abstract Mono<Void> removeInternally(Project<?, ?> project);
+	protected abstract void removeInternally(Project<?, ?> project);
 }

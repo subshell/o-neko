@@ -1,9 +1,11 @@
 package io.oneko.projectmesh.persistence;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import io.oneko.namespace.ReadableDefinedNamespace;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
@@ -21,8 +23,6 @@ import io.oneko.projectmesh.WritableMeshComponent;
 import io.oneko.projectmesh.WritableProjectMesh;
 import io.oneko.projectmesh.event.EventAwareProjectMeshRepository;
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 @Service
 @Slf4j
@@ -41,28 +41,28 @@ class ProjectMeshMongoRepository extends EventAwareProjectMeshRepository {
 	}
 
 	@Override
-	public Mono<ReadableProjectMesh> getById(UUID id) {
-		return this.innerRepo.findById(id).flatMap(this::fromMongo);
+	public Optional<ReadableProjectMesh> getById(UUID id) {
+		return this.innerRepo.findById(id).map(this::fromMongo);
 	}
 
 	@Override
-	public Mono<ReadableProjectMesh> getByName(String name) {
-		return this.innerRepo.findByName(name).flatMap(this::fromMongo);
+	public Optional<ReadableProjectMesh> getByName(String name) {
+		return this.innerRepo.findByName(name).map(this::fromMongo);
 	}
 
 	@Override
-	public Flux<ReadableProjectMesh> getAll() {
-		return this.innerRepo.findAll().flatMap(this::fromMongo);
+	public List<ReadableProjectMesh> getAll() {
+		return this.innerRepo.findAll().stream().map(this::fromMongo).collect(Collectors.toList());
 	}
 
 	@Override
-	protected Mono<ReadableProjectMesh> addInternally(WritableProjectMesh project) {
-		return this.innerRepo.save(toMongo(project)).flatMap(this::fromMongo);
+	protected ReadableProjectMesh addInternally(WritableProjectMesh project) {
+		return fromMongo(this.innerRepo.save(toMongo(project)));
 	}
 
 	@Override
-	protected Mono<Void> removeInternally(ProjectMesh<?, ?> mesh) {
-		return this.innerRepo.deleteById(mesh.getId());
+	protected void removeInternally(ProjectMesh<?, ?> mesh) {
+		this.innerRepo.deleteById(mesh.getId());
 	}
 
 	/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -95,40 +95,27 @@ class ProjectMeshMongoRepository extends EventAwareProjectMeshRepository {
 		return mongo;
 	}
 
-	private Mono<ReadableProjectMesh> fromMongo(ProjectMeshMongo mongo) {
-		UUID namespaceId = mongo.getNamespace();
-		if (namespaceId != null) {
-			return definedNamespaceRepository.getById(namespaceId)
-					.flatMap(namespace -> fromMongo(mongo, namespace));
-		} else {
-			return fromMongo(mongo, null);
-		}
+	private ReadableProjectMesh fromMongo(ProjectMeshMongo mongo) {
+		ReadableDefinedNamespace readableDefinedNamespace = Optional.ofNullable(mongo.getNamespace()).flatMap(definedNamespaceRepository::getById).orElse(null);
+		return fromMongo(mongo, readableDefinedNamespace);
 	}
 
-	private Mono<ReadableProjectMesh> fromMongo(ProjectMeshMongo mongo, DefinedNamespace namespace) {
-		Flux<ReadableMeshComponent> componentsFlux = Flux.concat(
-				mongo.getComponents()
-						.stream()
-						.map(this::fromMongo)
-						.collect(Collectors.toList()));
-
-		return componentsFlux.collectList()
-				.map(components ->  ReadableProjectMesh.builder()
-						.id(mongo.getId())
-						.name(mongo.getName())
-						.deploymentBehaviour(mongo.getDeploymentBehaviour())
-						.lifetimeBehaviour(mongo.getLifetimeBehaviour())
-						.namespace(namespace)
-						.components(components)
-						.build());
+	private ReadableProjectMesh fromMongo(ProjectMeshMongo mongo, DefinedNamespace namespace) {
+		List<ReadableMeshComponent> components = mongo.getComponents().stream().map(this::fromMongo).collect(Collectors.toList());
+		return ReadableProjectMesh.builder()
+				.id(mongo.getId())
+				.name(mongo.getName())
+				.deploymentBehaviour(mongo.getDeploymentBehaviour())
+				.lifetimeBehaviour(mongo.getLifetimeBehaviour())
+				.namespace(namespace)
+				.components(components)
+				.build();
 	}
 
-	private Mono<ReadableMeshComponent> fromMongo(MeshComponentMongo mongo) {
-		return this.projectRepository.getById(mongo.getProjectId())
-				.map(project -> project.getVersionByUUID(mongo.getProjectVersionId()))
-				.filter(Optional::isPresent)
-				.map(Optional::get)
-				.map(version -> fromMongo(mongo, version));
+	private ReadableMeshComponent fromMongo(MeshComponentMongo mongo) {
+		ReadableProjectVersion readableProjectVersion = this.projectRepository.getById(mongo.getProjectId()).flatMap(project -> project.getVersionByUUID(mongo.getProjectVersionId())).orElse(null);
+		//TODO: what if the version does not exist any longer?
+		return fromMongo(mongo, readableProjectVersion);
 	}
 
 	private ReadableMeshComponent fromMongo(MeshComponentMongo mongo, ReadableProjectVersion version) {

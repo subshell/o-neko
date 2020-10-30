@@ -1,11 +1,10 @@
 package io.oneko.namespace.persistence;
 
+import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
-import reactor.core.publisher.Mono;
-
-public interface DefinedNamespaceMongoSpringRepository extends ReactiveMongoRepository<DefinedNamespaceMongo, UUID> {
-	Mono<DefinedNamespaceMongo> findByName(String name);
+public interface DefinedNamespaceMongoSpringRepository extends MongoRepository<DefinedNamespaceMongo, UUID> {
+	Optional<DefinedNamespaceMongo> findByName(String name);
 }

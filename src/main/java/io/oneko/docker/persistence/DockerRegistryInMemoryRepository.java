@@ -9,8 +9,6 @@ import io.oneko.event.EventDispatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.*;
 
@@ -26,32 +24,31 @@ public class DockerRegistryInMemoryRepository extends EventAwareDockerRegistryRe
 	}
 
 	@Override
-	protected Mono<ReadableDockerRegistry> addInternally(WritableDockerRegistry dockerRegistry) {
+	protected ReadableDockerRegistry addInternally(WritableDockerRegistry dockerRegistry) {
 		final ReadableDockerRegistry readable = dockerRegistry.readable();
 		innerRepository.put(dockerRegistry.getId(), readable);
-		return Mono.just(readable);
+		return readable;
 	}
 
 	@Override
-	protected Mono<Void> removeInternally(DockerRegistry dockerRegistry) {
+	protected void removeInternally(DockerRegistry dockerRegistry) {
 		innerRepository.remove(dockerRegistry.getUuid());
-		return Mono.empty();
 	}
 
 	@Override
-	public Mono<ReadableDockerRegistry> getById(UUID registryId) {
-		return Mono.justOrEmpty(innerRepository.get(registryId));
+	public Optional<ReadableDockerRegistry> getById(UUID registryId) {
+		return Optional.ofNullable(innerRepository.get(registryId));
 	}
 
 	@Override
-	public Mono<ReadableDockerRegistry> getByName(String registryName) {
-		return Mono.justOrEmpty(innerRepository.values().stream()
+	public Optional<ReadableDockerRegistry> getByName(String registryName) {
+		return innerRepository.values().stream()
 				.filter(registry -> registry.getName().equals(registryName))
-				.findFirst());
+				.findFirst();
 	}
 
 	@Override
-	public Flux<ReadableDockerRegistry> getAll() {
-		return Flux.fromIterable(innerRepository.values());
+	public List<ReadableDockerRegistry> getAll() {
+		return new ArrayList<>(innerRepository.values());
 	}
 }

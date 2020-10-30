@@ -1,19 +1,18 @@
 package io.oneko.projectmesh;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
-
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 public interface ProjectMeshRepository {
 
-	Mono<ReadableProjectMesh> getById(UUID id);
+	Optional<ReadableProjectMesh> getById(UUID id);
 
-	Mono<ReadableProjectMesh> getByName(String name);
+	Optional<ReadableProjectMesh> getByName(String name);
 
-	Flux<ReadableProjectMesh> getAll();
+	List<ReadableProjectMesh> getAll();
 
-	Mono<ReadableProjectMesh> add(WritableProjectMesh mesh);
+	ReadableProjectMesh add(WritableProjectMesh mesh);
 
-	Mono<Void> remove(ProjectMesh<?, ?> mesh);
+	void remove(ProjectMesh<?, ?> mesh);
 }

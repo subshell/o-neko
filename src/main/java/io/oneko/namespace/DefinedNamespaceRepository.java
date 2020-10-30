@@ -1,5 +1,7 @@
 package io.oneko.namespace;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import reactor.core.publisher.Flux;
@@ -10,13 +12,13 @@ import reactor.core.publisher.Mono;
  */
 public interface DefinedNamespaceRepository {
 
-	Mono<ReadableDefinedNamespace> getById(UUID id);
+	Optional<ReadableDefinedNamespace> getById(UUID id);
 
-	Mono<ReadableDefinedNamespace> getByName(String name);
+	Optional<ReadableDefinedNamespace> getByName(String name);
 
-	Flux<ReadableDefinedNamespace> getAll();
+	List<ReadableDefinedNamespace> getAll();
 
-	Mono<ReadableDefinedNamespace> add(WritableDefinedNamespace namespace);
+	ReadableDefinedNamespace add(WritableDefinedNamespace namespace);
 
-	Mono<Void> remove(DefinedNamespace namespace);
+	void remove(DefinedNamespace namespace);
 }

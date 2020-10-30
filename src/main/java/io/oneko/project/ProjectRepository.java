@@ -1,5 +1,7 @@
 package io.oneko.project;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import reactor.core.publisher.Flux;
@@ -11,18 +13,18 @@ import reactor.core.publisher.Mono;
  */
 public interface ProjectRepository {
 
-	Mono<ReadableProject> getById(UUID projectId);
+	Optional<ReadableProject> getById(UUID projectId);
 
-	Mono<ReadableProject> getByName(String name);
+	Optional<ReadableProject> getByName(String name);
 
-	Flux<ReadableProject> getByDockerRegistryUuid(UUID dockerRegistryUUID);
+	List<ReadableProject> getByDockerRegistryUuid(UUID dockerRegistryUUID);
 
-	Flux<ReadableProject> getAll();
+	List<ReadableProject> getAll();
 
 	/**
 	 * Persists the project.
 	 */
-	Mono<ReadableProject> add(WritableProject project);
+	ReadableProject add(WritableProject project);
 
-	Mono<Void> remove(Project<?, ?> project);
+	void remove(Project<?, ?> project);
 }

@@ -1,5 +1,7 @@
 package io.oneko.user;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import reactor.core.publisher.Flux;
@@ -10,18 +12,18 @@ import reactor.core.publisher.Mono;
  */
 public interface UserRepository {
 
-	Mono<ReadableUser> getById(UUID userId);
+	Optional<ReadableUser> getById(UUID userId);
 
-	Mono<ReadableUser> getByUserName(String userName);
+	Optional<ReadableUser> getByUserName(String userName);
 
-	Mono<ReadableUser> getByUserEmail(String userEmail);
+	Optional<ReadableUser> getByUserEmail(String userEmail);
 
-	Flux<ReadableUser> getAll();
+	List<ReadableUser> getAll();
 
 	/**
 	 * Persists the user.
 	 */
-	Mono<ReadableUser> add(WritableUser user);
+	ReadableUser add(WritableUser user);
 
-	Mono<Void> removeUser(User user);
+	void removeUser(User user);
 }

@@ -5,8 +5,6 @@ import io.oneko.namespace.DefinedNamespace;
 import io.oneko.namespace.DefinedNamespaceRepository;
 import io.oneko.namespace.ReadableDefinedNamespace;
 import io.oneko.namespace.WritableDefinedNamespace;
-import reactor.core.publisher.Mono;
-
 
 public abstract class EventAwareDefinedNamespaceRepository implements DefinedNamespaceRepository {
 
@@ -17,22 +15,23 @@ public abstract class EventAwareDefinedNamespaceRepository implements DefinedNam
 	}
 
 	@Override
-	public Mono<ReadableDefinedNamespace> add(WritableDefinedNamespace namespace) {
+	public ReadableDefinedNamespace add(WritableDefinedNamespace namespace) {
 		if (namespace.isDirty()) {
-			Mono<ReadableDefinedNamespace> namespaceMono = addInternally(namespace);
-			return this.eventDispatcher.createAndDispatchEvent(namespaceMono, (u, t) -> new DefinedNamespaceSavedEvent(namespace, t));
+			ReadableDefinedNamespace persistedNameSpace = addInternally(namespace);
+			eventDispatcher.dispatch(new DefinedNamespaceSavedEvent(namespace, null));//TODO
+			return persistedNameSpace;
 		} else {
-			return Mono.just(namespace.readable());
+			return namespace.readable();
 		}
 	}
 
-	protected abstract Mono<ReadableDefinedNamespace> addInternally(WritableDefinedNamespace namespace);
+	protected abstract ReadableDefinedNamespace addInternally(WritableDefinedNamespace namespace);
 
 	@Override
-	public Mono<Void> remove(DefinedNamespace namespace) {
-		Mono<Void> voidMono = removeInternally(namespace);
-		return this.eventDispatcher.createAndDispatchEvent(voidMono, (v, trigger) -> new DefinedNamespaceDeletedEvent(namespace, trigger));
+	public void remove(DefinedNamespace namespace) {
+		removeInternally(namespace);
+		this.eventDispatcher.dispatch(new DefinedNamespaceDeletedEvent(namespace, null));//TODO
 	}
 
-	protected abstract Mono<Void> removeInternally(DefinedNamespace namespace);
+	protected abstract void removeInternally(DefinedNamespace namespace);
 }

@@ -9,12 +9,8 @@ import io.oneko.user.event.EventAwareUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Profile(Profiles.IN_MEMORY)
@@ -28,39 +24,38 @@ public class UserInMemoryRepository extends EventAwareUserRepository {
 	}
 
 	@Override
-	protected Mono<ReadableUser> addInternally(WritableUser user) {
+	protected ReadableUser addInternally(WritableUser user) {
 		final ReadableUser readable = user.readable();
 		this.innerRepository.put(readable.getId(), readable);
-		return Mono.just(readable);
+		return readable;
 	}
 
 	@Override
-	protected Mono<Void> removeInternally(User user) {
+	protected void removeInternally(User user) {
 		innerRepository.remove(user.getId());
-		return Mono.empty();
 	}
 
 	@Override
-	public Mono<ReadableUser> getById(UUID userId) {
-		return Mono.justOrEmpty(innerRepository.get(userId));
+	public Optional<ReadableUser> getById(UUID userId) {
+		return Optional.ofNullable(innerRepository.get(userId));
 	}
 
 	@Override
-	public Mono<ReadableUser> getByUserName(String userName) {
-		return Mono.justOrEmpty(innerRepository.values().stream()
+	public Optional<ReadableUser> getByUserName(String userName) {
+		return innerRepository.values().stream()
 				.filter(user -> user.getUserName().equals(userName))
-				.findFirst());
+				.findFirst();
 	}
 
 	@Override
-	public Mono<ReadableUser> getByUserEmail(String userEmail) {
-		return Mono.justOrEmpty(innerRepository.values().stream()
+	public Optional<ReadableUser> getByUserEmail(String userEmail) {
+		return innerRepository.values().stream()
 				.filter(user -> user.getEmail().equals(userEmail))
-				.findFirst());
+				.findFirst();
 	}
 
 	@Override
-	public Flux<ReadableUser> getAll() {
-		return Flux.fromIterable(innerRepository.values());
+	public List<ReadableUser> getAll() {
+		return new ArrayList<>(innerRepository.values());
 	}
 }
