@@ -19,8 +19,6 @@ import com.google.common.base.MoreObjects;
 
 import io.oneko.automations.LifetimeBehaviourDTOMapper;
 import io.oneko.deployable.AggregatedDeploymentStatus;
-import io.oneko.docker.DockerRegistry;
-import io.oneko.docker.ReadableDockerRegistry;
 import io.oneko.kubernetes.deployments.DeployableStatus;
 import io.oneko.kubernetes.deployments.Deployment;
 import io.oneko.kubernetes.deployments.DeploymentDTO;
@@ -69,7 +67,7 @@ public class ProjectDTOMapper {
 		ProjectDTO dto = new ProjectDTO();
 		dto.setUuid(project.getId());
 		dto.setName(project.getName());
-		dto.setDockerRegistryUUID(project.getDockerRegistryUuid());
+		dto.setDockerRegistryUUID(project.getDockerRegistryId());
 		dto.setImageName(project.getImageName());
 		dto.setNewVersionsDeploymentBehaviour(project.getNewVersionsDeploymentBehaviour());
 		dto.setDefaultLifetimeBehaviour(project.getDefaultLifetimeBehaviour().map(lifetimeBehaviourDTOMapper::toLifetimeBehaviourDTO).orElse(null));
@@ -161,11 +159,11 @@ public class ProjectDTOMapper {
 		return dto;
 	}
 
-	public Mono<WritableProject> updateProjectFromDTO(WritableProject project, ProjectDTO projectDTO, ReadableDockerRegistry registry) {
+	public Mono<WritableProject> updateProjectFromDTO(WritableProject project, ProjectDTO projectDTO, UUID registryId) {
 		//id can not be changed
 		project.setName(projectDTO.getName());
 		project.setImageName(projectDTO.getImageName());
-		project.assignToNewRegistry(registry);
+		project.assignToNewRegistry(registryId);
 		ofNullable(projectDTO.getNewVersionsDeploymentBehaviour()).ifPresent(project::setNewVersionsDeploymentBehaviour);
 		project.setDefaultConfigurationTemplates(templateDTOMapper.updateFromDTOs(project.getDefaultConfigurationTemplates(), projectDTO.getDefaultConfigurationTemplates()));
 		project.setDefaultLifetimeBehaviour(ofNullable(projectDTO.getDefaultLifetimeBehaviour()).map(lifetimeBehaviourDTOMapper::toLifetimeBehaviour).orElse(null));

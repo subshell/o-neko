@@ -10,7 +10,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import io.oneko.automations.LifetimeBehaviour;
 import io.oneko.deployable.DeployableConfigurationTemplates;
 import io.oneko.deployable.DeploymentBehaviour;
-import io.oneko.docker.DockerRegistry;
 import io.oneko.project.ReadableProject;
 import io.oneko.project.ReadableProjectVersion;
 import io.oneko.project.WritableProject;
@@ -44,8 +43,8 @@ public class Deployables {
 			}
 
 			@Override
-			public DockerRegistry getDockerRegistry() {
-				return version.getProject().getDockerRegistry();
+			public UUID getDockerRegistryId() {
+				return version.getProject().getDockerRegistryId();
 			}
 
 			public WritableProject getRelatedProject() {
@@ -69,7 +68,9 @@ public class Deployables {
 			@Override
 			public List<String> getUrls() {
 				return version.getUrls();
-			}			@Override
+			}
+
+			@Override
 			public void setOutdated(boolean outdated) {
 				version.setOutdated(outdated);
 			}
@@ -82,7 +83,9 @@ public class Deployables {
 			@Override
 			public Optional<LifetimeBehaviour> calculateEffectiveLifetimeBehaviour() {
 				return version.getEffectiveLifetimeBehaviour();
-			}			@Override
+			}
+
+			@Override
 			public void setUrls(List<String> urls) {
 				version.setUrls(urls);
 			}
@@ -136,8 +139,8 @@ public class Deployables {
 			}
 
 			@Override
-			public DockerRegistry getDockerRegistry() {
-				return component.getProject().getDockerRegistry();
+			public UUID getDockerRegistryId() {
+				return component.getProject().getDockerRegistryId();
 			}
 
 			public ReadableProject getRelatedProject() {
@@ -187,7 +190,9 @@ public class Deployables {
 			@Override
 			public Map.Entry<String, String> getPrimaryLabel() {
 				return Pair.of(ProjectConstants.TemplateVariablesNames.ONEKO_MESH_COMPONENT, component.getId().toString());
-			}			@Override
+			}
+
+			@Override
 			public void setDockerContentDigest(String dockerContentDigest) {
 				component.setDockerContentDigest(dockerContentDigest);
 			}
@@ -196,12 +201,6 @@ public class Deployables {
 			public DesiredState getDesiredState() {
 				return component.getDesiredState();
 			}
-
-
-
-
-
-
 
 			@Override
 			public void setDesiredState(DesiredState desiredState) {

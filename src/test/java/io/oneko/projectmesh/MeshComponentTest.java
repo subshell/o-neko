@@ -27,35 +27,35 @@ public class MeshComponentTest {
 	@Test
 	public void testChangeVersion() {
 		ReadableDockerRegistry reg = new WritableDockerRegistry().readable();
-		WritableProject p = new WritableProject(reg);
+		WritableProject p = new WritableProject(reg.getId());
 		final ProjectVersion v1 = p.createVersion("v1");
 		final ProjectVersion v2 = p.createVersion("v2");
 		final ReadableProject readable = p.readable();
 
-		WritableProject someOtherProject = new WritableProject(reg);
+		WritableProject someOtherProject = new WritableProject(reg.getId());
 		someOtherProject.createVersion("v2");
 		final ReadableProject someOtherReadable = someOtherProject.readable();
 
 		WritableProjectMesh mesh = new WritableProjectMesh();
 		WritableMeshComponent c = new WritableMeshComponent(mesh, readable, readable.getVersionByName("v1").get());
 
-		assertThat(c.getProjectVersion(), is(v1));
+		assertThat(c.getProjectVersion().getId(), is(v1.getId()));
 
 		c.setProjectVersion(readable.getVersionByName("v2").get());
-		assertThat(c.getProjectVersion(), is(v2));
+		assertThat(c.getProjectVersion().getId(), is(v2.getId()));
 
 		try {
 			c.setProjectVersion(someOtherReadable.getVersionByName("v2").get());
 			fail();
 		} catch (IllegalArgumentException e) {
-			assertThat(c.getProjectVersion(), is(v2));
+			assertThat(c.getProjectVersion().getId(), is(v2.getId()));
 		}
 	}
 
 	@Test
 	public void testTemplateComposition() {
 		ReadableDockerRegistry reg = new WritableDockerRegistry().readable();
-		WritableProject p = new WritableProject(reg);
+		WritableProject p = new WritableProject(reg.getId());
 		p.setDefaultConfigurationTemplates(Arrays.asList(
 				new WritableConfigurationTemplate(UUID.randomUUID(), "content1 ${a}", "name1", ""),
 				new WritableConfigurationTemplate(UUID.randomUUID(), "content2 ${b}", "name2", ""),

@@ -3,16 +3,10 @@ package io.oneko.kubernetes.impl;
 import static io.oneko.kubernetes.deployments.DesiredState.*;
 import static io.oneko.project.ProjectConstants.LabelNames.*;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import io.oneko.docker.DockerRegistryRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -52,13 +46,15 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 
 	private final KubernetesAccess kubernetesAccess;
 	private final DockerRegistryV2ClientFactory dockerRegistryV2ClientFactory;
+	private final DockerRegistryRepository dockerRegistryRepository;
 	private final ProjectRepository projectRepository;
 	private final ProjectMeshRepository projectMeshRepository;
 
 	KubernetesDeploymentManagerImpl(KubernetesAccess kubernetesAccess, DockerRegistryV2ClientFactory dockerRegistryV2ClientFactory,
-									ProjectRepository projectRepository, ProjectMeshRepository projectMeshRepository) {
+									DockerRegistryRepository dockerRegistryRepository, ProjectRepository projectRepository, ProjectMeshRepository projectMeshRepository) {
 		this.kubernetesAccess = kubernetesAccess;
 		this.dockerRegistryV2ClientFactory = dockerRegistryV2ClientFactory;
+		this.dockerRegistryRepository = dockerRegistryRepository;
 		this.projectRepository = projectRepository;
 		this.projectMeshRepository = projectMeshRepository;
 	}
@@ -70,8 +66,8 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 			Deployable<WritableProjectVersion> deployableVersion = Deployables.of(version);
 			String namespace = version.getNamespace().asKubernetesNameSpace();
 			return kubernetesAccess.createNamespaceIfNotExistent(version)
-					.then(createSecretIfNotExistent(deployableVersion.getDockerRegistry(), namespace))
-					.then(ensureServiceAccountIsPatchedWithRegistry(deployableVersion.getDockerRegistry(), namespace))
+					.then(createSecretIfNotExistent(deployableVersion.getDockerRegistryId(), namespace))
+					.then(ensureServiceAccountIsPatchedWithRegistry(deployableVersion.getDockerRegistryId(), namespace))
 					.doOnNext(v -> kubernetesAccess.deleteAllResourcesFromNameSpace(namespace, deployableVersion.getPrimaryLabel()))
 					.then(getTemplateAsResources(deployableVersion))
 					.map(resources -> kubernetesAccess.createResourcesInNameSpace(namespace, resources))
@@ -105,8 +101,8 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 			return kubernetesAccess.createNamespaceIfNotExistent(mesh)
 					.thenMany(Flux.fromIterable(components))
 					.map(Deployables::of)
-					.flatMap(deployableComponent -> createSecretIfNotExistent(deployableComponent.getDockerRegistry(), namespace).thenReturn(deployableComponent))
-					.flatMap(deployableComponent -> ensureServiceAccountIsPatchedWithRegistry(deployableComponent.getDockerRegistry(), namespace).thenReturn(deployableComponent))
+					.flatMap(deployableComponent -> createSecretIfNotExistent(deployableComponent.getDockerRegistryId(), namespace).thenReturn(deployableComponent))
+					.flatMap(deployableComponent -> ensureServiceAccountIsPatchedWithRegistry(deployableComponent.getDockerRegistryId(), namespace).thenReturn(deployableComponent))
 					.doOnNext(deployableComponent -> kubernetesAccess.deleteAllResourcesFromNameSpace(namespace, deployableComponent.getPrimaryLabel()))
 					.flatMap(deployableComponent ->
 							getTemplateAsResources(deployableComponent)
@@ -195,8 +191,18 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 				dockerRegistry.getRegistryUrl());
 	}
 
+	private Mono<Secret> createSecretIfNotExistent(UUID dockerRegistryId, String namespace) {
+		return this.dockerRegistryRepository.getById(dockerRegistryId)
+				.flatMap(dockerRegistry -> this.createSecretIfNotExistent(dockerRegistry, namespace));
+	}
+
 	private Mono<ServiceAccount> ensureServiceAccountIsPatchedWithRegistry(DockerRegistry dockerRegistry, String namespace) {
 		return kubernetesAccess.createServiceAccountIfNotExisting(namespace, KubernetesConventions.secretName(dockerRegistry));
+	}
+
+	private Mono<ServiceAccount> ensureServiceAccountIsPatchedWithRegistry(UUID dockerRegistryId, String namespace) {
+		return this.dockerRegistryRepository.getById(dockerRegistryId)
+				.flatMap(reg -> this.ensureServiceAccountIsPatchedWithRegistry(reg, namespace));
 	}
 
 	private boolean addLabelToMeta(ObjectMeta meta, String key, String value) {

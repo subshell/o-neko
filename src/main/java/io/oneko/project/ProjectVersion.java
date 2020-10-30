@@ -27,7 +27,7 @@ import io.oneko.templates.ConfigurationTemplates;
  */
 public interface ProjectVersion<P extends Project<P, V>, V extends ProjectVersion<P, V>> extends HasNamespace {
 
-	UUID getUuid();
+	UUID getId();
 
 	P getProject();
 

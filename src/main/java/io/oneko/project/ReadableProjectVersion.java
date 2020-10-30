@@ -37,7 +37,7 @@ public class ReadableProjectVersion extends Identifiable implements ProjectVersi
 	private final ImmutableList<ReadableConfigurationTemplate> configurationTemplates;
 	private final boolean outdated;
 	private final LifetimeBehaviour lifetimeBehaviour;
-	private final Namespace namespace;
+	private Namespace namespace;
 	private final DesiredState desiredState;
 	private final Instant imageUpdatedDate;
 
@@ -55,7 +55,7 @@ public class ReadableProjectVersion extends Identifiable implements ProjectVersi
 		this.outdated = outdated;
 		this.configurationTemplates = ImmutableList.copyOf(configurationTemplates);
 		this.lifetimeBehaviour = lifetimeBehaviour;
-		this.namespace = Objects.requireNonNullElse(namespace, new ImplicitNamespace(this));
+		this.namespace = namespace;
 		this.desiredState = Objects.requireNonNullElse(desiredState, NotDeployed);
 		this.imageUpdatedDate = imageUpdatedDate;
 	}
@@ -63,6 +63,10 @@ public class ReadableProjectVersion extends Identifiable implements ProjectVersi
 	//this here should only be called by the project
 	void setProject(ReadableProject project) {
 		this.project = project;
+		//The implicit namespace requires the project to be set
+		if (this.namespace == null) {
+			this.namespace = new ImplicitNamespace(this);
+		}
 	}
 
 	@Override

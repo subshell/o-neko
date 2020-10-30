@@ -10,17 +10,11 @@ import org.apache.commons.lang3.StringUtils;
 
 import io.oneko.automations.LifetimeBehaviour;
 import io.oneko.deployable.DeploymentBehaviour;
-import io.oneko.docker.DockerRegistry;
-import io.oneko.docker.ReadableDockerRegistry;
 import io.oneko.templates.ConfigurationTemplate;
 
 public interface Project<P extends Project<P, V>, V extends ProjectVersion<P, V>> {
 
-	default UUID getId() {
-		return this.getUuid();
-	}
-
-	UUID getUuid();
+	UUID getId();
 
 	String getName();
 
@@ -41,32 +35,22 @@ public interface Project<P extends Project<P, V>, V extends ProjectVersion<P, V>
 		return implicitTemplateVariables;
 	}
 
-	/**
-	 * Short hand method for retrieving the {@link DockerRegistry#getUuid()} of this project's {@link #getDockerRegistry()}.
-	 */
-	default UUID getDockerRegistryUuid() {
-		if (this.isOrphan()) {
-			return null;
-		} else {
-			return this.getDockerRegistry().getUuid();
-		}
-	}
+	UUID getDockerRegistryId();
 
-	ReadableDockerRegistry getDockerRegistry();
 
 	/**
 	 * An orphaned project has no docker registry assigned. This happens, when a registry is getting deleted.
 	 * No deployments can be performed on orphaned project's versions.
 	 */
 	default boolean isOrphan() {
-		return this.getDockerRegistry() == null;
+		return this.getDockerRegistryId() == null;
 	}
 
 	List<V> getVersions();
 
 	default Optional<V> getVersionByUUID(UUID versionUUID) {
 		return getVersions().stream()
-				.filter(version -> version.getUuid().equals(versionUUID))
+				.filter(version -> version.getId().equals(versionUUID))
 				.findAny();
 	}
 

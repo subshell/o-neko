@@ -25,7 +25,7 @@ import reactor.core.publisher.Mono;
 @Profile(Profiles.IN_MEMORY)
 public class ProjectInMemoryRepository extends EventAwareProjectRepository {
 
-	private Map<UUID, ReadableProject> projects = new HashMap<>();
+	private final Map<UUID, ReadableProject> projects = new HashMap<>();
 
 	protected ProjectInMemoryRepository(EventDispatcher eventDispatcher) {
 		super(eventDispatcher);
@@ -63,7 +63,7 @@ public class ProjectInMemoryRepository extends EventAwareProjectRepository {
 	public Flux<ReadableProject> getByDockerRegistryUuid(UUID dockerRegistryUUID) {
 		List<ReadableProject> collect = this.projects.values()
 				.stream()
-				.filter(p -> Objects.equals(dockerRegistryUUID, p.getDockerRegistryUuid()))
+				.filter(p -> Objects.equals(dockerRegistryUUID, p.getDockerRegistryId()))
 				.collect(Collectors.toList());
 		return Flux.fromIterable(collect);
 	}
