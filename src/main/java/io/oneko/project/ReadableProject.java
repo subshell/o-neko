@@ -36,12 +36,12 @@ public class ReadableProject extends Identifiable implements Project<ReadablePro
 		this.name = name;
 		this.imageName = imageName;
 		this.newVersionsDeploymentBehaviour = newVersionsDeploymentBehaviour;
-		this.defaultConfigurationTemplates = ImmutableList.copyOf(defaultConfigurationTemplates);
+		this.defaultConfigurationTemplates = defaultConfigurationTemplates == null ? ImmutableList.of() : ImmutableList.copyOf(defaultConfigurationTemplates);
 		this.dockerRegistryId = dockerRegistryId;
 		this.defaultLifetimeBehaviour = defaultLifetimeBehaviour;
-		this.templateVariables = ImmutableList.copyOf(templateVariables);
-		this.versions = ImmutableList.copyOf(versions);
-		versions.forEach(v -> v.setProject(this));
+		this.templateVariables = templateVariables == null ? ImmutableList.of() : ImmutableList.copyOf(templateVariables);
+		this.versions = versions == null ? ImmutableList.of() : ImmutableList.copyOf(versions);
+		this.versions.forEach(v -> v.setProject(this));
 	}
 
 	@Override

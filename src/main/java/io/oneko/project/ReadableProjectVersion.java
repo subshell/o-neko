@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
@@ -50,10 +51,10 @@ public class ReadableProjectVersion extends Identifiable implements ProjectVersi
 		this.name = name;
 		this.deploymentBehaviour = deploymentBehaviour;
 		this.dockerContentDigest = dockerContentDigest;
-		this.templateVariables = ImmutableMap.copyOf(templateVariables);
+		this.templateVariables = templateVariables == null ? ImmutableMap.of() : ImmutableMap.copyOf(templateVariables);
 		this.urls = ImmutableList.copyOf(urls);
 		this.outdated = outdated;
-		this.configurationTemplates = ImmutableList.copyOf(configurationTemplates);
+		this.configurationTemplates = configurationTemplates == null ? ImmutableList.of() : ImmutableList.copyOf(configurationTemplates);
 		this.lifetimeBehaviour = lifetimeBehaviour;
 		this.namespace = namespace;
 		this.desiredState = Objects.requireNonNullElse(desiredState, NotDeployed);
@@ -62,6 +63,7 @@ public class ReadableProjectVersion extends Identifiable implements ProjectVersi
 
 	//this here should only be called by the project
 	void setProject(ReadableProject project) {
+		Preconditions.checkArgument(this.project == null, "The project can not be set more than once");
 		this.project = project;
 		//The implicit namespace requires the project to be set
 		if (this.namespace == null) {
@@ -95,7 +97,7 @@ public class ReadableProjectVersion extends Identifiable implements ProjectVersi
 					.collect(Collectors.toList()))
 				.outdated(isOutdated())
 				.lifetimeBehaviour(lifetimeBehaviour)
-				.namespace(getNamespace() instanceof DefinedNamespace ? (DefinedNamespace)getNamespace() : null)
+				.namespace(namespace instanceof DefinedNamespace ? (DefinedNamespace)getNamespace() : null)
 				.desiredState(getDesiredState())
 				.imageUpdatedDate(getImageUpdatedDate())
 				.build();

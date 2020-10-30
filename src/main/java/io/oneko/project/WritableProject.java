@@ -72,10 +72,10 @@ public class WritableProject extends ModificationAwareIdentifiable implements Pr
 		this.defaultConfigurationTemplates.init(defaultConfigurationTemplates);
 		this.dockerRegistryId.init(dockerRegistryId);
 		this.defaultLifetimeBehaviour.init(defaultLifetimeBehaviour);
-		this.versions = new ArrayList<>(versions);
-		versions.forEach(v -> v.setProject(this));
 		this.templateVariables = templateVariables;
 		this.newProject = false;
+		this.versions = versions == null ? new ArrayList<>() : new ArrayList<>(versions);
+		this.versions.forEach(v -> v.setProject(this));
 	}
 
 	@Override

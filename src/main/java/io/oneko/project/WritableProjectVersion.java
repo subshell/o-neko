@@ -60,7 +60,7 @@ public class WritableProjectVersion extends ModificationAwareIdentifiable implem
 		this.outdated.init(outdated);
 		this.configurationTemplates.init(configurationTemplates);
 		this.lifetimeBehaviour.init(lifetimeBehaviour);
-		this.namespace.init(Objects.requireNonNullElse(namespace, new ImplicitNamespace(this)));
+		this.namespace.init(namespace);
 		this.desiredState.init(Objects.requireNonNullElse(desiredState, NotDeployed));
 		this.imageUpdatedDate.init(imageUpdatedDate);
 	}
@@ -70,6 +70,10 @@ public class WritableProjectVersion extends ModificationAwareIdentifiable implem
 	 */
 	void setProject(WritableProject project) {
 		this.project = project;
+		//The implicit namespace requires the project to be set
+		if (this.namespace.get() == null) {
+			this.namespace.init(new ImplicitNamespace(this));
+		}
 	}
 
 	/**
