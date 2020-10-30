@@ -4,7 +4,6 @@ import static io.oneko.deployable.DeploymentBehaviour.*;
 import static io.oneko.kubernetes.deployments.DesiredState.*;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -91,7 +90,7 @@ class DockerRegistryPolling {
 			this.currentPollingJob = new DockerRegistryPollingJob(meshesMono.zipWith(projectsMono)
 					.flatMap(pair -> this.checkDockerForNewImages(pair.getT1(), pair.getT2()))
 					.doOnTerminate(() -> log.trace("Finished polling job"))
-					.subscribe(), Instant.now()).withTimeoutDuration(pollingTimeoutDuration);
+					.subscribe()).withTimeoutDuration(pollingTimeoutDuration);
 		} else if (this.currentPollingJob != null && (this.currentPollingJob.shouldCancel() || this.currentPollingJob.isCancelled())) {
 			log.info("The job timed out. Cancelling it.");
 			this.currentPollingJob.cancel();
