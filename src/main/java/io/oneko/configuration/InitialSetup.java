@@ -2,6 +2,8 @@ package io.oneko.configuration;
 
 import javax.annotation.PostConstruct;
 
+import io.oneko.user.ReadableUser;
+import io.oneko.user.WritableUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -9,7 +11,6 @@ import org.springframework.stereotype.Component;
 import io.oneko.activity.ActivityPriority;
 import io.oneko.event.EventTrigger;
 import io.oneko.security.UserRole;
-import io.oneko.user.User;
 import io.oneko.user.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -49,14 +50,15 @@ public class InitialSetup extends EventTrigger {
 				.subscribe(null, e -> log.error(e.getMessage(), e));
 	}
 
-	private Mono<User> ensureAdminUserHasAdminRoleIfExists() {
+	private Mono<ReadableUser> ensureAdminUserHasAdminRoleIfExists() {
 		return this.userRepository.getByUserName("admin")
+				.map(ReadableUser::writable)
 				.doOnNext(user -> user.setRole(UserRole.ADMIN))
 				.flatMap(userRepository::add);
 	}
 
-	private Mono<User> createAdmin() {
-		User newAdmin = new User();
+	private Mono<ReadableUser> createAdmin() {
+		WritableUser newAdmin = new WritableUser();
 		newAdmin.setRole(UserRole.ADMIN);
 		newAdmin.setUserName("admin");
 		newAdmin.setPasswordAuthentication("admin", this.passwordEncoder);

@@ -16,10 +16,12 @@ import io.oneko.kubernetes.deployments.DeployableStatus;
 import io.oneko.kubernetes.deployments.Deployables;
 import io.oneko.kubernetes.deployments.Deployment;
 import io.oneko.kubernetes.deployments.DeploymentRepository;
-import io.oneko.project.Project;
+import io.oneko.project.ReadableProject;
 import io.oneko.project.ProjectRepository;
 import io.oneko.project.ProjectVersion;
-import io.oneko.projectmesh.ProjectMesh;
+import io.oneko.project.WritableProject;
+import io.oneko.projectmesh.ReadableProjectMesh;
+import io.oneko.projectmesh.WritableProjectMesh;
 import io.oneko.projectmesh.ProjectMeshRepository;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -44,7 +46,8 @@ public class ScheduledLifetimeController {
 	@Scheduled(fixedRate = 5 * 60000)
 	public void checkProjects() {
 		projectRepository.getAll()
-				.flatMapIterable(Project::getVersions)
+				.map(ReadableProject::writable)
+				.flatMapIterable(WritableProject::getVersions)
 				.filter(this::shouldConsiderVersion)
 				.map(Deployables::of)
 				.collectList()
@@ -63,7 +66,8 @@ public class ScheduledLifetimeController {
 	@Scheduled(fixedRate = 5 * 60000, initialDelay = 2 * 60000)
 	public void checkProjectVersions() {
 		meshRepository.getAll()
-				.flatMapIterable(ProjectMesh::getComponents)
+				.map(ReadableProjectMesh::writable)
+				.flatMapIterable(WritableProjectMesh::getComponents)
 				.filter(component -> this.shouldConsider(component.getOwner().getLifetimeBehaviour()))
 				.map(Deployables::of)
 				.collectList()
@@ -78,7 +82,7 @@ public class ScheduledLifetimeController {
 		}, e -> log.error(e.getMessage(), e));
 	}
 
-	private boolean shouldConsiderVersion(ProjectVersion version) {
+	private boolean shouldConsiderVersion(ProjectVersion<?, ?> version) {
 		final var effectiveLifetimeBehaviour = version.getEffectiveLifetimeBehaviour();
 		return shouldConsider(effectiveLifetimeBehaviour);
 	}

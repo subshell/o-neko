@@ -11,82 +11,89 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import io.oneko.docker.ReadableDockerRegistry;
+import io.oneko.docker.WritableDockerRegistry;
 import org.junit.Test;
 
-import io.oneko.docker.DockerRegistry;
-import io.oneko.project.Project;
+import io.oneko.project.ReadableProject;
+import io.oneko.project.WritableProject;
 import io.oneko.project.ProjectVersion;
-import io.oneko.project.TemplateVariable;
-import io.oneko.templates.ConfigurationTemplate;
+import io.oneko.project.WritableProjectVersion;
+import io.oneko.project.WritableTemplateVariable;
+import io.oneko.templates.WritableConfigurationTemplate;
 
 public class MeshComponentTest {
 
 	@Test
 	public void testChangeVersion() {
-		DockerRegistry reg = new DockerRegistry();
-		Project p = new Project(reg);
+		ReadableDockerRegistry reg = new WritableDockerRegistry().readable();
+		WritableProject p = new WritableProject(reg.getId());
 		final ProjectVersion v1 = p.createVersion("v1");
 		final ProjectVersion v2 = p.createVersion("v2");
+		final ReadableProject readable = p.readable();
 
-		Project someOtherProject = new Project(reg);
-		final ProjectVersion someOtherProjectsVersion = someOtherProject.createVersion("v2");
+		WritableProject someOtherProject = new WritableProject(reg.getId());
+		someOtherProject.createVersion("v2");
+		final ReadableProject someOtherReadable = someOtherProject.readable();
 
-		ProjectMesh mesh = new ProjectMesh();
-		MeshComponent c = new MeshComponent(mesh, p, v1);
+		WritableProjectMesh mesh = new WritableProjectMesh();
+		WritableMeshComponent c = new WritableMeshComponent(mesh, readable, readable.getVersionByName("v1").get());
 
-		assertThat(c.getProjectVersion(), is(v1));
+		assertThat(c.getProjectVersion().getId(), is(v1.getId()));
 
-		c.setProjectVersion(v2);
-		assertThat(c.getProjectVersion(), is(v2));
+		c.setProjectVersion(readable.getVersionByName("v2").get());
+		assertThat(c.getProjectVersion().getId(), is(v2.getId()));
 
 		try {
-			c.setProjectVersion(someOtherProjectsVersion);
+			c.setProjectVersion(someOtherReadable.getVersionByName("v2").get());
 			fail();
 		} catch (IllegalArgumentException e) {
-			assertThat(c.getProjectVersion(), is(v2));
+			assertThat(c.getProjectVersion().getId(), is(v2.getId()));
 		}
 	}
 
 	@Test
 	public void testTemplateComposition() {
-		DockerRegistry r = new DockerRegistry();
-		Project p = new Project(r);
+		ReadableDockerRegistry reg = new WritableDockerRegistry().readable();
+		WritableProject p = new WritableProject(reg.getId());
 		p.setDefaultConfigurationTemplates(Arrays.asList(
-				new ConfigurationTemplate(UUID.randomUUID(), "content1 ${a}", "name1", ""),
-				new ConfigurationTemplate(UUID.randomUUID(), "content2 ${b}", "name2", ""),
-				new ConfigurationTemplate(UUID.randomUUID(), "content3 ${c}", "name3", ""),
-				new ConfigurationTemplate(UUID.randomUUID(), "content4 ${d}", "name4", "")));
-		List<TemplateVariable> defaultTemplateVariables = new ArrayList<>();
-		defaultTemplateVariables.add(new TemplateVariable("a", "a", Collections.singletonList("a1"), true, "a1", false));
-		defaultTemplateVariables.add(new TemplateVariable("b", "b", Collections.singletonList("b1"), true, "b1", false));
-		defaultTemplateVariables.add(new TemplateVariable("c", "b", Collections.singletonList("c1"), true, "c1", false));
-		defaultTemplateVariables.add(new TemplateVariable("d", "b", Collections.singletonList("d1"), true, "d1", false));
+				new WritableConfigurationTemplate(UUID.randomUUID(), "content1 ${a}", "name1", ""),
+				new WritableConfigurationTemplate(UUID.randomUUID(), "content2 ${b}", "name2", ""),
+				new WritableConfigurationTemplate(UUID.randomUUID(), "content3 ${c}", "name3", ""),
+				new WritableConfigurationTemplate(UUID.randomUUID(), "content4 ${d}", "name4", "")));
+		List<WritableTemplateVariable> defaultTemplateVariables = new ArrayList<>();
+		defaultTemplateVariables.add(new WritableTemplateVariable("a", "a", Collections.singletonList("a1"), true, "a1", false));
+		defaultTemplateVariables.add(new WritableTemplateVariable("b", "b", Collections.singletonList("b1"), true, "b1", false));
+		defaultTemplateVariables.add(new WritableTemplateVariable("c", "b", Collections.singletonList("c1"), true, "c1", false));
+		defaultTemplateVariables.add(new WritableTemplateVariable("d", "b", Collections.singletonList("d1"), true, "d1", false));
 		p.setTemplateVariables(defaultTemplateVariables);
 
-		final ProjectVersion v = p.createVersion("v1");
+		final WritableProjectVersion v = p.createVersion("v1");
 		v.setConfigurationTemplates(Arrays.asList(
-				new ConfigurationTemplate(UUID.randomUUID(), "content3 ${c} from version", "name3", ""),
-				new ConfigurationTemplate(UUID.randomUUID(), "content4 ${d} from version", "name4", ""),
-				new ConfigurationTemplate(UUID.randomUUID(), "content5 ${e} from version", "name5", "")));
+				new WritableConfigurationTemplate(UUID.randomUUID(), "content3 ${c} from version", "name3", ""),
+				new WritableConfigurationTemplate(UUID.randomUUID(), "content4 ${d} from version", "name4", ""),
+				new WritableConfigurationTemplate(UUID.randomUUID(), "content5 ${e} from version", "name5", "")));
 
 		Map<String, String> templateVariables = new HashMap<>();
 		templateVariables.put("b", "b2");
 		templateVariables.put("e", "e2");
 		v.setTemplateVariables(templateVariables);
 
-		ProjectMesh mesh = new ProjectMesh();
-		MeshComponent c = new MeshComponent(mesh, p, v);
+		final ReadableProject readable = p.readable();
+
+		WritableProjectMesh mesh = new WritableProjectMesh();
+		WritableMeshComponent c = new WritableMeshComponent(mesh, readable, readable.getVersionByName(v.getName()).get());
 		c.setConfigurationTemplates(Arrays.asList(
-				new ConfigurationTemplate(UUID.randomUUID(), "content2 ${b} from mesh", "name2", ""),
-				new ConfigurationTemplate(UUID.randomUUID(), "content4 ${d} from mesh", "name4", ""),
-				new ConfigurationTemplate(UUID.randomUUID(), "content6 ${f} from mesh", "name6", "")));
+				new WritableConfigurationTemplate(UUID.randomUUID(), "content2 ${b} from mesh", "name2", ""),
+				new WritableConfigurationTemplate(UUID.randomUUID(), "content4 ${d} from mesh", "name4", ""),
+				new WritableConfigurationTemplate(UUID.randomUUID(), "content6 ${f} from mesh", "name6", "")));
 
 		Map<String, String> meshTemplateVariables = new HashMap<>();
 		meshTemplateVariables.put("c", "c3");
 		meshTemplateVariables.put("f", "f3");
 		c.setTemplateVariables(meshTemplateVariables);
 
-		final List<ConfigurationTemplate> calculatedConfigurationTemplates = c.getCalculatedConfigurationTemplates();
+		final List<WritableConfigurationTemplate> calculatedConfigurationTemplates = c.getCalculatedConfigurationTemplates();
 		assertThat(calculatedConfigurationTemplates, hasSize(6));
 		assertThat(calculatedConfigurationTemplates.get(0).getName(), is("name1"));
 		assertThat(calculatedConfigurationTemplates.get(0).getContent(), is("content1 a1"));

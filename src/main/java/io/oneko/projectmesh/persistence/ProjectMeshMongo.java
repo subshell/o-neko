@@ -1,6 +1,5 @@
 package io.oneko.projectmesh.persistence;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,5 +27,5 @@ public class ProjectMeshMongo {
 	private UUID namespace;
 	private DeploymentBehaviour deploymentBehaviour;
 	private LifetimeBehaviour lifetimeBehaviour;
-	private List<MeshComponentMongo> components = new ArrayList<>();
+	private List<MeshComponentMongo> components;
 }

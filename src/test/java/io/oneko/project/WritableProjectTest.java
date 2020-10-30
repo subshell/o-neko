@@ -1,26 +1,25 @@
 package io.oneko.project;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import io.oneko.templates.WritableConfigurationTemplate;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.UUID;
 
-import org.junit.Test;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
-import io.oneko.docker.DockerRegistry;
-import io.oneko.templates.ConfigurationTemplate;
-
-public class ProjectTest {
+public class WritableProjectTest {
 
 	@Test
 	public void testSetDefaultConfigurationTemplates() {
-		DockerRegistry dockerRegistry = new DockerRegistry();
-		Project uut = new Project(dockerRegistry);
+		WritableProject uut = new WritableProject(UUID.randomUUID());
 
 		assertThat(uut.getDefaultConfigurationTemplates(), is(empty()));
 
-		ConfigurationTemplate t1 = new ConfigurationTemplate();
+		WritableConfigurationTemplate t1 = new WritableConfigurationTemplate();
 		t1.setName("test");
 		uut.setDefaultConfigurationTemplates(Collections.singletonList(t1));
 		assertThat(uut.getDefaultConfigurationTemplates(), hasItem(t1));
@@ -32,7 +31,7 @@ public class ProjectTest {
 			assertThat(uut.getDefaultConfigurationTemplates(), hasItem(t1));
 		}
 
-		ConfigurationTemplate t2 = new ConfigurationTemplate();
+		WritableConfigurationTemplate t2 = new WritableConfigurationTemplate();
 		t2.setName("test");
 
 		try {

@@ -10,19 +10,20 @@ import org.apache.commons.lang3.tuple.Pair;
 import io.oneko.automations.LifetimeBehaviour;
 import io.oneko.deployable.DeployableConfigurationTemplates;
 import io.oneko.deployable.DeploymentBehaviour;
-import io.oneko.docker.DockerRegistry;
-import io.oneko.project.Project;
+import io.oneko.project.ReadableProject;
+import io.oneko.project.ReadableProjectVersion;
+import io.oneko.project.WritableProject;
 import io.oneko.project.ProjectConstants;
-import io.oneko.project.ProjectVersion;
-import io.oneko.projectmesh.MeshComponent;
+import io.oneko.project.WritableProjectVersion;
+import io.oneko.projectmesh.WritableMeshComponent;
 
 public class Deployables {
 
-	public static Deployable<ProjectVersion> of(ProjectVersion version) {
+	public static Deployable<WritableProjectVersion> of(WritableProjectVersion version) {
 		return new Deployable<>() {
 
 			@Override
-			public ProjectVersion getEntity() {
+			public WritableProjectVersion getEntity() {
 				return version;
 			}
 
@@ -42,15 +43,15 @@ public class Deployables {
 			}
 
 			@Override
-			public DockerRegistry getDockerRegistry() {
-				return version.getProject().getDockerRegistry();
+			public UUID getDockerRegistryId() {
+				return version.getProject().getDockerRegistryId();
 			}
 
-			public Project getRelatedProject() {
+			public WritableProject getRelatedProject() {
 				return version.getProject();
 			}
 
-			public ProjectVersion getRelatedProjectVersion() {
+			public WritableProjectVersion getRelatedProjectVersion() {
 				return version;
 			}
 
@@ -67,7 +68,9 @@ public class Deployables {
 			@Override
 			public List<String> getUrls() {
 				return version.getUrls();
-			}			@Override
+			}
+
+			@Override
 			public void setOutdated(boolean outdated) {
 				version.setOutdated(outdated);
 			}
@@ -80,7 +83,9 @@ public class Deployables {
 			@Override
 			public Optional<LifetimeBehaviour> calculateEffectiveLifetimeBehaviour() {
 				return version.getEffectiveLifetimeBehaviour();
-			}			@Override
+			}
+
+			@Override
 			public void setUrls(List<String> urls) {
 				version.setUrls(urls);
 			}
@@ -103,12 +108,6 @@ public class Deployables {
 				return version.getDesiredState();
 			}
 
-
-
-
-
-
-
 			@Override
 			public void setDesiredState(DesiredState desiredState) {
 				version.setDesiredState(desiredState);
@@ -116,11 +115,11 @@ public class Deployables {
 		};
 	}
 
-	public static Deployable<MeshComponent> of(MeshComponent component) {
+	public static Deployable<WritableMeshComponent> of(WritableMeshComponent component) {
 		return new Deployable<>() {
 
 			@Override
-			public MeshComponent getEntity() {
+			public WritableMeshComponent getEntity() {
 				return component;
 			}
 
@@ -140,15 +139,15 @@ public class Deployables {
 			}
 
 			@Override
-			public DockerRegistry getDockerRegistry() {
-				return component.getProject().getDockerRegistry();
+			public UUID getDockerRegistryId() {
+				return component.getProject().getDockerRegistryId();
 			}
 
-			public Project getRelatedProject() {
+			public ReadableProject getRelatedProject() {
 				return component.getProject();
 			}
 
-			public ProjectVersion getRelatedProjectVersion() {
+			public ReadableProjectVersion getRelatedProjectVersion() {
 				return component.getProjectVersion();
 			}
 
@@ -191,7 +190,9 @@ public class Deployables {
 			@Override
 			public Map.Entry<String, String> getPrimaryLabel() {
 				return Pair.of(ProjectConstants.TemplateVariablesNames.ONEKO_MESH_COMPONENT, component.getId().toString());
-			}			@Override
+			}
+
+			@Override
 			public void setDockerContentDigest(String dockerContentDigest) {
 				component.setDockerContentDigest(dockerContentDigest);
 			}
@@ -200,12 +201,6 @@ public class Deployables {
 			public DesiredState getDesiredState() {
 				return component.getDesiredState();
 			}
-
-
-
-
-
-
 
 			@Override
 			public void setDesiredState(DesiredState desiredState) {

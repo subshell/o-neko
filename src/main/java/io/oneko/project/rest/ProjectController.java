@@ -4,6 +4,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
+import io.oneko.docker.DockerRegistry;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,10 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import io.oneko.configuration.Controllers;
-import io.oneko.docker.DockerRegistry;
 import io.oneko.docker.DockerRegistryRepository;
 import io.oneko.kubernetes.KubernetesDeploymentManager;
-import io.oneko.project.Project;
+import io.oneko.project.ReadableProject;
+import io.oneko.project.WritableProject;
 import io.oneko.project.ProjectRepository;
 import io.oneko.project.ProjectVersion;
 import io.oneko.project.rest.export.ProjectExportDTO;
@@ -52,15 +53,20 @@ public class ProjectController {
 		this.kubernetesDeploymentManager = kubernetesDeploymentManager;
 	}
 
-	private Mono<DockerRegistry> getDockerRegistryForProject(Project project, ProjectDTO dto) {
-		if (Objects.equals(project.getDockerRegistryUuid(), dto.getDockerRegistryUUID())) {
+	/**
+	 * Ensures that the DTO refers to a docker registry that actually exists...
+	 */
+	private Mono<UUID> getDockerRegistryIdForProject(ReadableProject project, ProjectDTO dto) {
+		//TODO: that check might not belong here...
+		if (Objects.equals(project.getDockerRegistryId(), dto.getDockerRegistryUUID())) {
 			//no change, so...
-			return Mono.just(project.getDockerRegistry());
+			return Mono.just(project.getDockerRegistryId());
 		} else if (Objects.isNull(dto.getDockerRegistryUUID())) {
 			return Mono.empty();
 		} else {
 			return dockerRegistryRepository.getById(dto.getDockerRegistryUUID())
-					.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "DockerRegistry with id " + dto.getDockerRegistryUUID() + " not found")));
+					.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "DockerRegistry with id " + dto.getDockerRegistryUUID() + " not found")))
+					.map(DockerRegistry::getUuid);
 		}
 	}
 
@@ -74,8 +80,9 @@ public class ProjectController {
 	@PostMapping
 	Mono<ProjectDTO> createProject(@RequestBody ProjectDTO dto) {
 		return dockerRegistryRepository.getById(dto.getDockerRegistryUUID())
-				.map(Project::new)
-				.flatMap(p -> this.dtoMapper.updateProjectFromDTO(p, dto, p.getDockerRegistry()))
+				.map(DockerRegistry::getUuid)
+				.map(WritableProject::new)
+				.flatMap(p -> this.dtoMapper.updateProjectFromDTO(p, dto, p.getDockerRegistryId()))
 				.flatMap(this.projectRepository::add)
 				.flatMap(this.dtoMapper::projectToDTO);
 	}
@@ -93,8 +100,8 @@ public class ProjectController {
 	Mono<ProjectDTO> updateProject(@PathVariable UUID id, @RequestBody ProjectDTO dto) {
 		return this.projectRepository.getById(id)
 				.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Project with id " + id + " not found")))
-				.zipWhen(project -> this.getDockerRegistryForProject(project, dto))
-				.flatMap(tuple2 -> this.dtoMapper.updateProjectFromDTO(tuple2.getT1(), dto, tuple2.getT2()))
+				.zipWhen(project -> this.getDockerRegistryIdForProject(project, dto))
+				.flatMap(tuple2 -> this.dtoMapper.updateProjectFromDTO(tuple2.getT1().writable(), dto, tuple2.getT2()))
 				.flatMap(this.projectRepository::add)
 				.flatMap(this.dtoMapper::projectToDTO);
 	}
@@ -121,6 +128,7 @@ public class ProjectController {
 	Mono<ProjectDTO> triggerDeploymentOfVersion(@PathVariable UUID id, @PathVariable UUID versionId) {
 		return this.projectRepository.getById(id)
 				.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Project with id " + id + " not found")))
+				.map(ReadableProject::writable)
 				.map(project -> project.getVersionByUUID(versionId))
 				.filter(Optional::isPresent)
 				.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Project version with id " + versionId + " not found")))
@@ -134,6 +142,7 @@ public class ProjectController {
 	Mono<Void> stopDeployment(@PathVariable UUID id, @PathVariable UUID versionId) {
 		return this.projectRepository.getById(id)
 				.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Project with id " + id + " not found")))
+				.map(ReadableProject::writable)
 				.map(project -> project.getVersionByUUID(versionId))
 				.filter(Optional::isPresent)
 				.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Project version with id " + versionId + " not found")))

@@ -19,7 +19,6 @@ import com.google.common.base.MoreObjects;
 
 import io.oneko.automations.LifetimeBehaviourDTOMapper;
 import io.oneko.deployable.AggregatedDeploymentStatus;
-import io.oneko.docker.DockerRegistry;
 import io.oneko.kubernetes.deployments.DeployableStatus;
 import io.oneko.kubernetes.deployments.Deployment;
 import io.oneko.kubernetes.deployments.DeploymentDTO;
@@ -27,10 +26,14 @@ import io.oneko.kubernetes.deployments.DeploymentDTOs;
 import io.oneko.kubernetes.deployments.DeploymentRepository;
 import io.oneko.namespace.ImplicitNamespace;
 import io.oneko.namespace.rest.NamespaceDTOMapper;
-import io.oneko.project.Project;
+import io.oneko.project.ReadableProject;
+import io.oneko.project.ReadableProjectVersion;
+import io.oneko.project.ReadableTemplateVariable;
+import io.oneko.project.WritableProject;
 import io.oneko.project.ProjectConstants;
 import io.oneko.project.ProjectVersion;
-import io.oneko.project.TemplateVariable;
+import io.oneko.project.WritableProjectVersion;
+import io.oneko.project.WritableTemplateVariable;
 import io.oneko.templates.rest.ConfigurationTemplateDTOMapper;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -60,11 +63,11 @@ public class ProjectDTOMapper {
 		this.lifetimeBehaviourDTOMapper = lifetimeBehaviourDTOMapper;
 	}
 
-	public Mono<ProjectDTO> projectToDTO(Project project) {
+	public Mono<ProjectDTO> projectToDTO(ReadableProject project) {
 		ProjectDTO dto = new ProjectDTO();
 		dto.setUuid(project.getId());
 		dto.setName(project.getName());
-		dto.setDockerRegistryUUID(project.getDockerRegistryUuid());
+		dto.setDockerRegistryUUID(project.getDockerRegistryId());
 		dto.setImageName(project.getImageName());
 		dto.setNewVersionsDeploymentBehaviour(project.getNewVersionsDeploymentBehaviour());
 		dto.setDefaultLifetimeBehaviour(project.getDefaultLifetimeBehaviour().map(lifetimeBehaviourDTOMapper::toLifetimeBehaviourDTO).orElse(null));
@@ -83,13 +86,13 @@ public class ProjectDTOMapper {
 				});
 	}
 
-	private List<TemplateVariableDTO> toTemplateVariableDTOs(List<TemplateVariable> templateVariables) {
+	private List<TemplateVariableDTO> toTemplateVariableDTOs(List<ReadableTemplateVariable> templateVariables) {
 		return templateVariables.stream()
 				.map(this::toTemplateVariableDTO)
 				.collect(Collectors.toList());
 	}
 
-	private TemplateVariableDTO toTemplateVariableDTO(TemplateVariable templateVariable) {
+	private TemplateVariableDTO toTemplateVariableDTO(ReadableTemplateVariable templateVariable) {
 		return TemplateVariableDTO.builder()
 				.id(templateVariable.getId())
 				.name(templateVariable.getName())
@@ -101,14 +104,14 @@ public class ProjectDTOMapper {
 				.build();
 	}
 
-	private List<TemplateVariable> fromTemplateVariableDTOs(List<TemplateVariableDTO> templateVariables) {
+	private List<WritableTemplateVariable> fromTemplateVariableDTOs(List<TemplateVariableDTO> templateVariables) {
 		return templateVariables.stream()
 				.map(this::fromTemplateVariableDTO)
 				.collect(Collectors.toList());
 	}
 
-	private TemplateVariable fromTemplateVariableDTO(TemplateVariableDTO templateVariable) {
-		return new TemplateVariable(MoreObjects.firstNonNull(templateVariable.getId(), UUID.randomUUID()),
+	private WritableTemplateVariable fromTemplateVariableDTO(TemplateVariableDTO templateVariable) {
+		return new WritableTemplateVariable(MoreObjects.firstNonNull(templateVariable.getId(), UUID.randomUUID()),
 				templateVariable.getName(),
 				templateVariable.getLabel(),
 				templateVariable.getValues(),
@@ -117,25 +120,25 @@ public class ProjectDTOMapper {
 				templateVariable.isShowOnDashboard());
 	}
 
-	private AggregatedDeploymentStatus aggregateDeploymentStatus(Collection<ProjectVersionDTO> versionDTOs) {
+	private AggregatedDeploymentStatus aggregateDeploymentStatus(Collection<? extends ProjectVersionDTO> versionDTOs) {
 		return DeploymentDTOs.aggregate(versionDTOs.stream()
 				.map(ProjectVersionDTO::getDeployment)
 				.collect(Collectors.toList()));
 	}
 
-	private Flux<ProjectVersionDTO> projectVersionsToDTO(Collection<ProjectVersion> versions) {
+	private Flux<ProjectVersionDTO> projectVersionsToDTO(Collection<ReadableProjectVersion> versions) {
 		return Flux.concat(versions.stream()
 				.map(this::projectVersionToDTO)
 				.collect(Collectors.toList()));
 	}
 
-	private Mono<ProjectVersionDTO> projectVersionToDTO(ProjectVersion version) {
+	private Mono<ProjectVersionDTO> projectVersionToDTO(ReadableProjectVersion version) {
 		return deploymentRepository.findByDeployableId(version.getId())
 				.map(deployment -> projectVersionToDTO(version, deployment))
 				.switchIfEmpty(Mono.justOrEmpty(projectVersionToDTO(version, null)));
 	}
 
-	private ProjectVersionDTO projectVersionToDTO(ProjectVersion version, Deployment deployment) {
+	private ProjectVersionDTO projectVersionToDTO(ReadableProjectVersion version, Deployment deployment) {
 		ProjectVersionDTO dto = new ProjectVersionDTO();
 		dto.setUuid(version.getUuid());
 		dto.setName(version.getName());
@@ -156,11 +159,11 @@ public class ProjectDTOMapper {
 		return dto;
 	}
 
-	public Mono<Project> updateProjectFromDTO(Project project, ProjectDTO projectDTO, DockerRegistry registry) {
+	public Mono<WritableProject> updateProjectFromDTO(WritableProject project, ProjectDTO projectDTO, UUID registryId) {
 		//id can not be changed
 		project.setName(projectDTO.getName());
 		project.setImageName(projectDTO.getImageName());
-		project.assignToNewRegistry(registry);
+		project.assignToNewRegistry(registryId);
 		ofNullable(projectDTO.getNewVersionsDeploymentBehaviour()).ifPresent(project::setNewVersionsDeploymentBehaviour);
 		project.setDefaultConfigurationTemplates(templateDTOMapper.updateFromDTOs(project.getDefaultConfigurationTemplates(), projectDTO.getDefaultConfigurationTemplates()));
 		project.setDefaultLifetimeBehaviour(ofNullable(projectDTO.getDefaultLifetimeBehaviour()).map(lifetimeBehaviourDTOMapper::toLifetimeBehaviour).orElse(null));
@@ -171,14 +174,14 @@ public class ProjectDTOMapper {
 				.thenReturn(project);
 	}
 
-	private Flux<ProjectVersion> updateProjectVersionsFromDTO(Collection<ProjectVersion> versions, List<ProjectVersionDTO> versionDTOs) {
+	private Flux<ProjectVersion> updateProjectVersionsFromDTO(Collection<WritableProjectVersion> versions, List<ProjectVersionDTO> versionDTOs) {
 		final Map<UUID, ProjectVersionDTO> versionDTOsById = versionDTOs.stream().collect(Collectors.toMap(ProjectVersionDTO::getUuid, Function.identity()));
 		return Flux.concat(versions.stream()
 				.map(version -> updateProjectVersionFromDTO(version, versionDTOsById.get(version.getUuid())).thenReturn(version))
 				.collect(Collectors.toList()));
 	}
 
-	private Mono<Void> updateProjectVersionFromDTO(ProjectVersion version, ProjectVersionDTO projectVersionDTO) {
+	private Mono<Void> updateProjectVersionFromDTO(WritableProjectVersion version, ProjectVersionDTO projectVersionDTO) {
 		if (projectVersionDTO == null) {
 			return Mono.empty();
 		}
@@ -199,7 +202,7 @@ public class ProjectDTOMapper {
 				.then(updateDeploymentStatusOfVersion(version));
 	}
 
-	private Mono<Void> updateDeploymentStatusOfVersion(ProjectVersion version) {
+	private Mono<Void> updateDeploymentStatusOfVersion(WritableProjectVersion version) {
 		return this.deploymentRepository.findByDeployableId(version.getId())
 				.map(deployment -> {
 					if (shouldVersionBeMarkedAsOutdated(version, deployment)) {
@@ -209,7 +212,7 @@ public class ProjectDTOMapper {
 				}).then();
 	}
 
-	private boolean shouldVersionBeMarkedAsOutdated(ProjectVersion version, Deployment deployment) {
+	private boolean shouldVersionBeMarkedAsOutdated(WritableProjectVersion version, Deployment deployment) {
 		if (deployment == null || deployment.getStatus() == DeployableStatus.NotScheduled) {
 			return false;
 		}

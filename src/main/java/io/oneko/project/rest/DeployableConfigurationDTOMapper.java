@@ -21,7 +21,7 @@ public class DeployableConfigurationDTOMapper {
 		this.configurationTemplateDTOMapper = configurationTemplateDTOMapper;
 	}
 
-	public DeployableConfigurationDTO create(ProjectVersion version) {
+	public DeployableConfigurationDTO create(ProjectVersion<?, ?> version) {
 		final List<ConfigurationTemplateDTO> templateDTOs = version.getCalculatedConfigurationTemplates().stream()
 				.map(configurationTemplateDTOMapper::toDTO)
 				.collect(Collectors.toList());
@@ -33,7 +33,7 @@ public class DeployableConfigurationDTOMapper {
 		return dto;
 	}
 
-	public DeployableConfigurationDTO create(MeshComponent component) {
+	public DeployableConfigurationDTO create(MeshComponent<?, ?> component) {
 		final List<ConfigurationTemplateDTO> templateDTOs = component.getCalculatedConfigurationTemplates().stream()
 				.map(configurationTemplateDTOMapper::toDTO)
 				.collect(Collectors.toList());

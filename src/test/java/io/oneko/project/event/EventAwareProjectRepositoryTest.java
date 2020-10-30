@@ -5,17 +5,17 @@ import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import io.oneko.docker.DockerRegistry;
 import io.oneko.event.Event;
 import io.oneko.event.EventDispatcher;
 import io.oneko.event.EventTrigger;
 import io.oneko.event.SampleTrigger;
 import io.oneko.event.UnknownTrigger;
-import io.oneko.project.Project;
+import io.oneko.project.WritableProject;
 import reactor.util.context.Context;
 
 public class EventAwareProjectRepositoryTest {
@@ -28,13 +28,12 @@ public class EventAwareProjectRepositoryTest {
 		this.currentEvents = new ArrayList<>();
 		EventDispatcher dispatcher = new EventDispatcher();
 		dispatcher.streamEvents().subscribe(this.currentEvents::add);
-		this.uut = new InMemoryProjectRepository(dispatcher);
+		this.uut = new ProjectInMemoryRepository(dispatcher);
 	}
 
 	@Test
 	public void testSaveEvent() {
-		DockerRegistry dr = new DockerRegistry();
-		Project p = new Project(dr);
+		WritableProject p = new WritableProject(UUID.randomUUID());
 
 		this.uut.add(p).subscribe();
 
@@ -47,8 +46,7 @@ public class EventAwareProjectRepositoryTest {
 	@Test
 	public void testSaveEventWithTrigger() {
 		EventTrigger customTrigger = new SampleTrigger();
-		DockerRegistry dr = new DockerRegistry();
-		Project p = new Project(dr);
+		WritableProject p = new WritableProject(UUID.randomUUID());
 
 		this.uut.add(p).subscriberContext(Context.of(EventTrigger.class, customTrigger)).subscribe();
 

@@ -1,5 +1,6 @@
 package io.oneko.docker.v2;
 
+import io.oneko.docker.DockerRegistryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -22,11 +23,13 @@ public class DockerRegistryV2ClientFactory {
 
 	private final ObjectMapper objectMapper;
 	private final DockerV2Checker dockerV2Checker;
+	private final DockerRegistryRepository dockerRegistryRepository;
 
 	@Autowired
-	DockerRegistryV2ClientFactory(ObjectMapper objectMapper, DockerV2Checker dockerV2Checker) {
+	DockerRegistryV2ClientFactory(ObjectMapper objectMapper, DockerV2Checker dockerV2Checker, DockerRegistryRepository dockerRegistryRepository) {
 		this.objectMapper = objectMapper;
 		this.dockerV2Checker = dockerV2Checker;
+		this.dockerRegistryRepository = dockerRegistryRepository;
 	}
 
 	/**
@@ -45,16 +48,16 @@ public class DockerRegistryV2ClientFactory {
 				.flatMap(checkResult -> this.buildClientBasedOnApiCheck(checkResult, dockerRegistry, "registry:catalog:*"));
 	}
 
-	public Mono<DockerRegistryV2Client> getDockerRegistryClient(Project project) {
+	public Mono<DockerRegistryV2Client> getDockerRegistryClient(Project<?, ?> project) {
 		if (project.isOrphan()) {
 			return Mono.empty();
 		}
-		DockerRegistry dockerRegistry = project.getDockerRegistry();
-		return dockerV2Checker.checkV2ApiOf(dockerRegistry)
-				.flatMap(checkResult -> this.buildClientBasedOnApiCheck(checkResult, dockerRegistry, "repository:" + project.getImageName() + ":pull"));
+		return dockerRegistryRepository.getById(project.getDockerRegistryId())
+				.flatMap(dockerRegistry -> dockerV2Checker.checkV2ApiOf(dockerRegistry)
+						.flatMap(checkResult -> this.buildClientBasedOnApiCheck(checkResult, dockerRegistry, "repository:" + project.getImageName() + ":pull")));
 	}
 
-	public Mono<DockerRegistryV2Client> getDockerRegistryClient(MeshComponent component) {
+	public Mono<DockerRegistryV2Client> getDockerRegistryClient(MeshComponent<?, ?> component) {
 		return getDockerRegistryClient(component.getProject());
 	}
 
