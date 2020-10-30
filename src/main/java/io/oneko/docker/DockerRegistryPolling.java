@@ -4,6 +4,7 @@ import static io.oneko.deployable.DeploymentBehaviour.*;
 import static io.oneko.kubernetes.deployments.DesiredState.*;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -12,9 +13,6 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
-import io.oneko.project.*;
-import io.oneko.projectmesh.*;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -34,9 +32,17 @@ import io.oneko.event.EventDispatcher;
 import io.oneko.event.EventTrigger;
 import io.oneko.event.ScheduledTask;
 import io.oneko.kubernetes.KubernetesDeploymentManager;
+import io.oneko.project.ReadableProject;
+import io.oneko.project.WritableProject;
+import io.oneko.project.ProjectRepository;
+import io.oneko.project.ProjectVersion;
+import io.oneko.project.WritableProjectVersion;
+import io.oneko.projectmesh.ReadableProjectMesh;
+import io.oneko.projectmesh.WritableMeshComponent;
+import io.oneko.projectmesh.WritableProjectMesh;
+import io.oneko.projectmesh.ProjectMeshRepository;
 import io.oneko.util.ExpiringBucket;
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
@@ -75,30 +81,25 @@ class DockerRegistryPolling {
 	@Scheduled(fixedDelay = 20000, initialDelay = 20000)
 	protected void checkDockerForNewImages() {
 		if (!this.pollingInProgress.getAndSet(true)) {
-				startPollingJob();
-			} else if (this.currentPollingJob != null && (this.currentPollingJob.shouldCancel() || this.currentPollingJob.isCancelled())) {
-				cancelCurrentPollingJob();
-			} else {
-				log.debug("Skipping job because another polling job is still running.");
-			}
-	}
-
-	private void cancelCurrentPollingJob() {
-		log.info("The job timed out. Cancelling it.");
-		this.currentPollingJob.cancel();
-		this.currentPollingJob = null;
-		setPollingJobToNotRunning();
-	}
-
-	private void startPollingJob() {
-		log.trace("Starting polling job, Memory usage: {}", FileUtils.byteCountToDisplaySize(Runtime.getRuntime().totalMemory()));
-		final Mono<List<WritableProjectMesh>> meshes = projectMeshRepository.getAll().map(ReadableProjectMesh::writable).collectList();
-		final Mono<List<ReadableProject>> projects = projectRepository.getAll().collectList();
-
-		Disposable dockerRegistryPollingJob = meshes.zipWith(projects)
-				.flatMap(pair -> this.checkDockerForNewImages(pair.getT1(), pair.getT2()))
-				.doOnTerminate(() -> log.trace("Finished polling job")).subscribe();
-		this.currentPollingJob = new DockerRegistryPollingJob(dockerRegistryPollingJob).withTimeoutDuration(pollingTimeoutDuration);
+			log.trace("Starting polling job");
+			final Mono<List<WritableProjectMesh>> meshesMono = projectMeshRepository.getAll()
+					.map(ReadableProjectMesh::writable)
+					.collectList();
+			final Mono<List<WritableProject>> projectsMono = projectRepository.getAll()
+					.map(ReadableProject::writable)
+					.collectList();
+			this.currentPollingJob = new DockerRegistryPollingJob(meshesMono.zipWith(projectsMono)
+					.flatMap(pair -> this.checkDockerForNewImages(pair.getT1(), pair.getT2()))
+					.doOnTerminate(() -> log.trace("Finished polling job"))
+					.subscribe(), Instant.now()).withTimeoutDuration(pollingTimeoutDuration);
+		} else if (this.currentPollingJob != null && (this.currentPollingJob.shouldCancel() || this.currentPollingJob.isCancelled())) {
+			log.info("The job timed out. Cancelling it.");
+			this.currentPollingJob.cancel();
+			this.currentPollingJob = null;
+			setPollingJobToNotRunning();
+		} else {
+			log.debug("Skipping job because another polling job is still running.");
+		}
 	}
 
 	private void setPollingJobToNotRunning() {
@@ -109,12 +110,9 @@ class DockerRegistryPolling {
 	 * Iterates through all project versions checking for updates. Alongside handles all mesh components using these
 	 * versions images alongside. Triggers re-deployments if necessary.
 	 */
-	private Mono<Void> checkDockerForNewImages(List<WritableProjectMesh> allMeshes, List<ReadableProject> allProjects) {
-		Flux<WritableProject> updatedProjectVersions = Flux.fromIterable(allProjects)
+	private Mono<Void> checkDockerForNewImages(List<WritableProjectMesh> allMeshes, List<WritableProject> allProjects) {
+		return Flux.fromIterable(allProjects)
 				.flatMap(this::updateProjectVersions)
-				.map(ReadableProject::writable);
-
-		return updatedProjectVersions
 				.onErrorContinue((ex, o) -> log.error("Encountered an exception while checking new project versions of {}", o, ex))
 				.flatMap(this::fetchMissingDatesForImages)
 				.onErrorContinue((ex, o) -> log.error("Encountered an exception while fetching the dates of the images {}", o, ex))
@@ -131,42 +129,40 @@ class DockerRegistryPolling {
 	private Mono<WritableProject> fetchMissingDatesForImages(WritableProject project) {
 		final List<WritableProjectVersion> versionsWithoutDate = project.getVersions().stream()
 				.filter(version -> version.getImageUpdatedDate() == null)
-				.filter(version -> !failedManifestRequests.contains(version.getId()))
+				.filter(version -> !failedManifestRequests.contains(version.getUuid()))
 				.collect(Collectors.toList());
-
-		if (versionsWithoutDate.isEmpty()) {
+		if (versionsWithoutDate.size() > 0) {
+			log.trace("Updating dates for {} versions of project {}", versionsWithoutDate.size(), project.getName());
+			return Flux.fromIterable(versionsWithoutDate)
+					.flatMap(version -> dockerRegistryV2ClientFactory.getDockerRegistryClient(project)
+							.flatMap(client -> client.getManifest(version))
+							.onErrorReturn(HttpClientErrorException.class, new Manifest() /* I cannot put null in here... */)
+							.map(manifest -> {
+								if (manifest.getImageUpdatedDate().isPresent()) {
+									version.setImageUpdatedDate(manifest.getImageUpdatedDate().orElse(null));
+									log.trace("Setting date for version {} of project {} to {}.", version.getName(), project.getName(), version.getImageUpdatedDate());
+								} else {
+									log.trace("Failed to get Manifest for version {} of project {}.", version.getName(), project.getName());
+									failedManifestRequests.add(version.getUuid());
+								}
+								return version;
+							}))
+					.collectList()
+					.flatMap(list -> projectRepository.add(project))
+					.map(ReadableProject::writable);
+		} else {
 			return Mono.just(project);
 		}
-
-		log.trace("Updating dates for {} versions of project {}", versionsWithoutDate.size(), project.getName());
-		return Flux.fromIterable(versionsWithoutDate)
-				.flatMap(version -> dockerRegistryV2ClientFactory.getDockerRegistryClient(project)
-						.flatMap(client -> client.getManifest(version))
-						.onErrorReturn(HttpClientErrorException.class, new Manifest() /* I cannot put null in here... */)
-						.map(manifest -> {
-							if (manifest.getImageUpdatedDate().isPresent()) {
-								version.setImageUpdatedDate(manifest.getImageUpdatedDate().orElse(null));
-								log.trace("Setting date for version {} of project {} to {}.", version.getName(), project.getName(), version.getImageUpdatedDate());
-							} else {
-								log.trace("Failed to get Manifest for version {} of project {}.", version.getName(), project.getName());
-								failedManifestRequests.add(version.getId());
-							}
-							return version;
-						}))
-				.collectList()
-				.flatMap(list -> projectRepository.add(project))
-				.map(ReadableProject::writable);
 	}
 
-	private Mono<ReadableProject> updateProjectVersions(ReadableProject project) {
+	private Mono<WritableProject> updateProjectVersions(WritableProject project) {
 		log.trace("Checking for new versions of project {}", project.getName());
 		final Mono<DockerRegistryV2Client> projectDockerClient = dockerRegistryV2ClientFactory.getDockerRegistryClient(project);
 		return projectDockerClient
 				.flatMap(client -> client.getAllTags(project))
 				.doOnNext(tags -> log.trace("Found {} tags for project {}", tags.size(), project.getName()))
 				.flatMap(tags -> {
-					WritableProject writable = project.writable();
-					ImmutableList<ReadableProjectVersion> versions = project.getVersions();
+					ImmutableList<WritableProjectVersion> versions = project.getVersions();
 
 					Set<String> knownVersions = versions.stream()
 							.map(ProjectVersion::getName)
@@ -185,22 +181,23 @@ class DockerRegistryPolling {
 					}
 
 					newVersions.forEach(version -> {
-						WritableProjectVersion projectVersion = writable.createVersion(version);
+						WritableProjectVersion projectVersion = project.createVersion(version);
 						resultingEvents.add(new NewProjectVersionFoundEvent(projectVersion, this.asTrigger));
 					});
 
 					removedVersions.forEach(version -> {
-						WritableProjectVersion projectVersion = writable.removeVersion(version);
+						WritableProjectVersion projectVersion = project.removeVersion(version);
 						log.info("Found an obsolete version {} [{}] for project {}", version, projectVersion.getId(), project.getName());
 						resultingEvents.add(new ObsoleteProjectVersionRemovedEvent(projectVersion, this.asTrigger));
 					});
 
 					if (newVersions.size() > 0 || removedVersions.size() > 0) {
-						Mono<ReadableProject> projectMono = projectRepository.add(writable)
+						Mono<ReadableProject> projectMono = projectRepository.add(project)
 								.subscriberContext(Context.of(EventTrigger.class, this.asTrigger));
 
 						return projectMono.doOnSuccess((p) ->
-								resultingEvents.forEach(eventDispatcher::dispatch));
+								resultingEvents.forEach(eventDispatcher::dispatch))
+								.map(ReadableProject::writable);
 					}
 
 					return Mono.just(project);
@@ -256,15 +253,14 @@ class DockerRegistryPolling {
 			log.info("Found a new image '{}' for project '{}' version '{}'", digest, version.getProject().getName(), version.getName());
 			version.setDockerContentDigest(digest);
 			version.setImageUpdatedDate(manifest.getImageUpdatedDate().orElse(null));
-			dependingMonos.add(this.redeployAndSaveVersion(version).switchIfEmpty(Mono.empty()));
+			dependingMonos.add(this.redeployAndSaveVersion(version));
 		}
 		return Flux.concat(dependingMonos).collectList();
 	}
 
-	private Mono<ReadableProjectVersion> redeployAndSaveVersion(WritableProjectVersion version) {
+	private Mono<?> redeployAndSaveVersion(WritableProjectVersion version) {
 		if (version.getDesiredState() == Deployed && version.getDeploymentBehaviour() == automatically) {
-			return projectRepository.add(version.getProject())
-					.then(kubernetesDeploymentManager.deploy(version))
+			return kubernetesDeploymentManager.deploy(version)
 					.subscriberContext(Context.of(EventTrigger.class, this.asTrigger));
 		} else {
 			return Mono.empty();

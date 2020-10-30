@@ -5,11 +5,8 @@ import static io.oneko.project.ProjectConstants.LabelNames.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import io.oneko.docker.DockerRegistryRepository;
-import io.oneko.project.*;
-import io.oneko.projectmesh.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +27,15 @@ import io.oneko.kubernetes.KubernetesDeploymentManager;
 import io.oneko.kubernetes.deployments.Deployable;
 import io.oneko.kubernetes.deployments.Deployables;
 import io.oneko.kubernetes.deployments.DesiredState;
+import io.oneko.project.ProjectRepository;
+import io.oneko.project.ProjectVersion;
+import io.oneko.project.ReadableProjectVersion;
+import io.oneko.project.WritableProjectVersion;
+import io.oneko.projectmesh.ReadableMeshComponent;
+import io.oneko.projectmesh.ReadableProjectMesh;
+import io.oneko.projectmesh.WritableMeshComponent;
+import io.oneko.projectmesh.WritableProjectMesh;
+import io.oneko.projectmesh.ProjectMeshRepository;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -40,17 +46,17 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 
 	private final KubernetesAccess kubernetesAccess;
 	private final DockerRegistryV2ClientFactory dockerRegistryV2ClientFactory;
+	private final DockerRegistryRepository dockerRegistryRepository;
 	private final ProjectRepository projectRepository;
 	private final ProjectMeshRepository projectMeshRepository;
-	private final DockerRegistryRepository dockerRegistryRepository;
 
 	KubernetesDeploymentManagerImpl(KubernetesAccess kubernetesAccess, DockerRegistryV2ClientFactory dockerRegistryV2ClientFactory,
-									ProjectRepository projectRepository, ProjectMeshRepository projectMeshRepository, DockerRegistryRepository dockerRegistryRepository) {
+									DockerRegistryRepository dockerRegistryRepository, ProjectRepository projectRepository, ProjectMeshRepository projectMeshRepository) {
 		this.kubernetesAccess = kubernetesAccess;
 		this.dockerRegistryV2ClientFactory = dockerRegistryV2ClientFactory;
+		this.dockerRegistryRepository = dockerRegistryRepository;
 		this.projectRepository = projectRepository;
 		this.projectMeshRepository = projectMeshRepository;
-		this.dockerRegistryRepository = dockerRegistryRepository;
 	}
 
 	@Override
@@ -67,7 +73,7 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 					.map(resources -> kubernetesAccess.createResourcesInNameSpace(namespace, resources))
 					.flatMap(resources -> this.updateDeployableWithCreatedResources(deployableVersion, resources))
 					.flatMap(deployable -> this.updateDesiredStateOfDeployable(deployable, Deployed))
-					.flatMap(v -> this.projectRepository.add((WritableProject) v.getRelatedProject()))
+					.flatMap(v -> this.projectRepository.add(v.getEntity().getProject()))
 					.map(project -> project.getVersionByUUID(version.getId()).get());
 		} catch (KubernetesClientException e) {
 			log.debug("Failed to deploy version {} of project {}", version.getName(), version.getProject().getName());
@@ -114,9 +120,9 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 		}
 	}
 
-	private <T, D extends Deployable<T>> Mono<D> updateDeployableWithCreatedResources(D deployable, List<HasMetadata> createdResources) {
-		ProjectVersion relatedVersion = deployable.getRelatedProjectVersion();
-		updateDeploymentUrls(deployable, createdResources);
+	private <T extends Deployable<?>> Mono<T> updateDeployableWithCreatedResources(T deployable, List<HasMetadata> createdResources) {
+		ProjectVersion<?, ?> relatedVersion = deployable.getRelatedProjectVersion();
+		createdResources.forEach(hasMetadata -> setDeploymentUrlsTo(deployable, hasMetadata));
 		deployable.setOutdated(false);
 		if (StringUtils.isEmpty(deployable.getDockerContentDigest())) {
 			//it seems completely wrong, that this is happening here...
@@ -131,7 +137,7 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 		}
 	}
 
-	private <T, D extends Deployable<T>> Mono<D> updateDesiredStateOfDeployable(D deployable, DesiredState desiredState) {
+	private <T extends Deployable> Mono<T> updateDesiredStateOfDeployable(T deployable, DesiredState desiredState) {
 		deployable.setDesiredState(desiredState);
 		return Mono.just(deployable);
 	}
@@ -149,9 +155,6 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 	}
 
 	private void addLabelToResource(HasMetadata resource, String key, String value) {
-		if (resource.getMetadata() == null) {
-			resource.setMetadata(new ObjectMeta());
-		}
 		if (resource instanceof Deployment) {
 			Deployment deployment = (Deployment) resource;
 			addLabelToMeta(deployment.getMetadata(), key, value);
@@ -165,34 +168,19 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 		}
 	}
 
-	private void updateDeploymentUrls(Deployable<?> deployable, List<HasMetadata> createdResources) {
-		List<String> urls = createdResources.stream()
-				.flatMap(hasMetadata -> {
-					if (hasMetadata instanceof Ingress) {
-						var ingress = (Ingress) hasMetadata;
-						return ingress
-								.getSpec()
-								.getRules()
-								.stream()
-								.map(IngressRule::getHost);
-					} else if (hasMetadata instanceof io.fabric8.kubernetes.api.model.networking.v1beta1.Ingress) { // can't wait to repeat this code again for networking/v1
-						var ingress = (io.fabric8.kubernetes.api.model.networking.v1beta1.Ingress) hasMetadata;
-						return ingress
-								.getSpec()
-								.getRules()
-								.stream()
-								.map(io.fabric8.kubernetes.api.model.networking.v1beta1.IngressRule::getHost);
-					}
-					return Stream.empty();
-				}).collect(Collectors.toList());
+	private void setDeploymentUrlsTo(Deployable<?> deployable, HasMetadata hasMetadata) {
+		if (hasMetadata instanceof Ingress) {
+			Ingress ingress = (Ingress) hasMetadata;
 
-		log.trace("Found urls {} of {} {}", urls, deployable.getClass().getSimpleName(), deployable.getName());
-		deployable.setUrls(urls);
-	}
-
-	private Mono<Secret> createSecretIfNotExistent(UUID dockerRegistryId, String namespace) {
-		return this.dockerRegistryRepository.getById(dockerRegistryId)
-				.flatMap(reg -> this.createSecretIfNotExistent(reg, namespace));
+			List<String> urls = ingress
+					.getSpec()
+					.getRules()
+					.stream()
+					.map(IngressRule::getHost)
+					.collect(Collectors.toList());
+			log.trace("Found urls {} of {} {}", urls, deployable.getClass().getSimpleName(), deployable.getName());
+			deployable.setUrls(urls);
+		}
 	}
 
 	private Mono<Secret> createSecretIfNotExistent(DockerRegistry dockerRegistry, String namespace) {
@@ -203,13 +191,18 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 				dockerRegistry.getRegistryUrl());
 	}
 
-	private Mono<ServiceAccount> ensureServiceAccountIsPatchedWithRegistry(UUID dockerRegistryId, String namespace) {
+	private Mono<Secret> createSecretIfNotExistent(UUID dockerRegistryId, String namespace) {
 		return this.dockerRegistryRepository.getById(dockerRegistryId)
-				.flatMap(reg -> this.ensureServiceAccountIsPatchedWithRegistry(reg, namespace));
+				.flatMap(dockerRegistry -> this.createSecretIfNotExistent(dockerRegistry, namespace));
 	}
 
 	private Mono<ServiceAccount> ensureServiceAccountIsPatchedWithRegistry(DockerRegistry dockerRegistry, String namespace) {
 		return kubernetesAccess.createServiceAccountIfNotExisting(namespace, KubernetesConventions.secretName(dockerRegistry));
+	}
+
+	private Mono<ServiceAccount> ensureServiceAccountIsPatchedWithRegistry(UUID dockerRegistryId, String namespace) {
+		return this.dockerRegistryRepository.getById(dockerRegistryId)
+				.flatMap(reg -> this.ensureServiceAccountIsPatchedWithRegistry(reg, namespace));
 	}
 
 	private boolean addLabelToMeta(ObjectMeta meta, String key, String value) {
