@@ -38,14 +38,16 @@ public class AngularWebappConfiguration implements WebMvcConfigurer {
 				.addResolver(new EncodedResourceResolver())
 				.addResolver(new PathResourceResolver() {
 					@Override
-					protected Resource getResource(String resourcePath, Resource location) {
+					protected Resource getResource(String resourcePath,
+					                               Resource location) {
 						Resource requestedResource;
 						try {
 							requestedResource = location.createRelative(resourcePath);
 						} catch (IOException e) {
 							return new ClassPathResource("/public/index.html");
 						}
-						return requestedResource.exists() && requestedResource.isReadable() ? requestedResource
+						return requestedResource.exists() && requestedResource.isReadable()
+								? requestedResource
 								: new ClassPathResource("/public/index.html");
 					}
 				});
