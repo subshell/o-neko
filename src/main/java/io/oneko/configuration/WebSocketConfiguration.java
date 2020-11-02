@@ -6,10 +6,9 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.reactive.HandlerMapping;
-import org.springframework.web.reactive.handler.SimpleUrlHandlerMapping;
-import org.springframework.web.reactive.socket.WebSocketHandler;
-import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAdapter;
+import org.springframework.web.servlet.HandlerMapping;
+import org.springframework.web.servlet.handler.SimpleUrlHandlerMapping;
+import org.springframework.web.socket.WebSocketHandler;
 
 
 /**
@@ -22,11 +21,6 @@ public class WebSocketConfiguration {
 	@Autowired
 	public WebSocketConfiguration(WebSocketHandler webSocketHandler) {
 		this.webSocketHandler = webSocketHandler;
-	}
-
-	@Bean
-	public WebSocketHandlerAdapter wsha() {
-		return new WebSocketHandlerAdapter();
 	}
 
 	@Bean
