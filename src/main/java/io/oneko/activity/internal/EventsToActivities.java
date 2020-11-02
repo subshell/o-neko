@@ -8,7 +8,7 @@ import io.oneko.domain.DescribingEntityChange;
 import io.oneko.event.EntityChangedEvent;
 import io.oneko.event.Event;
 import io.oneko.event.EventDispatcher;
-import io.oneko.websocket.ReactiveWebSocketHandler;
+import io.oneko.websocket.SessionWebSocketHandler;
 import io.oneko.websocket.message.ActivityMessage;
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,12 +20,12 @@ import lombok.extern.slf4j.Slf4j;
 public class EventsToActivities {
 
 	private final WritableActivityLog activityLog;
-	private final ReactiveWebSocketHandler webSocketHandler;
+	private final SessionWebSocketHandler webSocketHandler;
 
 	@Autowired
 	public EventsToActivities(WritableActivityLog activityLog,
-							  ReactiveWebSocketHandler webSocketHandler,
-							  EventDispatcher eventDispatcher) {
+	                          SessionWebSocketHandler webSocketHandler,
+	                          EventDispatcher eventDispatcher) {
 		this.activityLog = activityLog;
 		this.webSocketHandler = webSocketHandler;
 		eventDispatcher.streamEvents().subscribe(this::processEvent);

@@ -24,7 +24,7 @@ import io.oneko.projectmesh.ReadableProjectMesh;
 import io.oneko.projectmesh.WritableMeshComponent;
 import io.oneko.projectmesh.WritableProjectMesh;
 import io.oneko.projectmesh.ProjectMeshRepository;
-import io.oneko.websocket.ReactiveWebSocketHandler;
+import io.oneko.websocket.SessionWebSocketHandler;
 import io.oneko.websocket.message.DeploymentStatusChangedMessage;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -38,13 +38,13 @@ class DeploymentStatusWatcher {
 	private final ProjectRepository projectRepository;
 	private final ProjectMeshRepository meshRepository;
 	private final DeploymentRepository deploymentRepository;
-	private final ReactiveWebSocketHandler webSocketHandler;
+	private final SessionWebSocketHandler webSocketHandler;
 	private final PodToDeploymentMapper podToDeploymentMapper;
 
 	DeploymentStatusWatcher(KubernetesAccess kubernetesAccess, ProjectRepository projectRepository,
-							ProjectMeshRepository meshRepository, DeploymentRepository deploymentRepository,
-							ReactiveWebSocketHandler webSocketHandler,
-							PodToDeploymentMapper podToDeploymentMapper) {
+	                        ProjectMeshRepository meshRepository, DeploymentRepository deploymentRepository,
+	                        SessionWebSocketHandler webSocketHandler,
+	                        PodToDeploymentMapper podToDeploymentMapper) {
 		this.kubernetesAccess = kubernetesAccess;
 		this.projectRepository = projectRepository;
 		this.meshRepository = meshRepository;

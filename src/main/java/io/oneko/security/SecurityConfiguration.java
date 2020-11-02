@@ -13,7 +13,7 @@ import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.authentication.ServerAuthenticationEntryPointFailureHandler;
 
 import io.oneko.configuration.UserDetailsService;
-import io.oneko.websocket.ReactiveWebSocketHandler;
+import io.oneko.websocket.SessionWebSocketHandler;
 import reactor.core.publisher.Mono;
 
 @Configuration
@@ -23,12 +23,12 @@ public class SecurityConfiguration {
 
 	private final UserDetailsService userDetailsService;
 	private final PasswordEncoder passwordEncoder;
-	private final ReactiveWebSocketHandler reactiveWebSocketHandler;
+	private final SessionWebSocketHandler sessionWebSocketHandler;
 
-	public SecurityConfiguration(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder, ReactiveWebSocketHandler reactiveWebSocketHandler) {
+	public SecurityConfiguration(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder, SessionWebSocketHandler sessionWebSocketHandler) {
 		this.userDetailsService = userDetailsService;
 		this.passwordEncoder = passwordEncoder;
-		this.reactiveWebSocketHandler = reactiveWebSocketHandler;
+		this.sessionWebSocketHandler = sessionWebSocketHandler;
 	}
 
 	@Bean
@@ -58,7 +58,7 @@ public class SecurityConfiguration {
 				.authenticationSuccessHandler(new NoopServerAuthenticationSuccessHandler())
 				.authenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler(entryPoint))
 				.and()
-				.logout().logoutUrl("/api/session/logout").logoutSuccessHandler(new RestLogoutSuccessHandler(reactiveWebSocketHandler))
+				.logout().logoutUrl("/api/session/logout").logoutSuccessHandler(new RestLogoutSuccessHandler(sessionWebSocketHandler))
 				.and()
 				.httpBasic()
 				.and()

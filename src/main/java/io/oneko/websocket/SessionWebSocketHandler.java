@@ -4,11 +4,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.socket.WebSocketHandler;
-import org.springframework.web.reactive.socket.WebSocketMessage;
-import org.springframework.web.reactive.socket.WebSocketSession;
+import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,41 +19,62 @@ import io.oneko.websocket.message.ONekoWebSocketMessage;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 
 // https://books.google.de/books?id=EkBPDwAAQBAJ&pg=PA320&lpg=PA320&dq=getHandshakeInfo().getPrincipal()&source=bl&ots=9nchCL8YFm&sig=m-xV7tPCNjRh8bzi23xdx_xBWPY&hl=de&sa=X&ved=0ahUKEwiCsoLhg6ncAhWCjKQKHbWQAWwQ6AEIJzAA#v=onepage&q=getHandshakeInfo().getPrincipal()&f=false
 
 @Slf4j
 @Service
-public class ReactiveWebSocketHandler implements WebSocketHandler {
+public class SessionWebSocketHandler extends TextWebSocketHandler {
 	private final EmitterProcessor<ONekoWebSocketMessage> inStream = EmitterProcessor.create();
-
 	private final Map<String, WebSocketSessionContext> sessionContextMap = new HashMap<>();
-
 	private final ObjectMapper objectMapper;
 
 
-	public ReactiveWebSocketHandler(ObjectMapper objectMapper) {
+	public SessionWebSocketHandler(ObjectMapper objectMapper) {
 		this.objectMapper = objectMapper;
-		this.inStream.subscribe(msg -> System.out.println(msg));
+
+		// Currently, we do not handle incoming webSocket messages
+		this.inStream.subscribe(msg -> log.trace("Received WebSocket message:\n{}", msg.toString()));
 	}
 
 	@Override
-	public Mono<Void> handle(WebSocketSession webSocketSession) {
-		WebSocketSessionContext sessionContext = WebSocketSessionContext.of(webSocketSession);
+	public void afterConnectionEstablished(WebSocketSession session) {
+		WebSocketSessionContext sessionContext = WebSocketSessionContext.of(session);
+		sessionContext.getOutStream()
+				.map(payload -> new TextMessage(Objects.requireNonNull(this.messageToPayload(payload))))
+				.subscribe(message -> {
+					try {
+						session.sendMessage(message);
+					} catch (IOException e) {
+						log.error("Error while sending the message {}", message);
+					}
+				});
 
 		sessionContextMap.put(sessionContext.getId(), sessionContext);
+		log.debug("New client ws connection {} established", sessionContext.getId());
+	}
 
-		log.debug("New client ws connection established", sessionContext.getId());
+	@Override
+	public void handleTransportError(WebSocketSession session, Throwable exception) {
+		log.error("Error while transporting webSocket message for {}", session.getId(), exception);
+	}
 
-		return webSocketSession
-				.send(sessionContext.getOutStream().map(this::messageToPayload).map(webSocketSession::textMessage))
-				.and(webSocketSession.receive().map(WebSocketMessage::getPayloadAsText).map(this::payloadToMessage).map(payload -> {
-					log.debug("Received WebSocket message", payload);
-					inStream.onNext(payload);
-					return payload;
-				}));
+	@Override
+	public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) {
+		invalidateSession(session.getId());
+	}
+
+	@Override
+	public boolean supportsPartialMessages() {
+		return false;
+	}
+
+	@Override
+	protected void handleTextMessage(WebSocketSession session, TextMessage message) {
+		final String payload = message.getPayload();
+		final ONekoWebSocketMessage msgObj = this.payloadToMessage(payload);
+		inStream.onNext(msgObj);
 	}
 
 	public void invalidateSession(String sessionId) {
@@ -102,7 +125,7 @@ public class ReactiveWebSocketHandler implements WebSocketHandler {
 		try {
 			return objectMapper.readValue(payload, ONekoWebSocketMessage.class);
 		} catch (IOException e) {
-			log.error("", e);
+			log.error("Error parsing the websocket message payload", e);
 		}
 
 		return null;

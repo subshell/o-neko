@@ -7,17 +7,17 @@ import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.logout.ServerLogoutSuccessHandler;
 import org.springframework.stereotype.Service;
 
-import io.oneko.websocket.ReactiveWebSocketHandler;
+import io.oneko.websocket.SessionWebSocketHandler;
 import reactor.core.publisher.Mono;
 
 @Service
 public class RestLogoutSuccessHandler implements ServerLogoutSuccessHandler {
 
-	private final ReactiveWebSocketHandler reactiveWebSocketHandler;
+	private final SessionWebSocketHandler sessionWebSocketHandler;
 
 	@Autowired
-	public RestLogoutSuccessHandler(ReactiveWebSocketHandler reactiveWebSocketHandler) {
-		this.reactiveWebSocketHandler = reactiveWebSocketHandler;
+	public RestLogoutSuccessHandler(SessionWebSocketHandler sessionWebSocketHandler) {
+		this.sessionWebSocketHandler = sessionWebSocketHandler;
 	}
 
 	@Override
@@ -27,7 +27,7 @@ public class RestLogoutSuccessHandler implements ServerLogoutSuccessHandler {
 		} else {
 			authentication.setAuthenticated(false);
 			exchange.getExchange().getSession().subscribe(session -> {
-				reactiveWebSocketHandler.invalidateSession(session.getId());
+				sessionWebSocketHandler.invalidateSession(session.getId());
 				session.invalidate();
 			});
 			exchange.getExchange().getResponse().setStatusCode(HttpStatus.OK);

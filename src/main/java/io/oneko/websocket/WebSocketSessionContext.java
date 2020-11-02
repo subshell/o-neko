@@ -1,9 +1,11 @@
 package io.oneko.websocket;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 import org.springframework.http.HttpHeaders;
-import org.springframework.web.reactive.socket.WebSocketSession;
+import org.springframework.security.web.authentication.session.SessionAuthenticationException;
+import org.springframework.web.socket.WebSocketSession;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -23,11 +25,13 @@ public class WebSocketSessionContext {
 	private final EmitterProcessor<ONekoWebSocketMessage> outStream;
 
 	public static WebSocketSessionContext of(WebSocketSession wsSession) {
-		if (!wsSession.getHandshakeInfo().getHeaders().containsKey(HttpHeaders.COOKIE)) {
-			throw new RuntimeException("No Session Cookie provided");
+		final var httpHeaders = wsSession.getHandshakeHeaders();
+		if (!httpHeaders.containsKey(HttpHeaders.COOKIE)) {
+			throw new SessionAuthenticationException("No Session Cookie provided");
 		}
 
-		String[] cookies = wsSession.getHandshakeInfo().getHeaders().get("cookie").get(0).split(";");
+		final String cookieString = httpHeaders.get(HttpHeaders.COOKIE).get(0);
+		String[] cookies = cookieString.split(";");
 
 		// The session id "SESSION" is send via a cookie. We have to extract that id in order to connect
 		// it to our HTTP Session.
@@ -47,9 +51,14 @@ public class WebSocketSessionContext {
 	}
 
 	public void close() {
-		log.debug("Closing WebSocket session", this.id);
+		log.debug("Closing WebSocket session {}", id);
 		inStream.onComplete();
 		outStream.onComplete();
-		session.close().doOnError(throwable -> log.debug("An error occurred while closing a websocket session. Maybe the session was already closed.")).subscribe();
+
+		try {
+			session.close();
+		} catch (IOException e) {
+			log.error("An error occurred while closing a websocket session. Maybe the session was already closed.", e);
+		}
 	}
 }
