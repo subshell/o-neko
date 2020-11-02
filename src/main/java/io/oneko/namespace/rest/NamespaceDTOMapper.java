@@ -8,7 +8,6 @@ import io.oneko.namespace.DefinedNamespace;
 import io.oneko.namespace.DefinedNamespaceRepository;
 import io.oneko.namespace.Namespace;
 import io.oneko.namespace.WritableHasNamespace;
-import reactor.core.publisher.Mono;
 
 @Service
 public class NamespaceDTOMapper {
@@ -28,19 +27,13 @@ public class NamespaceDTOMapper {
 		return dto;
 	}
 
-	public <T extends WritableHasNamespace> Mono<T> updateNamespaceOfOwner(T owner, NamespaceDTO namespaceDTO) {
-		if (namespaceDTO == null || Objects.equals(owner.getDefinedNamespaceId(), namespaceDTO.getId())) {
-			return Mono.just(owner);
-		}
-		if (namespaceDTO.getId() != null) {
-			return namespaceRepository.getById(namespaceDTO.getId())
-					.map(namespace -> {
-						owner.assignDefinedNamespace(namespace);
-						return owner;
-					});
-		} else {
-			owner.resetToImplicitNamespace();
-			return Mono.just(owner);
+	public <T extends WritableHasNamespace> void updateNamespaceOfOwner(T owner, NamespaceDTO namespaceDTO) {
+		if (namespaceDTO != null && !Objects.equals(owner.getDefinedNamespaceId(), namespaceDTO.getId())) {
+			if (namespaceDTO.getId() != null) {
+				namespaceRepository.getById(namespaceDTO.getId()).ifPresent(namespace -> owner.assignDefinedNamespace(namespace));
+			} else {
+				owner.resetToImplicitNamespace();
+			}
 		}
 	}
 }

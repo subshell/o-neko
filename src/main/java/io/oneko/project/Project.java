@@ -48,9 +48,9 @@ public interface Project<P extends Project<P, V>, V extends ProjectVersion<P, V>
 
 	List<V> getVersions();
 
-	default Optional<V> getVersionByUUID(UUID versionUUID) {
+	default Optional<V> getVersionById(UUID versionId) {
 		return getVersions().stream()
-				.filter(version -> version.getId().equals(versionUUID))
+				.filter(version -> version.getId().equals(versionId))
 				.findAny();
 	}
 

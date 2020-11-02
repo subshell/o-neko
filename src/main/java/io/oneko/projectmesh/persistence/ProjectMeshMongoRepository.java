@@ -113,7 +113,7 @@ class ProjectMeshMongoRepository extends EventAwareProjectMeshRepository {
 	}
 
 	private ReadableMeshComponent fromMongo(MeshComponentMongo mongo) {
-		ReadableProjectVersion readableProjectVersion = this.projectRepository.getById(mongo.getProjectId()).flatMap(project -> project.getVersionByUUID(mongo.getProjectVersionId())).orElse(null);
+		ReadableProjectVersion readableProjectVersion = this.projectRepository.getById(mongo.getProjectId()).flatMap(project -> project.getVersionById(mongo.getProjectVersionId())).orElse(null);
 		//TODO: what if the version does not exist any longer?
 		return fromMongo(mongo, readableProjectVersion);
 	}

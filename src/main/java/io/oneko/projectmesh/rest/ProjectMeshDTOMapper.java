@@ -139,7 +139,7 @@ public class ProjectMeshDTOMapper {
 	}
 
 	private Mono<WritableMeshComponent> createComponentFromDTO(WritableProjectMesh owner, MeshComponentDTO dto, ReadableProject project) {
-		final Optional<ReadableProjectVersion> versionByUUID = project.getVersionByUUID(dto.getProjectVersionId());
+		final Optional<ReadableProjectVersion> versionByUUID = project.getVersionById(dto.getProjectVersionId());
 		if (versionByUUID.isEmpty()) {
 			return Mono.empty();
 		}
@@ -156,7 +156,7 @@ public class ProjectMeshDTOMapper {
 		component.setTemplateVariables(componentDTO.getTemplateVariables());
 		component.setConfigurationTemplates(templateDTOMapper.updateFromDTOs(component.getConfigurationTemplates(), componentDTO.getConfigurationTemplates()));
 		if (!Objects.equals(component.getProjectVersion().getId(), componentDTO.getProjectVersionId())) {
-			final Optional<ReadableProjectVersion> versionByUUID = component.getProject().getVersionByUUID(componentDTO.getProjectVersionId());
+			final Optional<ReadableProjectVersion> versionByUUID = component.getProject().getVersionById(componentDTO.getProjectVersionId());
 			versionByUUID.ifPresent(component::setProjectVersion);
 		}
 		return Mono.just(component);

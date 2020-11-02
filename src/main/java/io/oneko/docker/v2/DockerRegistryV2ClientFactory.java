@@ -1,8 +1,16 @@
 package io.oneko.docker.v2;
 
 import io.oneko.docker.DockerRegistryRepository;
+import org.apache.http.HttpHeaders;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicHeader;
+import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,10 +19,9 @@ import io.oneko.docker.DockerRegistry;
 import io.oneko.docker.v2.model.TokenResponse;
 import io.oneko.project.Project;
 import io.oneko.projectmesh.MeshComponent;
-import io.oneko.security.WebClientBuilderFactory;
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Mono;
 
+import java.io.IOException;
 import java.util.Optional;
 
 @Service
@@ -92,22 +99,20 @@ public class DockerRegistryV2ClientFactory {
 	 * basic authentication with the users credentials.
 	 */
 	private TokenResponse requestToken(DockerRegistry registry, DockerV2Checker.BearerAuthRequired required, String scope) {
-		WebClient client = WebClientBuilderFactory.create(registry.isTrustInsecureCertificate())
-				.baseUrl(registry.getRegistryUrl())
-				.defaultHeader(AuthorizationHeader.KEY, AuthorizationHeader.basic(registry.getUserName(), registry.getPassword()))
-				.build();
+		HttpClientBuilder builder = HttpClients.custom();
+		if (registry.isTrustInsecureCertificate()) {
+			builder.setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE);
+		}
+		CloseableHttpClient client = builder.build();
 
-		return client.get()
-				.uri(required.getRealm() + "?service=" + required.getService() + "&scope=" + scope)
-				.retrieve()
-				.onStatus(HttpStatus::is4xxClientError, this::getErrorMessage)
-				.onStatus(HttpStatus::is5xxServerError, this::getErrorMessage)
-				.bodyToMono(TokenResponse.class);
-	}
+		HttpGet request = new HttpGet(registry.getRegistryUrl() + required.getRealm() + "?service=" + required.getService() + "&scope=" + scope);
+		request.addHeader(new BasicHeader(HttpHeaders.AUTHORIZATION, AuthorizationHeader.basic(registry.getUserName(), registry.getPassword())));
 
-	private Mono<RuntimeException> getErrorMessage(ClientResponse response) {
-		return response.bodyToMono(String.class)
-				.flatMap(message -> Mono.error(new RuntimeException(message)));
+		try (CloseableHttpResponse response = client.execute(request)) {
+			return this.objectMapper.readValue(EntityUtils.toString(response.getEntity()), TokenResponse.class);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 }
