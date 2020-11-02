@@ -1,16 +1,21 @@
 package io.oneko.docker.v2;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.apache.http.Header;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicHeader;
+import org.apache.http.util.EntityUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Predicates;
 
 import io.oneko.docker.DockerRegistry;
 import io.oneko.docker.v2.model.ListTagsResult;
@@ -18,11 +23,7 @@ import io.oneko.docker.v2.model.Repository;
 import io.oneko.docker.v2.model.RepositoryList;
 import io.oneko.docker.v2.model.manifest.Manifest;
 import io.oneko.project.Project;
-import io.oneko.project.ReadableProject;
-import io.oneko.project.WritableProject;
 import io.oneko.project.ProjectVersion;
-import io.oneko.security.WebClientBuilderFactory;
-import reactor.core.publisher.Mono;
 
 /**
  * Accesses the API defined here:
@@ -30,71 +31,72 @@ import reactor.core.publisher.Mono;
  */
 public class DockerRegistryV2Client {
 
-	private final WebClient client;
+	private final DockerRegistry reg;
+	private final CloseableHttpClient client;
 	private final ObjectMapper objectMapper;
 
 	public DockerRegistryV2Client(DockerRegistry reg, String token, ObjectMapper objectMapper) {
+		this.reg = reg;
 		this.objectMapper = objectMapper;
-
-		WebClient.Builder builder = WebClientBuilderFactory.create(reg.isTrustInsecureCertificate())
-				.baseUrl(reg.getRegistryUrl())
-				.defaultHeader("docker-distribution-api-version", "registry/2.0");
+		List<Header> defaultHeaders = new ArrayList<>();
+		defaultHeaders.add(new BasicHeader("docker-distribution-api-version","registry/2.0" ));
 		if (token != null) {
-			builder = builder.defaultHeader(AuthorizationHeader.KEY, AuthorizationHeader.bearer(token));
+			defaultHeaders.add(new BasicHeader(AuthorizationHeader.KEY, AuthorizationHeader.bearer(token)));
 		}
-		client = builder.build();
+		this.client = HttpClients.custom()
+				.setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
+				.setDefaultHeaders(defaultHeaders)
+				.build();
 	}
 
-	public Mono<String> versionCheck() {
-		return client.get().uri("/v2")
-				.retrieve()
-				.bodyToMono(String.class);
+	public String versionCheck() {
+		HttpGet get = new HttpGet(reg.getRegistryUrl() + "/v2");
+		try (CloseableHttpResponse response = client.execute(get)) {
+			return EntityUtils.toString(response.getEntity());
+		} catch (IOException e) {
+			//TODO: Error handling
+			throw new IllegalStateException(e);
+		}
 	}
 
 	/**
 	 * Warn: not working with most docker registries!
 	 */
-	public Mono<List<String>> getAllImageNames() {
+	public List<String> getAllImageNames() {
 		//most providers of v2 API won't allow accessing the catalog...
-		return client.get().uri("/v2/_catalog")
-				.retrieve()
-				.bodyToMono(RepositoryList.class)
-				.map(RepositoryList::getRepositories)
-				.map(repositories -> repositories.stream().map(Repository::getName).collect(Collectors.toList()));
+		HttpGet get = new HttpGet(reg.getRegistryUrl() + "/v2/_catalog");
+		try (CloseableHttpResponse response = client.execute(get)) {
+			RepositoryList repositories = this.objectMapper.readValue(EntityUtils.toString(response.getEntity()), RepositoryList.class);
+			return repositories.getRepositories().stream().map(Repository::getName).collect(Collectors.toList());
+		} catch (IOException e) {
+			//TODO: Error handling
+			throw new IllegalStateException(e);
+		}
 	}
 
-	public Mono<List<String>> getAllTags(Project<?, ?> project) {
-		return client
-				.get()
-				.uri("/v2/" + project.getImageName() + "/tags/list")
-				.retrieve()
-				.bodyToMono(ListTagsResult.class)
-				.map(ListTagsResult::getTags);
+	public List<String> getAllTags(Project<?, ?> project) {
+		HttpGet get = new HttpGet(reg.getRegistryUrl() + "/v2/" + project.getImageName() + "/tags/list");
+		try (CloseableHttpResponse response = client.execute(get)) {
+			ListTagsResult listTagsResult = this.objectMapper.readValue(EntityUtils.toString(response.getEntity()), ListTagsResult.class);
+			return listTagsResult.getTags();
+		} catch (IOException e) {
+			//TODO: Error handling
+			throw new IllegalStateException(e);
+		}
 	}
 
-	public Mono<Manifest> getManifest(ProjectVersion<?, ?> version) {
-		return client
-				.get()
-				.uri("/v2/" + version.getProject().getImageName() + "/manifests/" + version.getName())
-				.retrieve()
-				.onStatus(
-						Predicates.or(HttpStatus::is4xxClientError, HttpStatus::is5xxServerError),
-						s -> Mono.error(new RuntimeException("Unable to retrieve manifest for version " + version.getName() + " due to error " + s.statusCode().getReasonPhrase())))
-				.toEntity(String.class).flatMap(response -> {
-					HttpHeaders headers = response.getHeaders();
-					String dockerContentDigest = headers.getFirst("Docker-Content-Digest");
-					try {
-						if (response.getBody() == null) {
-							return Mono.error(new RuntimeException("Failed to deserialize Manifest from empty response."));
-						}
-
-						// the response has the content-type "application/vnd.docker.distribution.manifest.v1+prettyjws"
-						Manifest manifest = objectMapper.readValue(response.getBody(), Manifest.class);
-						manifest.setDockerContentDigest(dockerContentDigest);
-						return Mono.just(manifest);
-					} catch (IOException e) {
-						return Mono.error(new RuntimeException("Failed to deserialize Manifest from response."));
-					}
-				});
+	public Manifest getManifest(ProjectVersion<?, ?> version) {
+		HttpGet get = new HttpGet(reg.getRegistryUrl() + "/v2/" + version.getProject().getImageName() + "/manifests/" + version.getName());
+		try (CloseableHttpResponse response = client.execute(get)) {
+			Header[] dockerContentDigestHeaders = response.getHeaders("Docker-Content-Digest");
+			Manifest manifest = this.objectMapper.readValue(EntityUtils.toString(response.getEntity()), Manifest.class);
+			Arrays.stream(dockerContentDigestHeaders).findFirst()
+					.map(Header::getValue)
+					.ifPresent(manifest::setDockerContentDigest);
+			return manifest;
+		} catch (IOException e) {
+			//TODO: Error handling
+			throw new IllegalStateException(e);
+		}
 	}
 }

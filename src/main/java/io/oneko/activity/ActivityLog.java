@@ -1,15 +1,14 @@
 package io.oneko.activity;
 
 import java.time.LocalDateTime;
-
-import reactor.core.publisher.Flux;
+import java.util.List;
 
 public interface ActivityLog {
 
-	Flux<Activity> getAll();
+	List<Activity> getAll();
 
-	Flux<Activity> getAllSince(LocalDateTime refDate);
+	List<Activity> getAllSince(LocalDateTime refDate);
 
-	Flux<Activity> getAllPaged(int pageIndex, int pageSize);
+	List<Activity> getAllPaged(int pageIndex, int pageSize);
 
 }

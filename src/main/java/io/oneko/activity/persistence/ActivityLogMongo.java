@@ -1,16 +1,17 @@
 package io.oneko.activity.persistence;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import io.oneko.activity.Activity;
 import io.oneko.activity.internal.WritableActivityLog;
 import io.oneko.domain.DescribingEntityChange;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 @Service
 public class ActivityLogMongo implements WritableActivityLog {
@@ -24,36 +25,38 @@ public class ActivityLogMongo implements WritableActivityLog {
 	}
 
 	@Override
-	public Flux<Activity> getAll() {
+	public List<Activity> getAll() {
 		return springRepository.findAll(sortByDateDesc)
-				.map(this::toActivity);
+				.stream()
+				.map(this::toActivity)
+				.collect(Collectors.toList());
 	}
 
 	@Override
-	public Flux<Activity> getAllSince(LocalDateTime refDate) {
+	public List<Activity> getAllSince(LocalDateTime refDate) {
 		return springRepository.findByDateAfter(refDate, this.sortByDateDesc)
-				.map(this::toActivity);
+				.stream()
+				.map(this::toActivity)
+				.collect(Collectors.toList());
 	}
 
 	@Override
-	public Flux<Activity> getAllPaged(int pageIndex, int pageSize) {
-		return springRepository.findAll(sortByDateDesc)
-				.skip(pageSize * pageIndex)
-				.take(pageSize)
-				.map(this::toActivity);
+	public List<Activity> getAllPaged(int pageIndex, int pageSize) {
+		return springRepository.findAll(PageRequest.of(pageIndex, pageSize, sortByDateDesc))
+				.stream()
+				.map(this::toActivity)
+				.collect(Collectors.toList());
 	}
 
 	@Override
-	public Mono<Activity> addActivity(Activity activity) {
+	public Activity addActivity(Activity activity) {
 		ActivityMongo activityMongo = toMongo(activity);
-		return this.springRepository.insert(activityMongo)
-				.map(this::toActivity);
+		return toActivity(springRepository.insert(activityMongo));
 	}
 
 	@Override
-	public Flux<Activity> deleteAllOlderThan(LocalDateTime date) {
-		return springRepository.deleteByDateBefore(date)
-				.map(this::toActivity);
+	public void deleteAllOlderThan(LocalDateTime date) {
+		springRepository.deleteByDateBefore(date);
 	}
 
 	private ActivityMongo toMongo(Activity activity) {

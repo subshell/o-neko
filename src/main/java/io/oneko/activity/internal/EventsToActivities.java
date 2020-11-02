@@ -56,8 +56,7 @@ public class EventsToActivities {
 		}
 
 		Activity activity = activityBuilder.build();
-		activityLog.addActivity(activity)
-				.doOnError(e -> log.error(e.getMessage(), e))
-				.subscribe(persistedActivity -> webSocketHandler.broadcast(new ActivityMessage(persistedActivity)));
+		Activity persistedActivity = activityLog.addActivity(activity);
+		webSocketHandler.broadcast(new ActivityMessage(persistedActivity));
 	}
 }

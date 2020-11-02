@@ -1,6 +1,7 @@
 package io.oneko.activity.rest;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,7 +32,7 @@ public class ActivityController {
 	@GetMapping
 	List<ActivityDTO> getAllActivities(@RequestParam(required = false, defaultValue = "0") int pageIndex,
 																		 @RequestParam(required = false, defaultValue = "10") int pageSize) {
-		return this.activityLog.getAllPaged(pageIndex, pageSize).map(this.activityDTOFactory::create).collectList().block();
+		return this.activityLog.getAllPaged(pageIndex, pageSize).stream().map(this.activityDTOFactory::create).collect(Collectors.toList());
 	}
 
 }

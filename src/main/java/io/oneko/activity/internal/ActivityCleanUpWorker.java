@@ -29,7 +29,6 @@ public class ActivityCleanUpWorker {
 	private void cleanUpActivities() {
 		LocalDateTime expirationDate = LocalDateTime.now().minusHours(maxActivityAgeHours);
 		log.info("Deleting activities that are older than {} hours.", maxActivityAgeHours);
-		activityRepo.deleteAllOlderThan(expirationDate)
-				.subscribe(null, e -> log.error(e.getMessage(), e));
+		activityRepo.deleteAllOlderThan(expirationDate);
 	}
 }
