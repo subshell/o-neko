@@ -10,10 +10,10 @@ import org.apache.commons.lang3.tuple.Pair;
 import io.oneko.automations.LifetimeBehaviour;
 import io.oneko.deployable.DeployableConfigurationTemplates;
 import io.oneko.deployable.DeploymentBehaviour;
+import io.oneko.project.ProjectConstants;
 import io.oneko.project.ReadableProject;
 import io.oneko.project.ReadableProjectVersion;
 import io.oneko.project.WritableProject;
-import io.oneko.project.ProjectConstants;
 import io.oneko.project.WritableProjectVersion;
 import io.oneko.projectmesh.WritableMeshComponent;
 

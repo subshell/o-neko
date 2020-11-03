@@ -8,9 +8,7 @@ import java.util.UUID;
 import io.oneko.automations.LifetimeBehaviour;
 import io.oneko.deployable.DeployableConfigurationTemplates;
 import io.oneko.deployable.DeploymentBehaviour;
-import io.oneko.docker.DockerRegistry;
 import io.oneko.project.Project;
-import io.oneko.project.WritableProject;
 import io.oneko.project.ProjectVersion;
 
 /**

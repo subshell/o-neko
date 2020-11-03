@@ -16,6 +16,6 @@ public class NamespaceCreatedEvent extends Event {
 
 	@Override
 	public String humanReadable() {
-		return "Namespace " + namespace + " has been created in kubernetes.";
+		return String.format("Namespace %s as been created in kubernetes.", namespace);
 	}
 }

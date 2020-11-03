@@ -2,13 +2,12 @@ package io.oneko.kubernetes.impl;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import io.fabric8.kubernetes.api.model.Pod;
-import io.oneko.event.EventTrigger;
-import io.oneko.event.ScheduledTask;
 import io.oneko.kubernetes.deployments.Deployable;
 import io.oneko.kubernetes.deployments.DeployableStatus;
 import io.oneko.kubernetes.deployments.Deployables;
@@ -16,19 +15,16 @@ import io.oneko.kubernetes.deployments.Deployment;
 import io.oneko.kubernetes.deployments.DeploymentRepository;
 import io.oneko.kubernetes.deployments.DesiredState;
 import io.oneko.namespace.Namespace;
-import io.oneko.project.ReadableProject;
-import io.oneko.project.WritableProject;
 import io.oneko.project.ProjectRepository;
 import io.oneko.project.ProjectVersion;
+import io.oneko.project.ReadableProject;
+import io.oneko.project.WritableProjectVersion;
+import io.oneko.projectmesh.ProjectMeshRepository;
 import io.oneko.projectmesh.ReadableProjectMesh;
 import io.oneko.projectmesh.WritableMeshComponent;
-import io.oneko.projectmesh.WritableProjectMesh;
-import io.oneko.projectmesh.ProjectMeshRepository;
 import io.oneko.websocket.SessionWebSocketHandler;
 import io.oneko.websocket.message.DeploymentStatusChangedMessage;
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Mono;
-import reactor.util.context.Context;
 
 @Component
 @Slf4j
@@ -55,73 +51,74 @@ class DeploymentStatusWatcher {
 
 	@Scheduled(fixedRate = 5000)
 	protected void updateProjectStatus() {
-		projectRepository.getAll()
+		final List<WritableProjectVersion> writableVersions = projectRepository.getAll().stream()
 				.map(ReadableProject::writable)
-				.flatMapIterable(WritableProject::getVersions)
-				.filterWhen(projectVersion -> shouldScanDeployable(Deployables.of(projectVersion)))
-				.flatMap(version -> scanResourcesForDeployable(version.getNamespace(), Deployables.of(version)))
-				.subscriberContext(Context.of(EventTrigger.class, new ScheduledTask("Kubernetes Status Watcher")))
-				.subscribe(null, e -> log.error(e.getMessage(), e));
+				.flatMap(writableProject -> writableProject.getVersions().stream())
+				.filter(writableVersion -> shouldScanDeployable(Deployables.of(writableVersion)))
+				.collect(Collectors.toList());
+
+		// TODO EventTrigger Kubernetes Status Watcher
+		writableVersions.forEach(version -> scanResourcesForDeployable(version.getNamespace(), Deployables.of(version)));
 	}
 
 	@Scheduled(fixedRate = 5000, initialDelay = 2500)
 	protected void updateMeshStatus() {
-		meshRepository.getAll()
+		final List<WritableMeshComponent> writableMeshComponents = meshRepository.getAll().stream()
 				.map(ReadableProjectMesh::writable)
-				.flatMapIterable(WritableProjectMesh::getComponents)
-				.filterWhen(meshComponent -> shouldScanDeployable(Deployables.of(meshComponent)))
-				.flatMap(component -> scanResourcesForDeployable(component.getOwner().getNamespace(), Deployables.of(component)))
-				.subscriberContext(Context.of(EventTrigger.class, new ScheduledTask("Kubernetes Status Watcher")))
-				.subscribe(null, e -> log.error(e.getMessage(), e));
+				.flatMap(writableProjectMesh -> writableProjectMesh.getComponents().stream())
+				.filter(meshComponent -> shouldScanDeployable(Deployables.of(meshComponent)))
+				.collect(Collectors.toList());
+
+		// TODO EventTrigger Kubernetes Status Watcher
+		writableMeshComponents
+				.forEach(component -> scanResourcesForDeployable(component.getOwner().getNamespace(), Deployables.of(component)));
 	}
 
-	private Mono<Boolean> shouldScanDeployable(Deployable deployable) {
-		if (deployable.getDesiredState() == DesiredState.Deployed) {
-			return Mono.just(true);
-		} else {
-			return deploymentRepository.findByDeployableId(deployable.getId()).hasElement();
-		}
+	private boolean shouldScanDeployable(Deployable<?> deployable) {
+		return deployable.getDesiredState() == DesiredState.Deployed
+				|| deploymentRepository.findByDeployableId(deployable.getId()).isPresent();
 	}
 
-	private Mono<?> scanResourcesForDeployable(Namespace namespace, Deployable<?> deployable) {
+	private void scanResourcesForDeployable(Namespace namespace, Deployable<?> deployable) {
 		final List<Pod> podsByLabelInNameSpace = kubernetesAccess.getPodsByLabelInNameSpace(namespace.asKubernetesNameSpace(), deployable.getPrimaryLabel());
-		if (!podsByLabelInNameSpace.isEmpty()) {
-			return Mono.just(podsByLabelInNameSpace)
-					.zipWith(this.getOrCreateDeploymentForDeployable(deployable))
-					.flatMap(tuple -> this.ensureDeploymentIsUpToDate(tuple.getT2(), tuple.getT1(), deployable));
-		} else {
-			return cleanUpOnDeploymentRemoved(deployable);
+		if (podsByLabelInNameSpace.isEmpty()) {
+			cleanUpOnDeploymentRemoved(deployable);
+			return;
 		}
+
+		final Deployment deployment = getOrCreateDeploymentForDeployable(deployable);
+		podsByLabelInNameSpace.forEach(pod -> this.ensureDeploymentIsUpToDate(deployment, podsByLabelInNameSpace, deployable));
 	}
 
-	private Mono<Deployment> getOrCreateDeploymentForDeployable(Deployable deployable) {
+	private Deployment getOrCreateDeploymentForDeployable(Deployable<?> deployable) {
 		return deploymentRepository.findByDeployableId(deployable.getId())
-				.defaultIfEmpty(Deployment.getDefaultDeployment(deployable.getDeploymentBehaviour(), deployable.getId()));
+				.orElseGet(() -> Deployment.getDefaultDeployment(deployable.getDeploymentBehaviour(), deployable.getId()));
 	}
 
-	private Mono<Void> cleanUpOnDeploymentRemoved(Deployable<?> deployable) {
-		return deploymentRepository.findByDeployableId(deployable.getId())
-				.flatMap(deployment -> {
+	private void cleanUpOnDeploymentRemoved(Deployable<?> deployable) {
+		deploymentRepository.findByDeployableId(deployable.getId())
+				.ifPresent(deployment -> {
 					log.debug("Updating status of {} from {} to deleted", deployable.getFullLabel(), deployment.getStatus());
-					return deploymentRepository.deleteById(deployment.getId()).doOnSuccess(ignore -> this.dispatchWebsocketEventFor(deployable, null));
+					deploymentRepository.deleteById(deployment.getId());
+					this.dispatchWebsocketEventFor(deployable, null);
 				});
 	}
 
-	private Mono<Deployment> ensureDeploymentIsUpToDate(Deployment deployment, List<Pod> pods, Deployable deployable) {
+	private Deployment ensureDeploymentIsUpToDate(Deployment deployment, List<Pod> pods, Deployable<?> deployable) {
 		DeployableStatus previousStatus = deployment.getStatus();
 		this.podToDeploymentMapper.updateDeploymentFromPods(deployment, pods);
 
-		if (deployment.isDirty()) {
-			return deploymentRepository.save(deployment)
-					.doOnNext(d -> {
-						if (previousStatus != deployment.getStatus()) {
-							log.debug("Updating status of {} from {} to {}", deployable.getFullLabel(), previousStatus, deployment.getStatus());
-						}
-						this.dispatchWebsocketEventFor(deployable, d);
-					});
-		} else {
-			return Mono.just(deployment);
+		if (!deployment.isDirty()) {
+			return deployment;
 		}
+
+		final Deployment savedDeployment = deploymentRepository.save(deployment);
+
+		if (previousStatus != savedDeployment.getStatus()) {
+			log.debug("Updating status of {} from {} to {}", deployable.getFullLabel(), previousStatus, deployment.getStatus());
+		}
+		this.dispatchWebsocketEventFor(deployable, savedDeployment);
+		return savedDeployment;
 	}
 
 	private void dispatchWebsocketEventFor(Deployable<?> deployable, Deployment deployment) {
@@ -136,5 +133,4 @@ class DeploymentStatusWatcher {
 			webSocketHandler.broadcast(new DeploymentStatusChangedMessage(deployable.getId(), meshComponent.getOwner().getId(), DeploymentStatusChangedMessage.DeployableType.meshComponent, newStatus, deployable.getDesiredState(), mysteriousRefDate, deployable.isOutdated(), meshComponent.getProjectVersion().getImageUpdatedDate()));
 		}
 	}
-
 }
