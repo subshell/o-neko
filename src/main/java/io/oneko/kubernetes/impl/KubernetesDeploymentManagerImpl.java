@@ -62,7 +62,7 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 	private final ProjectMeshRepository projectMeshRepository;
 
 	KubernetesDeploymentManagerImpl(KubernetesAccess kubernetesAccess, DockerRegistryV2ClientFactory dockerRegistryV2ClientFactory,
-									DockerRegistryRepository dockerRegistryRepository, ProjectRepository projectRepository, ProjectMeshRepository projectMeshRepository) {
+																	DockerRegistryRepository dockerRegistryRepository, ProjectRepository projectRepository, ProjectMeshRepository projectMeshRepository) {
 		this.kubernetesAccess = kubernetesAccess;
 		this.dockerRegistryV2ClientFactory = dockerRegistryV2ClientFactory;
 		this.dockerRegistryRepository = dockerRegistryRepository;
@@ -241,31 +241,31 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 			labels.put(key, value);
 			meta.setLabels(labels);
 			return true;
-		} else {
-			return meta.getLabels().put(key, value) == null;
 		}
+
+		return meta.getLabels().put(key, value) == null;
 	}
 
 	@Override
-	public Mono<ReadableProjectVersion> stopDeployment(WritableProjectVersion version) {
+	public ReadableProjectVersion stopDeployment(WritableProjectVersion version) {
 		try {
 			log.debug("Stop deployment of version {} of project {}", version.getName(), version.getProject().getName());
 			Deployable<WritableProjectVersion> deployableVersion = Deployables.of(version);
 			kubernetesAccess.deleteNamespaceByLabel(deployableVersion.getPrimaryLabel());
 			version.setUrls(Collections.emptyList());
 			version.setDesiredState(NotDeployed);
-			return projectRepository.add(version.getProject())
-					.map(project -> project.getVersionByUUID(version.getId()))
-					.filter(Optional::isPresent)
-					.map(Optional::get);
+			ReadableProject readableProject = projectRepository.add(version.getProject());
+			return readableProject.getVersions().stream()
+					.filter(projectVersion -> projectVersion.getUuid().equals(version.getId()))
+					.findFirst().orElse(null);
 		} catch (KubernetesClientException e) {
 			log.debug("Failed to stop deployment of version {} of project {}", version.getName(), version.getProject().getName());
-			return Mono.error(e);
+			throw e;
 		}
 	}
 
 	@Override
-	public Mono<ReadableProjectMesh> stopDeployment(WritableProjectMesh mesh) {
+	public ReadableProjectMesh stopDeployment(WritableProjectMesh mesh) {
 		try {
 			log.debug("Stop deployment of mesh {}", mesh.getName());
 			kubernetesAccess.deleteNamespaceByName(mesh.getNamespace().asKubernetesNameSpace());
@@ -276,12 +276,12 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 			return projectMeshRepository.add(mesh);
 		} catch (KubernetesClientException e) {
 			log.debug("Failed to stop deployment of mesh {}", mesh.getName());
-			return Mono.error(e);
+			throw e;
 		}
 	}
 
 	@Override
-	public Mono<ReadableProjectMesh> stopDeployment(WritableMeshComponent component) {
+	public ReadableProjectMesh stopDeployment(WritableMeshComponent component) {
 		try {
 			log.debug("Stop deployment of component {} of mesh {}", component.getName(), component.getOwner().getName());
 			Deployable<WritableMeshComponent> deployableComponent = Deployables.of(component);
@@ -291,7 +291,7 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 			return projectMeshRepository.add(component.getOwner());
 		} catch (KubernetesClientException e) {
 			log.debug("Failed to stop deployment of component {} of mesh {}", component.getName(), component.getOwner().getName());
-			return Mono.error(e);
+			throw e;
 		}
 	}
 
