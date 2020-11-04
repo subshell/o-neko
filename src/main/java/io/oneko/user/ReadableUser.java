@@ -8,11 +8,13 @@ import io.oneko.security.UserRole;
 import io.oneko.user.auth.UserAuthentication;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 @AllArgsConstructor
 @Builder
 @Getter
+@EqualsAndHashCode(callSuper = true)
 public class ReadableUser extends Identifiable implements User, Serializable {
 
 	private final UUID uuid;

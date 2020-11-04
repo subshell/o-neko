@@ -27,13 +27,18 @@ public class NamespaceDTOMapper {
 		return dto;
 	}
 
-	public <T extends WritableHasNamespace> void updateNamespaceOfOwner(T owner, NamespaceDTO namespaceDTO) {
+	public <T extends WritableHasNamespace> Namespace updateNamespaceOfOwner(T owner, NamespaceDTO namespaceDTO) {
 		if (namespaceDTO != null && !Objects.equals(owner.getDefinedNamespaceId(), namespaceDTO.getId())) {
 			if (namespaceDTO.getId() != null) {
-				namespaceRepository.getById(namespaceDTO.getId()).ifPresent(namespace -> owner.assignDefinedNamespace(namespace));
-			} else {
-				owner.resetToImplicitNamespace();
+				final var repository = namespaceRepository.getById(namespaceDTO.getId());
+				repository.ifPresent(owner::assignDefinedNamespace);
+
+				return repository.orElseThrow();
 			}
+
+			return owner.resetToImplicitNamespace();
 		}
+
+		return owner.getNamespace();
 	}
 }

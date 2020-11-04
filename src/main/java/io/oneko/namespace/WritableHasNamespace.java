@@ -4,6 +4,6 @@ public interface WritableHasNamespace extends HasNamespace {
 
 	void assignDefinedNamespace(DefinedNamespace namespace);
 
-	void resetToImplicitNamespace();
+	ImplicitNamespace resetToImplicitNamespace();
 
 }

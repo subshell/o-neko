@@ -87,11 +87,14 @@ public class WritableProjectMesh extends ModificationAwareIdentifiable implement
 		this.namespace.set(namespace);
 	}
 
-	public void resetToImplicitNamespace() {
+	public ImplicitNamespace resetToImplicitNamespace() {
 		if (this.getNamespace() instanceof ImplicitNamespace) {
-			return;
+			return (ImplicitNamespace) this.getNamespace();
 		}
-		this.namespace.set(new ImplicitNamespace(this));
+		final var implicitNamespace = new ImplicitNamespace(this);
+		this.namespace.set(implicitNamespace);
+
+		return implicitNamespace;
 	}
 
 	@Override

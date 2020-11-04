@@ -1,6 +1,6 @@
 package io.oneko.project;
 
-import static io.oneko.kubernetes.deployments.DesiredState.NotDeployed;
+import static io.oneko.kubernetes.deployments.DesiredState.*;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -26,8 +26,8 @@ import io.oneko.namespace.DefinedNamespace;
 import io.oneko.namespace.ImplicitNamespace;
 import io.oneko.namespace.Namespace;
 import io.oneko.namespace.WritableHasNamespace;
-import io.oneko.templates.WritableConfigurationTemplate;
 import io.oneko.templates.ConfigurationTemplates;
+import io.oneko.templates.WritableConfigurationTemplate;
 import lombok.Builder;
 
 public class WritableProjectVersion extends ModificationAwareIdentifiable implements WritableHasNamespace, ProjectVersion<WritableProject, WritableProjectVersion> {
@@ -48,9 +48,9 @@ public class WritableProjectVersion extends ModificationAwareIdentifiable implem
 
 	@Builder
 	public WritableProjectVersion(UUID uuid, String name, DeploymentBehaviour deploymentBehaviour,
-								  Map<String, String> templateVariables, String dockerContentDigest, List<String> urls,
-								  List<WritableConfigurationTemplate> configurationTemplates, boolean outdated, LifetimeBehaviour lifetimeBehaviour,
-								  DefinedNamespace namespace, DesiredState desiredState, Instant imageUpdatedDate) {
+	                              Map<String, String> templateVariables, String dockerContentDigest, List<String> urls,
+	                              List<WritableConfigurationTemplate> configurationTemplates, boolean outdated, LifetimeBehaviour lifetimeBehaviour,
+	                              DefinedNamespace namespace, DesiredState desiredState, Instant imageUpdatedDate) {
 		this.uuid.init(uuid);
 		this.name.init(name);
 		this.deploymentBehaviour.init(deploymentBehaviour);
@@ -183,11 +183,15 @@ public class WritableProjectVersion extends ModificationAwareIdentifiable implem
 		this.namespace.set(namespace);
 	}
 
-	public void resetToImplicitNamespace() {
+	public ImplicitNamespace resetToImplicitNamespace() {
 		if (this.getNamespace() instanceof ImplicitNamespace) {
-			return;
+			return (ImplicitNamespace) this.getNamespace();
 		}
-		this.namespace.set(new ImplicitNamespace(this));
+
+		final var implicitNamespace = new ImplicitNamespace(this);
+		this.namespace.set(implicitNamespace);
+
+		return implicitNamespace;
 	}
 
 	@Override
@@ -228,7 +232,7 @@ public class WritableProjectVersion extends ModificationAwareIdentifiable implem
 						.collect(Collectors.toList()))
 				.outdated(isOutdated())
 				.lifetimeBehaviour(lifetimeBehaviour.get())
-				.namespace(getNamespace() instanceof DefinedNamespace ? (DefinedNamespace)getNamespace() : null)
+				.namespace(getNamespace() instanceof DefinedNamespace ? (DefinedNamespace) getNamespace() : null)
 				.desiredState(getDesiredState())
 				.imageUpdatedDate(getImageUpdatedDate())
 				.build();

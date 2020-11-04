@@ -22,16 +22,14 @@ import io.oneko.kubernetes.deployments.DeploymentDTOs;
 import io.oneko.kubernetes.deployments.DeploymentRepository;
 import io.oneko.namespace.ImplicitNamespace;
 import io.oneko.namespace.rest.NamespaceDTOMapper;
+import io.oneko.project.ProjectRepository;
 import io.oneko.project.ReadableProject;
 import io.oneko.project.ReadableProjectVersion;
-import io.oneko.project.ProjectRepository;
 import io.oneko.projectmesh.ReadableMeshComponent;
 import io.oneko.projectmesh.ReadableProjectMesh;
 import io.oneko.projectmesh.WritableMeshComponent;
 import io.oneko.projectmesh.WritableProjectMesh;
 import io.oneko.templates.rest.ConfigurationTemplateDTOMapper;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 @Service
 public class ProjectMeshDTOMapper {
@@ -49,7 +47,7 @@ public class ProjectMeshDTOMapper {
 		this.projectRepository = projectRepository;
 	}
 
-	public Mono<ProjectMeshDTO> projectMeshToDTO(ReadableProjectMesh mesh) {
+	public ProjectMeshDTO projectMeshToDTO(ReadableProjectMesh mesh) {
 		ProjectMeshDTO dto = new ProjectMeshDTO();
 		dto.setId(mesh.getId());
 		dto.setName(mesh.getName());
@@ -57,14 +55,14 @@ public class ProjectMeshDTOMapper {
 		dto.setImplicitNamespace(namespaceDTOMapper.namespaceToDTO(new ImplicitNamespace(mesh)));
 		dto.setDeploymentBehaviour(mesh.getDeploymentBehaviour());
 		dto.setLifetimeBehaviour(mesh.getLifetimeBehaviour().map(lifetimeBehaviourDTOMapper::toLifetimeBehaviourDTO).orElse(null));
-		return componentsToDTO(mesh.getComponents())
-				.collectList()
-				.map(components -> {
-					dto.setComponents(components);
-					final AggregatedDeploymentStatus aggregatedDeploymentStatus = aggregateDeploymentStatus(components);
-					dto.setStatus(aggregatedDeploymentStatus);
-					return dto;
-				});
+
+		final List<MeshComponentDTO> components = componentsToDTO(mesh.getComponents());
+		dto.setComponents(components);
+
+		final AggregatedDeploymentStatus aggregatedDeploymentStatus = aggregateDeploymentStatus(components);
+		dto.setStatus(aggregatedDeploymentStatus);
+
+		return dto;
 	}
 
 	private AggregatedDeploymentStatus aggregateDeploymentStatus(Collection<MeshComponentDTO> componentDTOs) {
@@ -73,16 +71,16 @@ public class ProjectMeshDTOMapper {
 				.collect(Collectors.toList()));
 	}
 
-	private Flux<MeshComponentDTO> componentsToDTO(Collection<ReadableMeshComponent> components) {
-		return Flux.concat(components.stream()
+	private List<MeshComponentDTO> componentsToDTO(Collection<ReadableMeshComponent> components) {
+		return components.stream()
 				.map(this::componentToDTO)
-				.collect(Collectors.toList()));
+				.collect(Collectors.toList());
 	}
 
-	private Mono<MeshComponentDTO> componentToDTO(ReadableMeshComponent component) {
+	private MeshComponentDTO componentToDTO(ReadableMeshComponent component) {
 		return deploymentRepository.findByDeployableId(component.getId())
 				.map(deployment -> componentToDTO(component, deployment))
-				.switchIfEmpty(Mono.justOrEmpty(componentToDTO(component, null)));
+				.orElseGet(() -> componentToDTO(component, null));
 	}
 
 	private MeshComponentDTO componentToDTO(ReadableMeshComponent component, Deployment deployment) {
@@ -102,17 +100,19 @@ public class ProjectMeshDTOMapper {
 		return dto;
 	}
 
-	public Mono<WritableProjectMesh> updateProjectMeshFromDTO(WritableProjectMesh mesh, ProjectMeshDTO dto) {
+	public WritableProjectMesh updateProjectMeshFromDTO(WritableProjectMesh mesh, ProjectMeshDTO dto) {
 		//id can not be changed
 		mesh.setName(dto.getName());
 		mesh.setDeploymentBehaviour(dto.getDeploymentBehaviour());
 		mesh.setLifetimeBehaviour(ofNullable(dto.getLifetimeBehaviour()).map(lifetimeBehaviourDTOMapper::toLifetimeBehaviour).orElse(null));
-		return updateComponentsFromDTO(mesh, mesh.getComponents(), dto.getComponents())
-				.collectList()
-				.then(namespaceDTOMapper.updateNamespaceOfOwner(mesh, dto.getNamespace()));
+		updateComponentsFromDTO(mesh, mesh.getComponents(), dto.getComponents());
+
+		namespaceDTOMapper.updateNamespaceOfOwner(mesh, dto.getNamespace());
+
+		return mesh;
 	}
 
-	private Flux<WritableMeshComponent> updateComponentsFromDTO(WritableProjectMesh mesh, Collection<WritableMeshComponent> components, List<MeshComponentDTO> componentDTOs) {
+	private List<WritableMeshComponent> updateComponentsFromDTO(WritableProjectMesh mesh, Collection<WritableMeshComponent> components, List<MeshComponentDTO> componentDTOs) {
 		final Map<UUID, MeshComponentDTO> componentDTOsById = new HashMap<>();
 		final List<MeshComponentDTO> newComponentDTOs = new ArrayList<>();
 		for (MeshComponentDTO componentDTO : componentDTOs) {
@@ -122,35 +122,43 @@ public class ProjectMeshDTOMapper {
 				newComponentDTOs.add(componentDTO);
 			}
 		}
-		final List<Mono<WritableMeshComponent>> updatedExistingComponents = components.stream()
-				.map(component -> updateComponentFromDTO(component, componentDTOsById.get(component.getId())).thenReturn(component))
+
+		final List<WritableMeshComponent> updatedExistingComponents = components.stream()
+				.map(component -> updateComponentFromDTO(component, componentDTOsById.get(component.getId())).orElse(null))
+				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
-		final List<Mono<WritableMeshComponent>> newComponents = newComponentDTOs.stream()
-				.map(dto -> createComponentFromDTO(mesh, dto))
+
+		final List<WritableMeshComponent> newComponents = newComponentDTOs.stream()
+				.map(dto -> createComponentFromDTO(mesh, dto).orElse(null))
+				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
-		return Flux.concat(updatedExistingComponents)
-				.concatWith(Flux.concat(newComponents));
+
+		final List<WritableMeshComponent> result = new ArrayList<>();
+		result.addAll(updatedExistingComponents);
+		result.addAll(newComponents);
+		return result;
 	}
 
-	private Mono<WritableMeshComponent> createComponentFromDTO(WritableProjectMesh owner, MeshComponentDTO dto) {
+	private Optional<WritableMeshComponent> createComponentFromDTO(WritableProjectMesh owner, MeshComponentDTO dto) {
 		return this.projectRepository.getById(dto.getProjectId())
-				.flatMap(p -> createComponentFromDTO(owner, dto, p))
-				.filter(Objects::nonNull);
+				.flatMap(p -> createComponentFromDTO(owner, dto, p));
 	}
 
-	private Mono<WritableMeshComponent> createComponentFromDTO(WritableProjectMesh owner, MeshComponentDTO dto, ReadableProject project) {
+	private Optional<WritableMeshComponent> createComponentFromDTO(WritableProjectMesh owner, MeshComponentDTO dto, ReadableProject project) {
 		final Optional<ReadableProjectVersion> versionByUUID = project.getVersionById(dto.getProjectVersionId());
 		if (versionByUUID.isEmpty()) {
-			return Mono.empty();
+			return Optional.empty();
 		}
+
 		final WritableMeshComponent component = owner.createComponent(dto.getName(), project, versionByUUID.get());
+
 		return updateComponentFromDTO(component, dto);
 	}
 
-	private Mono<WritableMeshComponent> updateComponentFromDTO(WritableMeshComponent component, MeshComponentDTO componentDTO) {
+	private Optional<WritableMeshComponent> updateComponentFromDTO(WritableMeshComponent component, MeshComponentDTO componentDTO) {
 		if (componentDTO == null) {
 			component.getOwner().removeComponent(component.getName());
-			return Mono.empty();
+			return Optional.empty();
 		}
 		component.setName(componentDTO.getName());
 		component.setTemplateVariables(componentDTO.getTemplateVariables());
@@ -159,7 +167,8 @@ public class ProjectMeshDTOMapper {
 			final Optional<ReadableProjectVersion> versionByUUID = component.getProject().getVersionById(componentDTO.getProjectVersionId());
 			versionByUUID.ifPresent(component::setProjectVersion);
 		}
-		return Mono.just(component);
+
+		return Optional.of(component);
 	}
 
 }

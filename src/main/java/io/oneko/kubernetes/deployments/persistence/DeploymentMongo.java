@@ -30,6 +30,8 @@ public class DeploymentMongo {
 
 	private DeployableStatus status;
 	private Instant timestamp;
+	@Builder.Default
 	private int containerCount = 0;
+	@Builder.Default
 	private int readyContainerCount = 0;
 }

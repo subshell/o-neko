@@ -51,7 +51,7 @@ public class ReadableMeshComponent implements MeshComponent<ReadableProjectMesh,
 		this.owner = owner;
 	}
 
-	WritableMeshComponent writable() {
+	public WritableMeshComponent writable() {
 		return WritableMeshComponent.builder()
 				.id(getId())
 				.name(getName())
