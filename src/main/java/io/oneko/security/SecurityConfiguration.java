@@ -14,7 +14,7 @@ import io.oneko.websocket.SessionWebSocketHandler;
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity
+@EnableGlobalMethodSecurity(securedEnabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	private final ONekoUserDetailsService userDetailsService;
