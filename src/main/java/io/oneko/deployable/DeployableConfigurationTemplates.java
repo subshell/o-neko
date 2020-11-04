@@ -5,7 +5,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import io.oneko.templates.ConfigurationTemplate;
-import io.oneko.templates.WritableConfigurationTemplate;
 import lombok.Data;
 
 @Data

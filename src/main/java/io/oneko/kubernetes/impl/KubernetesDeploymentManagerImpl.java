@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -49,7 +48,6 @@ import io.oneko.projectmesh.ReadableProjectMesh;
 import io.oneko.projectmesh.WritableMeshComponent;
 import io.oneko.projectmesh.WritableProjectMesh;
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Mono;
 
 @Slf4j
 @Service
@@ -62,7 +60,7 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 	private final ProjectMeshRepository projectMeshRepository;
 
 	KubernetesDeploymentManagerImpl(KubernetesAccess kubernetesAccess, DockerRegistryV2ClientFactory dockerRegistryV2ClientFactory,
-																	DockerRegistryRepository dockerRegistryRepository, ProjectRepository projectRepository, ProjectMeshRepository projectMeshRepository) {
+	                                DockerRegistryRepository dockerRegistryRepository, ProjectRepository projectRepository, ProjectMeshRepository projectMeshRepository) {
 		this.kubernetesAccess = kubernetesAccess;
 		this.dockerRegistryV2ClientFactory = dockerRegistryV2ClientFactory;
 		this.dockerRegistryRepository = dockerRegistryRepository;

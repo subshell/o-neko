@@ -32,10 +32,8 @@ import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.Deletable;
 import io.oneko.event.EventDispatcher;
-import io.oneko.kubernetes.NamespaceCreatedEvent;
 import io.oneko.namespace.HasNamespace;
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Mono;
 
 /**
  * Hides away most parts of the kubernetes API's overall weirdness.
@@ -119,10 +117,9 @@ public class KubernetesAccess {
 		meta.setLabels(hasNamespace.getNamespaceLabels());
 		newNameSpace.setMetadata(meta);
 		kubernetesClient.namespaces().create(newNameSpace);
-		Mono<Namespace> just = Mono.just(newNameSpace);
 
-		// TODO
-		return eventDispatcher.createAndDispatchEvent(just, (ns, trigger) -> new NamespaceCreatedEvent(ns.getMetadata().getName(), trigger));
+		return newNameSpace;
+		// TODO return eventDispatcher.createAndDispatchEvent(just, (ns, trigger) -> new NamespaceCreatedEvent(ns.getMetadata().getName(), trigger));
 	}
 
 	Secret createSecretIfNotExistent(String namespace, String secretName, String userName, String password, String url) throws JsonProcessingException {

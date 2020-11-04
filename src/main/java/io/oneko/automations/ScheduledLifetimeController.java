@@ -3,6 +3,7 @@ package io.oneko.automations;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -16,16 +17,14 @@ import io.oneko.kubernetes.deployments.DeployableStatus;
 import io.oneko.kubernetes.deployments.Deployables;
 import io.oneko.kubernetes.deployments.Deployment;
 import io.oneko.kubernetes.deployments.DeploymentRepository;
-import io.oneko.project.ReadableProject;
 import io.oneko.project.ProjectRepository;
 import io.oneko.project.ProjectVersion;
-import io.oneko.project.WritableProject;
-import io.oneko.projectmesh.ReadableProjectMesh;
-import io.oneko.projectmesh.WritableProjectMesh;
+import io.oneko.project.ReadableProject;
+import io.oneko.project.WritableProjectVersion;
 import io.oneko.projectmesh.ProjectMeshRepository;
+import io.oneko.projectmesh.ReadableProjectMesh;
+import io.oneko.projectmesh.WritableMeshComponent;
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Mono;
-import reactor.util.function.Tuple2;
 
 @Component
 @Slf4j
@@ -45,41 +44,44 @@ public class ScheduledLifetimeController {
 
 	@Scheduled(fixedRate = 5 * 60000)
 	public void checkProjects() {
-		projectRepository.getAll()
+		final var versions = projectRepository.getAll().stream()
 				.map(ReadableProject::writable)
-				.flatMapIterable(WritableProject::getVersions)
+				.flatMap(project -> project.getVersions().stream())
 				.filter(this::shouldConsiderVersion)
 				.map(Deployables::of)
-				.collectList()
-				.zipWhen(this::getRelevantDeploymentsFor)
-				.flux()
-				.flatMapIterable(this::getExpiredPairsOfDeployableAndDeployment)
-				.flatMap(expiredVersionDeploymentPair -> {
-					final var deployable = expiredVersionDeploymentPair.getLeft();
-					log.info("Deployment of project version {} of project {} expired.", deployable.getRelatedProjectVersion().getName(), deployable.getRelatedProject().getName());
-					return kubernetesDeploymentManager.stopDeployment(deployable.getEntity());
-				})
-				.doOnError(e -> log.error(e.getMessage(), e))
-				.subscribe();
+				.collect(Collectors.toList());
+
+		stopExpiredDeployments(versions,
+				deployable -> log.info("Deployment of project version {} of project {} expired.", deployable.getRelatedProjectVersion().getName(), deployable.getRelatedProject().getName()));
 	}
 
 	@Scheduled(fixedRate = 5 * 60000, initialDelay = 2 * 60000)
 	public void checkProjectVersions() {
-		meshRepository.getAll()
+		final var meshComponents = meshRepository.getAll().stream()
 				.map(ReadableProjectMesh::writable)
-				.flatMapIterable(WritableProjectMesh::getComponents)
+				.flatMap(mesh -> mesh.getComponents().stream())
 				.filter(component -> this.shouldConsider(component.getOwner().getLifetimeBehaviour()))
 				.map(Deployables::of)
-				.collectList()
-				.zipWhen(this::getRelevantDeploymentsFor)
-				.flux()
-				.flatMapIterable(this::getExpiredPairsOfDeployableAndDeployment)
-				.flatMap(expiredVersionDeploymentPair -> {
-					final var deployable = expiredVersionDeploymentPair.getLeft();
-					log.info("Deployment of component {}  expired.", deployable.getFullLabel());
-					return kubernetesDeploymentManager.stopDeployment(deployable.getEntity());
-				}).subscribe(any -> {
-		}, e -> log.error(e.getMessage(), e));
+				.collect(Collectors.toList());
+
+		stopExpiredDeployments(meshComponents, deployable -> log.info("Deployment of component {} expired.", deployable.getFullLabel()));
+	}
+
+	private <T> void stopExpiredDeployments(List<Deployable<T>> deployables, Consumer<Deployable<T>> beforeStopDeployment) {
+		final var deployments = getRelevantDeploymentsFor(deployables);
+		final var expiredPairsOfDeployableAndDeployment = getExpiredPairsOfDeployableAndDeployment(deployables, deployments);
+
+		expiredPairsOfDeployableAndDeployment.forEach(expiredVersionDeploymentPair -> {
+			final var deployable = expiredVersionDeploymentPair.getLeft();
+			beforeStopDeployment.accept(deployable);
+			if (deployable instanceof WritableMeshComponent) {
+				kubernetesDeploymentManager.stopDeployment((WritableMeshComponent) deployable.getEntity());
+			} else if (deployable instanceof WritableProjectVersion) {
+				kubernetesDeploymentManager.stopDeployment((WritableProjectVersion) deployable.getEntity());
+			} else {
+				log.error("Stopping {} is not supported.", deployable.getClass());
+			}
+		});
 	}
 
 	private boolean shouldConsiderVersion(ProjectVersion<?, ?> version) {
@@ -91,14 +93,14 @@ public class ScheduledLifetimeController {
 		return behaviour.isPresent() && !behaviour.get().isInfinite();
 	}
 
-	private Mono<List<Deployment>> getRelevantDeploymentsFor(List<? extends Deployable> deployables) {
+	private List<Deployment> getRelevantDeploymentsFor(List<? extends Deployable<?>> deployables) {
 		final var uuids = deployables.stream().map(Deployable::getId).collect(Collectors.toSet());
-		return deploymentRepository.findAllByDeployableIdIn(uuids).filter(deployment -> !deployment.getStatus().equals(DeployableStatus.NotScheduled)).collectList();
+		return deploymentRepository.findAllByDeployableIdIn(uuids).stream()
+				.filter(deployment -> !deployment.getStatus().equals(DeployableStatus.NotScheduled))
+				.collect(Collectors.toList());
 	}
 
-	private <T extends Deployable> Set<Pair<T, Deployment>> getExpiredPairsOfDeployableAndDeployment(Tuple2<List<T>, List<Deployment>> tuple) {
-		var versions = tuple.getT1();
-		var deployments = tuple.getT2();
+	private <T extends Deployable<?>> Set<Pair<T, Deployment>> getExpiredPairsOfDeployableAndDeployment(List<T> versions, List<Deployment> deployments) {
 		var combiningFunction = createExpiredDeployableDeploymentCombiningFunction(versions);
 		return deployments.stream()
 				.map(combiningFunction)
@@ -108,7 +110,7 @@ public class ScheduledLifetimeController {
 	}
 
 	//what a method name
-	private <T extends Deployable> Function<Deployment, Optional<Pair<T, Deployment>>> createExpiredDeployableDeploymentCombiningFunction(List<T> deployables) {
+	private <T extends Deployable<?>> Function<Deployment, Optional<Pair<T, Deployment>>> createExpiredDeployableDeploymentCombiningFunction(List<T> deployables) {
 		return (deployment) -> {
 
 			final var matchingDeployableOptional = deployables.stream()

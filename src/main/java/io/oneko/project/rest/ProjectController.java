@@ -5,9 +5,6 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import io.oneko.docker.DockerRegistry;
-import io.oneko.docker.ReadableDockerRegistry;
-import io.oneko.project.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,12 +17,19 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import io.oneko.configuration.Controllers;
+import io.oneko.docker.DockerRegistry;
 import io.oneko.docker.DockerRegistryRepository;
+import io.oneko.docker.ReadableDockerRegistry;
 import io.oneko.kubernetes.KubernetesDeploymentManager;
+import io.oneko.project.Project;
+import io.oneko.project.ProjectRepository;
+import io.oneko.project.ReadableProject;
+import io.oneko.project.ReadableProjectVersion;
+import io.oneko.project.WritableProject;
+import io.oneko.project.WritableProjectVersion;
 import io.oneko.project.rest.export.ProjectExportDTO;
 import io.oneko.project.rest.export.ProjectExportDTOMapper;
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Mono;
 
 @RestController
 @Slf4j
@@ -54,7 +58,7 @@ public class ProjectController {
 	/**
 	 * Ensures that the DTO refers to a docker registry that actually exists...
 	 */
-	private UUID getDockerRegistryIdForProject(Project project, ProjectDTO dto) {
+	private UUID getDockerRegistryIdForProject(Project<?> project, ProjectDTO dto) {
 		//TODO: that check might not belong here...
 		if (Objects.equals(project.getDockerRegistryId(), dto.getDockerRegistryUUID())) {
 			//no change, so...
@@ -126,8 +130,7 @@ public class ProjectController {
 		WritableProject project = getProjectOr404(id).writable();
 		WritableProjectVersion projectVersion = project.getVersionById(versionId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project version with id " + versionId + " not found"));
-		final Mono<ReadableProjectVersion> deployed = kubernetesDeploymentManager.deploy(projectVersion);
-		final ReadableProjectVersion deployedVersion = deployed.block();
+		final ReadableProjectVersion deployedVersion = kubernetesDeploymentManager.deploy(projectVersion);
 		return dtoMapper.projectToDTO(deployedVersion.getProject());
 	}
 
