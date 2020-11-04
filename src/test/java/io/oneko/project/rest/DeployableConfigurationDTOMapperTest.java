@@ -1,7 +1,7 @@
 package io.oneko.project.rest;
 
+import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,17 +9,17 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.collections4.map.HashedMap;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.oneko.project.WritableProject;
 import io.oneko.project.WritableProjectVersion;
 import io.oneko.templates.WritableConfigurationTemplate;
 import io.oneko.templates.rest.ConfigurationTemplateDTOMapper;
 
-public class DeployableConfigurationDTOMapperTest {
+class DeployableConfigurationDTOMapperTest {
 
 	@Test
-	public void configShouldHaveReplacesVariables() {
+	void configShouldHaveReplacesVariables() {
 		ConfigurationTemplateDTOMapper templateDTOMapper = new ConfigurationTemplateDTOMapper();
 		DeployableConfigurationDTOMapper mapper = new DeployableConfigurationDTOMapper(templateDTOMapper);
 

@@ -1,14 +1,15 @@
 package io.oneko.namespace;
 
+import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class NamespaceConventionsTest {
+class NamespaceConventionsTest {
 
 	@Test
-	public void testSanitizeNamespace() {
+	void testSanitizeNamespace() {
 		//upper case
 		assertThat(NamespaceConventions.sanitizeNamespace("Hallo"), is("hallo"));
 

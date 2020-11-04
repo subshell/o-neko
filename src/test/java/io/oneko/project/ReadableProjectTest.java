@@ -1,15 +1,16 @@
 package io.oneko.project;
 
-import io.oneko.automations.LifetimeBehaviour;
-import io.oneko.deployable.DeploymentBehaviour;
-import io.oneko.kubernetes.deployments.DesiredState;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.*;
 
 import java.time.Instant;
 import java.util.Collections;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+
+import io.oneko.automations.LifetimeBehaviour;
+import io.oneko.deployable.DeploymentBehaviour;
+import io.oneko.kubernetes.deployments.DesiredState;
 
 class ReadableProjectTest {
 

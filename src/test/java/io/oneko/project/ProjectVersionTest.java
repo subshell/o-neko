@@ -1,7 +1,8 @@
 package io.oneko.project;
 
+import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,17 +12,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import io.oneko.docker.ReadableDockerRegistry;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.oneko.deployable.DeployableConfigurationTemplates;
 import io.oneko.templates.WritableConfigurationTemplate;
 
-public class ProjectVersionTest {
+class ProjectVersionTest {
 
 	@Test
-	public void testCalculateConfiguration() {
+	void testCalculateConfiguration() {
 		//have a bit of preparation here
 		WritableProject project = new WritableProject(UUID.randomUUID());
 
@@ -62,7 +62,7 @@ public class ProjectVersionTest {
 	}
 
 	@Test
-	public void testOverwriteConfiguration() {        //have a bit of preparation here
+	void testOverwriteConfiguration() {        //have a bit of preparation here
 		WritableProject project = new WritableProject(UUID.randomUUID());
 
 		List<WritableConfigurationTemplate> templates = Arrays.asList(
@@ -107,7 +107,7 @@ public class ProjectVersionTest {
 	}
 
 	@Test
-	public void testSetConfigurationTemplates() {
+	void testSetConfigurationTemplates() {
 		WritableProject project = new WritableProject(UUID.randomUUID());
 		WritableProjectVersion uut = project.createVersion("sample");
 
@@ -137,7 +137,7 @@ public class ProjectVersionTest {
 	}
 
 	@Test
-	public void testDeployableConfigurationTemplates() {
+	void testDeployableConfigurationTemplates() {
 		WritableProject project = new WritableProject(UUID.randomUUID());
 		project.setName("project1");
 

@@ -1,29 +1,29 @@
 package io.oneko.event;
 
+import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
-public class EventDispatcherTest {
+class EventDispatcherTest {
 
 	private List<Event> currentEvents = new ArrayList<>();
 	private EventDispatcher uut = new EventDispatcher();
 
-	@Before
-	public void setup() {
+	@BeforeEach
+	void setup() {
 		uut.streamEvents().subscribe(this.currentEvents::add);
 	}
 
 	@Test
-	public void testDefaultTriggerIntoMono() {
+	void testDefaultTriggerIntoMono() {
 		String myTestString = "Weasel rules";
 		Mono<String> mono = Mono.just(myTestString);
 
@@ -36,7 +36,7 @@ public class EventDispatcherTest {
 	}
 
 	@Test
-	public void testReadSetTrigger() {
+	void testReadSetTrigger() {
 		String myTestString = "Weasel rules";
 		Mono<String> mono = Mono.just(myTestString);
 
@@ -51,7 +51,7 @@ public class EventDispatcherTest {
 	}
 
 	@Test
-	public void showCaseForWrongUsage() {
+	void showCaseForWrongUsage() {
 		Mono<String> mono = Mono.just("Weasel rules");
 
 		assertThat(currentEvents, is(empty()));
@@ -70,7 +70,7 @@ public class EventDispatcherTest {
 	}
 
 	@Test
-	public void showCaseThenUsageVersion1() {
+	void showCaseThenUsageVersion1() {
 		Mono<String> mono = Mono.just("Weasel rules");
 
 		uut.createAndDispatchEvent(mono, SampleEvent::new)
@@ -83,7 +83,7 @@ public class EventDispatcherTest {
 	}
 
 	@Test
-	public void showCaseThenUsageVersion2() {
+	void showCaseThenUsageVersion2() {
 		Mono<String> mono = Mono.just("Weasel rules");
 
 		uut.createAndDispatchEvent(mono, SampleEvent::new)
@@ -96,7 +96,7 @@ public class EventDispatcherTest {
 	}
 
 	@Test
-	public void showCaseVoidMono() {
+	void showCaseVoidMono() {
 		Mono<Void> mono = Mono.just("Weasel rules").then();
 
 		assertThat(currentEvents, is(empty()));

@@ -1,14 +1,15 @@
 package io.oneko.project;
 
-import io.oneko.automations.LifetimeBehaviour;
-import io.oneko.templates.WritableConfigurationTemplate;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+
+import io.oneko.automations.LifetimeBehaviour;
+import io.oneko.templates.WritableConfigurationTemplate;
 
 public class WritableProjectTest {
 

@@ -1,63 +1,50 @@
 package io.oneko.docker.persistence;
 
+import static org.assertj.core.api.Assertions.*;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import io.oneko.docker.WritableDockerRegistry;
 import io.oneko.event.EventDispatcher;
-import org.junit.Before;
-import org.junit.Test;
-import reactor.test.StepVerifier;
 
-public class DockerRegistryInMemoryRepositoryTest {
+class DockerRegistryInMemoryRepositoryTest {
 
 	private DockerRegistryInMemoryRepository uut;
 	private EventDispatcher dispatcher;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		dispatcher = new EventDispatcher();
 		uut = new DockerRegistryInMemoryRepository(dispatcher);
 	}
 
 	@Test
-	public void testCrud() {
-		StepVerifier.create(uut.getAll())
-				.expectNextCount(0)
-				.verifyComplete();
+	void testCrud() {
+		assertThat(uut.getAll()).isEmpty();
 
 		WritableDockerRegistry reg = new WritableDockerRegistry();
 		reg.setName("myreg");
 
-		StepVerifier.create(uut.add(reg))
-				.expectNextCount(1)
-				.verifyComplete();
+		uut.add(reg);
+		assertThat(uut.getAll()).hasSize(1);
 
-		StepVerifier.create(uut.getAll())
-				.expectNextCount(1)
-				.verifyComplete();
-
-		StepVerifier.create(uut.remove(reg))
-				.verifyComplete();
-
-		StepVerifier.create(uut.getAll())
-				.expectNextCount(0)
-				.verifyComplete();
+		uut.remove(reg);
+		assertThat(uut.getAll()).isEmpty();
 	}
 
 	@Test
-	public void testGetByName() {
+	void testGetByName() {
 		WritableDockerRegistry reg = new WritableDockerRegistry();
 		reg.setName("myreg");
 
-		StepVerifier.create(uut.add(reg))
-				.expectNextCount(1)
-				.verifyComplete();
-
-		StepVerifier.create(uut.getByName("myreg"))
-				.expectNextCount(1)
-				.verifyComplete();
+		uut.add(reg);
+		assertThat(uut.getAll()).hasSize(1);
+		assertThat(uut.getByName("myreg")).isPresent();
 	}
 
 	@Test
-	public void testDontModifyRepoContent() {
+	void testDontModifyRepoContent() {
 		//TODO
 	}
 }

@@ -1,7 +1,8 @@
 package io.oneko.projectmesh;
 
+import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,21 +12,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.junit.jupiter.api.Test;
+
 import io.oneko.docker.ReadableDockerRegistry;
 import io.oneko.docker.WritableDockerRegistry;
-import org.junit.Test;
-
+import io.oneko.project.ProjectVersion;
 import io.oneko.project.ReadableProject;
 import io.oneko.project.WritableProject;
-import io.oneko.project.ProjectVersion;
 import io.oneko.project.WritableProjectVersion;
 import io.oneko.project.WritableTemplateVariable;
 import io.oneko.templates.WritableConfigurationTemplate;
 
-public class MeshComponentTest {
+class MeshComponentTest {
 
 	@Test
-	public void testChangeVersion() {
+	void testChangeVersion() {
 		ReadableDockerRegistry reg = new WritableDockerRegistry().readable();
 		WritableProject p = new WritableProject(reg.getId());
 		final ProjectVersion v1 = p.createVersion("v1");
@@ -53,7 +54,7 @@ public class MeshComponentTest {
 	}
 
 	@Test
-	public void testTemplateComposition() {
+	void testTemplateComposition() {
 		ReadableDockerRegistry reg = new WritableDockerRegistry().readable();
 		WritableProject p = new WritableProject(reg.getId());
 		p.setDefaultConfigurationTemplates(Arrays.asList(

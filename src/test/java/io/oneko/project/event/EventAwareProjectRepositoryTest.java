@@ -1,14 +1,14 @@
 package io.oneko.project.event;
 
+import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import io.oneko.event.Event;
 import io.oneko.event.EventDispatcher;
@@ -16,15 +16,14 @@ import io.oneko.event.EventTrigger;
 import io.oneko.event.SampleTrigger;
 import io.oneko.event.UnknownTrigger;
 import io.oneko.project.WritableProject;
-import reactor.util.context.Context;
 
-public class EventAwareProjectRepositoryTest {
+class EventAwareProjectRepositoryTest {
 
 	private EventAwareProjectRepository uut;
 	private List<Event> currentEvents;
 
-	@Before
-	public void setup() {
+	@BeforeEach
+	void setup() {
 		this.currentEvents = new ArrayList<>();
 		EventDispatcher dispatcher = new EventDispatcher();
 		dispatcher.streamEvents().subscribe(this.currentEvents::add);
@@ -32,10 +31,10 @@ public class EventAwareProjectRepositoryTest {
 	}
 
 	@Test
-	public void testSaveEvent() {
+	void testSaveEvent() {
 		WritableProject p = new WritableProject(UUID.randomUUID());
 
-		this.uut.add(p).subscribe();
+		this.uut.add(p);
 
 		assertThat(this.currentEvents, hasItem(isA(ProjectSavedEvent.class)));
 		ProjectSavedEvent event = (ProjectSavedEvent) this.currentEvents.get(0);
@@ -44,11 +43,12 @@ public class EventAwareProjectRepositoryTest {
 	}
 
 	@Test
-	public void testSaveEventWithTrigger() {
+	void testSaveEventWithTrigger() {
 		EventTrigger customTrigger = new SampleTrigger();
 		WritableProject p = new WritableProject(UUID.randomUUID());
 
-		this.uut.add(p).subscriberContext(Context.of(EventTrigger.class, customTrigger)).subscribe();
+		// TODO .subscriberContext(Context.of(EventTrigger.class, customTrigger)).subscribe();
+		this.uut.add(p);
 
 		assertThat(this.currentEvents, hasItem(isA(ProjectSavedEvent.class)));
 		ProjectSavedEvent event = (ProjectSavedEvent) this.currentEvents.get(0);

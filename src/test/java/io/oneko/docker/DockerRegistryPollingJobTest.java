@@ -5,16 +5,16 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.time.Duration;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.oneko.utils.TimeMachine;
 import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.Flux;
 
-public class DockerRegistryPollingJobTest {
+class DockerRegistryPollingJobTest {
 
 	@Test
-	public void testJobShouldTimeout() {
+	void testJobShouldTimeout() {
 		TimeMachine timeMachine = new TimeMachine();
 		DockerRegistryPollingJob uut = new DockerRegistryPollingJob(Flux.empty().subscribe()).withTimeoutDuration(Duration.ofMinutes(5));
 		uut.setClock(timeMachine);
@@ -25,7 +25,7 @@ public class DockerRegistryPollingJobTest {
 	}
 
 	@Test
-	public void shouldBeDisposedIfUnderlyingStreamIsDisposed() {
+	void shouldBeDisposedIfUnderlyingStreamIsDisposed() {
 		EmitterProcessor flux = EmitterProcessor.create();
 
 		DockerRegistryPollingJob uut = new DockerRegistryPollingJob(flux.subscribe());
@@ -36,7 +36,7 @@ public class DockerRegistryPollingJobTest {
 	}
 
 	@Test
-	public void shouldBeCancellable() {
+	void shouldBeCancellable() {
 		EmitterProcessor flux = EmitterProcessor.create();
 
 		DockerRegistryPollingJob uut = new DockerRegistryPollingJob(flux.subscribe());

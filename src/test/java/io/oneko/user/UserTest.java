@@ -4,19 +4,19 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.UUID;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import io.oneko.security.UserRole;
 
-public class UserTest {
+class UserTest {
 
 	final UUID uuid = UUID.randomUUID();
 	WritableUser uut;
 
-	@Before
-	public void setUp() {
+	@BeforeEach
+	void setUp() {
 		uut = WritableUser.builder()
 				.email("foo@bar.com")
 				.role(UserRole.ADMIN)
@@ -25,13 +25,13 @@ public class UserTest {
 	}
 
 	@Test
-	public void userShouldNotBeDirtyWhenInitializedByBuilder() {
+	void userShouldNotBeDirtyWhenInitializedByBuilder() {
 		assertThat(uut.isDirty()).isFalse();
 		assertThat(uut.getDirtyProperties()).isEmpty();
 	}
 
 	@Test
-	public void testUserIsDirtyAfterPasswordChange() {
+	void testUserIsDirtyAfterPasswordChange() {
 		uut.setPasswordAuthentication("super-secret", new BCryptPasswordEncoder());
 		assertThat(uut.getDirtyProperties()).containsExactly("authentication");
 		assertThat(uut.isDirty()).isTrue();

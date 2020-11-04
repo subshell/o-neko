@@ -5,12 +5,13 @@ import static org.junit.Assert.*;
 
 import java.util.UUID;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class ModificationAwareTest {
+
+class ModificationAwareTest {
 
 	@Test
-	public void testDontBeDirtyOnInit() {
+	void testDontBeDirtyOnInit() {
 		SampleModificationAware uut = new SampleModificationAware(UUID.randomUUID(), "test");
 
 		assertThat(uut.isDirty(), is(false));
@@ -19,7 +20,7 @@ public class ModificationAwareTest {
 	}
 
 	@Test
-	public void testExplicitlySetDirty() {
+	void testExplicitlySetDirty() {
 		SampleModificationAware uut = new SampleModificationAware(UUID.randomUUID(), "test");
 
 		uut.touch();
@@ -30,7 +31,7 @@ public class ModificationAwareTest {
 	}
 
 	@Test
-	public void testSetPropertyDirty() {
+	void testSetPropertyDirty() {
 		SampleModificationAware uut = new SampleModificationAware(UUID.randomUUID(), "test");
 
 		uut.setName("test2");
