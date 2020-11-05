@@ -18,7 +18,7 @@ public abstract class EventAwareProjectRepository implements ProjectRepository {
 	public ReadableProject add(WritableProject project) {
 		if (project.isDirty()) {
 			ReadableProject persistedProject = addInternally(project);
-			this.eventDispatcher.dispatch(new ProjectSavedEvent(project, null));//TODO
+			this.eventDispatcher.dispatch(new ProjectSavedEvent(project));
 			return persistedProject;
 		} else {
 			return project.readable();
@@ -30,7 +30,7 @@ public abstract class EventAwareProjectRepository implements ProjectRepository {
 	@Override
 	public void remove(Project<?, ?> project) {
 		removeInternally(project);
-		eventDispatcher.dispatch(new ProjectDeletedEvent(project, null));//TODO
+		eventDispatcher.dispatch(new ProjectDeletedEvent(project));
 	}
 
 	protected abstract void removeInternally(Project<?, ?> project);

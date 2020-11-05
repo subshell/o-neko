@@ -4,13 +4,11 @@ public class SampleEvent extends Event {
 
 	private final String name;
 
-	protected SampleEvent(String name, EventTrigger trigger) {
-		super(trigger);
+	protected SampleEvent(String name) {
 		this.name = name;
 	}
 
-	protected SampleEvent(Void nothing, EventTrigger trigger) {
-		super(trigger);
+	protected SampleEvent(Void nothing) {
 		this.name = "from the void";
 	}
 

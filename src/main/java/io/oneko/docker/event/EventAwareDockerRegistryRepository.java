@@ -18,7 +18,7 @@ public abstract class EventAwareDockerRegistryRepository implements DockerRegist
 	public ReadableDockerRegistry add(WritableDockerRegistry dockerRegistry) {
 		if (dockerRegistry.isDirty()) {
 			ReadableDockerRegistry persistedRegistry = addInternally(dockerRegistry);
-			this.eventDispatcher.dispatch(new DockerRegistrySavedEvent(dockerRegistry, null));//TODO
+			this.eventDispatcher.dispatch(new DockerRegistrySavedEvent(dockerRegistry));
 			return persistedRegistry;
 		} else {
 			return dockerRegistry.readable();
@@ -30,7 +30,7 @@ public abstract class EventAwareDockerRegistryRepository implements DockerRegist
 	@Override
 	public void remove(DockerRegistry dockerRegistry) {
 		removeInternally(dockerRegistry);
-		this.eventDispatcher.dispatch(new DockerRegistryDeletedEvent(dockerRegistry, null));//TODO
+		this.eventDispatcher.dispatch(new DockerRegistryDeletedEvent(dockerRegistry));
 	}
 
 	protected abstract void removeInternally(DockerRegistry dockerRegistry);

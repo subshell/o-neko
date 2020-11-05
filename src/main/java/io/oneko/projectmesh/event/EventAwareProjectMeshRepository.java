@@ -18,7 +18,7 @@ public abstract class EventAwareProjectMeshRepository implements ProjectMeshRepo
 	public ReadableProjectMesh add(WritableProjectMesh mesh) {
 		if (mesh.isDirty()) {
 			ReadableProjectMesh persisted = addInternally(mesh);
-			this.eventDispatcher.dispatch(new ProjectMeshSavedEvent(mesh, null));//TODO
+			this.eventDispatcher.dispatch(new ProjectMeshSavedEvent(mesh));
 			return persisted;
 		} else {
 			return mesh.readable();
@@ -30,7 +30,7 @@ public abstract class EventAwareProjectMeshRepository implements ProjectMeshRepo
 	@Override
 	public void remove(ProjectMesh<?, ?> mesh) {
 		removeInternally(mesh);
-		eventDispatcher.dispatch(new ProjectMeshDeletedEvent(mesh, null));//TODO
+		eventDispatcher.dispatch(new ProjectMeshDeletedEvent(mesh));
 	}
 
 	protected abstract void removeInternally(ProjectMesh<?, ?> mesh);

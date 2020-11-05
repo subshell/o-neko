@@ -12,16 +12,15 @@ public class UserRequest extends EventTrigger {
 
 	public static final String TYPE = "UserRequest";
 
-	public UserRequest() {
-		/*
-		 * Having the username as a parameter here would totally be dope, but is seems almost impossible to get it in
-		 * here from where the user request objects are created.
-		 */
+	private final String userName;
+
+	public UserRequest(String userName) {
+		this.userName = userName;
 	}
 
 	@Override
 	public String humanReadable() {
-		return "HTTP-Request by a user";
+		return "HTTP-Request by user " + getUserName();
 	}
 
 	@Override

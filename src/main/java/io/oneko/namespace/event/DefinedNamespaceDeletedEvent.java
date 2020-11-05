@@ -9,8 +9,8 @@ import io.oneko.namespace.DefinedNamespace;
 
 public class DefinedNamespaceDeletedEvent extends EntityChangedEvent {
 
-	public DefinedNamespaceDeletedEvent(DefinedNamespace namespace, EventTrigger trigger) {
-		super(trigger, DescribingEntityChange.builder()
+	public DefinedNamespaceDeletedEvent(DefinedNamespace namespace) {
+		super(DescribingEntityChange.builder()
 				.id(namespace.getId())
 				.name(namespace.asKubernetesNameSpace())
 				.entityType(DescribingEntityChange.EntityType.Namespace)

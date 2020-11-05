@@ -20,7 +20,7 @@ class DockerRegistryPollingJobTest {
 		uut.setClock(timeMachine);
 		assertThat(uut.shouldCancel()).isFalse();
 
-		timeMachine.timeTravelTo(timeMachine.instant().plus(Duration.ofMinutes(5)));
+		timeMachine.timeTravelTo(timeMachine.instant().plus(Duration.ofMinutes(6)));
 		assertThat(uut.shouldCancel()).isTrue();
 	}
 

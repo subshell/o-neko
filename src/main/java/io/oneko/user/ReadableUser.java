@@ -34,7 +34,7 @@ public class ReadableUser extends Identifiable implements User, Serializable {
 	 * Checks, whether this user can be authorized by the given identifier against any of it's authentications.
 	 */
 	public <T> boolean authenticates(T identifier) {
-		if (getAuthentication().getIdentifierType().isInstance(identifier)) {
+		if (authentication.getIdentifierType().isInstance(identifier)) {
 			return ((UserAuthentication<T>) this.authentication).authenticates(identifier);
 		}
 		return false;

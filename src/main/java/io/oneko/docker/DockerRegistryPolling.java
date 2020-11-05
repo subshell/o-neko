@@ -12,6 +12,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
+import io.oneko.event.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -24,9 +25,6 @@ import io.oneko.docker.event.ObsoleteProjectVersionRemovedEvent;
 import io.oneko.docker.v2.DockerRegistryV2ClientFactory;
 import io.oneko.docker.v2.model.manifest.Manifest;
 import io.oneko.domain.Identifiable;
-import io.oneko.event.EventDispatcher;
-import io.oneko.event.EventTrigger;
-import io.oneko.event.ScheduledTask;
 import io.oneko.kubernetes.KubernetesDeploymentManager;
 import io.oneko.project.ProjectRepository;
 import io.oneko.project.ProjectVersion;
@@ -61,40 +59,43 @@ class DockerRegistryPolling {
 	private final EventTrigger asTrigger;
 	private final AtomicBoolean pollingInProgress = new AtomicBoolean(false);
 	private final ExpiringBucket<UUID> failedManifestRequests = new ExpiringBucket<UUID>(Duration.ofMinutes(5)).concurrent();
+	private final CurrentEventTrigger currentEventTrigger;
 
 	private DockerRegistryPollingJob currentPollingJob;
 
 	DockerRegistryPolling(ProjectRepository projectRepository,
-	                      ProjectMeshRepository projectMeshRepository,
-	                      DockerRegistryV2ClientFactory dockerRegistryV2ClientFactory,
-	                      KubernetesDeploymentManager kubernetesDeploymentManager,
-	                      EventDispatcher eventDispatcher,
-	                      @Value("${o-neko.docker.polling.timeoutInMinutes:5}") int pollingTimeoutInMinutes) {
+						  ProjectMeshRepository projectMeshRepository,
+						  DockerRegistryV2ClientFactory dockerRegistryV2ClientFactory,
+						  KubernetesDeploymentManager kubernetesDeploymentManager,
+						  EventDispatcher eventDispatcher,
+						  @Value("${o-neko.docker.polling.timeoutInMinutes:5}") int pollingTimeoutInMinutes, CurrentEventTrigger currentEventTrigger) {
 		this.projectRepository = projectRepository;
 		this.projectMeshRepository = projectMeshRepository;
 		this.dockerRegistryV2ClientFactory = dockerRegistryV2ClientFactory;
 		this.kubernetesDeploymentManager = kubernetesDeploymentManager;
 		this.eventDispatcher = eventDispatcher;
 		this.pollingTimeoutDuration = Duration.ofMinutes(pollingTimeoutInMinutes);
+		this.currentEventTrigger = currentEventTrigger;
 		this.asTrigger = new ScheduledTask("Docker Registry Polling");
 	}
 
 	@Scheduled(fixedDelay = 20000, initialDelay = 20000)
 	protected void checkDockerForNewImages() {
 		if (!this.pollingInProgress.getAndSet(true)) {
-			log.trace("Starting polling job");
-			final List<WritableProjectMesh> meshes = projectMeshRepository.getAll().stream()
-					.map(ReadableProjectMesh::writable)
-					.collect(Collectors.toList());
-			final List<WritableProject> projects = projectRepository.getAll().stream()
-					.map(ReadableProject::writable)
-					.collect(Collectors.toList());
+			try (var ignored = currentEventTrigger.forTryBlock(this.asTrigger)) {
+				log.trace("Starting polling job");
+				final List<WritableProjectMesh> meshes = projectMeshRepository.getAll().stream()
+						.map(ReadableProjectMesh::writable)
+						.collect(Collectors.toList());
+				final List<WritableProject> projects = projectRepository.getAll().stream()
+						.map(ReadableProject::writable)
+						.collect(Collectors.toList());
 
-			// TODO timeout with pollingTimeoutDuration
-			checkDockerForNewImages(meshes, projects);
-			log.trace("Finished polling job");
-
-			return;
+				// TODO timeout with pollingTimeoutDuration
+				checkDockerForNewImages(meshes, projects);
+				log.trace("Finished polling job");
+				return;
+			}
 		}
 
 		if (this.currentPollingJob != null && (this.currentPollingJob.shouldCancel() || this.currentPollingJob.isCancelled())) {
@@ -207,7 +208,7 @@ class DockerRegistryPolling {
 
 		final var newVersions = Sets.difference(Sets.newHashSet(tags), versions);
 		final var removedVersions = Sets.difference(versions, Sets.newHashSet(tags));
-		final var resultingEvents = new ArrayList<>();
+		final var resultingEvents = new ArrayList<Event>();
 
 		if (!newVersions.isEmpty()) {
 			if (newVersions.size() == 1) {
@@ -219,14 +220,15 @@ class DockerRegistryPolling {
 
 		newVersions.forEach(version -> {
 			WritableProjectVersion projectVersion = project.createVersion(version);
-			resultingEvents.add(new NewProjectVersionFoundEvent(projectVersion, this.asTrigger));
+			resultingEvents.add(new NewProjectVersionFoundEvent(projectVersion));
 		});
 
 		removedVersions.forEach(version -> {
 			WritableProjectVersion projectVersion = project.removeVersion(version);
 			log.info("Found an obsolete version {} [{}] for project {}", version, projectVersion.getId(), project.getName());
-			resultingEvents.add(new ObsoleteProjectVersionRemovedEvent(projectVersion, this.asTrigger));
+			resultingEvents.add(new ObsoleteProjectVersionRemovedEvent(projectVersion));
 		});
+		resultingEvents.forEach(eventDispatcher::dispatch);
 
 		if (!newVersions.isEmpty() || !removedVersions.isEmpty()) {
 			ReadableProject savedProject = projectRepository.add(project);

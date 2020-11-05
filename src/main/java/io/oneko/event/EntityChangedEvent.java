@@ -6,8 +6,7 @@ public class EntityChangedEvent extends Event {
 
 	private final DescribingEntityChange description;
 
-	protected EntityChangedEvent(EventTrigger trigger, DescribingEntityChange description) {
-		super(trigger);
+	protected EntityChangedEvent(DescribingEntityChange description) {
 		this.description = description;
 	}
 

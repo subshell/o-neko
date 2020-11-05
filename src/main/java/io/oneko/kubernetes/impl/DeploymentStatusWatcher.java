@@ -4,6 +4,9 @@ import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import io.oneko.event.CurrentEventTrigger;
+import io.oneko.event.EventTrigger;
+import io.oneko.event.ScheduledTask;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -36,29 +39,36 @@ class DeploymentStatusWatcher {
 	private final DeploymentRepository deploymentRepository;
 	private final SessionWebSocketHandler webSocketHandler;
 	private final PodToDeploymentMapper podToDeploymentMapper;
+	private final CurrentEventTrigger currentEventTrigger;
 
 	DeploymentStatusWatcher(KubernetesAccess kubernetesAccess, ProjectRepository projectRepository,
-	                        ProjectMeshRepository meshRepository, DeploymentRepository deploymentRepository,
-	                        SessionWebSocketHandler webSocketHandler,
-	                        PodToDeploymentMapper podToDeploymentMapper) {
+							ProjectMeshRepository meshRepository, DeploymentRepository deploymentRepository,
+							SessionWebSocketHandler webSocketHandler,
+							PodToDeploymentMapper podToDeploymentMapper, CurrentEventTrigger currentEventTrigger) {
 		this.kubernetesAccess = kubernetesAccess;
 		this.projectRepository = projectRepository;
 		this.meshRepository = meshRepository;
 		this.deploymentRepository = deploymentRepository;
 		this.webSocketHandler = webSocketHandler;
 		this.podToDeploymentMapper = podToDeploymentMapper;
+		this.currentEventTrigger = currentEventTrigger;
+	}
+
+	private EventTrigger asTrigger() {
+		return new ScheduledTask("Kubernetes Deployment Status Watcher");
 	}
 
 	@Scheduled(fixedRate = 5000)
-	protected void updateProjectStatus() {
+	protected void updateProjectStatus() throws Exception {
 		final List<WritableProjectVersion> writableVersions = projectRepository.getAll().stream()
 				.map(ReadableProject::writable)
 				.flatMap(writableProject -> writableProject.getVersions().stream())
 				.filter(writableVersion -> shouldScanDeployable(Deployables.of(writableVersion)))
 				.collect(Collectors.toList());
 
-		// TODO EventTrigger Kubernetes Status Watcher
-		writableVersions.forEach(version -> scanResourcesForDeployable(version.getNamespace(), Deployables.of(version)));
+		try (var ignored = currentEventTrigger.forTryBlock(asTrigger())) {
+			writableVersions.forEach(version -> scanResourcesForDeployable(version.getNamespace(), Deployables.of(version)));
+		}
 	}
 
 	@Scheduled(fixedRate = 5000, initialDelay = 2500)
@@ -69,9 +79,10 @@ class DeploymentStatusWatcher {
 				.filter(meshComponent -> shouldScanDeployable(Deployables.of(meshComponent)))
 				.collect(Collectors.toList());
 
-		// TODO EventTrigger Kubernetes Status Watcher
-		writableMeshComponents
-				.forEach(component -> scanResourcesForDeployable(component.getOwner().getNamespace(), Deployables.of(component)));
+		try (var ignored = currentEventTrigger.forTryBlock(asTrigger())) {
+			writableMeshComponents
+					.forEach(component -> scanResourcesForDeployable(component.getOwner().getNamespace(), Deployables.of(component)));
+		}
 	}
 
 	private boolean shouldScanDeployable(Deployable<?> deployable) {

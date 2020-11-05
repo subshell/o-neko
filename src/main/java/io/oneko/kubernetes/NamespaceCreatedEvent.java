@@ -1,7 +1,6 @@
 package io.oneko.kubernetes;
 
 import io.oneko.event.Event;
-import io.oneko.event.EventTrigger;
 import lombok.Getter;
 
 public class NamespaceCreatedEvent extends Event {
@@ -9,8 +8,7 @@ public class NamespaceCreatedEvent extends Event {
 	@Getter
 	private final String namespace;
 
-	public NamespaceCreatedEvent(String namespace, EventTrigger trigger) {
-		super(trigger);
+	public NamespaceCreatedEvent(String namespace) {
 		this.namespace = namespace;
 	}
 

@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.session.data.mongo.config.annotation.web.reactive.EnableMongoWebSession;
+import org.springframework.session.data.mongo.config.annotation.web.http.EnableMongoHttpSession;
 
 @SpringBootApplication
-@EnableMongoWebSession(maxInactiveIntervalInSeconds = 86400)
+@EnableMongoHttpSession(maxInactiveIntervalInSeconds = 86400)
 @EnableScheduling
 @EnableMongoRepositories
 public class ONekoApplication {

@@ -18,7 +18,7 @@ public abstract class EventAwareUserRepository implements UserRepository {
 	public ReadableUser add(WritableUser user) {
 		if (user.isDirty()) {
 			ReadableUser persistedUser = addInternally(user);
-			eventDispatcher.dispatch(new UserSavedEvent(user, null));//TODO
+			eventDispatcher.dispatch(new UserSavedEvent(user));
 			return persistedUser;
 		} else {
 			return user.readable();
@@ -30,7 +30,7 @@ public abstract class EventAwareUserRepository implements UserRepository {
 	@Override
 	public void removeUser(User user) {
 		removeInternally(user);
-		eventDispatcher.dispatch(new UserDeletedEvent(user, null));//TODO
+		eventDispatcher.dispatch(new UserDeletedEvent(user));
 	}
 
 	protected abstract void removeInternally(User user);

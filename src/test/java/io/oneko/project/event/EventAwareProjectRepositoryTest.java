@@ -7,27 +7,30 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import io.oneko.event.*;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import io.oneko.event.Event;
-import io.oneko.event.EventDispatcher;
-import io.oneko.event.EventTrigger;
-import io.oneko.event.SampleTrigger;
-import io.oneko.event.UnknownTrigger;
 import io.oneko.project.WritableProject;
 
 class EventAwareProjectRepositoryTest {
 
+	private final CurrentEventTrigger currentEventTrigger = new CurrentEventTrigger();
 	private EventAwareProjectRepository uut;
 	private List<Event> currentEvents;
 
 	@BeforeEach
 	void setup() {
 		this.currentEvents = new ArrayList<>();
-		EventDispatcher dispatcher = new EventDispatcher();
+		EventDispatcher dispatcher = new EventDispatcher(currentEventTrigger);
 		dispatcher.streamEvents().subscribe(this.currentEvents::add);
 		this.uut = new ProjectInMemoryRepository(dispatcher);
+	}
+
+	@AfterEach
+	void clear() {
+		currentEventTrigger.unset();
 	}
 
 	@Test
@@ -45,9 +48,9 @@ class EventAwareProjectRepositoryTest {
 	@Test
 	void testSaveEventWithTrigger() {
 		EventTrigger customTrigger = new SampleTrigger();
+		currentEventTrigger.setCurrentTrigger(customTrigger);
 		WritableProject p = new WritableProject(UUID.randomUUID());
 
-		// TODO .subscriberContext(Context.of(EventTrigger.class, customTrigger)).subscribe();
 		this.uut.add(p);
 
 		assertThat(this.currentEvents, hasItem(isA(ProjectSavedEvent.class)));

@@ -35,7 +35,6 @@ import io.oneko.event.EventDispatcher;
 import io.oneko.kubernetes.NamespaceCreatedEvent;
 import io.oneko.namespace.HasNamespace;
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Mono;
 
 /**
  * Hides away most parts of the kubernetes API's overall weirdness.
@@ -120,7 +119,7 @@ public class KubernetesAccess {
 		newNameSpace.setMetadata(meta);
 		kubernetesClient.namespaces().create(newNameSpace);
 
-		eventDispatcher.createAndDispatchEvent(Mono.just(newNameSpace), (ns, trigger) -> new NamespaceCreatedEvent(ns.getMetadata().getName(), trigger)); // TODO
+		eventDispatcher.dispatch(new NamespaceCreatedEvent(newNameSpace.getMetadata().getName()));
 
 		return newNameSpace;
 	}

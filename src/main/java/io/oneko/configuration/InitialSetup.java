@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 
+import io.oneko.event.CurrentEventTrigger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -25,17 +26,21 @@ public class InitialSetup extends EventTrigger {
 
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
+	private final CurrentEventTrigger currentEventTrigger;
 
 	@Autowired
-	public InitialSetup(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+	public InitialSetup(UserRepository userRepository, PasswordEncoder passwordEncoder, CurrentEventTrigger currentEventTrigger) {
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
+		this.currentEventTrigger = currentEventTrigger;
 	}
 
 	@PostConstruct
 	public void setupSystem() {
 		log.info("Checking existence of user with admin rights.");
-		this.ensureAdminExists();
+		try (var ignored = currentEventTrigger.forTryBlock(this)) {
+			this.ensureAdminExists();
+		}
 	}
 
 	/**
