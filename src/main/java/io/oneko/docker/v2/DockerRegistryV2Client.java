@@ -5,6 +5,8 @@ import io.oneko.docker.DockerRegistry;
 import io.oneko.docker.v2.model.ListTagsResult;
 import io.oneko.docker.v2.model.Repository;
 import io.oneko.docker.v2.model.RepositoryList;
+import io.oneko.docker.v2.model.manifest.DockerRegistryBlob;
+import io.oneko.docker.v2.model.manifest.DockerRegistryManifest;
 import io.oneko.docker.v2.model.manifest.Manifest;
 import io.oneko.project.Project;
 import io.oneko.project.ProjectVersion;
@@ -84,17 +86,20 @@ public class DockerRegistryV2Client {
 	}
 
 	public Manifest getManifest(ProjectVersion<?, ?> version) {
-		HttpGet get = new HttpGet(reg.getRegistryUrl() + "/v2/" + version.getProject().getImageName() + "/manifests/" + version.getName());
-		try (CloseableHttpResponse response = client.execute(get)) {
-			Header[] dockerContentDigestHeaders = response.getHeaders("Docker-Content-Digest");
-			Manifest manifest = this.objectMapper.readValue(EntityUtils.toString(response.getEntity()), Manifest.class);
-			Arrays.stream(dockerContentDigestHeaders).findFirst()
-					.map(Header::getValue)
-					.ifPresent(manifest::setDockerContentDigest);
-			return manifest;
+		HttpGet manifestGet = new HttpGet(reg.getRegistryUrl() + "/v2/" + version.getProject().getImageName() + "/manifests/" + version.getName());
+		try (CloseableHttpResponse response = client.execute(manifestGet)) {
+			DockerRegistryManifest registryManifest = this.objectMapper.readValue(EntityUtils.toString(response.getEntity()), DockerRegistryManifest.class);
+			HttpGet blobGet = new HttpGet(reg.getRegistryUrl() + "/v2/" + version.getProject().getImageName() + "/blobs/" + registryManifest.getDigest());
+			try (CloseableHttpResponse blobResponse = client.execute(blobGet)) {
+				final DockerRegistryBlob dockerRegistryBlob = this.objectMapper.readValue(EntityUtils.toString(blobResponse.getEntity()), DockerRegistryBlob.class);
+
+				return new Manifest(registryManifest.getDigest(), dockerRegistryBlob.getCreated());
+			}
+
 		} catch (IOException e) {
 			//TODO: Error handling
 			throw new IllegalStateException(e);
 		}
 	}
+
 }
