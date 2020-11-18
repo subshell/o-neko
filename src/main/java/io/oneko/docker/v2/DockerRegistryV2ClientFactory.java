@@ -6,6 +6,7 @@ import io.oneko.docker.DockerRegistryRepository;
 import io.oneko.docker.v2.model.TokenResponse;
 import io.oneko.project.Project;
 import io.oneko.projectmesh.MeshComponent;
+import io.oneko.projectmesh.MeshService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -29,12 +30,14 @@ public class DockerRegistryV2ClientFactory {
 	private final ObjectMapper objectMapper;
 	private final DockerV2Checker dockerV2Checker;
 	private final DockerRegistryRepository dockerRegistryRepository;
+	private final MeshService meshService;
 
 	@Autowired
-	DockerRegistryV2ClientFactory(ObjectMapper objectMapper, DockerV2Checker dockerV2Checker, DockerRegistryRepository dockerRegistryRepository) {
+	DockerRegistryV2ClientFactory(ObjectMapper objectMapper, DockerV2Checker dockerV2Checker, DockerRegistryRepository dockerRegistryRepository, MeshService meshService) {
 		this.objectMapper = objectMapper;
 		this.dockerV2Checker = dockerV2Checker;
 		this.dockerRegistryRepository = dockerRegistryRepository;
+		this.meshService = meshService;
 	}
 
 	/**
@@ -65,7 +68,7 @@ public class DockerRegistryV2ClientFactory {
 	}
 
 	public Optional<DockerRegistryV2Client> getDockerRegistryClient(MeshComponent<?, ?> component) {
-		return getDockerRegistryClient(component.getProject());
+		return getDockerRegistryClient(meshService.getVersionOfComponent(component).getProject());
 	}
 
 	/**

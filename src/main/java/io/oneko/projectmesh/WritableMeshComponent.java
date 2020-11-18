@@ -1,14 +1,11 @@
 package io.oneko.projectmesh;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 import io.oneko.domain.ModificationAwareIdentifiable;
 import io.oneko.domain.ModificationAwareListProperty;
 import io.oneko.domain.ModificationAwareMapProperty;
 import io.oneko.domain.ModificationAwareProperty;
 import io.oneko.kubernetes.deployments.DesiredState;
-import io.oneko.project.ReadableProject;
-import io.oneko.project.ReadableProjectVersion;
 import io.oneko.templates.ConfigurationTemplates;
 import io.oneko.templates.WritableConfigurationTemplate;
 import lombok.Builder;
@@ -23,8 +20,8 @@ public class WritableMeshComponent extends ModificationAwareIdentifiable impleme
 	private WritableProjectMesh owner;
 	private final ModificationAwareProperty<UUID> id = new ModificationAwareProperty<>(this, "id");
 	private final ModificationAwareProperty<String> name = new ModificationAwareProperty<>(this, "name");
-	private final ReadableProject project;
-	private final ModificationAwareProperty<ReadableProjectVersion> projectVersion = new ModificationAwareProperty<>(this, "projectVersion");
+	private final UUID projectId;
+	private final ModificationAwareProperty<UUID> projectVersionId = new ModificationAwareProperty<>(this, "projectVersion");
 	private final ModificationAwareProperty<String> dockerContentDigest = new ModificationAwareProperty<>(this, "dockerContentDigest");
 	private final ModificationAwareProperty<Map<String, String>> templateVariables = new ModificationAwareMapProperty<>(this, "templateVariables");
 	private final ModificationAwareProperty<List<WritableConfigurationTemplate>> configurationTemplates = new ModificationAwareListProperty<>(this, "configurationTemplates");
@@ -33,15 +30,15 @@ public class WritableMeshComponent extends ModificationAwareIdentifiable impleme
 	private final ModificationAwareProperty<DesiredState> desiredState = new ModificationAwareProperty<>(this, "desiredState");
 
 	@Builder
-	public WritableMeshComponent(UUID id, String name, ReadableProject project,
-								 ReadableProjectVersion projectVersion, String dockerContentDigest,
+	public WritableMeshComponent(UUID id, String name, UUID projectId,
+								 UUID projectVersionId, String dockerContentDigest,
 								 Map<String, String> templateVariables,
 								 List<WritableConfigurationTemplate> configurationTemplates, boolean outdated,
 								 List<String> urls, DesiredState desiredState) {
 		this.id.init(id);
 		this.name.init(name);
-		this.project = project;
-		this.projectVersion.init(projectVersion);
+		this.projectId = projectId;
+		this.projectVersionId.init(projectVersionId);
 		this.dockerContentDigest.init(dockerContentDigest);
 		this.templateVariables.init(templateVariables);
 		this.configurationTemplates.init(configurationTemplates);
@@ -58,11 +55,11 @@ public class WritableMeshComponent extends ModificationAwareIdentifiable impleme
 	/**
 	 * Creates a mesh of the given project.
 	 */
-	WritableMeshComponent(WritableProjectMesh owner, ReadableProject project, ReadableProjectVersion version) {
+	WritableMeshComponent(WritableProjectMesh owner, UUID projectId, UUID projectVersionId) {
 		this.owner = Objects.requireNonNull(owner);
 		this.id.set(UUID.randomUUID());
-		this.project = Objects.requireNonNull(project);
-		this.projectVersion.set(Objects.requireNonNull(version));
+		this.projectId = Objects.requireNonNull(projectId);
+		this.projectVersionId.set(Objects.requireNonNull(projectVersionId));
 		this.outdated.set(false);
 		this.desiredState.set(DesiredState.NotDeployed);
 	}
@@ -80,17 +77,18 @@ public class WritableMeshComponent extends ModificationAwareIdentifiable impleme
 		this.name.set(name);
 	}
 
-	public ReadableProject getProject() {
-		return project;
+	@Override
+	public UUID getProjectId() {
+		return projectId;
 	}
 
-	public ReadableProjectVersion getProjectVersion() {
-		return this.projectVersion.get();
+	@Override
+	public UUID getProjectVersionId() {
+		return projectVersionId.get();
 	}
 
-	public void setProjectVersion(ReadableProjectVersion version) {
-		Preconditions.checkArgument(Objects.equals(version.getProject(), this.project), "The Version of a mesh component can just be changed to another version of the project it is already assigned to.");
-		this.projectVersion.set(version);
+	public void setProjectVersion(UUID version) {
+		this.projectVersionId.set(version);
 	}
 
 	public String getDockerContentDigest() {
@@ -158,8 +156,8 @@ public class WritableMeshComponent extends ModificationAwareIdentifiable impleme
 		return ReadableMeshComponent.builder()
 				.id(getId())
 				.name(getName())
-				.project(getProject())
-				.projectVersion(getProjectVersion())
+				.projectId(getProjectId())
+				.projectVersionId(getProjectVersionId())
 				.dockerContentDigest(getDockerContentDigest())
 				.templateVariables(getTemplateVariables())
 				.configurationTemplates(getConfigurationTemplates().stream()

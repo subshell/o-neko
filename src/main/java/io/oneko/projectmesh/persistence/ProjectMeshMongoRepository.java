@@ -5,8 +5,6 @@ import io.oneko.event.EventDispatcher;
 import io.oneko.namespace.DefinedNamespace;
 import io.oneko.namespace.DefinedNamespaceRepository;
 import io.oneko.namespace.ReadableDefinedNamespace;
-import io.oneko.project.ProjectRepository;
-import io.oneko.project.ReadableProjectVersion;
 import io.oneko.project.persistence.ConfigurationTemplateMongoMapper;
 import io.oneko.projectmesh.*;
 import io.oneko.projectmesh.event.EventAwareProjectMeshRepository;
@@ -26,13 +24,11 @@ class ProjectMeshMongoRepository extends EventAwareProjectMeshRepository {
 
 	private final ProjectMeshMongoSpringRepository innerRepo;
 	private final DefinedNamespaceRepository definedNamespaceRepository;
-	private final ProjectRepository projectRepository;
 
-	ProjectMeshMongoRepository(DefinedNamespaceRepository definedNamespaceRepository, EventDispatcher eventDispatcher, ProjectMeshMongoSpringRepository innerRepo, ProjectRepository projectRepository) {
+	ProjectMeshMongoRepository(DefinedNamespaceRepository definedNamespaceRepository, EventDispatcher eventDispatcher, ProjectMeshMongoSpringRepository innerRepo) {
 		super(eventDispatcher);
 		this.innerRepo = innerRepo;
 		this.definedNamespaceRepository = definedNamespaceRepository;
-		this.projectRepository = projectRepository;
 	}
 
 	@Override
@@ -79,8 +75,8 @@ class ProjectMeshMongoRepository extends EventAwareProjectMeshRepository {
 		MeshComponentMongo mongo = new MeshComponentMongo();
 		mongo.setId(meshComponent.getId());
 		mongo.setName(meshComponent.getName());
-		mongo.setProjectId(meshComponent.getProject().getId());
-		mongo.setProjectVersionId(meshComponent.getProjectVersion().getId());
+		mongo.setProjectId(meshComponent.getProjectId());
+		mongo.setProjectVersionId(meshComponent.getProjectVersionId());
 		mongo.setDockerContentDigest(meshComponent.getDockerContentDigest());
 		mongo.setTemplateVariables(meshComponent.getTemplateVariables());
 		mongo.setConfigurationTemplates(ConfigurationTemplateMongoMapper.toConfigurationTemplateMongos(meshComponent.getConfigurationTemplates()));
@@ -108,17 +104,11 @@ class ProjectMeshMongoRepository extends EventAwareProjectMeshRepository {
 	}
 
 	private ReadableMeshComponent fromMongo(MeshComponentMongo mongo) {
-		ReadableProjectVersion readableProjectVersion = this.projectRepository.getById(mongo.getProjectId()).flatMap(project -> project.getVersionById(mongo.getProjectVersionId())).orElse(null);
-		//TODO: what if the version does not exist any longer?
-		return fromMongo(mongo, readableProjectVersion);
-	}
-
-	private ReadableMeshComponent fromMongo(MeshComponentMongo mongo, ReadableProjectVersion version) {
 		return ReadableMeshComponent.builder()
 				.id(mongo.getId())
 				.name(mongo.getName())
-				.project(version.getProject())
-				.projectVersion(version)
+				.projectId(mongo.getProjectId())
+				.projectVersionId(mongo.getProjectVersionId())
 				.dockerContentDigest(mongo.getDockerContentDigest())
 				.templateVariables(mongo.getTemplateVariables())
 				.configurationTemplates(ConfigurationTemplateMongoMapper.fromConfigurationTemplateMongos(mongo.getConfigurationTemplates()))

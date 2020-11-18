@@ -19,8 +19,7 @@ public class DefinedNamespaceInMemoryRepository extends EventAwareDefinedNamespa
 
 	private final Map<UUID, ReadableDefinedNamespace> innerRepository = new HashMap<>();
 
-	@Autowired
-	DefinedNamespaceInMemoryRepository(EventDispatcher eventDispatcher) {
+	public DefinedNamespaceInMemoryRepository(EventDispatcher eventDispatcher) {
 		super(eventDispatcher);
 	}
 

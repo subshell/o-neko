@@ -34,6 +34,16 @@ public class ConfigurationTemplates {
 		}
 	}
 
+	public static List<ConfigurationTemplate> unifyTemplateSets(Collection<Collection<? extends ConfigurationTemplate>> templateSets) {
+		Map<String, ConfigurationTemplate> templateNameToTemplateMap = new LinkedHashMap<>();
+		for (Collection<? extends ConfigurationTemplate> templateSet : templateSets) {
+			for (ConfigurationTemplate template : templateSet) {
+				templateNameToTemplateMap.put(template.getName(), template);
+			}
+		}
+		return new ArrayList<>(templateNameToTemplateMap.values());
+	}
+
 	@SafeVarargs
 	public static List<ConfigurationTemplate> unifyTemplateSets(Collection<? extends ConfigurationTemplate>... templateSets) {
 		Map<String, ConfigurationTemplate> templateNameToTemplateMap = new LinkedHashMap<>();

@@ -18,8 +18,7 @@ public class DockerRegistryInMemoryRepository extends EventAwareDockerRegistryRe
 
 	private final Map<UUID, ReadableDockerRegistry> innerRepository = new HashMap<>();
 
-	@Autowired
-	DockerRegistryInMemoryRepository(EventDispatcher eventDispatcher) {
+	public DockerRegistryInMemoryRepository(EventDispatcher eventDispatcher) {
 		super(eventDispatcher);
 	}
 

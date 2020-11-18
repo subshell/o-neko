@@ -19,7 +19,7 @@ public class UserInMemoryRepository extends EventAwareUserRepository {
 	private final Map<UUID, ReadableUser> innerRepository = new HashMap<>();
 
 	@Autowired
-	UserInMemoryRepository(EventDispatcher eventDispatcher) {
+	public UserInMemoryRepository(EventDispatcher eventDispatcher) {
 		super(eventDispatcher);
 	}
 

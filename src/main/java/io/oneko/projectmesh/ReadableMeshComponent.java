@@ -3,8 +3,6 @@ package io.oneko.projectmesh;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import io.oneko.kubernetes.deployments.DesiredState;
-import io.oneko.project.ReadableProject;
-import io.oneko.project.ReadableProjectVersion;
 import io.oneko.templates.ReadableConfigurationTemplate;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,8 +17,8 @@ public class ReadableMeshComponent implements MeshComponent<ReadableProjectMesh,
 	private ReadableProjectMesh owner;
 	private final UUID id;
 	private final String name;
-	private final ReadableProject project;
-	private final ReadableProjectVersion projectVersion;
+	private final UUID projectId;
+	private final UUID projectVersionId;
 	private final String dockerContentDigest;
 	private final ImmutableMap<String, String> templateVariables;
 	private final ImmutableList<ReadableConfigurationTemplate> configurationTemplates;
@@ -29,14 +27,14 @@ public class ReadableMeshComponent implements MeshComponent<ReadableProjectMesh,
 	private final DesiredState desiredState;
 
 	@Builder
-	public ReadableMeshComponent(UUID id, String name, ReadableProject project, ReadableProjectVersion projectVersion,
+	public ReadableMeshComponent(UUID id, String name, UUID projectId, UUID projectVersionId,
 								 String dockerContentDigest, Map<String, String> templateVariables,
 								 List<ReadableConfigurationTemplate> configurationTemplates, boolean outdated,
 								 List<String> urls, DesiredState desiredState) {
 		this.id = id;
 		this.name = name;
-		this.project = project;
-		this.projectVersion = projectVersion;
+		this.projectId = projectId;
+		this.projectVersionId = projectVersionId;
 		this.dockerContentDigest = dockerContentDigest;
 		this.templateVariables = ImmutableMap.copyOf(templateVariables);
 		this.configurationTemplates = ImmutableList.copyOf(configurationTemplates);
@@ -54,8 +52,8 @@ public class ReadableMeshComponent implements MeshComponent<ReadableProjectMesh,
 		return WritableMeshComponent.builder()
 				.id(getId())
 				.name(getName())
-				.project(getProject())
-				.projectVersion(getProjectVersion())
+				.projectId(getProjectId())
+				.projectVersionId(getProjectVersionId())
 				.dockerContentDigest(getDockerContentDigest())
 				.templateVariables(getTemplateVariables())
 				.configurationTemplates(getConfigurationTemplates().stream()

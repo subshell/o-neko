@@ -6,6 +6,7 @@ import io.oneko.project.ProjectRepository;
 import io.oneko.project.ProjectVersion;
 import io.oneko.project.ReadableProject;
 import io.oneko.project.WritableProjectVersion;
+import io.oneko.projectmesh.MeshService;
 import io.oneko.projectmesh.ProjectMeshRepository;
 import io.oneko.projectmesh.ReadableProjectMesh;
 import io.oneko.projectmesh.WritableMeshComponent;
@@ -29,12 +30,14 @@ public class ScheduledLifetimeController {
 	private final ProjectMeshRepository meshRepository;
 	private final DeploymentRepository deploymentRepository;
 	private final KubernetesDeploymentManager kubernetesDeploymentManager;
+	private final MeshService meshService;
 
-	public ScheduledLifetimeController(ProjectRepository projectRepository, ProjectMeshRepository meshRepository, DeploymentRepository deploymentRepository, KubernetesDeploymentManager kubernetesDeploymentManager) {
+	public ScheduledLifetimeController(ProjectRepository projectRepository, ProjectMeshRepository meshRepository, DeploymentRepository deploymentRepository, KubernetesDeploymentManager kubernetesDeploymentManager, MeshService meshService) {
 		this.projectRepository = projectRepository;
 		this.meshRepository = meshRepository;
 		this.deploymentRepository = deploymentRepository;
 		this.kubernetesDeploymentManager = kubernetesDeploymentManager;
+		this.meshService = meshService;
 	}
 
 	@Scheduled(fixedRate = 5 * 60000)
@@ -56,7 +59,7 @@ public class ScheduledLifetimeController {
 				.map(ReadableProjectMesh::writable)
 				.flatMap(mesh -> mesh.getComponents().stream())
 				.filter(component -> this.shouldConsider(component.getOwner().getLifetimeBehaviour()))
-				.map(Deployables::of)
+				.map(component -> Deployables.of(component, meshService))
 				.collect(Collectors.toList());
 
 		stopExpiredDeployments(meshComponents, deployable -> log.info("Deployment of component {} expired.", deployable.getFullLabel()));

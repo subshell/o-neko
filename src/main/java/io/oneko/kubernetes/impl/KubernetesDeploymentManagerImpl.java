@@ -42,14 +42,16 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 	private final DockerRegistryRepository dockerRegistryRepository;
 	private final ProjectRepository projectRepository;
 	private final ProjectMeshRepository projectMeshRepository;
+	private final MeshService meshService;
 
 	KubernetesDeploymentManagerImpl(KubernetesAccess kubernetesAccess, DockerRegistryV2ClientFactory dockerRegistryV2ClientFactory,
-	                                DockerRegistryRepository dockerRegistryRepository, ProjectRepository projectRepository, ProjectMeshRepository projectMeshRepository) {
+									DockerRegistryRepository dockerRegistryRepository, ProjectRepository projectRepository, ProjectMeshRepository projectMeshRepository, MeshService meshService) {
 		this.kubernetesAccess = kubernetesAccess;
 		this.dockerRegistryV2ClientFactory = dockerRegistryV2ClientFactory;
 		this.dockerRegistryRepository = dockerRegistryRepository;
 		this.projectRepository = projectRepository;
 		this.projectMeshRepository = projectMeshRepository;
+		this.meshService = meshService;
 	}
 
 	@Override
@@ -98,7 +100,7 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 			String namespace = mesh.getNamespace().asKubernetesNameSpace();
 			kubernetesAccess.createNamespaceIfNotExistent(mesh);
 
-			final List<Deployable<WritableMeshComponent>> deployableComponents = components.stream().map(Deployables::of).collect(Collectors.toList());
+			final List<Deployable<WritableMeshComponent>> deployableComponents = components.stream().map(c -> Deployables.of(c, meshService)).collect(Collectors.toList());
 
 			deployableComponents.forEach(deployableComponent -> {
 				createSecretIfNotExistent(deployableComponent.getDockerRegistryId(), namespace);
@@ -266,7 +268,7 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 	public ReadableProjectMesh stopDeployment(WritableMeshComponent component) {
 		try {
 			log.debug("Stop deployment of component {} of mesh {}", component.getName(), component.getOwner().getName());
-			Deployable<WritableMeshComponent> deployableComponent = Deployables.of(component);
+			Deployable<WritableMeshComponent> deployableComponent = Deployables.of(component, meshService);
 			kubernetesAccess.deleteAllResourcesFromNameSpace(component.getOwner().getNamespace().asKubernetesNameSpace(), deployableComponent.getPrimaryLabel());
 			component.setUrls(Collections.emptyList());
 			component.setDesiredState(NotDeployed);

@@ -2,19 +2,12 @@ package io.oneko.projectmesh;
 
 import io.oneko.kubernetes.deployments.DesiredState;
 import io.oneko.project.ProjectConstants;
-import io.oneko.project.ReadableProject;
-import io.oneko.project.ReadableProjectVersion;
-import io.oneko.project.TemplateVariable;
 import io.oneko.templates.ConfigurationTemplate;
-import io.oneko.templates.ConfigurationTemplates;
-import io.oneko.templates.WritableConfigurationTemplate;
-import org.apache.commons.text.StringSubstitutor;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public interface MeshComponent<M extends ProjectMesh<M, C>, C extends MeshComponent<M, C>> {
 
@@ -24,9 +17,9 @@ public interface MeshComponent<M extends ProjectMesh<M, C>, C extends MeshCompon
 
 	M getOwner();
 
-	ReadableProject getProject();
+	UUID getProjectId();
 
-	ReadableProjectVersion getProjectVersion();
+	UUID getProjectVersionId();
 
 	String getDockerContentDigest();
 
@@ -48,38 +41,7 @@ public interface MeshComponent<M extends ProjectMesh<M, C>, C extends MeshCompon
 		return implicitTemplateVariables;
 	}
 
-	/**
-	 * Provides a mutable copy of all template variables retrieved by merging the ones from this version's
-	 * {@link #getProject()} and this version's own {@link #getTemplateVariables()}.
-	 *
-	 * @return Never <code>null</code>
-	 */
-	default Map<String, String> calculateEffectiveTemplateVariables() {
-		Map<String, String> mergedTemplateVariables = new HashMap<>();
-		mergedTemplateVariables.putAll(getProjectVersion().getImplicitTemplateVariables());
-		mergedTemplateVariables.putAll(getProject().getTemplateVariables().stream()
-				.collect(Collectors.toMap(TemplateVariable::getName, TemplateVariable::getDefaultValue)));
-		mergedTemplateVariables.putAll(getProjectVersion().getTemplateVariables());
-		mergedTemplateVariables.putAll(getImplicitTemplateVariables());
-		mergedTemplateVariables.putAll(getTemplateVariables());
-		return mergedTemplateVariables;
-	}
-
 	List<? extends ConfigurationTemplate> getConfigurationTemplates();
-
-	/**
-	 * Provides all effective templates to use on this component. This is either derived from the project's configuration
-	 * template, a modified version template or a modified template straight from this component with the effective
-	 * template variables filled in.
-	 */
-	default List<WritableConfigurationTemplate> getCalculatedConfigurationTemplates() {
-		StringSubstitutor sub = new StringSubstitutor(this.calculateEffectiveTemplateVariables());
-		return ConfigurationTemplates.unifyTemplateSets(getProject().getDefaultConfigurationTemplates(), getProjectVersion().getConfigurationTemplates(), getConfigurationTemplates())
-				.stream()
-				.map(WritableConfigurationTemplate::clone)
-				.peek(template -> template.setContent(sub.replace(template.getContent())))
-				.collect(Collectors.toList());
-	}
 
 	DesiredState getDesiredState();
 

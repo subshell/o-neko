@@ -133,11 +133,11 @@ public class WritableProjectMesh extends ModificationAwareIdentifiable implement
 		Preconditions.checkArgument(projectVersion.getProject() == project, "Version must belong to project");
 		final Optional<WritableMeshComponent> componentByName = getComponentByName(name);
 		if (componentByName.isPresent()) {
-			Preconditions.checkArgument(componentByName.get().getProjectVersion() == projectVersion, "A component with this name is yet existing but refers to another project version.");
+			Preconditions.checkArgument(componentByName.get().getProjectVersionId().equals(projectVersion.getId()), "A component with this name is yet existing but refers to another project version.");
 			return componentByName.get();
 		}
 
-		WritableMeshComponent component = new WritableMeshComponent(this, project, projectVersion);
+		WritableMeshComponent component = new WritableMeshComponent(this, project.getId(), projectVersion.getId());
 		component.setName(name);
 		this.components.add(component);
 		return component;

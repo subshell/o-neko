@@ -26,7 +26,7 @@ public class ProjectInMemoryRepository extends EventAwareProjectRepository {
 
 	private final Map<UUID, ReadableProject> projects = new HashMap<>();
 
-	protected ProjectInMemoryRepository(EventDispatcher eventDispatcher) {
+	public ProjectInMemoryRepository(EventDispatcher eventDispatcher) {
 		super(eventDispatcher);
 	}
 

@@ -1,5 +1,7 @@
 package io.oneko.project.rest;
 
+import static org.mockito.Mockito.*;
+
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
 
@@ -8,6 +10,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
 
+import io.oneko.projectmesh.MeshService;
 import org.apache.commons.collections4.map.HashedMap;
 import org.junit.jupiter.api.Test;
 
@@ -20,8 +23,9 @@ class DeployableConfigurationDTOMapperTest {
 
 	@Test
 	void configShouldHaveReplacesVariables() {
+		MeshService meshService = mock(MeshService.class);
 		ConfigurationTemplateDTOMapper templateDTOMapper = new ConfigurationTemplateDTOMapper();
-		DeployableConfigurationDTOMapper mapper = new DeployableConfigurationDTOMapper(templateDTOMapper);
+		DeployableConfigurationDTOMapper mapper = new DeployableConfigurationDTOMapper(templateDTOMapper, meshService);
 
 		Map<String, String> templateVariables = new HashedMap<>();
 		templateVariables.put("VAR_1", "1");

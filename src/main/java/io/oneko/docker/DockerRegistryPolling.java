@@ -233,7 +233,7 @@ class DockerRegistryPolling {
 		project.getVersions().forEach(version -> {
 			final List<WritableMeshComponent> allComponentsUsingVersion = allMeshes.stream()
 					.flatMap(mesh -> mesh.getComponents().stream())
-					.filter(component -> component.getProjectVersion().getId().equals(version.getId()))
+					.filter(component -> component.getProjectVersionId().equals(version.getId()))
 					.collect(Collectors.toList());
 
 			if (version.getDesiredState() == NotDeployed && allComponentsUsingVersion.isEmpty()

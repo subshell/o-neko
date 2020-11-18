@@ -10,6 +10,7 @@ import io.oneko.project.ProjectRepository;
 import io.oneko.project.ProjectVersion;
 import io.oneko.project.ReadableProject;
 import io.oneko.project.WritableProjectVersion;
+import io.oneko.projectmesh.MeshService;
 import io.oneko.projectmesh.ProjectMeshRepository;
 import io.oneko.projectmesh.ReadableProjectMesh;
 import io.oneko.projectmesh.WritableMeshComponent;
@@ -34,11 +35,12 @@ class DeploymentStatusWatcher {
 	private final SessionWebSocketHandler webSocketHandler;
 	private final PodToDeploymentMapper podToDeploymentMapper;
 	private final CurrentEventTrigger currentEventTrigger;
+	private final MeshService meshService;
 
 	DeploymentStatusWatcher(KubernetesAccess kubernetesAccess, ProjectRepository projectRepository,
 							ProjectMeshRepository meshRepository, DeploymentRepository deploymentRepository,
 							SessionWebSocketHandler webSocketHandler,
-							PodToDeploymentMapper podToDeploymentMapper, CurrentEventTrigger currentEventTrigger) {
+							PodToDeploymentMapper podToDeploymentMapper, CurrentEventTrigger currentEventTrigger, MeshService meshService) {
 		this.kubernetesAccess = kubernetesAccess;
 		this.projectRepository = projectRepository;
 		this.meshRepository = meshRepository;
@@ -46,6 +48,7 @@ class DeploymentStatusWatcher {
 		this.webSocketHandler = webSocketHandler;
 		this.podToDeploymentMapper = podToDeploymentMapper;
 		this.currentEventTrigger = currentEventTrigger;
+		this.meshService = meshService;
 	}
 
 	private EventTrigger asTrigger() {
@@ -70,12 +73,12 @@ class DeploymentStatusWatcher {
 		final List<WritableMeshComponent> writableMeshComponents = meshRepository.getAll().stream()
 				.map(ReadableProjectMesh::writable)
 				.flatMap(writableProjectMesh -> writableProjectMesh.getComponents().stream())
-				.filter(meshComponent -> shouldScanDeployable(Deployables.of(meshComponent)))
+				.filter(meshComponent -> shouldScanDeployable(Deployables.of(meshComponent, meshService)))
 				.collect(Collectors.toList());
 
 		try (var ignored = currentEventTrigger.forTryBlock(asTrigger())) {
 			writableMeshComponents
-					.forEach(component -> scanResourcesForDeployable(component.getOwner().getNamespace(), Deployables.of(component)));
+					.forEach(component -> scanResourcesForDeployable(component.getOwner().getNamespace(), Deployables.of(component, meshService)));
 		}
 	}
 
@@ -135,7 +138,7 @@ class DeploymentStatusWatcher {
 			webSocketHandler.broadcast(new DeploymentStatusChangedMessage(deployable.getId(), version.getProject().getId(), DeploymentStatusChangedMessage.DeployableType.projectVersion, newStatus, deployable.getDesiredState(), mysteriousRefDate, deployable.isOutdated(), version.getImageUpdatedDate()));
 		} else if (deployable.getEntity() instanceof WritableMeshComponent) {
 			WritableMeshComponent meshComponent = (WritableMeshComponent) deployable.getEntity();
-			webSocketHandler.broadcast(new DeploymentStatusChangedMessage(deployable.getId(), meshComponent.getOwner().getId(), DeploymentStatusChangedMessage.DeployableType.meshComponent, newStatus, deployable.getDesiredState(), mysteriousRefDate, deployable.isOutdated(), meshComponent.getProjectVersion().getImageUpdatedDate()));
+			webSocketHandler.broadcast(new DeploymentStatusChangedMessage(deployable.getId(), meshComponent.getOwner().getId(), DeploymentStatusChangedMessage.DeployableType.meshComponent, newStatus, deployable.getDesiredState(), mysteriousRefDate, deployable.isOutdated(), deployable.getRelatedProjectVersion().getImageUpdatedDate()));
 		}
 	}
 }

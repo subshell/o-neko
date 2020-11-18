@@ -4,6 +4,7 @@ import io.oneko.automations.LifetimeBehaviour;
 import io.oneko.deployable.DeployableConfigurationTemplates;
 import io.oneko.deployable.DeploymentBehaviour;
 import io.oneko.project.*;
+import io.oneko.projectmesh.MeshService;
 import io.oneko.projectmesh.WritableMeshComponent;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -110,8 +111,11 @@ public class Deployables {
 		};
 	}
 
-	public static Deployable<WritableMeshComponent> of(WritableMeshComponent component) {
+	public static Deployable<WritableMeshComponent> of(WritableMeshComponent component, MeshService meshService) {
 		return new Deployable<>() {
+
+			private final ReadableProjectVersion projectVersion = meshService.getVersionOfComponent(component);
+			private final ReadableProject project = projectVersion.getProject();
 
 			@Override
 			public WritableMeshComponent getEntity() {
@@ -135,20 +139,20 @@ public class Deployables {
 
 			@Override
 			public UUID getDockerRegistryId() {
-				return component.getProject().getDockerRegistryId();
+				return project.getDockerRegistryId();
 			}
 
 			public ReadableProject getRelatedProject() {
-				return component.getProject();
+				return project;
 			}
 
 			public ReadableProjectVersion getRelatedProjectVersion() {
-				return component.getProjectVersion();
+				return projectVersion;
 			}
 
 			@Override
 			public DeployableConfigurationTemplates getConfigurationTemplates() {
-				return DeployableConfigurationTemplates.of(component.getCalculatedConfigurationTemplates());
+				return DeployableConfigurationTemplates.of(meshService.getCalculatedConfigurationTemplates(component));
 			}
 
 			@Override
@@ -159,7 +163,9 @@ public class Deployables {
 			@Override
 			public List<String> getUrls() {
 				return component.getUrls();
-			}			@Override
+			}
+
+			@Override
 			public void setOutdated(boolean outdated) {
 				component.setOutdated(outdated);
 			}

@@ -5,6 +5,7 @@ import io.oneko.deployable.AggregatedDeploymentStatus;
 import io.oneko.kubernetes.deployments.*;
 import io.oneko.namespace.ImplicitNamespace;
 import io.oneko.namespace.rest.NamespaceDTOMapper;
+import io.oneko.project.Project;
 import io.oneko.project.ProjectRepository;
 import io.oneko.project.ReadableProject;
 import io.oneko.project.ReadableProjectVersion;
@@ -76,8 +77,8 @@ public class ProjectMeshDTOMapper {
 		MeshComponentDTO dto = new MeshComponentDTO();
 		dto.setId(component.getId());
 		dto.setName(component.getName());
-		dto.setProjectId(component.getProject().getId());
-		dto.setProjectVersionId(component.getProjectVersion().getId());
+		dto.setProjectId(component.getProjectId());
+		dto.setProjectVersionId(component.getProjectVersionId());
 		dto.setTemplateVariables(component.getTemplateVariables());
 		dto.setConfigurationTemplates(component.getConfigurationTemplates().stream()
 				.map(templateDTOMapper::toDTO)
@@ -141,10 +142,14 @@ public class ProjectMeshDTOMapper {
 
 		final WritableMeshComponent component = owner.createComponent(dto.getName(), project, versionByUUID.get());
 
-		return updateComponentFromDTO(component, dto);
+		return updateComponentFromDTO(component, dto, project);
 	}
 
 	private Optional<WritableMeshComponent> updateComponentFromDTO(WritableMeshComponent component, MeshComponentDTO componentDTO) {
+		return projectRepository.getById(componentDTO.getProjectId()).flatMap(p -> updateComponentFromDTO(component, componentDTO, p));
+	}
+
+	private Optional<WritableMeshComponent> updateComponentFromDTO(WritableMeshComponent component, MeshComponentDTO componentDTO, Project project) {
 		if (componentDTO == null) {
 			component.getOwner().removeComponent(component.getName());
 			return Optional.empty();
@@ -152,9 +157,9 @@ public class ProjectMeshDTOMapper {
 		component.setName(componentDTO.getName());
 		component.setTemplateVariables(componentDTO.getTemplateVariables());
 		component.setConfigurationTemplates(templateDTOMapper.updateFromDTOs(component.getConfigurationTemplates(), componentDTO.getConfigurationTemplates()));
-		if (!Objects.equals(component.getProjectVersion().getId(), componentDTO.getProjectVersionId())) {
-			final Optional<ReadableProjectVersion> versionByUUID = component.getProject().getVersionById(componentDTO.getProjectVersionId());
-			versionByUUID.ifPresent(component::setProjectVersion);
+		if (!Objects.equals(component.getProjectVersionId(), componentDTO.getProjectVersionId())) {
+			final Optional<ReadableProjectVersion> versionByUUID = project.getVersionById(componentDTO.getProjectVersionId());
+			versionByUUID.map(ReadableProjectVersion::getId).ifPresent(component::setProjectVersion);
 		}
 
 		return Optional.of(component);

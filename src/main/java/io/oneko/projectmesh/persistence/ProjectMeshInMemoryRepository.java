@@ -18,7 +18,7 @@ public class ProjectMeshInMemoryRepository extends EventAwareProjectMeshReposito
 
 	private final Map<UUID, ReadableProjectMesh> meshes = new HashMap<>();
 
-	protected ProjectMeshInMemoryRepository(EventDispatcher eventDispatcher) {
+	public ProjectMeshInMemoryRepository(EventDispatcher eventDispatcher) {
 		super(eventDispatcher);
 	}
 
