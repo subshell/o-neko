@@ -53,7 +53,7 @@ class DeploymentStatusWatcher {
 	}
 
 	@Scheduled(fixedRate = 5000)
-	protected void updateProjectStatus() throws Exception {
+	protected void updateProjectStatus() {
 		final List<WritableProjectVersion> writableVersions = projectRepository.getAll().stream()
 				.map(ReadableProject::writable)
 				.flatMap(writableProject -> writableProject.getVersions().stream())
@@ -91,13 +91,14 @@ class DeploymentStatusWatcher {
 			return;
 		}
 
-		final Deployment deployment = getOrCreateDeploymentForDeployable(deployable);
+		final WritableDeployment deployment = getOrCreateDeploymentForDeployable(deployable);
 		podsByLabelInNameSpace.forEach(pod -> this.ensureDeploymentIsUpToDate(deployment, podsByLabelInNameSpace, deployable));
 	}
 
-	private Deployment getOrCreateDeploymentForDeployable(Deployable<?> deployable) {
+	private WritableDeployment getOrCreateDeploymentForDeployable(Deployable<?> deployable) {
 		return deploymentRepository.findByDeployableId(deployable.getId())
-				.orElseGet(() -> Deployment.getDefaultDeployment(deployable.getDeploymentBehaviour(), deployable.getId()));
+				.map(ReadableDeployment::writable)
+				.orElseGet(() -> WritableDeployment.getDefaultDeployment(deployable.getId()));
 	}
 
 	private void cleanUpOnDeploymentRemoved(Deployable<?> deployable) {
@@ -109,21 +110,20 @@ class DeploymentStatusWatcher {
 				});
 	}
 
-	private Deployment ensureDeploymentIsUpToDate(Deployment deployment, List<Pod> pods, Deployable<?> deployable) {
+	private void ensureDeploymentIsUpToDate(WritableDeployment deployment, List<Pod> pods, Deployable<?> deployable) {
 		DeployableStatus previousStatus = deployment.getStatus();
 		this.podToDeploymentMapper.updateDeploymentFromPods(deployment, pods);
 
 		if (!deployment.isDirty()) {
-			return deployment;
+			return;
 		}
 
-		final Deployment savedDeployment = deploymentRepository.save(deployment);
+		final ReadableDeployment savedDeployment = deploymentRepository.save(deployment);
 
 		if (previousStatus != savedDeployment.getStatus()) {
 			log.debug("Updating status of {} from {} to {}", deployable.getFullLabel(), previousStatus, deployment.getStatus());
 		}
 		this.dispatchWebsocketEventFor(deployable, savedDeployment);
-		return savedDeployment;
 	}
 
 	private void dispatchWebsocketEventFor(Deployable<?> deployable, Deployment deployment) {

@@ -9,6 +9,6 @@ public interface ActivityLog {
 
 	List<Activity> getAllSince(LocalDateTime refDate);
 
-	List<Activity> getAllPaged(int pageIndex, int pageSize);
+	List<Activity> getPaged(int pageIndex, int pageSize);
 
 }

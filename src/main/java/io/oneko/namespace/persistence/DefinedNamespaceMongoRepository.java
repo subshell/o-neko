@@ -6,8 +6,8 @@ import io.oneko.namespace.DefinedNamespace;
 import io.oneko.namespace.ReadableDefinedNamespace;
 import io.oneko.namespace.WritableDefinedNamespace;
 import io.oneko.namespace.event.EventAwareDefinedNamespaceRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,13 +15,12 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@Service
+@Component
 @Profile(Profiles.MONGO)
 public class DefinedNamespaceMongoRepository extends EventAwareDefinedNamespaceRepository {
 
 	private final DefinedNamespaceMongoSpringRepository innerRepo;
 
-	@Autowired
 	public DefinedNamespaceMongoRepository(DefinedNamespaceMongoSpringRepository innerRepo, EventDispatcher eventDispatcher) {
 		super(eventDispatcher);
 		this.innerRepo = innerRepo;

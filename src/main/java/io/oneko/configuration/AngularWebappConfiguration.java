@@ -28,7 +28,6 @@ public class AngularWebappConfiguration implements WebMvcConfigurer {
 		return new SimpleAsyncTaskExecutor();
 	}
 
-
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		registry.addResourceHandler("/**")

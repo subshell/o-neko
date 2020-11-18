@@ -21,9 +21,9 @@ public class DeploymentDTO {
 	@Builder.Default
 	private int readyContainerCount = 0;
 
-	public static DeploymentDTO create(DeploymentBehaviour behaviour, UUID deployableId, Deployment deployment) {
+	public static DeploymentDTO create(UUID deployableId, Deployment deployment) {
 		if (deployment == null) {
-			deployment = Deployment.getDefaultDeployment(behaviour, deployableId);
+			deployment = WritableDeployment.getDefaultDeployment(deployableId);
 		}
 		return DeploymentDTO.builder()
 				.containerCount(deployment.getContainerCount())

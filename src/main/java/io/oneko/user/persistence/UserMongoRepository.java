@@ -29,7 +29,6 @@ class UserMongoRepository extends EventAwareUserRepository {
 	private final PasswordBasedUserAuthenticationMongoSpringRepository innerPasswordRepo;
 	private final PasswordEncoder passwordEncoder;
 
-	@Autowired
 	public UserMongoRepository(UserMongoSpringRepository innerUserRepo, PasswordBasedUserAuthenticationMongoSpringRepository innerPasswordRepo, PasswordEncoder passwordEncoder, EventDispatcher eventDispatcher) {
 		super(eventDispatcher);
 		this.innerUserRepo = innerUserRepo;

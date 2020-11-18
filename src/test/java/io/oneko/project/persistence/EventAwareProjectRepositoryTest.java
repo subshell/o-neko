@@ -1,4 +1,4 @@
-package io.oneko.project.event;
+package io.oneko.project.persistence;
 
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.UUID;
 
 import io.oneko.event.*;
+import io.oneko.project.event.EventAwareProjectRepository;
+import io.oneko.project.event.ProjectSavedEvent;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

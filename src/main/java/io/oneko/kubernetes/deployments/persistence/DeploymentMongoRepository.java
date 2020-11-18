@@ -1,8 +1,11 @@
 package io.oneko.kubernetes.deployments.persistence;
 
-import io.oneko.kubernetes.deployments.Deployment;
+import io.oneko.Profiles;
+import io.oneko.kubernetes.deployments.ReadableDeployment;
+import io.oneko.kubernetes.deployments.WritableDeployment;
 import io.oneko.kubernetes.deployments.DeploymentRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,8 +14,9 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-@Service
 @Slf4j
+@Service
+@Profile(Profiles.MONGO)
 public class DeploymentMongoRepository implements DeploymentRepository {
 
 	private final DeploymentMongoSpringRepository innerRepository;
@@ -22,17 +26,17 @@ public class DeploymentMongoRepository implements DeploymentRepository {
 	}
 
 	@Override
-	public Optional<Deployment> findByDeployableId(UUID deployableId) {
+	public Optional<ReadableDeployment> findByDeployableId(UUID deployableId) {
 		return innerRepository.findByDeployableId(deployableId)
 				.map(this::fromDeploymentMongo);
 	}
 
 	@Override
-	public Deployment save(Deployment entity) {
+	public ReadableDeployment save(WritableDeployment entity) {
 		if (entity.isDirty()) {
 			return fromDeploymentMongo(innerRepository.save(toDeploymentMongo(entity)));
 		} else {
-			return entity;
+			return entity.readable();
 		}
 	}
 
@@ -42,28 +46,28 @@ public class DeploymentMongoRepository implements DeploymentRepository {
 	}
 
 	@Override
-	public Optional<Deployment> findById(UUID uuid) {
+	public Optional<ReadableDeployment> findById(UUID uuid) {
 		return innerRepository.findById(uuid).map(this::fromDeploymentMongo);
 	}
 
 	@Override
-	public List<Deployment> findAll() {
+	public List<ReadableDeployment> findAll() {
 		return innerRepository.findAll().stream().map(this::fromDeploymentMongo).collect(Collectors.toList());
 	}
 
 	@Override
-	public List<Deployment> findAllById(Iterable<UUID> uuids) {
+	public List<ReadableDeployment> findAllById(Iterable<UUID> uuids) {
 		return StreamSupport.stream(innerRepository.findAllById(uuids).spliterator(), false).map(this::fromDeploymentMongo)
 				.collect(Collectors.toList());
 	}
 
 	@Override
-	public List<Deployment> findAllByDeployableIdIn(Iterable<UUID> uuids) {
+	public List<ReadableDeployment> findAllByDeployableIdIn(Iterable<UUID> uuids) {
 		return innerRepository.findAllByDeployableIdIn(uuids).stream().map(this::fromDeploymentMongo).collect(Collectors.toList());
 	}
 
-	private Deployment fromDeploymentMongo(DeploymentMongo mongo) {
-		return Deployment.builder()
+	private ReadableDeployment fromDeploymentMongo(DeploymentMongo mongo) {
+		return ReadableDeployment.builder()
 				.id(mongo.getId())
 				.deployableId(mongo.getDeployableId())
 				.status(mongo.getStatus())
@@ -73,7 +77,7 @@ public class DeploymentMongoRepository implements DeploymentRepository {
 				.build();
 	}
 
-	private DeploymentMongo toDeploymentMongo(Deployment deployment) {
+	private DeploymentMongo toDeploymentMongo(WritableDeployment deployment) {
 		return DeploymentMongo.builder()
 				.id(deployment.getId())
 				.deployableId(deployment.getDeployableId())

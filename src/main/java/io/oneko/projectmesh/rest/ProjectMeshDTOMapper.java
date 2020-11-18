@@ -2,10 +2,7 @@ package io.oneko.projectmesh.rest;
 
 import io.oneko.automations.LifetimeBehaviourDTOMapper;
 import io.oneko.deployable.AggregatedDeploymentStatus;
-import io.oneko.kubernetes.deployments.Deployment;
-import io.oneko.kubernetes.deployments.DeploymentDTO;
-import io.oneko.kubernetes.deployments.DeploymentDTOs;
-import io.oneko.kubernetes.deployments.DeploymentRepository;
+import io.oneko.kubernetes.deployments.*;
 import io.oneko.namespace.ImplicitNamespace;
 import io.oneko.namespace.rest.NamespaceDTOMapper;
 import io.oneko.project.ProjectRepository;
@@ -87,7 +84,7 @@ public class ProjectMeshDTOMapper {
 				.collect(Collectors.toList()));
 		dto.setOutdated(component.isOutdated());
 		dto.setUrls(component.getUrls());
-		dto.setDeployment(DeploymentDTO.create(component.getOwner().getDeploymentBehaviour(), component.getId(), deployment));
+		dto.setDeployment(DeploymentDTO.create(component.getId(), deployment));
 		dto.setDesiredState(component.getDesiredState());
 		return dto;
 	}

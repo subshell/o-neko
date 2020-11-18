@@ -8,11 +8,12 @@ import io.oneko.namespace.WritableDefinedNamespace;
 import io.oneko.namespace.event.EventAwareDefinedNamespaceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
-@Service
+@Component
 @Profile(Profiles.IN_MEMORY)
 public class DefinedNamespaceInMemoryRepository extends EventAwareDefinedNamespaceRepository {
 

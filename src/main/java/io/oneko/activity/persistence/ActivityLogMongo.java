@@ -1,9 +1,11 @@
 package io.oneko.activity.persistence;
 
+import io.oneko.Profiles;
 import io.oneko.activity.Activity;
 import io.oneko.activity.internal.WritableActivityLog;
 import io.oneko.domain.DescribingEntityChange;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Profile(Profiles.MONGO)
 public class ActivityLogMongo implements WritableActivityLog {
 
 	private final ActivityMongoSpringRepository springRepository;
@@ -40,7 +43,7 @@ public class ActivityLogMongo implements WritableActivityLog {
 	}
 
 	@Override
-	public List<Activity> getAllPaged(int pageIndex, int pageSize) {
+	public List<Activity> getPaged(int pageIndex, int pageSize) {
 		return springRepository.findAll(PageRequest.of(pageIndex, pageSize, sortByDateDesc))
 				.stream()
 				.map(this::toActivity)

@@ -29,9 +29,9 @@ public class ActivityController {
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'DOER', 'VIEWER')")
 	@GetMapping
-	List<ActivityDTO> getAllActivities(@RequestParam(required = false, defaultValue = "0") int pageIndex,
-																		 @RequestParam(required = false, defaultValue = "10") int pageSize) {
-		return this.activityLog.getAllPaged(pageIndex, pageSize).stream().map(this.activityDTOFactory::create).collect(Collectors.toList());
+	List<ActivityDTO> getActivities(@RequestParam(required = false, defaultValue = "0") int pageIndex,
+									@RequestParam(required = false, defaultValue = "10") int pageSize) {
+		return this.activityLog.getPaged(pageIndex, pageSize).stream().map(this.activityDTOFactory::create).collect(Collectors.toList());
 	}
 
 }

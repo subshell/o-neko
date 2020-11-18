@@ -2,6 +2,7 @@ package io.oneko.automations;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.oneko.kubernetes.deployments.Deployment;
+import io.oneko.kubernetes.deployments.WritableDeployment;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

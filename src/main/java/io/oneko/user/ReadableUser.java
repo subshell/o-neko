@@ -27,7 +27,7 @@ public class ReadableUser extends Identifiable implements User, Serializable {
 
 	@Override
 	public UUID getId() {
-		return getId();
+		return uuid;
 	}
 
 	/**

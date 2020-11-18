@@ -120,7 +120,7 @@ public class ProjectDTOMapper {
 		dto.setDeploymentBehaviour(version.getDeploymentBehaviour());
 		dto.setAvailableTemplateVariables(toTemplateVariableDTOs(version.getProject().getTemplateVariables()));
 		dto.setTemplateVariables(version.getTemplateVariables());
-		dto.setDeployment(DeploymentDTO.create(version.getDeploymentBehaviour(), version.getId(), deployment));
+		dto.setDeployment(DeploymentDTO.create(version.getId(), deployment));
 		dto.setUrls(version.getUrls());
 		dto.setOutdated(version.isOutdated());
 		dto.setConfigurationTemplates(version.getConfigurationTemplates().stream()
