@@ -1,15 +1,16 @@
 package io.oneko.security;
 
-import io.oneko.configuration.ONekoUserDetailsService;
-import io.oneko.websocket.SessionWebSocketHandler;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+
+import io.oneko.configuration.ONekoUserDetailsService;
+import io.oneko.websocket.SessionWebSocketHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -17,12 +18,10 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	private final ONekoUserDetailsService userDetailsService;
-	private final PasswordEncoder passwordEncoder;
 	private final SessionWebSocketHandler sessionWebSocketHandler;
 
-	public SecurityConfiguration(ONekoUserDetailsService userDetailsService, PasswordEncoder passwordEncoder, SessionWebSocketHandler sessionWebSocketHandler) {
+	public SecurityConfiguration(ONekoUserDetailsService userDetailsService, SessionWebSocketHandler sessionWebSocketHandler) {
 		this.userDetailsService = userDetailsService;
-		this.passwordEncoder = passwordEncoder;
 		this.sessionWebSocketHandler = sessionWebSocketHandler;
 	}
 
@@ -41,14 +40,17 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.antMatchers("/api/session/login").permitAll()
 				.anyRequest().permitAll();
 
+		// do not redirect on a successful login
+		AuthenticationSuccessHandler noOpHandler = (request, response, authentication) -> {
+		};
+
 		http
 				.userDetailsService(userDetailsService)
 				.formLogin()
 				.loginPage("/api/session/login")
+				.successHandler(noOpHandler)
 				.and()
 				.logout().logoutUrl("/api/session/logout").logoutSuccessHandler(new RestLogoutSuccessHandler(sessionWebSocketHandler));
-
-		// TODO new AuthenticationEntryPointFailureHandler(entryPoint);
 
 		http.httpBasic();
 	}
