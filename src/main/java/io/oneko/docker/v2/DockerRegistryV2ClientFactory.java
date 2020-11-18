@@ -103,7 +103,7 @@ public class DockerRegistryV2ClientFactory {
 		}
 		CloseableHttpClient client = builder.build();
 
-		HttpGet request = new HttpGet(registry.getRegistryUrl() + required.getRealm() + "?service=" + required.getService() + "&scope=" + scope);
+		HttpGet request = new HttpGet(required.getRealm() + "?service=" + required.getService() + "&scope=" + scope);
 		request.addHeader(new BasicHeader(HttpHeaders.AUTHORIZATION, AuthorizationHeader.basic(registry.getUserName(), registry.getPassword())));
 
 		try (CloseableHttpResponse response = client.execute(request)) {

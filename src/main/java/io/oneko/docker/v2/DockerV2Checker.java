@@ -24,7 +24,7 @@ public class DockerV2Checker {
 
 	public V2CheckResult checkV2ApiOf(DockerRegistry registry) {
 		CloseableHttpClient client = HttpClients.custom().setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE).build();
-		HttpGet request = new HttpGet(registry.getRegistryUrl() + "/v2");
+		HttpGet request = new HttpGet(registry.getRegistryUrl() + "/v2/");
 		try (CloseableHttpResponse response = client.execute(request)) {
 			return mapResponseToCheckResult(response);
 		} catch (IOException e) {
