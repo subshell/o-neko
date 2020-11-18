@@ -95,7 +95,7 @@ class DockerRegistryPolling {
 			final Instant stop = Instant.now();
 
 			final Duration duration = Duration.between(start, stop);
-			final Duration warnIfLongerThanThis = Duration.ofMillis(5);
+			final Duration warnIfLongerThanThis = Duration.ofMinutes(5);
 			if (isLongerThan(duration, warnIfLongerThanThis)) {
 				log.warn("Checking for new images took longer than {} (took {}) [HH:mm:ss.SSS]", formatDurationHMS(warnIfLongerThanThis.toMillis()), formatDurationHMS(duration.toMillis()));
 			}
