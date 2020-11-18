@@ -1,5 +1,14 @@
 package io.oneko.user.persistence;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.springframework.context.annotation.Profile;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import io.oneko.Profiles;
 import io.oneko.event.EventDispatcher;
 import io.oneko.security.UserRole;
@@ -9,15 +18,6 @@ import io.oneko.user.WritableUser;
 import io.oneko.user.auth.PasswordBasedUserAuthentication;
 import io.oneko.user.auth.UserAuthentication;
 import io.oneko.user.event.EventAwareUserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Profile;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * Mongo implementation of UserRepository
@@ -39,22 +39,26 @@ class UserMongoRepository extends EventAwareUserRepository {
 	@Override
 	public Optional<ReadableUser> getById(UUID userId) {
 		return this.innerUserRepo.findById(userId)
-				.map(this::fromUserMongo);
+				.flatMap(this::fromUserMongo);
 	}
 
 	@Override
 	public Optional<ReadableUser> getByUserName(String userName) {
-		return this.innerUserRepo.findByUsername(userName).map(this::fromUserMongo);
+		return this.innerUserRepo.findByUsername(userName).flatMap(this::fromUserMongo);
 	}
 
 	@Override
 	public Optional<ReadableUser> getByUserEmail(String userEmail) {
-		return this.innerUserRepo.findByEmail(userEmail).map(this::fromUserMongo);
+		return this.innerUserRepo.findByEmail(userEmail).flatMap(this::fromUserMongo);
 	}
 
 	@Override
 	public List<ReadableUser> getAll() {
-		return this.innerUserRepo.findAll().stream().map(this::fromUserMongo).collect(Collectors.toList());
+		return this.innerUserRepo.findAll().stream()
+				.map(this::fromUserMongo)
+				.filter(Optional::isPresent)
+				.map(Optional::get)
+				.collect(Collectors.toList());
 	}
 
 	@Override
@@ -113,8 +117,8 @@ class UserMongoRepository extends EventAwareUserRepository {
 	/**
 	 * Convenience mapper from UserMongo to User that implicitly loads the password entity and adds it to the user.
 	 */
-	private ReadableUser fromUserMongo(UserMongo userMongo) {
-		//TODO: what if this is null?
-		return fromMongo(userMongo, this.innerPasswordRepo.findById(userMongo.getUserUuid()).orElse(null));
+	private Optional<ReadableUser> fromUserMongo(UserMongo userMongo) {
+		return this.innerPasswordRepo.findById(userMongo.getUserUuid())
+				.map(user -> fromMongo(userMongo, user));
 	}
 }

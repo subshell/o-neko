@@ -10,6 +10,8 @@ import io.oneko.docker.v2.model.manifest.DockerRegistryManifest;
 import io.oneko.docker.v2.model.manifest.Manifest;
 import io.oneko.project.Project;
 import io.oneko.project.ProjectVersion;
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.http.Header;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -29,6 +31,7 @@ import java.util.stream.Collectors;
  * Accesses the API defined here:
  * https://github.com/moby/moby/issues/9015
  */
+@Slf4j
 public class DockerRegistryV2Client {
 
 	private final DockerRegistry reg;
@@ -54,7 +57,7 @@ public class DockerRegistryV2Client {
 		try (CloseableHttpResponse response = client.execute(get)) {
 			return EntityUtils.toString(response.getEntity());
 		} catch (IOException e) {
-			//TODO: Error handling
+			log.warn("Failed to check docker registry version", e);
 			throw new IllegalStateException(e);
 		}
 	}
@@ -69,7 +72,7 @@ public class DockerRegistryV2Client {
 			RepositoryList repositories = this.objectMapper.readValue(EntityUtils.toString(response.getEntity()), RepositoryList.class);
 			return repositories.getRepositories().stream().map(Repository::getName).collect(Collectors.toList());
 		} catch (IOException e) {
-			//TODO: Error handling
+			log.warn("Failed to list image names", e);
 			throw new IllegalStateException(e);
 		}
 	}
@@ -80,7 +83,7 @@ public class DockerRegistryV2Client {
 			ListTagsResult listTagsResult = this.objectMapper.readValue(EntityUtils.toString(response.getEntity()), ListTagsResult.class);
 			return listTagsResult.getTags();
 		} catch (IOException e) {
-			//TODO: Error handling
+			log.warn("Failed to list all tags for image {}", project.getImageName(), e);
 			throw new IllegalStateException(e);
 		}
 	}
@@ -97,7 +100,7 @@ public class DockerRegistryV2Client {
 			}
 
 		} catch (IOException e) {
-			//TODO: Error handling
+			log.warn("Failed to get manifest for project version {} of project {}", version.getName(), version.getProject().getName(), e);
 			throw new IllegalStateException(e);
 		}
 	}

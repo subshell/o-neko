@@ -45,9 +45,4 @@ class DockerRegistryInMemoryRepositoryTest {
 		assertThat(uut.getAll()).hasSize(1);
 		assertThat(uut.getByName("myreg")).isPresent();
 	}
-
-	@Test
-	void testDontModifyRepoContent() {
-		//TODO
-	}
 }

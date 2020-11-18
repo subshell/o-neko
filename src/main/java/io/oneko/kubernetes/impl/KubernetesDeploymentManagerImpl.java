@@ -203,7 +203,7 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 					try {
 						this.createSecretIfNotExistent(dockerRegistry, namespace);
 					} catch (JsonProcessingException e) {
-						// TODO ok?
+						log.warn("Failed to create secret", e);
 					}
 				});
 	}

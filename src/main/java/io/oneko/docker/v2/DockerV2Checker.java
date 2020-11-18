@@ -28,8 +28,7 @@ public class DockerV2Checker {
 		try (CloseableHttpResponse response = client.execute(request)) {
 			return mapResponseToCheckResult(response);
 		} catch (IOException e) {
-			e.printStackTrace();
-			//TODO: better error handling here
+			log.error("Failed to check the docker V2 API of the registry {}", registry, e);
 			throw new IllegalStateException(e);
 		}
 	}

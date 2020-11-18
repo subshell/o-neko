@@ -131,7 +131,6 @@ class DockerRegistryPolling {
 
 		//finally we have to save the project meshes, that's some awkward mapping here
 		allMeshes.forEach(projectMeshRepository::add);
-		// TODO .subscriberContext(Context.of(EventTrigger.class, this.asTrigger))
 	}
 
 
@@ -155,7 +154,6 @@ class DockerRegistryPolling {
 			final var version = versionWithDockerManifest.getVersion();
 
 			if (manifest == null || manifest.getImageUpdatedDate().isEmpty()) {
-				// TODO .onErrorReturn(HttpClientErrorException.class, new Manifest() /* I cannot put null in here... */)
 				log.trace("Failed to get Manifest for version {} of project {}.", version.getName(), project.getName());
 				failedManifestRequests.add(version.getUuid());
 				continue;
@@ -173,9 +171,8 @@ class DockerRegistryPolling {
 			return dockerRegistryV2ClientFactory.getDockerRegistryClient(project)
 					.map(client -> new VersionWithDockerManifest(version, client.getManifest(version)))
 					.orElseGet(() -> new VersionWithDockerManifest(version, null));
-			// TODO exception handling
 		} catch (Exception e) {
-			log.error("", e);
+			log.error("Failed to retrieve manifest", e);
 			return new VersionWithDockerManifest(version, null);
 		}
 	}
@@ -218,12 +215,10 @@ class DockerRegistryPolling {
 			log.info("Found an obsolete version {} [{}] for project {}", version, projectVersion.getId(), project.getName());
 			resultingEvents.add(new ObsoleteProjectVersionRemovedEvent(projectVersion));
 		});
-		resultingEvents.forEach(eventDispatcher::dispatch);
 
 		if (!newVersions.isEmpty() || !removedVersions.isEmpty()) {
 			ReadableProject savedProject = projectRepository.add(project);
-			// TODO .subscriberContext(Context.of(EventTrigger.class, this.asTrigger));
-			// TODO resultingEvents.forEach(eventDispatcher::dispatch);
+			resultingEvents.forEach(eventDispatcher::dispatch);
 			return savedProject.writable();
 		}
 
@@ -263,7 +258,6 @@ class DockerRegistryPolling {
 	/**
 	 * Tries to redeploy a project version and the dependent mesh components but considers the desired state of each component and the version.
 	 */
-	// TODO better unifying interface
 	private List<Identifiable> redeployAllByManifest(Manifest manifest, WritableProjectVersion version, Collection<WritableMeshComponent> components) {
 		List<Identifiable> depending = new ArrayList<>();
 		for (WritableMeshComponent component : components) {
@@ -285,7 +279,6 @@ class DockerRegistryPolling {
 
 	private Optional<ReadableProjectVersion> redeployAndSaveVersion(WritableProjectVersion version) {
 		if (version.getDesiredState() == Deployed && version.getDeploymentBehaviour() == automatically) {
-			// TODO 					.subscriberContext(Context.of(EventTrigger.class, this.asTrigger));
 			return Optional.of(kubernetesDeploymentManager.deploy(version));
 		}
 
@@ -298,7 +291,6 @@ class DockerRegistryPolling {
 			log.info("Found a new image '{}' for component '{}' of mesh '{}'", digest, component.getName(), component.getOwner().getName());
 			component.setDockerContentDigest(digest);
 
-			// TODO .subscriberContext(Context.of(EventTrigger.class, this.asTrigger))
 			kubernetesDeploymentManager.deploy(component);
 			return Optional.of(component);
 		}
