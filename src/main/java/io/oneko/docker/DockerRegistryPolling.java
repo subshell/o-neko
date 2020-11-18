@@ -1,14 +1,42 @@
 package io.oneko.docker;
 
+import static io.oneko.deployable.DeploymentBehaviour.*;
+import static io.oneko.kubernetes.deployments.DesiredState.*;
+import static io.oneko.util.DurationUtils.*;
+import static org.apache.commons.lang3.time.DurationFormatUtils.*;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
 import com.google.common.collect.Sets;
+
 import io.oneko.docker.event.NewProjectVersionFoundEvent;
 import io.oneko.docker.event.ObsoleteProjectVersionRemovedEvent;
 import io.oneko.docker.v2.DockerRegistryV2ClientFactory;
 import io.oneko.docker.v2.model.manifest.Manifest;
 import io.oneko.domain.Identifiable;
-import io.oneko.event.*;
+import io.oneko.event.CurrentEventTrigger;
+import io.oneko.event.Event;
+import io.oneko.event.EventDispatcher;
+import io.oneko.event.EventTrigger;
+import io.oneko.event.ScheduledTask;
 import io.oneko.kubernetes.KubernetesDeploymentManager;
-import io.oneko.project.*;
+import io.oneko.project.ProjectRepository;
+import io.oneko.project.ProjectVersion;
+import io.oneko.project.ReadableProject;
+import io.oneko.project.ReadableProjectVersion;
+import io.oneko.project.WritableProject;
+import io.oneko.project.WritableProjectVersion;
 import io.oneko.projectmesh.ProjectMeshRepository;
 import io.oneko.projectmesh.ReadableProjectMesh;
 import io.oneko.projectmesh.WritableMeshComponent;
@@ -16,19 +44,6 @@ import io.oneko.projectmesh.WritableProjectMesh;
 import io.oneko.util.ExpiringBucket;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
-
-import java.time.Duration;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
-
-import static io.oneko.deployable.DeploymentBehaviour.automatically;
-import static io.oneko.kubernetes.deployments.DesiredState.Deployed;
-import static io.oneko.kubernetes.deployments.DesiredState.NotDeployed;
 
 @Component
 @Slf4j
@@ -45,62 +60,48 @@ class DockerRegistryPolling {
 	private final DockerRegistryV2ClientFactory dockerRegistryV2ClientFactory;
 	private final KubernetesDeploymentManager kubernetesDeploymentManager;
 	private final EventDispatcher eventDispatcher;
-	private final Duration pollingTimeoutDuration;
 	private final EventTrigger asTrigger;
-	private final AtomicBoolean pollingInProgress = new AtomicBoolean(false);
 	private final ExpiringBucket<UUID> failedManifestRequests = new ExpiringBucket<UUID>(Duration.ofMinutes(5)).concurrent();
 	private final CurrentEventTrigger currentEventTrigger;
 
-	private DockerRegistryPollingJob currentPollingJob;
-
 	DockerRegistryPolling(ProjectRepository projectRepository,
-						  ProjectMeshRepository projectMeshRepository,
-						  DockerRegistryV2ClientFactory dockerRegistryV2ClientFactory,
-						  KubernetesDeploymentManager kubernetesDeploymentManager,
-						  EventDispatcher eventDispatcher,
-						  @Value("${o-neko.docker.polling.timeoutInMinutes:5}") int pollingTimeoutInMinutes, CurrentEventTrigger currentEventTrigger) {
+												ProjectMeshRepository projectMeshRepository,
+												DockerRegistryV2ClientFactory dockerRegistryV2ClientFactory,
+												KubernetesDeploymentManager kubernetesDeploymentManager,
+												EventDispatcher eventDispatcher,
+												CurrentEventTrigger currentEventTrigger) {
 		this.projectRepository = projectRepository;
 		this.projectMeshRepository = projectMeshRepository;
 		this.dockerRegistryV2ClientFactory = dockerRegistryV2ClientFactory;
 		this.kubernetesDeploymentManager = kubernetesDeploymentManager;
 		this.eventDispatcher = eventDispatcher;
-		this.pollingTimeoutDuration = Duration.ofMinutes(pollingTimeoutInMinutes);
 		this.currentEventTrigger = currentEventTrigger;
 		this.asTrigger = new ScheduledTask("Docker Registry Polling");
 	}
 
 	@Scheduled(fixedDelay = 20000, initialDelay = 20000)
 	protected void checkDockerForNewImages() {
-		if (!this.pollingInProgress.getAndSet(true)) {
-			try (var ignored = currentEventTrigger.forTryBlock(this.asTrigger)) {
-				log.trace("Starting polling job");
-				final List<WritableProjectMesh> meshes = projectMeshRepository.getAll().stream()
-						.map(ReadableProjectMesh::writable)
-						.collect(Collectors.toList());
-				final List<WritableProject> projects = projectRepository.getAll().stream()
-						.map(ReadableProject::writable)
-						.collect(Collectors.toList());
+		try (var ignored = currentEventTrigger.forTryBlock(this.asTrigger)) {
+			final Instant start = Instant.now();
+			log.trace("Starting polling job");
+			final List<WritableProjectMesh> meshes = projectMeshRepository.getAll().stream()
+					.map(ReadableProjectMesh::writable)
+					.collect(Collectors.toList());
+			final List<WritableProject> projects = projectRepository.getAll().stream()
+					.map(ReadableProject::writable)
+					.collect(Collectors.toList());
 
-				// TODO timeout with pollingTimeoutDuration
-				checkDockerForNewImages(meshes, projects);
-				log.trace("Finished polling job");
-				return;
+			checkDockerForNewImages(meshes, projects);
+			final Instant stop = Instant.now();
+
+			final Duration duration = Duration.between(start, stop);
+			final Duration warnIfLongerThanThis = Duration.ofMillis(5);
+			if (isLongerThan(duration, warnIfLongerThanThis)) {
+				log.warn("Checking for new images took longer than {} (took {}) [HH:mm:ss.SSS]", formatDurationHMS(warnIfLongerThanThis.toMillis()), formatDurationHMS(duration.toMillis()));
 			}
+
+			log.trace("Finished polling job");
 		}
-
-		if (this.currentPollingJob != null && (this.currentPollingJob.shouldCancel() || this.currentPollingJob.isCancelled())) {
-			log.info("The job timed out. Cancelling it.");
-			this.currentPollingJob.cancel();
-			this.currentPollingJob = null;
-			setPollingJobToNotRunning();
-			return;
-		}
-
-		log.debug("Skipping job because another polling job is still running.");
-	}
-
-	private void setPollingJobToNotRunning() {
-		this.pollingInProgress.set(false);
 	}
 
 	/**
@@ -130,7 +131,6 @@ class DockerRegistryPolling {
 
 		//finally we have to save the project meshes, that's some awkward mapping here
 		allMeshes.forEach(projectMeshRepository::add);
-		setPollingJobToNotRunning();
 		// TODO .subscriberContext(Context.of(EventTrigger.class, this.asTrigger))
 	}
 
