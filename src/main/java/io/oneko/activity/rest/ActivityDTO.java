@@ -1,15 +1,15 @@
 package io.oneko.activity.rest;
 
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.UUID;
-
 import io.oneko.activity.ActivityPriority;
 import io.oneko.domain.DescribingEntityChange;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.UUID;
 
 @Getter
 @Setter

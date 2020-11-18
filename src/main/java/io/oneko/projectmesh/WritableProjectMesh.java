@@ -1,20 +1,8 @@
 package io.oneko.projectmesh;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
-
 import io.oneko.automations.LifetimeBehaviour;
 import io.oneko.deployable.DeploymentBehaviour;
 import io.oneko.domain.ModificationAwareIdentifiable;
@@ -26,6 +14,10 @@ import io.oneko.namespace.WritableHasNamespace;
 import io.oneko.project.ReadableProject;
 import io.oneko.project.ReadableProjectVersion;
 import lombok.Builder;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class WritableProjectMesh extends ModificationAwareIdentifiable implements ProjectMesh<WritableProjectMesh, WritableMeshComponent>, WritableHasNamespace {
 

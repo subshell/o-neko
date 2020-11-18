@@ -6,7 +6,6 @@ import io.oneko.security.UserRole;
 import io.oneko.user.auth.PasswordBasedUserAuthentication;
 import io.oneko.user.auth.UserAuthentication;
 import lombok.Builder;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.UUID;

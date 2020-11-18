@@ -1,15 +1,14 @@
 package io.oneko.project.rest;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import io.oneko.project.ProjectVersion;
 import io.oneko.projectmesh.MeshComponent;
 import io.oneko.templates.rest.ConfigurationTemplateDTO;
 import io.oneko.templates.rest.ConfigurationTemplateDTOMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class DeployableConfigurationDTOMapper {

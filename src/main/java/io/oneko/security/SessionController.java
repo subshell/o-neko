@@ -1,5 +1,8 @@
 package io.oneko.security;
 
+import io.oneko.user.UserRepository;
+import io.oneko.user.rest.UserDTO;
+import io.oneko.user.rest.UserDTOMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -7,10 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.server.ResponseStatusException;
-
-import io.oneko.user.UserRepository;
-import io.oneko.user.rest.UserDTO;
-import io.oneko.user.rest.UserDTOMapper;
 
 @RestController
 @RequestMapping("/api/session")

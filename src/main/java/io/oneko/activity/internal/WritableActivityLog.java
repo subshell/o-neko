@@ -1,9 +1,9 @@
 package io.oneko.activity.internal;
 
-import java.time.LocalDateTime;
-
 import io.oneko.activity.Activity;
 import io.oneko.activity.ActivityLog;
+
+import java.time.LocalDateTime;
 
 public interface WritableActivityLog extends ActivityLog {
 

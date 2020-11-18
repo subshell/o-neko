@@ -1,29 +1,20 @@
 package io.oneko.project;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
-
 import io.oneko.automations.LifetimeBehaviour;
 import io.oneko.deployable.DeploymentBehaviour;
 import io.oneko.domain.ModificationAwareIdentifiable;
 import io.oneko.domain.ModificationAwareListProperty;
 import io.oneko.domain.ModificationAwareProperty;
-import io.oneko.templates.WritableConfigurationTemplate;
 import io.oneko.templates.ConfigurationTemplates;
+import io.oneko.templates.WritableConfigurationTemplate;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Project domain object. Each project has a number of different images that are run in kubernetes and organized through o-neko.

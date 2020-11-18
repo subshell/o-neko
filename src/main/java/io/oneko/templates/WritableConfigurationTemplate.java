@@ -1,11 +1,11 @@
 package io.oneko.templates;
 
-import java.util.UUID;
-
 import io.oneko.domain.ModificationAwareIdentifiable;
 import io.oneko.domain.ModificationAwareProperty;
 import lombok.Builder;
 import lombok.NonNull;
+
+import java.util.UUID;
 
 public class WritableConfigurationTemplate extends ModificationAwareIdentifiable implements ConfigurationTemplate {
 

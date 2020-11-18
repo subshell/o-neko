@@ -1,8 +1,5 @@
 package io.oneko.activity.internal;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import io.oneko.activity.Activity;
 import io.oneko.domain.DescribingEntityChange;
 import io.oneko.event.EntityChangedEvent;
@@ -11,6 +8,8 @@ import io.oneko.event.EventDispatcher;
 import io.oneko.websocket.SessionWebSocketHandler;
 import io.oneko.websocket.message.ActivityMessage;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * Listens to events adn converts them to activities dispatching them into the persistence and via websocket to the frontends.

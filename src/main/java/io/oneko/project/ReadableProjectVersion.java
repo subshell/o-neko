@@ -1,19 +1,8 @@
 package io.oneko.project;
 
-import static io.oneko.kubernetes.deployments.DesiredState.NotDeployed;
-
-import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-
 import io.oneko.automations.LifetimeBehaviour;
 import io.oneko.deployable.DeploymentBehaviour;
 import io.oneko.domain.Identifiable;
@@ -24,6 +13,12 @@ import io.oneko.namespace.Namespace;
 import io.oneko.templates.ReadableConfigurationTemplate;
 import lombok.Builder;
 import lombok.Getter;
+
+import java.time.Instant;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static io.oneko.kubernetes.deployments.DesiredState.NotDeployed;
 
 @Getter
 public class ReadableProjectVersion extends Identifiable implements ProjectVersion<ReadableProject, ReadableProjectVersion> {

@@ -1,11 +1,11 @@
 package io.oneko.event;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
-
 import com.google.common.base.Preconditions;
 import io.oneko.domain.Identifiable;
 import lombok.Getter;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
  * Represents a business event.

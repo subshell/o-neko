@@ -10,7 +10,7 @@ import java.io.IOException;
 
 /**
  * This is a wrapper for all incoming authenticated requests.
- * A UserRequest for the corresponding user is then added to the mono context as event trigger.
+ * A UserRequest for the corresponding user is then set as current event trigger.
  */
 @Component
 public class TrackUserRequestWebFilter implements Filter {

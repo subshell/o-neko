@@ -1,11 +1,11 @@
 package io.oneko.docker;
 
-import java.util.UUID;
-
 import io.oneko.domain.Identifiable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+
+import java.util.UUID;
 
 @AllArgsConstructor
 @Builder

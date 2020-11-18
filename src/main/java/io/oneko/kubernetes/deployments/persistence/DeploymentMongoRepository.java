@@ -1,16 +1,15 @@
 package io.oneko.kubernetes.deployments.persistence;
 
+import io.oneko.kubernetes.deployments.Deployment;
+import io.oneko.kubernetes.deployments.DeploymentRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-
-import org.springframework.stereotype.Service;
-
-import io.oneko.kubernetes.deployments.Deployment;
-import io.oneko.kubernetes.deployments.DeploymentRepository;
-import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j

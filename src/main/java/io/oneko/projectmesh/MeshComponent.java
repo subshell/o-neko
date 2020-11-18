@@ -1,13 +1,5 @@
 package io.oneko.projectmesh;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import org.apache.commons.text.StringSubstitutor;
-
 import io.oneko.kubernetes.deployments.DesiredState;
 import io.oneko.project.ProjectConstants;
 import io.oneko.project.ReadableProject;
@@ -16,6 +8,13 @@ import io.oneko.project.TemplateVariable;
 import io.oneko.templates.ConfigurationTemplate;
 import io.oneko.templates.ConfigurationTemplates;
 import io.oneko.templates.WritableConfigurationTemplate;
+import org.apache.commons.text.StringSubstitutor;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 public interface MeshComponent<M extends ProjectMesh<M, C>, C extends MeshComponent<M, C>> {
 

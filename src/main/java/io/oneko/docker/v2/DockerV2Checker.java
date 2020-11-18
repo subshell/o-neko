@@ -1,7 +1,7 @@
 package io.oneko.docker.v2;
 
-import java.io.IOException;
-
+import io.oneko.docker.DockerRegistry;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpHeaders;
@@ -13,8 +13,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.springframework.stereotype.Component;
 
-import io.oneko.docker.DockerRegistry;
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
 
 /**
  * Checks whether the V2 API is available for a docker registry and whether authentication is required.

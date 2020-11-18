@@ -1,21 +1,16 @@
 package io.oneko.kubernetes.deployments;
 
+import io.oneko.automations.LifetimeBehaviour;
+import io.oneko.deployable.DeployableConfigurationTemplates;
+import io.oneko.deployable.DeploymentBehaviour;
+import io.oneko.project.*;
+import io.oneko.projectmesh.WritableMeshComponent;
+import org.apache.commons.lang3.tuple.Pair;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-
-import org.apache.commons.lang3.tuple.Pair;
-
-import io.oneko.automations.LifetimeBehaviour;
-import io.oneko.deployable.DeployableConfigurationTemplates;
-import io.oneko.deployable.DeploymentBehaviour;
-import io.oneko.project.ProjectConstants;
-import io.oneko.project.ReadableProject;
-import io.oneko.project.ReadableProjectVersion;
-import io.oneko.project.WritableProject;
-import io.oneko.project.WritableProjectVersion;
-import io.oneko.projectmesh.WritableMeshComponent;
 
 public class Deployables {
 

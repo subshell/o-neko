@@ -1,23 +1,6 @@
 package io.oneko.kubernetes.impl;
 
-import static io.oneko.kubernetes.deployments.DesiredState.*;
-import static io.oneko.project.ProjectConstants.LabelNames.*;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
-
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.Secret;
@@ -37,17 +20,18 @@ import io.oneko.kubernetes.KubernetesDeploymentManager;
 import io.oneko.kubernetes.deployments.Deployable;
 import io.oneko.kubernetes.deployments.Deployables;
 import io.oneko.kubernetes.deployments.DesiredState;
-import io.oneko.project.ProjectRepository;
-import io.oneko.project.ProjectVersion;
-import io.oneko.project.ReadableProject;
-import io.oneko.project.ReadableProjectVersion;
-import io.oneko.project.WritableProjectVersion;
-import io.oneko.projectmesh.ProjectMeshRepository;
-import io.oneko.projectmesh.ReadableMeshComponent;
-import io.oneko.projectmesh.ReadableProjectMesh;
-import io.oneko.projectmesh.WritableMeshComponent;
-import io.oneko.projectmesh.WritableProjectMesh;
+import io.oneko.project.*;
+import io.oneko.projectmesh.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static io.oneko.kubernetes.deployments.DesiredState.Deployed;
+import static io.oneko.kubernetes.deployments.DesiredState.NotDeployed;
+import static io.oneko.project.ProjectConstants.LabelNames.TEMPLATE_NAME;
 
 @Slf4j
 @Service

@@ -1,37 +1,14 @@
 package io.oneko.docker;
 
-import static io.oneko.deployable.DeploymentBehaviour.*;
-import static io.oneko.kubernetes.deployments.DesiredState.*;
-
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
-
-import io.oneko.event.*;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
-
 import com.google.common.collect.Sets;
-
 import io.oneko.docker.event.NewProjectVersionFoundEvent;
 import io.oneko.docker.event.ObsoleteProjectVersionRemovedEvent;
 import io.oneko.docker.v2.DockerRegistryV2ClientFactory;
 import io.oneko.docker.v2.model.manifest.Manifest;
 import io.oneko.domain.Identifiable;
+import io.oneko.event.*;
 import io.oneko.kubernetes.KubernetesDeploymentManager;
-import io.oneko.project.ProjectRepository;
-import io.oneko.project.ProjectVersion;
-import io.oneko.project.ReadableProject;
-import io.oneko.project.ReadableProjectVersion;
-import io.oneko.project.WritableProject;
-import io.oneko.project.WritableProjectVersion;
+import io.oneko.project.*;
 import io.oneko.projectmesh.ProjectMeshRepository;
 import io.oneko.projectmesh.ReadableProjectMesh;
 import io.oneko.projectmesh.WritableMeshComponent;
@@ -39,6 +16,19 @@ import io.oneko.projectmesh.WritableProjectMesh;
 import io.oneko.util.ExpiringBucket;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+import java.time.Duration;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+
+import static io.oneko.deployable.DeploymentBehaviour.automatically;
+import static io.oneko.kubernetes.deployments.DesiredState.Deployed;
+import static io.oneko.kubernetes.deployments.DesiredState.NotDeployed;
 
 @Component
 @Slf4j

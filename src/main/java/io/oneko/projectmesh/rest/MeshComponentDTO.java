@@ -1,15 +1,15 @@
 package io.oneko.projectmesh.rest;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
 import io.oneko.kubernetes.deployments.DeploymentDTO;
 import io.oneko.kubernetes.deployments.DesiredState;
 import io.oneko.templates.rest.ConfigurationTemplateDTO;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @NoArgsConstructor
 @Data

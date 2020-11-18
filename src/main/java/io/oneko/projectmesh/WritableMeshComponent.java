@@ -1,16 +1,7 @@
 package io.oneko.projectmesh;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
-
 import io.oneko.domain.ModificationAwareIdentifiable;
 import io.oneko.domain.ModificationAwareListProperty;
 import io.oneko.domain.ModificationAwareMapProperty;
@@ -18,10 +9,13 @@ import io.oneko.domain.ModificationAwareProperty;
 import io.oneko.kubernetes.deployments.DesiredState;
 import io.oneko.project.ReadableProject;
 import io.oneko.project.ReadableProjectVersion;
-import io.oneko.templates.WritableConfigurationTemplate;
 import io.oneko.templates.ConfigurationTemplates;
+import io.oneko.templates.WritableConfigurationTemplate;
 import lombok.Builder;
 import lombok.Getter;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class WritableMeshComponent extends ModificationAwareIdentifiable implements MeshComponent<WritableProjectMesh, WritableMeshComponent> {
 

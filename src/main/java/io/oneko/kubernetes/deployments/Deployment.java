@@ -1,13 +1,13 @@
 package io.oneko.kubernetes.deployments;
 
-import java.time.Instant;
-import java.util.Optional;
-import java.util.UUID;
-
 import io.oneko.deployable.DeploymentBehaviour;
 import io.oneko.domain.ModificationAwareIdentifiable;
 import io.oneko.domain.ModificationAwareProperty;
 import lombok.Builder;
+
+import java.time.Instant;
+import java.util.Optional;
+import java.util.UUID;
 
 public class Deployment extends ModificationAwareIdentifiable {
 

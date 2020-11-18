@@ -1,14 +1,13 @@
 package io.oneko.docker.v2.model.manifest;
 
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
 
 @Data
 @NoArgsConstructor

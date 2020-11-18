@@ -1,15 +1,15 @@
 package io.oneko.kubernetes.deployments;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-
 import io.oneko.automations.LifetimeBehaviour;
 import io.oneko.deployable.DeployableConfigurationTemplates;
 import io.oneko.deployable.DeploymentBehaviour;
 import io.oneko.project.Project;
 import io.oneko.project.ProjectVersion;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Deployable is a wrapper around entities that can be deployed to kubernetes.

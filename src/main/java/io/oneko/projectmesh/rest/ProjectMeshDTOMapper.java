@@ -1,19 +1,5 @@
 package io.oneko.projectmesh.rest;
 
-import static java.util.Optional.*;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import org.springframework.stereotype.Service;
-
 import io.oneko.automations.LifetimeBehaviourDTOMapper;
 import io.oneko.deployable.AggregatedDeploymentStatus;
 import io.oneko.kubernetes.deployments.Deployment;
@@ -30,6 +16,12 @@ import io.oneko.projectmesh.ReadableProjectMesh;
 import io.oneko.projectmesh.WritableMeshComponent;
 import io.oneko.projectmesh.WritableProjectMesh;
 import io.oneko.templates.rest.ConfigurationTemplateDTOMapper;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.util.Optional.ofNullable;
 
 @Service
 public class ProjectMeshDTOMapper {

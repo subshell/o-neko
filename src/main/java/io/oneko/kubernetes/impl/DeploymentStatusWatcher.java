@@ -1,22 +1,10 @@
 package io.oneko.kubernetes.impl;
 
-import java.time.Instant;
-import java.util.List;
-import java.util.stream.Collectors;
-
+import io.fabric8.kubernetes.api.model.Pod;
 import io.oneko.event.CurrentEventTrigger;
 import io.oneko.event.EventTrigger;
 import io.oneko.event.ScheduledTask;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
-
-import io.fabric8.kubernetes.api.model.Pod;
-import io.oneko.kubernetes.deployments.Deployable;
-import io.oneko.kubernetes.deployments.DeployableStatus;
-import io.oneko.kubernetes.deployments.Deployables;
-import io.oneko.kubernetes.deployments.Deployment;
-import io.oneko.kubernetes.deployments.DeploymentRepository;
-import io.oneko.kubernetes.deployments.DesiredState;
+import io.oneko.kubernetes.deployments.*;
 import io.oneko.namespace.Namespace;
 import io.oneko.project.ProjectRepository;
 import io.oneko.project.ProjectVersion;
@@ -28,6 +16,12 @@ import io.oneko.projectmesh.WritableMeshComponent;
 import io.oneko.websocket.SessionWebSocketHandler;
 import io.oneko.websocket.message.DeploymentStatusChangedMessage;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j

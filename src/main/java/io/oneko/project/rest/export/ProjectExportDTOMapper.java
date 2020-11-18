@@ -1,13 +1,12 @@
 package io.oneko.project.rest.export;
 
-import java.time.Instant;
-
+import io.oneko.project.rest.ProjectDTO;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
-import io.oneko.project.rest.ProjectDTO;
+import java.time.Instant;
 
 @Mapper
 public interface ProjectExportDTOMapper {

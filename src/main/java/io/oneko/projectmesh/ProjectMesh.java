@@ -1,20 +1,18 @@
 package io.oneko.projectmesh;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.google.common.collect.ImmutableList;
-
 import io.oneko.automations.LifetimeBehaviour;
 import io.oneko.deployable.DeploymentBehaviour;
 import io.oneko.namespace.DefinedNamespace;
 import io.oneko.namespace.HasNamespace;
 import io.oneko.namespace.Namespace;
 import io.oneko.project.ProjectConstants;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 public interface ProjectMesh<M extends ProjectMesh<M, C>, C extends MeshComponent<M, C>> extends HasNamespace {
 

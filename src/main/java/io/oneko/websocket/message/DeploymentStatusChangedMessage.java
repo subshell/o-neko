@@ -1,13 +1,13 @@
 package io.oneko.websocket.message;
 
-import java.time.Instant;
-import java.util.UUID;
-
 import io.oneko.kubernetes.deployments.DeployableStatus;
 import io.oneko.kubernetes.deployments.DesiredState;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.Instant;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor

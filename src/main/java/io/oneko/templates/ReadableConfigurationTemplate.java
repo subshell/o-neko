@@ -1,12 +1,12 @@
 package io.oneko.templates;
 
-import java.util.UUID;
-
 import io.oneko.domain.Identifiable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
+
+import java.util.UUID;
 
 @AllArgsConstructor
 @Builder

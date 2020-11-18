@@ -1,8 +1,7 @@
 package io.oneko.activity.rest;
 
-import org.springframework.stereotype.Component;
-
 import io.oneko.activity.Activity;
+import org.springframework.stereotype.Component;
 
 @Component
 public class ActivityDTOFactory {

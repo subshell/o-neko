@@ -2,9 +2,9 @@ package io.oneko.projectmesh.event;
 
 import io.oneko.event.EventDispatcher;
 import io.oneko.projectmesh.ProjectMesh;
+import io.oneko.projectmesh.ProjectMeshRepository;
 import io.oneko.projectmesh.ReadableProjectMesh;
 import io.oneko.projectmesh.WritableProjectMesh;
-import io.oneko.projectmesh.ProjectMeshRepository;
 
 public abstract class EventAwareProjectMeshRepository implements ProjectMeshRepository {
 

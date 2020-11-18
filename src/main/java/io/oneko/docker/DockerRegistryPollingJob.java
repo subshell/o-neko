@@ -1,12 +1,12 @@
 package io.oneko.docker;
 
-import java.time.Clock;
-import java.time.Duration;
-import java.time.Instant;
-
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.Disposable;
+
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
 
 @Data
 @Slf4j

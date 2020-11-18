@@ -1,8 +1,7 @@
 package io.oneko.namespace;
 
-import org.apache.commons.lang3.StringUtils;
-
 import lombok.experimental.UtilityClass;
+import org.apache.commons.lang3.StringUtils;
 
 @UtilityClass
 public class NamespaceConventions {

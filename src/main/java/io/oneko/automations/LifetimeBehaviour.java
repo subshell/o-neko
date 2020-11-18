@@ -1,14 +1,13 @@
 package io.oneko.automations;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Objects;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import io.oneko.kubernetes.deployments.Deployment;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Objects;
 
 @Getter
 @AllArgsConstructor

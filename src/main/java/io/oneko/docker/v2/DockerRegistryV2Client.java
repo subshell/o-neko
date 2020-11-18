@@ -1,11 +1,13 @@
 package io.oneko.docker.v2;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.oneko.docker.DockerRegistry;
+import io.oneko.docker.v2.model.ListTagsResult;
+import io.oneko.docker.v2.model.Repository;
+import io.oneko.docker.v2.model.RepositoryList;
+import io.oneko.docker.v2.model.manifest.Manifest;
+import io.oneko.project.Project;
+import io.oneko.project.ProjectVersion;
 import org.apache.http.Header;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -15,15 +17,11 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.oneko.docker.DockerRegistry;
-import io.oneko.docker.v2.model.ListTagsResult;
-import io.oneko.docker.v2.model.Repository;
-import io.oneko.docker.v2.model.RepositoryList;
-import io.oneko.docker.v2.model.manifest.Manifest;
-import io.oneko.project.Project;
-import io.oneko.project.ProjectVersion;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Accesses the API defined here:

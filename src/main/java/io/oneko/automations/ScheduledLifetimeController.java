@@ -1,22 +1,7 @@
 package io.oneko.automations;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
-
 import io.oneko.kubernetes.KubernetesDeploymentManager;
-import io.oneko.kubernetes.deployments.Deployable;
-import io.oneko.kubernetes.deployments.DeployableStatus;
-import io.oneko.kubernetes.deployments.Deployables;
-import io.oneko.kubernetes.deployments.Deployment;
-import io.oneko.kubernetes.deployments.DeploymentRepository;
+import io.oneko.kubernetes.deployments.*;
 import io.oneko.project.ProjectRepository;
 import io.oneko.project.ProjectVersion;
 import io.oneko.project.ReadableProject;
@@ -25,6 +10,16 @@ import io.oneko.projectmesh.ProjectMeshRepository;
 import io.oneko.projectmesh.ReadableProjectMesh;
 import io.oneko.projectmesh.WritableMeshComponent;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j

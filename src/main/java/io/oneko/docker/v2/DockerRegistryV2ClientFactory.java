@@ -1,6 +1,12 @@
 package io.oneko.docker.v2;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.oneko.docker.DockerRegistry;
 import io.oneko.docker.DockerRegistryRepository;
+import io.oneko.docker.v2.model.TokenResponse;
+import io.oneko.project.Project;
+import io.oneko.projectmesh.MeshComponent;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -12,14 +18,6 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.oneko.docker.DockerRegistry;
-import io.oneko.docker.v2.model.TokenResponse;
-import io.oneko.project.Project;
-import io.oneko.projectmesh.MeshComponent;
-import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.util.Optional;

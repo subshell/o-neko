@@ -1,11 +1,11 @@
 package io.oneko.deployable;
 
+import io.oneko.templates.ConfigurationTemplate;
+import lombok.Data;
+
 import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import io.oneko.templates.ConfigurationTemplate;
-import lombok.Data;
 
 @Data
 public class DeployableConfigurationTemplates {

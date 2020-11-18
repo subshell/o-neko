@@ -1,10 +1,10 @@
 package io.oneko.namespace;
 
+import io.oneko.domain.Identifiable;
+
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-
-import io.oneko.domain.Identifiable;
 
 public interface HasNamespace {
 

@@ -1,20 +1,7 @@
 package io.oneko.project;
 
-import static io.oneko.kubernetes.deployments.DesiredState.*;
-
-import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Sets;
-
 import io.oneko.automations.LifetimeBehaviour;
 import io.oneko.deployable.DeploymentBehaviour;
 import io.oneko.domain.ModificationAwareIdentifiable;
@@ -29,6 +16,12 @@ import io.oneko.namespace.WritableHasNamespace;
 import io.oneko.templates.ConfigurationTemplates;
 import io.oneko.templates.WritableConfigurationTemplate;
 import lombok.Builder;
+
+import java.time.Instant;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static io.oneko.kubernetes.deployments.DesiredState.NotDeployed;
 
 public class WritableProjectVersion extends ModificationAwareIdentifiable implements WritableHasNamespace, ProjectVersion<WritableProject, WritableProjectVersion> {
 

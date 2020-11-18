@@ -2,9 +2,9 @@ package io.oneko.project.event;
 
 import io.oneko.event.EventDispatcher;
 import io.oneko.project.Project;
+import io.oneko.project.ProjectRepository;
 import io.oneko.project.ReadableProject;
 import io.oneko.project.WritableProject;
-import io.oneko.project.ProjectRepository;
 
 public abstract class EventAwareProjectRepository implements ProjectRepository {
 

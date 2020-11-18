@@ -1,8 +1,5 @@
 package io.oneko.user;
 
-import java.io.Serializable;
-import java.util.UUID;
-
 import io.oneko.domain.Identifiable;
 import io.oneko.security.UserRole;
 import io.oneko.user.auth.UserAuthentication;
@@ -10,6 +7,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+
+import java.io.Serializable;
+import java.util.UUID;
 
 @AllArgsConstructor
 @Builder

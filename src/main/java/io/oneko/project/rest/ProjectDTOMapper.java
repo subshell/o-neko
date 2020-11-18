@@ -1,34 +1,22 @@
 package io.oneko.project.rest;
 
-import static java.util.Optional.*;
+import com.google.common.base.MoreObjects;
+import io.oneko.automations.LifetimeBehaviourDTOMapper;
+import io.oneko.deployable.AggregatedDeploymentStatus;
+import io.oneko.kubernetes.deployments.*;
+import io.oneko.namespace.ImplicitNamespace;
+import io.oneko.namespace.rest.NamespaceDTOMapper;
+import io.oneko.project.*;
+import io.oneko.templates.rest.ConfigurationTemplateDTOMapper;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.ListUtils;
-import org.springframework.stereotype.Service;
-
-import com.google.common.base.MoreObjects;
-
-import io.oneko.automations.LifetimeBehaviourDTOMapper;
-import io.oneko.deployable.AggregatedDeploymentStatus;
-import io.oneko.kubernetes.deployments.DeployableStatus;
-import io.oneko.kubernetes.deployments.Deployment;
-import io.oneko.kubernetes.deployments.DeploymentDTO;
-import io.oneko.kubernetes.deployments.DeploymentDTOs;
-import io.oneko.kubernetes.deployments.DeploymentRepository;
-import io.oneko.namespace.ImplicitNamespace;
-import io.oneko.namespace.rest.NamespaceDTOMapper;
-import io.oneko.project.ReadableProject;
-import io.oneko.project.ReadableProjectVersion;
-import io.oneko.project.ReadableTemplateVariable;
-import io.oneko.project.WritableProject;
-import io.oneko.project.ProjectConstants;
-import io.oneko.project.WritableProjectVersion;
-import io.oneko.project.WritableTemplateVariable;
-import io.oneko.templates.rest.ConfigurationTemplateDTOMapper;
+import static java.util.Optional.ofNullable;
 
 @Service
 public class ProjectDTOMapper {

@@ -1,7 +1,6 @@
 package io.oneko.event;
 
 import org.springframework.stereotype.Service;
-
 import reactor.core.publisher.EmitterProcessor;
 import reactor.core.publisher.Flux;
 

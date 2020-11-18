@@ -1,19 +1,18 @@
 package io.oneko.projectmesh;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-
 import io.oneko.kubernetes.deployments.DesiredState;
 import io.oneko.project.ReadableProject;
 import io.oneko.project.ReadableProjectVersion;
 import io.oneko.templates.ReadableConfigurationTemplate;
 import lombok.Builder;
 import lombok.Getter;
+
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Getter
 public class ReadableMeshComponent implements MeshComponent<ReadableProjectMesh, ReadableMeshComponent> {

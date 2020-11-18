@@ -1,21 +1,19 @@
 package io.oneko.configuration;
 
-import java.util.Optional;
-
-import javax.annotation.PostConstruct;
-
-import io.oneko.event.CurrentEventTrigger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
-
 import io.oneko.activity.ActivityPriority;
+import io.oneko.event.CurrentEventTrigger;
 import io.oneko.event.EventTrigger;
 import io.oneko.security.UserRole;
 import io.oneko.user.ReadableUser;
 import io.oneko.user.UserRepository;
 import io.oneko.user.WritableUser;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
+import java.util.Optional;
 
 /**
  * The initial setup is a bean that ensures that some mandatory data is given.

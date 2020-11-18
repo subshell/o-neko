@@ -1,17 +1,16 @@
 package io.oneko.projectmesh.persistence;
 
-import java.util.*;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Service;
-
 import io.oneko.Profiles;
 import io.oneko.event.EventDispatcher;
 import io.oneko.projectmesh.ProjectMesh;
 import io.oneko.projectmesh.ReadableProjectMesh;
 import io.oneko.projectmesh.WritableProjectMesh;
 import io.oneko.projectmesh.event.EventAwareProjectMeshRepository;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
 
 @Service
 @Profile(Profiles.IN_MEMORY)

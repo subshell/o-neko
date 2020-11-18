@@ -1,11 +1,10 @@
 package io.oneko.kubernetes.impl;
 
-import org.springframework.stereotype.Service;
-
 import io.oneko.docker.event.ObsoleteProjectVersionRemovedEvent;
 import io.oneko.event.Event;
 import io.oneko.event.EventDispatcher;
 import io.oneko.project.event.ProjectDeletedEvent;
+import org.springframework.stereotype.Service;
 
 @Service
 public class NamespaceDeleter {

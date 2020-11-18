@@ -1,11 +1,11 @@
 package io.oneko.kubernetes.deployments.persistence;
 
 
+import org.springframework.data.mongodb.repository.MongoRepository;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
-import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface DeploymentMongoSpringRepository extends MongoRepository<DeploymentMongo, UUID> {
 

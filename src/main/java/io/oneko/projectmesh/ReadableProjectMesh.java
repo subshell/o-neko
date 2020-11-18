@@ -1,18 +1,17 @@
 package io.oneko.projectmesh;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
 import com.google.common.collect.ImmutableList;
-
 import io.oneko.automations.LifetimeBehaviour;
 import io.oneko.deployable.DeploymentBehaviour;
 import io.oneko.namespace.DefinedNamespace;
 import io.oneko.namespace.Namespace;
 import lombok.Builder;
 import lombok.Getter;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Getter
 public class ReadableProjectMesh implements ProjectMesh<ReadableProjectMesh, ReadableMeshComponent> {

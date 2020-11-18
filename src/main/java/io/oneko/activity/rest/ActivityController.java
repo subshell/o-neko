@@ -1,17 +1,16 @@
 package io.oneko.activity.rest;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
+import io.oneko.activity.ActivityLog;
+import io.oneko.configuration.Controllers;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.oneko.activity.ActivityLog;
-import io.oneko.configuration.Controllers;
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @Slf4j

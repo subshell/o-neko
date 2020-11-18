@@ -1,14 +1,14 @@
 package io.oneko.activity;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.UUID;
-
 import io.oneko.domain.DescribingEntityChange;
 import io.oneko.domain.Identifiable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Activities are views on events that happened earlier.

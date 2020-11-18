@@ -1,13 +1,13 @@
 package io.oneko.project;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
 import io.oneko.domain.ModificationAwareIdentifiable;
 import io.oneko.domain.ModificationAwareListProperty;
 import io.oneko.domain.ModificationAwareProperty;
 import lombok.Builder;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class WritableTemplateVariable extends ModificationAwareIdentifiable implements TemplateVariable {
 	private final ModificationAwareProperty<UUID> id = new ModificationAwareProperty<>(this, "id");

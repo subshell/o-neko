@@ -1,15 +1,10 @@
 package io.oneko.templates.rest;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-
-import org.springframework.stereotype.Service;
-
 import io.oneko.templates.ConfigurationTemplate;
 import io.oneko.templates.WritableConfigurationTemplate;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
 
 @Service
 public class ConfigurationTemplateDTOMapper {

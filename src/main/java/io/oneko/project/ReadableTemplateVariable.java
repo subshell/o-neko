@@ -1,13 +1,12 @@
 package io.oneko.project;
 
-import java.util.List;
-import java.util.UUID;
-
 import com.google.common.collect.ImmutableList;
-
 import io.oneko.domain.Identifiable;
 import lombok.Builder;
 import lombok.Getter;
+
+import java.util.List;
+import java.util.UUID;
 
 @Getter
 public class ReadableTemplateVariable extends Identifiable implements TemplateVariable {

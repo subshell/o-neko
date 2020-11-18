@@ -1,28 +1,23 @@
 package io.oneko.projectmesh.persistence;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import io.oneko.namespace.ReadableDefinedNamespace;
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Service;
-
 import io.oneko.Profiles;
 import io.oneko.event.EventDispatcher;
 import io.oneko.namespace.DefinedNamespace;
 import io.oneko.namespace.DefinedNamespaceRepository;
+import io.oneko.namespace.ReadableDefinedNamespace;
 import io.oneko.project.ProjectRepository;
 import io.oneko.project.ReadableProjectVersion;
 import io.oneko.project.persistence.ConfigurationTemplateMongoMapper;
-import io.oneko.projectmesh.ProjectMesh;
-import io.oneko.projectmesh.ReadableMeshComponent;
-import io.oneko.projectmesh.ReadableProjectMesh;
-import io.oneko.projectmesh.WritableMeshComponent;
-import io.oneko.projectmesh.WritableProjectMesh;
+import io.oneko.projectmesh.*;
 import io.oneko.projectmesh.event.EventAwareProjectMeshRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j

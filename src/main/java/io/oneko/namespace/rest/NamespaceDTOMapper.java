@@ -1,13 +1,12 @@
 package io.oneko.namespace.rest;
 
-import java.util.Objects;
-
-import org.springframework.stereotype.Service;
-
 import io.oneko.namespace.DefinedNamespace;
 import io.oneko.namespace.DefinedNamespaceRepository;
 import io.oneko.namespace.Namespace;
 import io.oneko.namespace.WritableHasNamespace;
+import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 @Service
 public class NamespaceDTOMapper {

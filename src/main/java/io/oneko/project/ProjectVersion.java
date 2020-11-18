@@ -1,15 +1,5 @@
 package io.oneko.project;
 
-import java.time.Instant;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import org.apache.commons.text.StringSubstitutor;
-
 import io.oneko.automations.LifetimeBehaviour;
 import io.oneko.deployable.DeployableConfigurationTemplates;
 import io.oneko.deployable.DeploymentBehaviour;
@@ -18,8 +8,13 @@ import io.oneko.namespace.DefinedNamespace;
 import io.oneko.namespace.HasNamespace;
 import io.oneko.namespace.Namespace;
 import io.oneko.templates.ConfigurationTemplate;
-import io.oneko.templates.WritableConfigurationTemplate;
 import io.oneko.templates.ConfigurationTemplates;
+import io.oneko.templates.WritableConfigurationTemplate;
+import org.apache.commons.text.StringSubstitutor;
+
+import java.time.Instant;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Each project has a number of versions. These versions are stored as part of the project they belong to.

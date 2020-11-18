@@ -1,10 +1,9 @@
 package io.oneko.docker.rest;
 
+import io.oneko.docker.DockerRegistry;
 import io.oneko.docker.WritableDockerRegistry;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-
-import io.oneko.docker.DockerRegistry;
 
 @Service
 public class DockerRegistryDTOMapper {
