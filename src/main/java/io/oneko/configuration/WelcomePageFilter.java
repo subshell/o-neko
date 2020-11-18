@@ -16,14 +16,14 @@ import org.springframework.stereotype.Component;
 public class WelcomePageFilter implements Filter {
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-		if (!(request instanceof HttpServletRequest)) {
-			chain.doFilter(request, response);
-			return;
+		if (request instanceof HttpServletRequest) {
+			final var requestURI = ((HttpServletRequest) request).getRequestURI();
+			if (StringUtils.equals(requestURI, "/")) {
+				request.getRequestDispatcher("/index.html").forward(request, response);
+				return;
+			}
 		}
 
-		final var requestURI = ((HttpServletRequest) request).getRequestURI();
-		if (StringUtils.startsWith(requestURI, "/")) {
-			request.getRequestDispatcher("/index.html").forward(request, response);
-		}
+		chain.doFilter(request, response);
 	}
 }
