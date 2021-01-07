@@ -3,6 +3,8 @@ package io.oneko.docker.v2;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.oneko.docker.DockerRegistry;
 import io.oneko.docker.DockerRegistryRepository;
+import io.oneko.docker.v2.DockerRegistryVersionChecker.BearerAuthRequired;
+import io.oneko.docker.v2.DockerRegistryVersionChecker.V2APIUnavailable;
 import io.oneko.docker.v2.model.TokenResponse;
 import io.oneko.project.Project;
 import io.oneko.projectmesh.MeshComponent;
@@ -25,17 +27,17 @@ import java.util.Optional;
 
 @Service
 @Slf4j
-public class DockerRegistryV2ClientFactory {
+public class DockerRegistryClientFactory {
 
 	private final ObjectMapper objectMapper;
-	private final DockerV2Checker dockerV2Checker;
+	private final DockerRegistryVersionChecker dockerRegistryVersionChecker;
 	private final DockerRegistryRepository dockerRegistryRepository;
 	private final MeshService meshService;
 
 	@Autowired
-	DockerRegistryV2ClientFactory(ObjectMapper objectMapper, DockerV2Checker dockerV2Checker, DockerRegistryRepository dockerRegistryRepository, MeshService meshService) {
+	DockerRegistryClientFactory(ObjectMapper objectMapper, DockerRegistryVersionChecker dockerRegistryVersionChecker, DockerRegistryRepository dockerRegistryRepository, MeshService meshService) {
 		this.objectMapper = objectMapper;
-		this.dockerV2Checker = dockerV2Checker;
+		this.dockerRegistryVersionChecker = dockerRegistryVersionChecker;
 		this.dockerRegistryRepository = dockerRegistryRepository;
 		this.meshService = meshService;
 	}
@@ -52,8 +54,8 @@ public class DockerRegistryV2ClientFactory {
 	}
 
 	public DockerRegistryV2Client getDockerRegistryClient(DockerRegistry dockerRegistry) {
-		DockerV2Checker.V2CheckResult v2CheckResult = dockerV2Checker.checkV2ApiOf(dockerRegistry);
-		return buildClientBasedOnApiCheck(v2CheckResult, dockerRegistry, "registry:catalog:*");
+		var dockerRegistryCheckResult = dockerRegistryVersionChecker.checkV2ApiOf(dockerRegistry);
+		return buildClientBasedOnApiCheck(dockerRegistryCheckResult, dockerRegistry, "registry:catalog:*");
 	}
 
 	public Optional<DockerRegistryV2Client> getDockerRegistryClient(Project<?, ?> project) {
@@ -62,8 +64,8 @@ public class DockerRegistryV2ClientFactory {
 		}
 		return dockerRegistryRepository.getById(project.getDockerRegistryId())
 				.map(dockerRegistry -> {
-					DockerV2Checker.V2CheckResult v2CheckResult = dockerV2Checker.checkV2ApiOf(dockerRegistry);
-					return this.buildClientBasedOnApiCheck(v2CheckResult, dockerRegistry, "repository:" + project.getImageName() + ":pull");
+					DockerRegistryVersionChecker.DockerRegistryCheckResult dockerRegistryCheckResult = dockerRegistryVersionChecker.checkV2ApiOf(dockerRegistry);
+					return this.buildClientBasedOnApiCheck(dockerRegistryCheckResult, dockerRegistry, "repository:" + project.getImageName() + ":pull");
 				});
 	}
 
@@ -79,15 +81,15 @@ public class DockerRegistryV2ClientFactory {
 	 * @param desiredScope see <a href="https://docs.docker.com/registry/spec/auth/scope/">docker docs</a> on what to pass in here.
 	 * @return
 	 */
-	private DockerRegistryV2Client buildClientBasedOnApiCheck(DockerV2Checker.V2CheckResult checkResult, DockerRegistry registry, String desiredScope) {
-		if (checkResult == DockerV2Checker.V2CheckResult.V2NotSupported) {
-			throw new IllegalStateException("DockerRegistry " + registry.getName() + " is not supporting the v2 API");
-		} else if (checkResult == DockerV2Checker.V2CheckResult.V2Okay) {
+	private DockerRegistryV2Client buildClientBasedOnApiCheck(DockerRegistryVersionChecker.DockerRegistryCheckResult checkResult, DockerRegistry registry, String desiredScope) {
+		if (checkResult == DockerRegistryVersionChecker.DockerRegistryCheckResult.UnsupportedAuthenticationType) {
+			throw new IllegalStateException("Docker registry " + registry.getName() + " does not support the V2 API");
+		} else if (checkResult == DockerRegistryVersionChecker.DockerRegistryCheckResult.Okay) {
 			return new DockerRegistryV2Client(registry, null, objectMapper);
-		} else if (checkResult instanceof DockerV2Checker.V2Unavailable) {
-			throw new IllegalStateException("V2 API of DockerRegistry " + registry.getName() + " is unavailable with status code " + ((DockerV2Checker.V2Unavailable) checkResult).getStatusCode());
-		} else if (checkResult instanceof DockerV2Checker.BearerAuthRequired) {
-			DockerV2Checker.BearerAuthRequired required = (DockerV2Checker.BearerAuthRequired) checkResult;
+		} else if (checkResult instanceof V2APIUnavailable) {
+			throw new IllegalStateException("V2 API of docker registry " + registry.getName() + " is unavailable with status code " + ((V2APIUnavailable) checkResult).getStatusCode());
+		} else if (checkResult instanceof BearerAuthRequired) {
+			BearerAuthRequired required = (BearerAuthRequired) checkResult;
 			TokenResponse tokenResponse = requestToken(registry, required, desiredScope);
 			return new DockerRegistryV2Client(registry, tokenResponse.getToken(), objectMapper);
 		} else {
@@ -99,7 +101,7 @@ public class DockerRegistryV2ClientFactory {
 	 * Request a token for bearer authentication to be used on later requests. The request to get a token however uses
 	 * basic authentication with the users credentials.
 	 */
-	private TokenResponse requestToken(DockerRegistry registry, DockerV2Checker.BearerAuthRequired required, String scope) {
+	private TokenResponse requestToken(DockerRegistry registry, BearerAuthRequired required, String scope) {
 		HttpClientBuilder builder = HttpClients.custom();
 		if (registry.isTrustInsecureCertificate()) {
 			builder.setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE);

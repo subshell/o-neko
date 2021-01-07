@@ -1,18 +1,12 @@
 package io.oneko.docker.v2;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.oneko.docker.DockerRegistry;
-import io.oneko.docker.v2.model.ListTagsResult;
-import io.oneko.docker.v2.model.Repository;
-import io.oneko.docker.v2.model.RepositoryList;
-import io.oneko.docker.v2.model.manifest.DockerRegistryBlob;
-import io.oneko.docker.v2.model.manifest.DockerRegistryManifest;
-import io.oneko.docker.v2.model.manifest.Manifest;
-import io.oneko.project.Project;
-import io.oneko.project.ProjectVersion;
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.http.Header;
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
@@ -21,15 +15,20 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.oneko.docker.DockerRegistry;
+import io.oneko.docker.v2.model.ListTagsResult;
+import io.oneko.docker.v2.model.manifest.DockerRegistryBlob;
+import io.oneko.docker.v2.model.manifest.DockerRegistryManifest;
+import io.oneko.docker.v2.model.manifest.Manifest;
+import io.oneko.project.Project;
+import io.oneko.project.ProjectVersion;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Accesses the API defined here:
- * https://github.com/moby/moby/issues/9015
+ * https://docs.docker.com/registry/spec/api/
  */
 @Slf4j
 public class DockerRegistryV2Client {
@@ -42,11 +41,14 @@ public class DockerRegistryV2Client {
 		this.reg = reg;
 		this.objectMapper = objectMapper;
 		List<Header> defaultHeaders = new ArrayList<>();
-		defaultHeaders.add(new BasicHeader("docker-distribution-api-version","registry/2.0" ));
+		defaultHeaders.add(new BasicHeader("Accept", "*/*"));
 		if (token != null) {
 			defaultHeaders.add(new BasicHeader(AuthorizationHeader.KEY, AuthorizationHeader.bearer(token)));
 		}
 		this.client = HttpClients.custom()
+				.setDefaultRequestConfig(RequestConfig.custom()
+						.setCookieSpec(CookieSpecs.STANDARD)
+						.build())
 				.setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
 				.setDefaultHeaders(defaultHeaders)
 				.build();
@@ -58,21 +60,6 @@ public class DockerRegistryV2Client {
 			return EntityUtils.toString(response.getEntity());
 		} catch (IOException e) {
 			log.warn("Failed to check docker registry version", e);
-			throw new IllegalStateException(e);
-		}
-	}
-
-	/**
-	 * Warn: not working with most docker registries!
-	 */
-	public List<String> getAllImageNames() {
-		//most providers of v2 API won't allow accessing the catalog...
-		HttpGet get = new HttpGet(reg.getRegistryUrl() + "/v2/_catalog");
-		try (CloseableHttpResponse response = client.execute(get)) {
-			RepositoryList repositories = this.objectMapper.readValue(EntityUtils.toString(response.getEntity()), RepositoryList.class);
-			return repositories.getRepositories().stream().map(Repository::getName).collect(Collectors.toList());
-		} catch (IOException e) {
-			log.warn("Failed to list image names", e);
 			throw new IllegalStateException(e);
 		}
 	}
@@ -91,7 +78,8 @@ public class DockerRegistryV2Client {
 	public Manifest getManifest(ProjectVersion<?, ?> version) {
 		HttpGet manifestGet = new HttpGet(reg.getRegistryUrl() + "/v2/" + version.getProject().getImageName() + "/manifests/" + version.getName());
 		try (CloseableHttpResponse response = client.execute(manifestGet)) {
-			DockerRegistryManifest registryManifest = this.objectMapper.readValue(EntityUtils.toString(response.getEntity()), DockerRegistryManifest.class);
+			final String responseString = EntityUtils.toString(response.getEntity());
+			DockerRegistryManifest registryManifest = this.objectMapper.readValue(responseString, DockerRegistryManifest.class);
 			HttpGet blobGet = new HttpGet(reg.getRegistryUrl() + "/v2/" + version.getProject().getImageName() + "/blobs/" + registryManifest.getDigest());
 			try (CloseableHttpResponse blobResponse = client.execute(blobGet)) {
 				final DockerRegistryBlob dockerRegistryBlob = this.objectMapper.readValue(EntityUtils.toString(blobResponse.getEntity()), DockerRegistryBlob.class);

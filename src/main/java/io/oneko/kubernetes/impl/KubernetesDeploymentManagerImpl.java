@@ -13,7 +13,7 @@ import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.oneko.deployable.DeployableConfigurationTemplate;
 import io.oneko.docker.DockerRegistry;
 import io.oneko.docker.DockerRegistryRepository;
-import io.oneko.docker.v2.DockerRegistryV2ClientFactory;
+import io.oneko.docker.v2.DockerRegistryClientFactory;
 import io.oneko.docker.v2.model.manifest.Manifest;
 import io.oneko.kubernetes.KubernetesConventions;
 import io.oneko.kubernetes.KubernetesDeploymentManager;
@@ -38,16 +38,16 @@ import static io.oneko.project.ProjectConstants.LabelNames.TEMPLATE_NAME;
 class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 
 	private final KubernetesAccess kubernetesAccess;
-	private final DockerRegistryV2ClientFactory dockerRegistryV2ClientFactory;
+	private final DockerRegistryClientFactory dockerRegistryClientFactory;
 	private final DockerRegistryRepository dockerRegistryRepository;
 	private final ProjectRepository projectRepository;
 	private final ProjectMeshRepository projectMeshRepository;
 	private final MeshService meshService;
 
-	KubernetesDeploymentManagerImpl(KubernetesAccess kubernetesAccess, DockerRegistryV2ClientFactory dockerRegistryV2ClientFactory,
-									DockerRegistryRepository dockerRegistryRepository, ProjectRepository projectRepository, ProjectMeshRepository projectMeshRepository, MeshService meshService) {
+	KubernetesDeploymentManagerImpl(KubernetesAccess kubernetesAccess, DockerRegistryClientFactory dockerRegistryClientFactory,
+																	DockerRegistryRepository dockerRegistryRepository, ProjectRepository projectRepository, ProjectMeshRepository projectMeshRepository, MeshService meshService) {
 		this.kubernetesAccess = kubernetesAccess;
-		this.dockerRegistryV2ClientFactory = dockerRegistryV2ClientFactory;
+		this.dockerRegistryClientFactory = dockerRegistryClientFactory;
 		this.dockerRegistryRepository = dockerRegistryRepository;
 		this.projectRepository = projectRepository;
 		this.projectMeshRepository = projectMeshRepository;
@@ -137,7 +137,7 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 		}
 
 		//it seems completely wrong, that this is happening here...
-		return dockerRegistryV2ClientFactory.getDockerRegistryClient(deployable.getRelatedProject())
+		return dockerRegistryClientFactory.getDockerRegistryClient(deployable.getRelatedProject())
 				.map(client -> {
 					final Manifest manifest = client.getManifest(relatedVersion);
 					deployable.setDockerContentDigest(manifest.getDockerContentDigest());

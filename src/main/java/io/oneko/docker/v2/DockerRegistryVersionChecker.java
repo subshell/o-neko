@@ -1,7 +1,7 @@
 package io.oneko.docker.v2;
 
-import io.oneko.docker.DockerRegistry;
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpHeaders;
@@ -13,16 +13,18 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
+import io.oneko.docker.DockerRegistry;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Checks whether the V2 API is available for a docker registry and whether authentication is required.
  */
 @Slf4j
 @Component
-public class DockerV2Checker {
+public class DockerRegistryVersionChecker {
 
-	public V2CheckResult checkV2ApiOf(DockerRegistry registry) {
+	public DockerRegistryCheckResult checkV2ApiOf(DockerRegistry registry) {
 		CloseableHttpClient client = HttpClients.custom().setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE).build();
 		HttpGet request = new HttpGet(registry.getRegistryUrl() + "/v2/");
 		try (CloseableHttpResponse response = client.execute(request)) {
@@ -33,17 +35,17 @@ public class DockerV2Checker {
 		}
 	}
 
-	private V2CheckResult mapResponseToCheckResult(CloseableHttpResponse response) {
+	private DockerRegistryCheckResult mapResponseToCheckResult(CloseableHttpResponse response) {
 		int statusCode = response.getStatusLine().getStatusCode();
-		if (statusCode == org.apache.http.HttpStatus.SC_OK) {
-			return V2CheckResult.V2Okay;
+		if (statusCode == HttpStatus.SC_OK) {
+			return DockerRegistryCheckResult.Okay;
 		} else if (statusCode == HttpStatus.SC_NOT_FOUND) {
-			return V2CheckResult.V2NotSupported;
+			return new V2APIUnavailable(statusCode);
 		} else if (statusCode == HttpStatus.SC_UNAUTHORIZED) {
 			//parse authenticate
 			Header[] authHeader = response.getHeaders(HttpHeaders.WWW_AUTHENTICATE);
 			if (authHeader.length < 1) {
-				return V2CheckResult.V2NotSupported;
+				return DockerRegistryCheckResult.UnsupportedAuthenticationType;
 			}
 			String authenticateHeaderValue = authHeader[0].getValue();
 			String type = StringUtils.substringBefore(authenticateHeaderValue, " realm");
@@ -53,48 +55,38 @@ public class DockerV2Checker {
 				return new BearerAuthRequired(realm, service);
 			} else {
 				log.warn("Docker registry returned unsupported authentication type '{}'", type);
-				return V2CheckResult.V2NotSupported;
+				return DockerRegistryCheckResult.UnsupportedAuthenticationType;
 			}
 		} else {
-			return new V2Unavailable(statusCode);
+			return new V2APIUnavailable(statusCode);
 		}
 	}
 
-	public static class V2CheckResult {
-		public static final V2CheckResult V2Okay = new V2CheckResult();
-		public static final V2CheckResult V2NotSupported = new V2CheckResult();
+	public static class DockerRegistryCheckResult {
+		public static final DockerRegistryCheckResult Okay = new DockerRegistryCheckResult();
+		public static final DockerRegistryCheckResult UnsupportedAuthenticationType = new DockerRegistryCheckResult();
 
-		private V2CheckResult() {
+		private DockerRegistryCheckResult() {
 		}
 	}
 
-	public static class V2Unavailable extends V2CheckResult {
+	@Getter
+	public static class V2APIUnavailable extends DockerRegistryCheckResult {
 		private final int statusCode;
 
-		public V2Unavailable(int statusCode) {
+		public V2APIUnavailable(int statusCode) {
 			this.statusCode = statusCode;
-		}
-
-		public int getStatusCode() {
-			return statusCode;
 		}
 	}
 
-	public static class BearerAuthRequired extends V2CheckResult {
+	@Getter
+	public static class BearerAuthRequired extends DockerRegistryCheckResult {
 		private final String realm;
 		private final String service;
 
 		public BearerAuthRequired(String realm, String service) {
 			this.realm = realm;
 			this.service = service;
-		}
-
-		public String getRealm() {
-			return realm;
-		}
-
-		public String getService() {
-			return service;
 		}
 	}
 

@@ -22,7 +22,7 @@ import com.google.common.collect.Sets;
 
 import io.oneko.docker.event.NewProjectVersionFoundEvent;
 import io.oneko.docker.event.ObsoleteProjectVersionRemovedEvent;
-import io.oneko.docker.v2.DockerRegistryV2ClientFactory;
+import io.oneko.docker.v2.DockerRegistryClientFactory;
 import io.oneko.docker.v2.model.manifest.Manifest;
 import io.oneko.domain.Identifiable;
 import io.oneko.event.CurrentEventTrigger;
@@ -57,7 +57,7 @@ class DockerRegistryPolling {
 
 	private final ProjectRepository projectRepository;
 	private final ProjectMeshRepository projectMeshRepository;
-	private final DockerRegistryV2ClientFactory dockerRegistryV2ClientFactory;
+	private final DockerRegistryClientFactory dockerRegistryClientFactory;
 	private final KubernetesDeploymentManager kubernetesDeploymentManager;
 	private final EventDispatcher eventDispatcher;
 	private final EventTrigger asTrigger;
@@ -66,13 +66,13 @@ class DockerRegistryPolling {
 
 	DockerRegistryPolling(ProjectRepository projectRepository,
 												ProjectMeshRepository projectMeshRepository,
-												DockerRegistryV2ClientFactory dockerRegistryV2ClientFactory,
+												DockerRegistryClientFactory dockerRegistryClientFactory,
 												KubernetesDeploymentManager kubernetesDeploymentManager,
 												EventDispatcher eventDispatcher,
 												CurrentEventTrigger currentEventTrigger) {
 		this.projectRepository = projectRepository;
 		this.projectMeshRepository = projectMeshRepository;
-		this.dockerRegistryV2ClientFactory = dockerRegistryV2ClientFactory;
+		this.dockerRegistryClientFactory = dockerRegistryClientFactory;
 		this.kubernetesDeploymentManager = kubernetesDeploymentManager;
 		this.eventDispatcher = eventDispatcher;
 		this.currentEventTrigger = currentEventTrigger;
@@ -168,7 +168,7 @@ class DockerRegistryPolling {
 
 	private VersionWithDockerManifest getManifestWithContext(WritableProject project, WritableProjectVersion version) {
 		try {
-			return dockerRegistryV2ClientFactory.getDockerRegistryClient(project)
+			return dockerRegistryClientFactory.getDockerRegistryClient(project)
 					.map(client -> new VersionWithDockerManifest(version, client.getManifest(version)))
 					.orElseGet(() -> new VersionWithDockerManifest(version, null));
 		} catch (Exception e) {
@@ -179,7 +179,7 @@ class DockerRegistryPolling {
 
 	private WritableProject updateProjectVersions(WritableProject project) {
 		log.trace("Checking for new versions of project {}", project.getName());
-		final var dockerClient = dockerRegistryV2ClientFactory.getDockerRegistryClient(project)
+		final var dockerClient = dockerRegistryClientFactory.getDockerRegistryClient(project)
 				.orElseThrow(() -> new RuntimeException(String.format("Project %s has no docker client registry", project.getName())));
 
 		final var tags = dockerClient.getAllTags(project);

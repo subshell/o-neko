@@ -5,7 +5,7 @@ import io.oneko.docker.DockerRegistryRepository;
 import io.oneko.docker.ReadableDockerRegistry;
 import io.oneko.docker.WritableDockerRegistry;
 import io.oneko.docker.v2.DockerRegistryV2Client;
-import io.oneko.docker.v2.DockerRegistryV2ClientFactory;
+import io.oneko.docker.v2.DockerRegistryClientFactory;
 import io.oneko.project.ProjectRepository;
 import io.oneko.project.ReadableProject;
 import lombok.extern.slf4j.Slf4j;
@@ -28,9 +28,9 @@ public class DockerRegistryController {
 	private final DockerRegistryRepository dockerRegistryRepository;
 	private final ProjectRepository projectRepository;
 	private final DockerRegistryDTOMapper dtoMapper;
-	private final DockerRegistryV2ClientFactory clientFactory;
+	private final DockerRegistryClientFactory clientFactory;
 
-	public DockerRegistryController(DockerRegistryRepository dockerRegistryRepository, ProjectRepository projectRepository, DockerRegistryDTOMapper dtoMapper, DockerRegistryV2ClientFactory clientFactory) {
+	public DockerRegistryController(DockerRegistryRepository dockerRegistryRepository, ProjectRepository projectRepository, DockerRegistryDTOMapper dtoMapper, DockerRegistryClientFactory clientFactory) {
 		this.dockerRegistryRepository = dockerRegistryRepository;
 		this.projectRepository = projectRepository;
 		this.dtoMapper = dtoMapper;
@@ -109,17 +109,9 @@ public class DockerRegistryController {
 				.collect(Collectors.toList());
 	}
 
-	@PreAuthorize("hasAnyRole('ADMIN', 'DOER')")
-	@GetMapping("/{id}/imageNames")
-	List<String> getImageNamesFromRegistry(@PathVariable UUID id) {
-		ReadableDockerRegistry reg = getRegistryOr404(id);
-		DockerRegistryV2Client dockerRegistryClient = clientFactory.getDockerRegistryClient(reg);
-		return dockerRegistryClient.getAllImageNames();
-	}
-
 	private ReadableDockerRegistry getRegistryOr404(UUID id) {
 		return this.dockerRegistryRepository.getById(id)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Docker Registry with name " + id + "not found."));
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Docker Registry with id " + id + "not found."));
 	}
 
 }
