@@ -7,11 +7,7 @@ import static org.apache.commons.lang3.time.DurationFormatUtils.*;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -205,7 +201,7 @@ class DockerRegistryPolling {
 		final var dockerClient = dockerRegistryClientFactory.getDockerRegistryClient(project)
 				.orElseThrow(() -> new RuntimeException(String.format("Project %s has no docker registry client", project.getName())));
 
-		final var tags = dockerClient.getAllTags(project);
+		final var tags = Objects.requireNonNullElse(dockerClient.getAllTags(project), Collections.<String>emptyList());
 		log.trace("Found {} tags for project {}", tags.size(), project.getName());
 
 		return manageAvailableVersions(project, tags);
