@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,20 +32,24 @@ public class ActivityLogInMemory implements WritableActivityLog {
 
     @Override
     public List<Activity> getAll() {
-        return ImmutableList.copyOf(activities);
+        final ArrayList<Activity> sortable = new ArrayList<>(new ArrayList<>(activities));
+        sortable.sort(Comparator.comparing(Activity::getDate).reversed());
+        return ImmutableList.copyOf(sortable);
     }
 
     @Override
     public List<Activity> getAllSince(LocalDateTime refDate) {
         return activities.stream()
                 .filter(activity -> activity.getDate().isAfter(refDate))
+                .sorted(Comparator.comparing(Activity::getDate).reversed())
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<Activity> getPaged(int pageIndex, int pageSize) {
         return activities.stream()
-                .skip(pageIndex * pageSize)
+                .sorted(Comparator.comparing(Activity::getDate).reversed())
+                .skip((long) pageIndex * pageSize)
                 .limit(pageSize)
                 .collect(Collectors.toList());
     }

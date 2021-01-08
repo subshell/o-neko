@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import io.oneko.automations.LifetimeBehaviour;
 import io.oneko.deployable.DeploymentBehaviour;
 import io.oneko.namespace.DefinedNamespace;
+import io.oneko.namespace.ImplicitNamespace;
 import io.oneko.namespace.Namespace;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,7 +28,7 @@ public class ReadableProjectMesh implements ProjectMesh<ReadableProjectMesh, Rea
 	public ReadableProjectMesh(UUID id, String name, Namespace namespace, DeploymentBehaviour deploymentBehaviour, LifetimeBehaviour lifetimeBehaviour, List<ReadableMeshComponent> components) {
 		this.id = id;
 		this.name = name;
-		this.namespace = namespace;
+		this.namespace = namespace == null ? new ImplicitNamespace(this) : namespace;
 		this.deploymentBehaviour = deploymentBehaviour;
 		this.lifetimeBehaviour = lifetimeBehaviour;
 		this.components = ImmutableList.copyOf(components);
