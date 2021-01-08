@@ -17,7 +17,7 @@ public interface DockerRegistryAPIV2 {
 	@RequestLine("GET /v2/{imageName}/manifests/{tagName}")
 	DockerRegistryManifest getManifest(@Param("imageName") String imageName, @Param("tagName") String tagName);
 
-	@RequestLine("GET /v2/{imageName}/blobs/{digest}")
-	DockerRegistryBlob getBlob(@Param("imageName") String imageName, @Param("digest") String digest);
+	@RequestLine("GET /v2/{imageName}/blobs/{algorithm}:{digest}")
+	DockerRegistryBlob getBlob(@Param("imageName") String imageName, @Param("algorithm") String algorithm, @Param("digest") String digest);
 
 }

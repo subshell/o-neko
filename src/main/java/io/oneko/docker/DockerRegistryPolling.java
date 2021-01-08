@@ -100,8 +100,27 @@ class DockerRegistryPolling {
 				log.warn("Checking for new images took longer than {} (took {}) [HH:mm:ss.SSS]", formatDurationHMS(warnIfLongerThanThis.toMillis()), formatDurationHMS(duration.toMillis()));
 			}
 
-			log.trace("Finished polling job");
+			log.trace("Finished polling job (took {} [HH:mm:ss.SSS])", formatDurationHMS(duration.toMillis()));
 		}
+	}
+
+	@Scheduled(fixedDelay = 1000 * 60 * 60 * 2, initialDelay = 60000) // Every 2 hours
+	protected void updateDatesForAllImagesAndAllTags() {
+		final Instant start = Instant.now();
+		log.trace("Updating dates for all projects and all versions");
+		projectRepository.getAll()
+				.stream()
+				.map(ReadableProject::writable)
+				.forEach(project -> fetchAndUpdateDatesForVersionsOfProject(project, project.getVersions()));
+
+		final Instant stop = Instant.now();
+		final Duration duration = Duration.between(start, stop);
+		final Duration warnIfLongerThanThis = Duration.ofMinutes(10);
+		if (isLongerThan(duration, warnIfLongerThanThis)) {
+			log.warn("Updating dates for all projects and all versions took longer than {} (took {}) [HH:mm:ss.SSS]", formatDurationHMS(warnIfLongerThanThis.toMillis()), formatDurationHMS(duration.toMillis()));
+		}
+
+		log.trace("Finished updating dates for all projects (took {} [HH:mm:ss.SSS])", formatDurationHMS(duration.toMillis()));
 	}
 
 	/**
@@ -117,7 +136,7 @@ class DockerRegistryPolling {
 			}
 
 			try {
-				project = this.fetchMissingDatesForImages(project);
+				project = this.fetchAndUpdateMissingDatesForImages(project);
 			} catch (Exception e) {
 				log.error("Encountered an exception while fetching the dates of the images {} {}", project.getName(), e);
 			}
@@ -134,18 +153,22 @@ class DockerRegistryPolling {
 	}
 
 
-	private WritableProject fetchMissingDatesForImages(WritableProject project) {
+	private WritableProject fetchAndUpdateMissingDatesForImages(WritableProject project) {
 		final List<WritableProjectVersion> versionsWithoutDate = project.getVersions().stream()
 				.filter(version -> version.getImageUpdatedDate() == null)
 				.filter(version -> !failedManifestRequests.contains(version.getUuid()))
 				.collect(Collectors.toList());
 
-		if (versionsWithoutDate.isEmpty()) {
+		return fetchAndUpdateDatesForVersionsOfProject(project, versionsWithoutDate);
+	}
+
+	private WritableProject fetchAndUpdateDatesForVersionsOfProject(WritableProject project, List<WritableProjectVersion> versions) {
+		if (versions.isEmpty()) {
 			return project;
 		}
 
-		log.trace("Updating dates for {} versions of project {}", versionsWithoutDate.size(), project.getName());
-		final var versionWithDockerManifestList = versionsWithoutDate.parallelStream()
+		log.trace("Updating dates for {} versions of project {}", versions.size(), project.getName());
+		final var versionWithDockerManifestList = versions.parallelStream()
 				.map(version -> getManifestWithContext(project, version))
 				.collect(Collectors.toList());
 

@@ -80,8 +80,9 @@ public class DockerRegistryV2Client {
 		try {
 			final String imageName = version.getProject().getImageName();
 			final DockerRegistryManifest dockerRegistryManifest = feignClient.getManifest(imageName, version.getName());
-			final DockerRegistryBlob blob = feignClient.getBlob(imageName, dockerRegistryManifest.getDigest());
-			return new Manifest(dockerRegistryManifest.getDigest(), blob.getCreated());
+			final DockerRegistryManifest.Digest digest = dockerRegistryManifest.getDigest();
+			final DockerRegistryBlob blob = feignClient.getBlob(imageName, digest.getAlgorithm(), digest.getDigest());
+			return new Manifest(digest.getFullDigest(), blob.getCreated());
 		} catch (FeignException e) {
 			log.warn("Failed to get manifest for project version {} of project {}", version.getName(), version.getProject().getName(), e);
 			throw e;
