@@ -25,7 +25,11 @@ import lombok.extern.slf4j.Slf4j;
 public class DockerRegistryVersionChecker {
 
 	public DockerRegistryCheckResult checkV2ApiOf(DockerRegistry registry) {
-		CloseableHttpClient client = HttpClients.custom().setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE).build();
+		final var builder = HttpClients.custom();
+		if (registry.isTrustInsecureCertificate()) {
+			builder.setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE);
+		}
+		CloseableHttpClient client = builder.build();
 		HttpGet request = new HttpGet(registry.getRegistryUrl() + "/v2/");
 		try (CloseableHttpResponse response = client.execute(request)) {
 			return mapResponseToCheckResult(response);

@@ -79,7 +79,7 @@ class DockerRegistryPolling {
 		this.asTrigger = new ScheduledTask("Docker Registry Polling");
 	}
 
-	@Scheduled(fixedDelay = 20000, initialDelay = 20000)
+	@Scheduled(fixedDelay = 20000, initialDelay = 10000)
 	protected void checkDockerForNewImages() {
 		try (var ignored = currentEventTrigger.forTryBlock(this.asTrigger)) {
 			final Instant start = Instant.now();
@@ -145,7 +145,7 @@ class DockerRegistryPolling {
 		}
 
 		log.trace("Updating dates for {} versions of project {}", versionsWithoutDate.size(), project.getName());
-		final var versionWithDockerManifestList = versionsWithoutDate.stream()
+		final var versionWithDockerManifestList = versionsWithoutDate.parallelStream()
 				.map(version -> getManifestWithContext(project, version))
 				.collect(Collectors.toList());
 
@@ -180,7 +180,7 @@ class DockerRegistryPolling {
 	private WritableProject updateProjectVersions(WritableProject project) {
 		log.trace("Checking for new versions of project {}", project.getName());
 		final var dockerClient = dockerRegistryClientFactory.getDockerRegistryClient(project)
-				.orElseThrow(() -> new RuntimeException(String.format("Project %s has no docker client registry", project.getName())));
+				.orElseThrow(() -> new RuntimeException(String.format("Project %s has no docker registry client", project.getName())));
 
 		final var tags = dockerClient.getAllTags(project);
 		log.trace("Found {} tags for project {}", tags.size(), project.getName());

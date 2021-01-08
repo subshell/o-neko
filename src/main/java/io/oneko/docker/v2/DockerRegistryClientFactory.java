@@ -1,15 +1,10 @@
 package io.oneko.docker.v2;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.oneko.docker.DockerRegistry;
-import io.oneko.docker.DockerRegistryRepository;
-import io.oneko.docker.v2.DockerRegistryVersionChecker.BearerAuthRequired;
-import io.oneko.docker.v2.DockerRegistryVersionChecker.V2APIUnavailable;
-import io.oneko.docker.v2.model.TokenResponse;
-import io.oneko.project.Project;
-import io.oneko.projectmesh.MeshComponent;
-import io.oneko.projectmesh.MeshService;
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.time.Duration;
+import java.util.Optional;
+import java.util.UUID;
+
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -22,8 +17,19 @@ import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.util.Optional;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+
+import io.oneko.docker.DockerRegistry;
+import io.oneko.docker.DockerRegistryRepository;
+import io.oneko.docker.v2.DockerRegistryVersionChecker.BearerAuthRequired;
+import io.oneko.docker.v2.DockerRegistryVersionChecker.V2APIUnavailable;
+import io.oneko.docker.v2.model.TokenResponse;
+import io.oneko.project.Project;
+import io.oneko.projectmesh.MeshComponent;
+import io.oneko.projectmesh.MeshService;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
@@ -33,6 +39,9 @@ public class DockerRegistryClientFactory {
 	private final DockerRegistryVersionChecker dockerRegistryVersionChecker;
 	private final DockerRegistryRepository dockerRegistryRepository;
 	private final MeshService meshService;
+	private final Cache<UUID, DockerRegistryV2Client> projectToDockerRegistryClientCache = Caffeine.newBuilder()
+			.expireAfterWrite(Duration.ofMinutes(5))
+			.build();
 
 	@Autowired
 	DockerRegistryClientFactory(ObjectMapper objectMapper, DockerRegistryVersionChecker dockerRegistryVersionChecker, DockerRegistryRepository dockerRegistryRepository, MeshService meshService) {
@@ -62,6 +71,10 @@ public class DockerRegistryClientFactory {
 		if (project.isOrphan()) {
 			return Optional.empty();
 		}
+		return Optional.ofNullable(projectToDockerRegistryClientCache.get(project.getId(), uuid -> buildDockerRegistryClientForProject(project).orElse(null)));
+	}
+
+	private Optional<DockerRegistryV2Client> buildDockerRegistryClientForProject(Project<?, ?> project) {
 		return dockerRegistryRepository.getById(project.getDockerRegistryId())
 				.map(dockerRegistry -> {
 					DockerRegistryVersionChecker.DockerRegistryCheckResult dockerRegistryCheckResult = dockerRegistryVersionChecker.checkV2ApiOf(dockerRegistry);
@@ -117,5 +130,4 @@ public class DockerRegistryClientFactory {
 			throw new RuntimeException(e);
 		}
 	}
-
 }

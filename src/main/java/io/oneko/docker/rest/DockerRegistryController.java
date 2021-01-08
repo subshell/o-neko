@@ -1,22 +1,28 @@
 package io.oneko.docker.rest;
 
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+
 import io.oneko.configuration.Controllers;
 import io.oneko.docker.DockerRegistryRepository;
 import io.oneko.docker.ReadableDockerRegistry;
 import io.oneko.docker.WritableDockerRegistry;
-import io.oneko.docker.v2.DockerRegistryV2Client;
 import io.oneko.docker.v2.DockerRegistryClientFactory;
 import io.oneko.project.ProjectRepository;
 import io.oneko.project.ReadableProject;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestController
 @Slf4j
@@ -89,7 +95,7 @@ public class DockerRegistryController {
 	/**
 	 * Not used as part of the frontend, but handy for internal testing...
 	 */
-	@PreAuthorize("hasAnyRole('ADMIN', 'DOER')")
+	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping("/{id}/availability")
 	DockerRegistryAPICheckDTO checkRegistryAccess(@PathVariable UUID id) {
 		ReadableDockerRegistry reg = getRegistryOr404(id);

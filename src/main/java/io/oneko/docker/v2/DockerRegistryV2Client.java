@@ -1,24 +1,24 @@
 package io.oneko.docker.v2;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.Header;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
-import org.apache.http.util.EntityUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import feign.Feign;
+import feign.FeignException;
+import feign.httpclient.ApacheHttpClient;
+import feign.jackson.JacksonDecoder;
+import feign.jackson.JacksonEncoder;
+import feign.slf4j.Slf4jLogger;
 import io.oneko.docker.DockerRegistry;
-import io.oneko.docker.v2.model.ListTagsResult;
 import io.oneko.docker.v2.model.manifest.DockerRegistryBlob;
 import io.oneko.docker.v2.model.manifest.DockerRegistryManifest;
 import io.oneko.docker.v2.model.manifest.Manifest;
@@ -33,63 +33,58 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DockerRegistryV2Client {
 
-	private final DockerRegistry reg;
-	private final CloseableHttpClient client;
-	private final ObjectMapper objectMapper;
+	private final DockerRegistryAPIV2 feignClient;
 
-	public DockerRegistryV2Client(DockerRegistry reg, String token, ObjectMapper objectMapper) {
-		this.reg = reg;
-		this.objectMapper = objectMapper;
+	public DockerRegistryV2Client(DockerRegistry registry, String token, ObjectMapper objectMapper) {
 		List<Header> defaultHeaders = new ArrayList<>();
 		defaultHeaders.add(new BasicHeader("Accept", "*/*"));
 		if (token != null) {
 			defaultHeaders.add(new BasicHeader(AuthorizationHeader.KEY, AuthorizationHeader.bearer(token)));
 		}
-		this.client = HttpClients.custom()
+		var builder = HttpClients.custom()
 				.setDefaultRequestConfig(RequestConfig.custom()
 						.setCookieSpec(CookieSpecs.STANDARD)
 						.build())
-				.setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
-				.setDefaultHeaders(defaultHeaders)
-				.build();
+				.setDefaultHeaders(defaultHeaders);
+		if (registry.isTrustInsecureCertificate()) {
+			builder.setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE);
+		}
+		final var client = builder.build();
+		this.feignClient = Feign.builder()
+				.decoder(new JacksonDecoder(objectMapper))
+				.encoder(new JacksonEncoder(objectMapper))
+				.logger(new Slf4jLogger())
+				.client(new ApacheHttpClient(client))
+				.target(DockerRegistryAPIV2.class, registry.getRegistryUrl());
 	}
 
 	public String versionCheck() {
-		HttpGet get = new HttpGet(reg.getRegistryUrl() + "/v2");
-		try (CloseableHttpResponse response = client.execute(get)) {
-			return EntityUtils.toString(response.getEntity());
-		} catch (IOException e) {
+		try {
+			return feignClient.versionCheck();
+		} catch (FeignException e) {
 			log.warn("Failed to check docker registry version", e);
-			throw new IllegalStateException(e);
+			throw e;
 		}
 	}
 
 	public List<String> getAllTags(Project<?, ?> project) {
-		HttpGet get = new HttpGet(reg.getRegistryUrl() + "/v2/" + project.getImageName() + "/tags/list");
-		try (CloseableHttpResponse response = client.execute(get)) {
-			ListTagsResult listTagsResult = this.objectMapper.readValue(EntityUtils.toString(response.getEntity()), ListTagsResult.class);
-			return listTagsResult.getTags();
-		} catch (IOException e) {
+		try {
+			return feignClient.getAllTags(project.getImageName()).getTags();
+		} catch (FeignException e) {
 			log.warn("Failed to list all tags for image {}", project.getImageName(), e);
-			throw new IllegalStateException(e);
+			throw e;
 		}
 	}
 
 	public Manifest getManifest(ProjectVersion<?, ?> version) {
-		HttpGet manifestGet = new HttpGet(reg.getRegistryUrl() + "/v2/" + version.getProject().getImageName() + "/manifests/" + version.getName());
-		try (CloseableHttpResponse response = client.execute(manifestGet)) {
-			final String responseString = EntityUtils.toString(response.getEntity());
-			DockerRegistryManifest registryManifest = this.objectMapper.readValue(responseString, DockerRegistryManifest.class);
-			HttpGet blobGet = new HttpGet(reg.getRegistryUrl() + "/v2/" + version.getProject().getImageName() + "/blobs/" + registryManifest.getDigest());
-			try (CloseableHttpResponse blobResponse = client.execute(blobGet)) {
-				final DockerRegistryBlob dockerRegistryBlob = this.objectMapper.readValue(EntityUtils.toString(blobResponse.getEntity()), DockerRegistryBlob.class);
-
-				return new Manifest(registryManifest.getDigest(), dockerRegistryBlob.getCreated());
-			}
-
-		} catch (IOException e) {
+		try {
+			final String imageName = version.getProject().getImageName();
+			final DockerRegistryManifest dockerRegistryManifest = feignClient.getManifest(imageName, version.getName());
+			final DockerRegistryBlob blob = feignClient.getBlob(imageName, dockerRegistryManifest.getDigest());
+			return new Manifest(dockerRegistryManifest.getDigest(), blob.getCreated());
+		} catch (FeignException e) {
 			log.warn("Failed to get manifest for project version {} of project {}", version.getName(), version.getProject().getName(), e);
-			throw new IllegalStateException(e);
+			throw e;
 		}
 	}
 
