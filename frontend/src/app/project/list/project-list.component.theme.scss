@@ -3,8 +3,20 @@
 @mixin project-list-theme($theme) {
   $foreground: map-get($theme, foreground);
   project-list {
-    .orphaned {
-      background-color: rgba(mat-color($foreground, text), 0.9);
+    tr.orphaned {
+      td {
+        background-color: rgba(mat-color($foreground, text), 0.1);
+      }
+
+      &:last-child td {
+        &:first-child {
+          border-bottom-left-radius: $mat-radius;
+        }
+
+        &:last-child {
+          border-bottom-right-radius: $mat-radius;
+        }
+      }
     }
   }
 }

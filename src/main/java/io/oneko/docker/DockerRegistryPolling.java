@@ -199,7 +199,7 @@ class DockerRegistryPolling {
 	private WritableProject updateProjectVersions(WritableProject project) {
 		log.trace("Checking for new versions of project {}", project.getName());
 		final var dockerClient = dockerRegistryClientFactory.getDockerRegistryClient(project)
-				.orElseThrow(() -> new RuntimeException(String.format("Project %s has no docker registry client", project.getName())));
+				.orElseThrow(() -> new RuntimeException(String.format("Project %s has no docker registry or an error occurred instantiating the docker registry client", project.getName())));
 
 		final var tags = Objects.requireNonNullElse(dockerClient.getAllTags(project), Collections.<String>emptyList());
 		log.trace("Found {} tags for project {}", tags.size(), project.getName());
