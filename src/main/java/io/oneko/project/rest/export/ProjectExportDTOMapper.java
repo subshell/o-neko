@@ -16,7 +16,7 @@ public interface ProjectExportDTOMapper {
 	ProjectExportDTO toProjectExportDto(ProjectDTO projectDTO);
 
 	@AfterMapping
-	default void setMetadata(ProjectDTO projectDTO, @MappingTarget ProjectExportDTO dto) {
+	default void setMetadata(@MappingTarget ProjectExportDTO dto) {
 		// don't export the uuid references
 		dto.getDefaultConfigurationTemplates().forEach(configurationTemplateDTO -> configurationTemplateDTO.setId(null));
 		dto.getTemplateVariables().forEach(templateVariableDTO -> templateVariableDTO.setId(null));

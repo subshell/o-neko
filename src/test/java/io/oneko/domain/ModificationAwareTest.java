@@ -1,66 +1,65 @@
 package io.oneko.domain;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.UUID;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class ModificationAwareTest {
+class ModificationAwareTest {
 
 	@Test
-	public void testDontBeDirtyOnInit() {
+	void testDontBeDirtyOnInit() {
 		SampleModificationAware uut = new SampleModificationAware(UUID.randomUUID(), "test");
 
-		assertThat(uut.isDirty(), is(false));
-		assertThat(uut.uuid.isDirty(), is(false));
-		assertThat(uut.name.isDirty(), is(false));
+		assertThat(uut.isDirty()).isFalse();
+		assertThat(uut.id.isDirty()).isFalse();
+		assertThat(uut.name.isDirty()).isFalse();
 	}
 
 	@Test
-	public void testExplicitlySetDirty() {
+	void testExplicitlySetDirty() {
 		SampleModificationAware uut = new SampleModificationAware(UUID.randomUUID(), "test");
 
 		uut.touch();
 
-		assertThat(uut.isDirty(), is(true));
-		assertThat(uut.uuid.isDirty(), is(false));
-		assertThat(uut.name.isDirty(), is(false));
+		assertThat(uut.isDirty()).isTrue();
+		assertThat(uut.id.isDirty()).isFalse();
+		assertThat(uut.name.isDirty()).isFalse();
 	}
 
 	@Test
-	public void testSetPropertyDirty() {
+	void testSetPropertyDirty() {
 		SampleModificationAware uut = new SampleModificationAware(UUID.randomUUID(), "test");
 
 		uut.setName("test2");
-		assertThat(uut.isDirty(), is(true));
-		assertThat(uut.uuid.isDirty(), is(false));
-		assertThat(uut.name.isDirty(), is(true));
+		assertThat(uut.isDirty()).isTrue();
+		assertThat(uut.id.isDirty()).isFalse();
+		assertThat(uut.name.isDirty()).isTrue();
 
 		uut.setName("test");
-		assertThat(uut.isDirty(), is(false));
+		assertThat(uut.isDirty()).isFalse();
 	}
 
 	private class SampleModificationAware extends ModificationAwareIdentifiable {
-		private final ModificationAwareProperty<UUID> uuid = new ModificationAwareProperty<>(this, "uuid");
+		private final ModificationAwareProperty<UUID> id = new ModificationAwareProperty<>(this, "id");
 		private final ModificationAwareProperty<String> name = new ModificationAwareProperty<>(this, "name");
 
 		/**
 		 * Creates a completely new DockerRegistry
 		 */
 		public SampleModificationAware() {
-			this.uuid.set(UUID.randomUUID());
+			this.id.set(UUID.randomUUID());
 		}
 
-		public SampleModificationAware(UUID uuid, String name) {
-			this.uuid.init(uuid);
+		public SampleModificationAware(UUID id, String name) {
+			this.id.init(id);
 			this.name.init(name);
 		}
 
 		@Override
 		public UUID getId() {
-			return this.uuid.get();
+			return this.id.get();
 		}
 
 		public String getName() {

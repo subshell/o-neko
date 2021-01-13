@@ -1,19 +1,18 @@
 package io.oneko.activity.persistence;
 
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.UUID;
-
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
-
 import io.oneko.activity.ActivityPriority;
 import io.oneko.domain.DescribingEntityChange;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor

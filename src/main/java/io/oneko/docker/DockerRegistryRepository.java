@@ -1,19 +1,18 @@
 package io.oneko.docker;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
-
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 public interface DockerRegistryRepository {
 
-	Mono<DockerRegistry> getById(UUID registryId);
+	Optional<ReadableDockerRegistry> getById(UUID registryId);
 
-	Mono<DockerRegistry> getByName(String registryName);
+	Optional<ReadableDockerRegistry> getByName(String registryName);
 
-	Flux<DockerRegistry> getAll();
+	List<ReadableDockerRegistry> getAll();
 
-	Mono<DockerRegistry> add(DockerRegistry registry);
+	ReadableDockerRegistry add(WritableDockerRegistry registry);
 
-	Mono<Void> remove(DockerRegistry registry);
+	void remove(DockerRegistry registry);
 }

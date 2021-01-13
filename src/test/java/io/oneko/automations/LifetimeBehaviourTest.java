@@ -2,17 +2,17 @@ package io.oneko.automations;
 
 import static java.time.temporal.ChronoUnit.*;
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.*;
 
 import java.time.Instant;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class LifetimeBehaviourTest {
+class LifetimeBehaviourTest {
 
 
 	@Test
-	public void testInfiniteLifetime() {
+	void testInfiniteLifetime() {
 		LifetimeBehaviour lb = LifetimeBehaviour.infinite();
 
 		assertThat(lb.isInfinite(), is(true));
@@ -21,7 +21,7 @@ public class LifetimeBehaviourTest {
 	}
 
 	@Test
-	public void testFiniteLifetime() {
+	void testFiniteLifetime() {
 		LifetimeBehaviour lb = LifetimeBehaviour.ofDays(5);
 
 		assertThat(lb.isInfinite(), is(false));

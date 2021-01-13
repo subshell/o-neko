@@ -16,14 +16,13 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import io.oneko.configuration.Controllers;
-import io.oneko.docker.DockerRegistry;
 import io.oneko.docker.DockerRegistryRepository;
-import io.oneko.docker.v2.DockerRegistryV2ClientFactory;
-import io.oneko.project.Project;
+import io.oneko.docker.ReadableDockerRegistry;
+import io.oneko.docker.WritableDockerRegistry;
+import io.oneko.docker.v2.DockerRegistryClientFactory;
 import io.oneko.project.ProjectRepository;
+import io.oneko.project.ReadableProject;
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 @RestController
 @Slf4j
@@ -35,9 +34,9 @@ public class DockerRegistryController {
 	private final DockerRegistryRepository dockerRegistryRepository;
 	private final ProjectRepository projectRepository;
 	private final DockerRegistryDTOMapper dtoMapper;
-	private final DockerRegistryV2ClientFactory clientFactory;
+	private final DockerRegistryClientFactory clientFactory;
 
-	public DockerRegistryController(DockerRegistryRepository dockerRegistryRepository, ProjectRepository projectRepository, DockerRegistryDTOMapper dtoMapper, DockerRegistryV2ClientFactory clientFactory) {
+	public DockerRegistryController(DockerRegistryRepository dockerRegistryRepository, ProjectRepository projectRepository, DockerRegistryDTOMapper dtoMapper, DockerRegistryClientFactory clientFactory) {
 		this.dockerRegistryRepository = dockerRegistryRepository;
 		this.projectRepository = projectRepository;
 		this.dtoMapper = dtoMapper;
@@ -46,86 +45,79 @@ public class DockerRegistryController {
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'DOER')")
 	@GetMapping
-	Flux<DockerRegistryDTO> getAllRegistries() {
-		return this.dockerRegistryRepository.getAll().map(this.dtoMapper::registryToDTO);
+	List<DockerRegistryDTO> getAllRegistries() {
+		return dockerRegistryRepository.getAll().stream()
+				.map(dtoMapper::registryToDTO)
+				.collect(Collectors.toList());
 	}
 
 	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping
-	Mono<DockerRegistryDTO> createRegistry(@RequestBody DockerRegistryDTO dto) {
-		DockerRegistry registry = new DockerRegistry();
-		registry = this.dtoMapper.updateRegistryFromDTO(registry, dto);
-		return this.dockerRegistryRepository.add(registry)
-				.map(this.dtoMapper::registryToDTO);
+	DockerRegistryDTO createRegistry(@RequestBody DockerRegistryDTO dto) {
+		WritableDockerRegistry registry = dtoMapper.updateRegistryFromDTO(new WritableDockerRegistry(), dto);
+		final ReadableDockerRegistry persistedRegistry = dockerRegistryRepository.add(registry);
+		return dtoMapper.registryToDTO(persistedRegistry);
 	}
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'DOER')")
 	@GetMapping("/{id}")
-	Mono<DockerRegistryDTO> getRegistryById(@PathVariable UUID id) {
-		return this.dockerRegistryRepository.getById(id)
-				.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "DockerRegistry with id " + id + " not found")))
-				.map(this.dtoMapper::registryToDTO);
+	DockerRegistryDTO getRegistryById(@PathVariable UUID id) {
+		ReadableDockerRegistry reg = getRegistryOr404(id);
+		return dtoMapper.registryToDTO(reg);
 	}
 
 	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping("/{id}")
-	Mono<DockerRegistryDTO> updateRegistry(@PathVariable UUID id, @RequestBody DockerRegistryDTO dto) {
-		return this.dockerRegistryRepository.getById(id)
-				.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "DockerRegistry with id " + id + " not found")))
-				.map(p -> this.dtoMapper.updateRegistryFromDTO(p, dto))
-				.flatMap(this.dockerRegistryRepository::add)
-				.map(this.dtoMapper::registryToDTO);
+	DockerRegistryDTO updateRegistry(@PathVariable UUID id, @RequestBody DockerRegistryDTO dto) {
+		ReadableDockerRegistry reg = getRegistryOr404(id);
+		WritableDockerRegistry updatedRegistry = dtoMapper.updateRegistryFromDTO(reg.writable(), dto);
+		ReadableDockerRegistry persistedReg = dockerRegistryRepository.add(updatedRegistry);
+		return dtoMapper.registryToDTO(persistedReg);
 	}
 
 	@PreAuthorize("hasRole('ADMIN')")
 	@DeleteMapping("/{id}")
-	Mono<Void> deleteRegistry(@PathVariable UUID id) {
-		return this.dockerRegistryRepository.getById(id)
-				.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "DockerRegistry with id " + id + " not found")))
-				.flatMap(this.dockerRegistryRepository::remove);
+	void deleteRegistry(@PathVariable UUID id) {
+		ReadableDockerRegistry reg = getRegistryOr404(id);
+		dockerRegistryRepository.remove(reg);
 	}
 
 	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping("/{id}/password")
-	Mono<DockerRegistryDTO> changeRegistryPassword(@PathVariable UUID id, @RequestBody ChangeDockerRegistryPasswordDTO dto) {
-		return this.dockerRegistryRepository.getById(id)
-				.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "DockerRegistry with id " + id + " not found")))
-				.map(dockerRegistry -> {
-					dockerRegistry.setPassword(dto.getPassword());
-					return dockerRegistry;
-				})
-				.flatMap(this.dockerRegistryRepository::add)
-				.map(this.dtoMapper::registryToDTO);
+	DockerRegistryDTO changeRegistryPassword(@PathVariable UUID id, @RequestBody ChangeDockerRegistryPasswordDTO dto) {
+		ReadableDockerRegistry reg = getRegistryOr404(id);
+		WritableDockerRegistry writable = reg.writable();
+		writable.setPassword(dto.getPassword());
+		ReadableDockerRegistry persisted = dockerRegistryRepository.add(writable);
+		return dtoMapper.registryToDTO(persisted);
 	}
 
 	/**
 	 * Not used as part of the frontend, but handy for internal testing...
 	 */
-	@PreAuthorize("hasAnyRole('ADMIN', 'DOER')")
+	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping("/{id}/availability")
-	Mono<DockerRegistryAPICheckDTO> checkRegistryAccess(@PathVariable UUID id) {
-		return this.dockerRegistryRepository.getById(id)
-				.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "DockerRegistry with id " + id + " not found")))
-				.flatMap(this.clientFactory::checkRegistryAvailability)
-				.map(DockerRegistryAPICheckDTO::okay)
-				.onErrorResume(exception -> Mono.just(DockerRegistryAPICheckDTO.error(exception.getMessage())));
+	DockerRegistryAPICheckDTO checkRegistryAccess(@PathVariable UUID id) {
+		ReadableDockerRegistry reg = getRegistryOr404(id);
+		try {
+			return DockerRegistryAPICheckDTO.okay(clientFactory.checkRegistryAvailability(reg));
+		} catch (Exception e) {
+			return DockerRegistryAPICheckDTO.error(e.getMessage());
+		}
 	}
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'DOER')")
 	@GetMapping("/{id}/project")
-	Mono<List<String>> getProjectsUsingRegistry(@PathVariable UUID id) {
+	List<String> getProjectsUsingRegistry(@PathVariable UUID id) {
 		return this.projectRepository.getByDockerRegistryUuid(id)
-				.map(Project::getName)
+				.stream()
+				.map(ReadableProject::getName)
 				.collect(Collectors.toList());
 	}
 
-	@PreAuthorize("hasAnyRole('ADMIN', 'DOER')")
-	@GetMapping("/{id}/imageNames")
-	Mono<List<String>> getImageNamesFromRegistry(@PathVariable UUID id) {
-		//TODO: this is somehow not working due to a lack of permissions...
+	private ReadableDockerRegistry getRegistryOr404(UUID id) {
 		return this.dockerRegistryRepository.getById(id)
-				.flatMap(reg -> this.clientFactory.getDockerRegistryClient(reg))
-				.flatMap(client -> client.getAllImageNames());
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Docker Registry with id " + id + "not found."));
 	}
 
 }

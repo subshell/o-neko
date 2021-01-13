@@ -1,14 +1,13 @@
 package io.oneko.configuration;
 
-import java.util.Collection;
-import java.util.Collections;
-
-import org.springframework.security.core.GrantedAuthority;
-
 import io.oneko.user.ONekoUserDetails;
 import io.oneko.user.User;
 import io.oneko.user.auth.PasswordBasedUserAuthentication;
 import io.oneko.user.auth.UserAuthentication;
+import org.springframework.security.core.GrantedAuthority;
+
+import java.util.Collection;
+import java.util.Collections;
 
 class ONekoUserDetailsImpl implements ONekoUserDetails {
 

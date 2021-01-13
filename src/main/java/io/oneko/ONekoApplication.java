@@ -2,12 +2,12 @@ package io.oneko;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
+import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.session.data.mongo.config.annotation.web.reactive.EnableMongoWebSession;
 
-@SpringBootApplication
-@EnableMongoWebSession(maxInactiveIntervalInSeconds = 86400)
 @EnableScheduling
+@SpringBootApplication(exclude = {MongoAutoConfiguration.class, MongoDataAutoConfiguration.class})
 public class ONekoApplication {
 
 	public static void main(String[] args) {

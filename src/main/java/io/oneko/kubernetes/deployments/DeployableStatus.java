@@ -1,12 +1,12 @@
 package io.oneko.kubernetes.deployments;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import io.fabric8.kubernetes.api.model.ContainerState;
 import io.fabric8.kubernetes.api.model.ContainerStateWaiting;
 import io.fabric8.kubernetes.api.model.ContainerStatus;
 import io.fabric8.kubernetes.api.model.PodStatus;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public enum DeployableStatus {
 	Pending,

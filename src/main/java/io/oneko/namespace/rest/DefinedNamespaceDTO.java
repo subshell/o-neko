@@ -1,11 +1,11 @@
 package io.oneko.namespace.rest;
 
-import java.util.UUID;
-
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.UUID;
 
 @Getter
 @Setter

@@ -1,18 +1,18 @@
 package io.oneko.user.rest;
 
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import io.oneko.configuration.Controllers;
 import io.oneko.user.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Mono;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @Slf4j
@@ -29,14 +29,18 @@ public class AvailableController {
 
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/username/{userName}")
-	Mono<AvailableDTO> isUsernameAvailable(@PathVariable String userName) {
-		return userRepository.getByUserName(userName).map(exists -> new AvailableDTO(userName, false)).switchIfEmpty(Mono.just(new AvailableDTO(userName, true)));
+	AvailableDTO isUsernameAvailable(@PathVariable String userName) {
+		return userRepository.getByUserName(userName)
+				.map(exists -> new AvailableDTO(userName, false))
+				.orElseThrow(()  -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User with name " + userName + "not found"));
 	}
 
 	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/email/{email}")
-	Mono<AvailableDTO> isEmailAvailable(@PathVariable String email) {
-		return userRepository.getByUserEmail(email).map(exists -> new AvailableDTO(email, false)).switchIfEmpty(Mono.just(new AvailableDTO(email, true)));
+	AvailableDTO isEmailAvailable(@PathVariable String email) {
+		return userRepository.getByUserEmail(email)
+				.map(exists -> new AvailableDTO(email, false))
+				.orElseThrow(()  -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User with email " + email + "not found"));
 	}
 
 	@Data

@@ -1,9 +1,9 @@
 package io.oneko.kubernetes.deployments;
 
-import java.util.Collection;
-
 import io.oneko.deployable.AggregatedDeploymentStatus;
 import lombok.experimental.UtilityClass;
+
+import java.util.Collection;
 
 @UtilityClass
 public class DeploymentDTOs {

@@ -1,8 +1,7 @@
 package io.oneko.namespace.rest;
 
-import org.springframework.stereotype.Service;
-
 import io.oneko.namespace.DefinedNamespace;
+import org.springframework.stereotype.Service;
 
 @Service
 public class DefinedNamespaceDTOMapper {

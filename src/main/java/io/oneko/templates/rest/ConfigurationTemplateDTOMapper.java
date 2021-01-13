@@ -1,14 +1,10 @@
 package io.oneko.templates.rest;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-
+import io.oneko.templates.ConfigurationTemplate;
+import io.oneko.templates.WritableConfigurationTemplate;
 import org.springframework.stereotype.Service;
 
-import io.oneko.templates.ConfigurationTemplate;
+import java.util.*;
 
 @Service
 public class ConfigurationTemplateDTOMapper {
@@ -22,10 +18,10 @@ public class ConfigurationTemplateDTOMapper {
 				.build();
 	}
 
-	public ConfigurationTemplate fromDTO(ConfigurationTemplateDTO templateDTO) {
+	public WritableConfigurationTemplate fromDTO(ConfigurationTemplateDTO templateDTO) {
 		UUID uuid = templateDTO.getId() == null ? UUID.randomUUID() : templateDTO.getId();
 
-		return ConfigurationTemplate.builder()
+		return WritableConfigurationTemplate.builder()
 				.id(uuid)
 				.name(templateDTO.getName())
 				.content(templateDTO.getContent())
@@ -33,9 +29,9 @@ public class ConfigurationTemplateDTOMapper {
 				.build();
 	}
 
-	public List<ConfigurationTemplate> updateFromDTOs(List<ConfigurationTemplate> templates, List<ConfigurationTemplateDTO> dtos) {
-		List<ConfigurationTemplate> result = new ArrayList<>();
-		for (ConfigurationTemplate template : templates) {
+	public List<WritableConfigurationTemplate> updateFromDTOs(List<WritableConfigurationTemplate> templates, List<ConfigurationTemplateDTO> dtos) {
+		List<WritableConfigurationTemplate> result = new ArrayList<>();
+		for (WritableConfigurationTemplate template : templates) {
 			findInList(dtos, template.getId()).ifPresent(dto -> {
 				template.setName(dto.getName());
 				template.setDescription(dto.getDescription());

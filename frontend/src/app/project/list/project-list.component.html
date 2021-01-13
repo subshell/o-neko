@@ -36,7 +36,7 @@
       <th mat-sort-header="status" *ngIf="isColumnActive(statusColumn.key)">Status</th>
       <th mat-sort-header="versions" *ngIf="isColumnActive(versionsColumn.key)">Versions</th>
     </tr>
-    <tr *ngFor="let project of sortedProjects" [ngClass]="{orphaned: project.isOrphan()}">
+    <tr *ngFor="let project of sortedProjects" [class.orphaned]="project.isOrphan()">
       <td *ngIf="isColumnActive(nameColumn.key)">
         <a class="o-neko-internal-link" [routerLink]="'/projects/' + project.uuid">{{nameColumn.getValue(project)}}</a>
       </td>

@@ -1,10 +1,10 @@
 package io.oneko.namespace;
 
+import io.oneko.domain.Identifiable;
+
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-
-import io.oneko.domain.Identifiable;
 
 public interface HasNamespace {
 
@@ -19,10 +19,6 @@ public interface HasNamespace {
 	String getProtoNamespace();
 
 	Namespace getNamespace();
-
-	void assignDefinedNamespace(DefinedNamespace namespace);
-
-	void resetToImplicitNamespace();
 
 	/**
 	 * Provides the ID of the defined namespace (if one is set.)

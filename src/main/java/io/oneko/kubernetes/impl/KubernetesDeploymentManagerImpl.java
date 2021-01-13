@@ -1,22 +1,6 @@
 package io.oneko.kubernetes.impl;
 
-import static io.oneko.kubernetes.deployments.DesiredState.*;
-import static io.oneko.project.ProjectConstants.LabelNames.*;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.Secret;
@@ -28,122 +12,145 @@ import io.fabric8.kubernetes.api.model.extensions.IngressRule;
 import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.oneko.deployable.DeployableConfigurationTemplate;
 import io.oneko.docker.DockerRegistry;
-import io.oneko.docker.v2.DockerRegistryV2ClientFactory;
+import io.oneko.docker.DockerRegistryRepository;
+import io.oneko.docker.v2.DockerRegistryClientFactory;
+import io.oneko.docker.v2.model.manifest.Manifest;
 import io.oneko.kubernetes.KubernetesConventions;
 import io.oneko.kubernetes.KubernetesDeploymentManager;
 import io.oneko.kubernetes.deployments.Deployable;
 import io.oneko.kubernetes.deployments.Deployables;
 import io.oneko.kubernetes.deployments.DesiredState;
-import io.oneko.project.ProjectRepository;
-import io.oneko.project.ProjectVersion;
-import io.oneko.projectmesh.MeshComponent;
-import io.oneko.projectmesh.ProjectMesh;
-import io.oneko.projectmesh.ProjectMeshRepository;
+import io.oneko.project.*;
+import io.oneko.projectmesh.*;
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static io.oneko.kubernetes.deployments.DesiredState.Deployed;
+import static io.oneko.kubernetes.deployments.DesiredState.NotDeployed;
+import static io.oneko.project.ProjectConstants.LabelNames.TEMPLATE_NAME;
 
 @Slf4j
 @Service
 class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 
 	private final KubernetesAccess kubernetesAccess;
-	private final DockerRegistryV2ClientFactory dockerRegistryV2ClientFactory;
+	private final DockerRegistryClientFactory dockerRegistryClientFactory;
+	private final DockerRegistryRepository dockerRegistryRepository;
 	private final ProjectRepository projectRepository;
 	private final ProjectMeshRepository projectMeshRepository;
+	private final MeshService meshService;
 
-	KubernetesDeploymentManagerImpl(KubernetesAccess kubernetesAccess, DockerRegistryV2ClientFactory dockerRegistryV2ClientFactory,
-																	ProjectRepository projectRepository, ProjectMeshRepository projectMeshRepository) {
+	KubernetesDeploymentManagerImpl(KubernetesAccess kubernetesAccess, DockerRegistryClientFactory dockerRegistryClientFactory,
+																	DockerRegistryRepository dockerRegistryRepository, ProjectRepository projectRepository, ProjectMeshRepository projectMeshRepository, MeshService meshService) {
 		this.kubernetesAccess = kubernetesAccess;
-		this.dockerRegistryV2ClientFactory = dockerRegistryV2ClientFactory;
+		this.dockerRegistryClientFactory = dockerRegistryClientFactory;
+		this.dockerRegistryRepository = dockerRegistryRepository;
 		this.projectRepository = projectRepository;
 		this.projectMeshRepository = projectMeshRepository;
+		this.meshService = meshService;
 	}
 
 	@Override
-	public Mono<ProjectVersion> deploy(ProjectVersion version) {
+	public ReadableProjectVersion deploy(WritableProjectVersion version) {
 		try {
 			log.debug("Deploying version {} of project {}", version.getName(), version.getProject().getName());
-			Deployable<ProjectVersion> deployableVersion = Deployables.of(version);
+			Deployable<WritableProjectVersion> deployableVersion = Deployables.of(version);
 			String namespace = version.getNamespace().asKubernetesNameSpace();
-			return kubernetesAccess.createNamespaceIfNotExistent(version)
-					.then(createSecretIfNotExistent(deployableVersion.getDockerRegistry(), namespace))
-					.then(ensureServiceAccountIsPatchedWithRegistry(deployableVersion.getDockerRegistry(), namespace))
-					.doOnNext(v -> kubernetesAccess.deleteAllResourcesFromNameSpace(namespace, deployableVersion.getPrimaryLabel()))
-					.then(getTemplateAsResources(deployableVersion))
-					.map(resources -> kubernetesAccess.createResourcesInNameSpace(namespace, resources))
-					.flatMap(resources -> this.updateDeployableWithCreatedResources(deployableVersion, resources))
-					.flatMap(deployable -> this.updateDesiredStateOfDeployable(deployable, Deployed))
-					.flatMap(v -> this.projectRepository.add(v.getRelatedProject()))
-					.map(project -> project.getVersionByUUID(version.getId()).get());
+
+			kubernetesAccess.createNamespaceIfNotExistent(version);
+			createSecretIfNotExistent(deployableVersion.getDockerRegistryId(), namespace);
+			ensureServiceAccountIsPatchedWithRegistry(deployableVersion.getDockerRegistryId(), namespace);
+			kubernetesAccess.deleteAllResourcesFromNameSpace(namespace, deployableVersion.getPrimaryLabel());
+
+			final Set<HasMetadata> resources = getTemplateAsResources(deployableVersion);
+			final List<HasMetadata> resourcesInNameSpace = kubernetesAccess.createResourcesInNameSpace(namespace, resources);
+			final Deployable<WritableProjectVersion> deployable = this.updateDeployableWithCreatedResources(deployableVersion, resourcesInNameSpace);
+			final Deployable<WritableProjectVersion> writableProjectVersionDeployable = this.updateDesiredStateOfDeployable(deployable, Deployed);
+			final ReadableProject project = this.projectRepository.add(writableProjectVersionDeployable.getEntity().getProject());
+
+			return project.getVersions().stream()
+					.filter(projectVersion -> projectVersion.getUuid().equals(version.getId()))
+					.findFirst()
+					.orElse(null);
 		} catch (KubernetesClientException e) {
 			log.debug("Failed to deploy version {} of project {}", version.getName(), version.getProject().getName());
-			return Mono.error(e);
+			throw e;
 		}
 	}
 
 	@Override
-	public Mono<ProjectMesh> deploy(ProjectMesh mesh) {
+	public ReadableProjectMesh deploy(WritableProjectMesh mesh) {
 		log.debug("Deploying project mesh {}", mesh.getName());
 		return this.deployComponentsOfMesh(mesh, mesh.getComponents());
 	}
 
 	@Override
-	public Mono<MeshComponent> deploy(MeshComponent component) {
+	public ReadableMeshComponent deploy(WritableMeshComponent component) {
 		log.debug("Deploying component {} of project mesh {}", component.getName(), component.getOwner().getName());
-		return this.deployComponentsOfMesh(component.getOwner(), Collections.singletonList(component))
-				.map(mesh -> mesh.getComponentById(component.getId()))
-				.map(Optional::get);
+		final ReadableProjectMesh mesh = this.deployComponentsOfMesh(component.getOwner(), Collections.singletonList(component));
+		return mesh.getComponentById(component.getId()).orElse(null);
 	}
 
-	private Mono<ProjectMesh> deployComponentsOfMesh(ProjectMesh mesh, Collection<MeshComponent> components) {
+	private ReadableProjectMesh deployComponentsOfMesh(WritableProjectMesh mesh, Collection<WritableMeshComponent> components) {
 		try {
 			String namespace = mesh.getNamespace().asKubernetesNameSpace();
-			return kubernetesAccess.createNamespaceIfNotExistent(mesh)
-					.thenMany(Flux.fromIterable(components))
-					.map(Deployables::of)
-					.flatMap(deployableComponent -> createSecretIfNotExistent(deployableComponent.getDockerRegistry(), namespace).thenReturn(deployableComponent))
-					.flatMap(deployableComponent -> ensureServiceAccountIsPatchedWithRegistry(deployableComponent.getDockerRegistry(), namespace).thenReturn(deployableComponent))
-					.doOnNext(deployableComponent -> kubernetesAccess.deleteAllResourcesFromNameSpace(namespace, deployableComponent.getPrimaryLabel()))
-					.flatMap(deployableComponent ->
-							getTemplateAsResources(deployableComponent)
-									.map(resources -> kubernetesAccess.createResourcesInNameSpace(namespace, resources))
-									.flatMap(resources -> updateDeployableWithCreatedResources(deployableComponent, resources)))
-					.flatMap(deployable -> updateDesiredStateOfDeployable(deployable, Deployed))
-					.collectList()
-					.filter(list -> !list.isEmpty())
-					.map(deployables -> deployables.get(0).getEntity().getOwner())
-					.flatMap(this.projectMeshRepository::add)
-					.switchIfEmpty(Mono.just(mesh));
+			kubernetesAccess.createNamespaceIfNotExistent(mesh);
+
+			final List<Deployable<WritableMeshComponent>> deployableComponents = components.stream().map(c -> Deployables.of(c, meshService)).collect(Collectors.toList());
+
+			deployableComponents.forEach(deployableComponent -> {
+				createSecretIfNotExistent(deployableComponent.getDockerRegistryId(), namespace);
+				ensureServiceAccountIsPatchedWithRegistry(deployableComponent.getDockerRegistryId(), namespace);
+				kubernetesAccess.deleteAllResourcesFromNameSpace(namespace, deployableComponent.getPrimaryLabel());
+			});
+
+			final List<Deployable<WritableMeshComponent>> deployableMeshComponents = deployableComponents.stream()
+					.map(deployableComponent -> {
+						final Set<HasMetadata> resources = getTemplateAsResources(deployableComponent);
+						final List<HasMetadata> resourcesInNameSpace = kubernetesAccess.createResourcesInNameSpace(namespace, resources);
+						final Deployable<WritableMeshComponent> meshComponentDeployable = updateDeployableWithCreatedResources(deployableComponent, resourcesInNameSpace);
+						return updateDesiredStateOfDeployable(meshComponentDeployable, Deployed);
+					}).collect(Collectors.toList());
+
+			if (deployableMeshComponents.isEmpty()) {
+				return mesh.readable();
+			}
+
+			final WritableProjectMesh owner = deployableMeshComponents.get(0).getEntity().getOwner();
+			return this.projectMeshRepository.add(owner);
 		} catch (KubernetesClientException e) {
 			log.debug("Failed to deploy project mesh {}", mesh.getName());
-			return Mono.error(e);
+			throw e;
 		}
 	}
 
-	private <T extends Deployable> Mono<T> updateDeployableWithCreatedResources(T deployable, List<HasMetadata> createdResources) {
-		ProjectVersion relatedVersion = deployable.getRelatedProjectVersion();
-		updateDeploymentUrls(deployable, createdResources);
+	private <T extends Deployable<?>> T updateDeployableWithCreatedResources(T deployable, List<HasMetadata> createdResources) {
+		ProjectVersion<?, ?> relatedVersion = deployable.getRelatedProjectVersion();
+		createdResources.forEach(hasMetadata -> setDeploymentUrlsTo(deployable, hasMetadata));
 		deployable.setOutdated(false);
-		if (StringUtils.isEmpty(deployable.getDockerContentDigest())) {
-			//it seems completely wrong, that this is happening here...
-			return dockerRegistryV2ClientFactory.getDockerRegistryClient(deployable.getRelatedProject())
-					.flatMap(client -> client.getManifest(relatedVersion)
-							.map(manifest -> {
-								deployable.setDockerContentDigest(manifest.getDockerContentDigest());
-								return deployable;
-							}));
-		} else {
-			return Mono.just(deployable);
+		if (!StringUtils.isEmpty(deployable.getDockerContentDigest())) {
+			return deployable;
 		}
+
+		//it seems completely wrong, that this is happening here...
+		return dockerRegistryClientFactory.getDockerRegistryClient(deployable.getRelatedProject())
+				.map(client -> {
+					final Manifest manifest = client.getManifest(relatedVersion);
+					deployable.setDockerContentDigest(manifest.getDockerContentDigest());
+					return deployable;
+				}).orElse(null);
 	}
 
-	private <T extends Deployable> Mono<T> updateDesiredStateOfDeployable(T deployable, DesiredState desiredState) {
+	private <T extends Deployable<?>> T updateDesiredStateOfDeployable(T deployable, DesiredState desiredState) {
 		deployable.setDesiredState(desiredState);
-		return Mono.just(deployable);
+		return deployable;
 	}
 
-	private Mono<Set<HasMetadata>> getTemplateAsResources(Deployable<?> deployable) {
+	private Set<HasMetadata> getTemplateAsResources(Deployable<?> deployable) {
 		Set<HasMetadata> resources = new HashSet<>();
 		for (DeployableConfigurationTemplate template : deployable.getConfigurationTemplates().getTemplates()) {
 			final Map.Entry<String, String> primaryLabel = deployable.getPrimaryLabel();
@@ -152,13 +159,10 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 					.peek(resource -> addLabelToResource(resource, TEMPLATE_NAME, template.getName()))
 					.forEach(resources::add);
 		}
-		return Mono.just(resources);
+		return resources;
 	}
 
 	private void addLabelToResource(HasMetadata resource, String key, String value) {
-		if (resource.getMetadata() == null) {
-			resource.setMetadata(new ObjectMeta());
-		}
 		if (resource instanceof Deployment) {
 			Deployment deployment = (Deployment) resource;
 			addLabelToMeta(deployment.getMetadata(), key, value);
@@ -172,32 +176,22 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 		}
 	}
 
-	private void updateDeploymentUrls(Deployable<?> deployable, List<HasMetadata> createdResources) {
-		List<String> urls = createdResources.stream()
-				.flatMap(hasMetadata -> {
-					if (hasMetadata instanceof Ingress) {
-						var ingress = (Ingress) hasMetadata;
-						return ingress
-								.getSpec()
-								.getRules()
-								.stream()
-								.map(IngressRule::getHost);
-					} else if (hasMetadata instanceof io.fabric8.kubernetes.api.model.networking.v1beta1.Ingress) { // can't wait to repeat this code again for networking/v1
-						var ingress = (io.fabric8.kubernetes.api.model.networking.v1beta1.Ingress) hasMetadata;
-						return ingress
-								.getSpec()
-								.getRules()
-								.stream()
-								.map(io.fabric8.kubernetes.api.model.networking.v1beta1.IngressRule::getHost);
-					}
-					return Stream.empty();
-				}).collect(Collectors.toList());
+	private void setDeploymentUrlsTo(Deployable<?> deployable, HasMetadata hasMetadata) {
+		if (hasMetadata instanceof Ingress) {
+			Ingress ingress = (Ingress) hasMetadata;
 
-		log.trace("Found urls {} of {} {}", urls, deployable.getClass().getSimpleName(), deployable.getName());
-		deployable.setUrls(urls);
+			List<String> urls = ingress
+					.getSpec()
+					.getRules()
+					.stream()
+					.map(IngressRule::getHost)
+					.collect(Collectors.toList());
+			log.trace("Found urls {} of {} {}", urls, deployable.getClass().getSimpleName(), deployable.getName());
+			deployable.setUrls(urls);
+		}
 	}
 
-	private Mono<Secret> createSecretIfNotExistent(DockerRegistry dockerRegistry, String namespace) {
+	private Secret createSecretIfNotExistent(DockerRegistry dockerRegistry, String namespace) throws JsonProcessingException {
 		return kubernetesAccess.createSecretIfNotExistent(namespace,
 				KubernetesConventions.secretName(dockerRegistry),
 				dockerRegistry.getUserName(),
@@ -205,8 +199,24 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 				dockerRegistry.getRegistryUrl());
 	}
 
-	private Mono<ServiceAccount> ensureServiceAccountIsPatchedWithRegistry(DockerRegistry dockerRegistry, String namespace) {
+	private void createSecretIfNotExistent(UUID dockerRegistryId, String namespace) {
+		this.dockerRegistryRepository.getById(dockerRegistryId)
+				.ifPresent(dockerRegistry -> {
+					try {
+						this.createSecretIfNotExistent(dockerRegistry, namespace);
+					} catch (JsonProcessingException e) {
+						log.warn("Failed to create secret", e);
+					}
+				});
+	}
+
+	private ServiceAccount ensureServiceAccountIsPatchedWithRegistry(DockerRegistry dockerRegistry, String namespace) {
 		return kubernetesAccess.createServiceAccountIfNotExisting(namespace, KubernetesConventions.secretName(dockerRegistry));
+	}
+
+	private void ensureServiceAccountIsPatchedWithRegistry(UUID dockerRegistryId, String namespace) {
+		this.dockerRegistryRepository.getById(dockerRegistryId)
+				.ifPresent(reg -> this.ensureServiceAccountIsPatchedWithRegistry(reg, namespace));
 	}
 
 	private boolean addLabelToMeta(ObjectMeta meta, String key, String value) {
@@ -215,57 +225,57 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 			labels.put(key, value);
 			meta.setLabels(labels);
 			return true;
-		} else {
-			return meta.getLabels().put(key, value) == null;
 		}
+
+		return meta.getLabels().put(key, value) == null;
 	}
 
 	@Override
-	public Mono<ProjectVersion> stopDeployment(ProjectVersion version) {
+	public ReadableProjectVersion stopDeployment(WritableProjectVersion version) {
 		try {
 			log.debug("Stop deployment of version {} of project {}", version.getName(), version.getProject().getName());
-			Deployable<ProjectVersion> deployableVersion = Deployables.of(version);
+			Deployable<WritableProjectVersion> deployableVersion = Deployables.of(version);
 			kubernetesAccess.deleteNamespaceByLabel(deployableVersion.getPrimaryLabel());
 			version.setUrls(Collections.emptyList());
 			version.setDesiredState(NotDeployed);
-			return projectRepository.add(version.getProject())
-					.map(project -> project.getVersionByUUID(version.getId()))
-					.filter(Optional::isPresent)
-					.map(Optional::get);
+			ReadableProject readableProject = projectRepository.add(version.getProject());
+			return readableProject.getVersions().stream()
+					.filter(projectVersion -> projectVersion.getUuid().equals(version.getId()))
+					.findFirst().orElse(null);
 		} catch (KubernetesClientException e) {
 			log.debug("Failed to stop deployment of version {} of project {}", version.getName(), version.getProject().getName());
-			return Mono.error(e);
+			throw e;
 		}
 	}
 
 	@Override
-	public Mono<ProjectMesh> stopDeployment(ProjectMesh mesh) {
+	public ReadableProjectMesh stopDeployment(WritableProjectMesh mesh) {
 		try {
 			log.debug("Stop deployment of mesh {}", mesh.getName());
 			kubernetesAccess.deleteNamespaceByName(mesh.getNamespace().asKubernetesNameSpace());
-			for (MeshComponent component : mesh.getComponents()) {
+			for (WritableMeshComponent component : mesh.getComponents()) {
 				component.setUrls(Collections.emptyList());
 				component.setDesiredState(NotDeployed);
 			}
 			return projectMeshRepository.add(mesh);
 		} catch (KubernetesClientException e) {
 			log.debug("Failed to stop deployment of mesh {}", mesh.getName());
-			return Mono.error(e);
+			throw e;
 		}
 	}
 
 	@Override
-	public Mono<ProjectMesh> stopDeployment(MeshComponent component) {
+	public ReadableProjectMesh stopDeployment(WritableMeshComponent component) {
 		try {
 			log.debug("Stop deployment of component {} of mesh {}", component.getName(), component.getOwner().getName());
-			Deployable<MeshComponent> deployableComponent = Deployables.of(component);
+			Deployable<WritableMeshComponent> deployableComponent = Deployables.of(component, meshService);
 			kubernetesAccess.deleteAllResourcesFromNameSpace(component.getOwner().getNamespace().asKubernetesNameSpace(), deployableComponent.getPrimaryLabel());
 			component.setUrls(Collections.emptyList());
 			component.setDesiredState(NotDeployed);
 			return projectMeshRepository.add(component.getOwner());
 		} catch (KubernetesClientException e) {
 			log.debug("Failed to stop deployment of component {} of mesh {}", component.getName(), component.getOwner().getName());
-			return Mono.error(e);
+			throw e;
 		}
 	}
 

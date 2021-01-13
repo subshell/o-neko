@@ -1,98 +1,92 @@
 package io.oneko.docker.v2;
 
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.apache.http.Header;
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicHeader;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Predicates;
 
+import feign.Feign;
+import feign.FeignException;
+import feign.httpclient.ApacheHttpClient;
+import feign.jackson.JacksonDecoder;
+import feign.jackson.JacksonEncoder;
+import feign.slf4j.Slf4jLogger;
 import io.oneko.docker.DockerRegistry;
-import io.oneko.docker.v2.model.ListTagsResult;
-import io.oneko.docker.v2.model.Repository;
-import io.oneko.docker.v2.model.RepositoryList;
+import io.oneko.docker.v2.model.manifest.DockerRegistryBlob;
+import io.oneko.docker.v2.model.manifest.DockerRegistryManifest;
 import io.oneko.docker.v2.model.manifest.Manifest;
 import io.oneko.project.Project;
 import io.oneko.project.ProjectVersion;
-import io.oneko.security.WebClientBuilderFactory;
-import reactor.core.publisher.Mono;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Accesses the API defined here:
- * https://github.com/moby/moby/issues/9015
+ * https://docs.docker.com/registry/spec/api/
  */
+@Slf4j
 public class DockerRegistryV2Client {
 
-	private final WebClient client;
-	private final ObjectMapper objectMapper;
+	private final DockerRegistryAPIV2 feignClient;
 
-	public DockerRegistryV2Client(DockerRegistry reg, String token, ObjectMapper objectMapper) {
-		this.objectMapper = objectMapper;
-
-		WebClient.Builder builder = WebClientBuilderFactory.create(reg.isTrustInsecureCertificate())
-				.baseUrl(reg.getRegistryUrl())
-				.defaultHeader("docker-distribution-api-version", "registry/2.0");
+	public DockerRegistryV2Client(DockerRegistry registry, String token, ObjectMapper objectMapper) {
+		List<Header> defaultHeaders = new ArrayList<>();
+		defaultHeaders.add(new BasicHeader("Accept", "*/*"));
 		if (token != null) {
-			builder = builder.defaultHeader(AuthorizationHeader.KEY, AuthorizationHeader.bearer(token));
+			defaultHeaders.add(new BasicHeader(AuthorizationHeader.KEY, AuthorizationHeader.bearer(token)));
 		}
-		client = builder.build();
+		var builder = HttpClients.custom()
+				.setDefaultRequestConfig(RequestConfig.custom()
+						.setCookieSpec(CookieSpecs.STANDARD)
+						.build())
+				.setDefaultHeaders(defaultHeaders);
+		if (registry.isTrustInsecureCertificate()) {
+			builder.setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE);
+		}
+		final var client = builder.build();
+		this.feignClient = Feign.builder()
+				.decoder(new JacksonDecoder(objectMapper))
+				.encoder(new JacksonEncoder(objectMapper))
+				.logger(new Slf4jLogger())
+				.client(new ApacheHttpClient(client))
+				.target(DockerRegistryAPIV2.class, registry.getRegistryUrl());
 	}
 
-	public Mono<String> versionCheck() {
-		return client.get().uri("/v2")
-				.retrieve()
-				.bodyToMono(String.class);
+	public String versionCheck() {
+		try {
+			return feignClient.versionCheck();
+		} catch (FeignException e) {
+			log.warn("Failed to check docker registry version", e);
+			throw e;
+		}
 	}
 
-	/**
-	 * Warn: not working with most docker registries!
-	 */
-	public Mono<List<String>> getAllImageNames() {
-		//most providers of v2 API won't allow accessing the catalog...
-		return client.get().uri("/v2/_catalog")
-				.retrieve()
-				.bodyToMono(RepositoryList.class)
-				.map(RepositoryList::getRepositories)
-				.map(repositories -> repositories.stream().map(Repository::getName).collect(Collectors.toList()));
+	public List<String> getAllTags(Project<?, ?> project) {
+		try {
+			return feignClient.getAllTags(project.getImageName()).getTags();
+		} catch (FeignException e) {
+			log.warn("Failed to list all tags for image {}", project.getImageName(), e);
+			throw e;
+		}
 	}
 
-	public Mono<List<String>> getAllTags(Project project) {
-		return client
-				.get()
-				.uri("/v2/" + project.getImageName() + "/tags/list")
-				.retrieve()
-				.bodyToMono(ListTagsResult.class)
-				.map(ListTagsResult::getTags);
+	public Manifest getManifest(ProjectVersion<?, ?> version) {
+		try {
+			final String imageName = version.getProject().getImageName();
+			final DockerRegistryManifest dockerRegistryManifest = feignClient.getManifest(imageName, version.getName());
+			final DockerRegistryManifest.Digest digest = dockerRegistryManifest.getDigest();
+			final DockerRegistryBlob blob = feignClient.getBlob(imageName, digest.getAlgorithm(), digest.getDigest());
+			return new Manifest(digest.getFullDigest(), blob.getCreated());
+		} catch (FeignException e) {
+			log.warn("Failed to get manifest for project version {} of project {}", version.getName(), version.getProject().getName(), e);
+			throw e;
+		}
 	}
 
-	public Mono<Manifest> getManifest(ProjectVersion version) {
-		return client
-				.get()
-				.uri("/v2/" + version.getProject().getImageName() + "/manifests/" + version.getName())
-				.retrieve()
-				.onStatus(
-						Predicates.or(HttpStatus::is4xxClientError, HttpStatus::is5xxServerError),
-						s -> Mono.error(new RuntimeException("Unable to retrieve manifest for version " + version.getName() + " due to error " + s.statusCode().getReasonPhrase())))
-				.toEntity(String.class).flatMap(response -> {
-					HttpHeaders headers = response.getHeaders();
-					String dockerContentDigest = headers.getFirst("Docker-Content-Digest");
-					try {
-						if (response.getBody() == null) {
-							return Mono.error(new RuntimeException("Failed to deserialize Manifest from empty response."));
-						}
-
-						// the response has the content-type "application/vnd.docker.distribution.manifest.v1+prettyjws"
-						Manifest manifest = objectMapper.readValue(response.getBody(), Manifest.class);
-						manifest.setDockerContentDigest(dockerContentDigest);
-						return Mono.just(manifest);
-					} catch (IOException e) {
-						return Mono.error(new RuntimeException("Failed to deserialize Manifest from response."));
-					}
-				});
-	}
 }

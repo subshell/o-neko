@@ -1,11 +1,13 @@
 package io.oneko.projectmesh.persistence;
 
+import io.oneko.Profiles;
+import org.springframework.context.annotation.Profile;
+import org.springframework.data.mongodb.repository.MongoRepository;
+
+import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
-
-import reactor.core.publisher.Mono;
-
-public interface ProjectMeshMongoSpringRepository extends ReactiveMongoRepository<ProjectMeshMongo, UUID> {
-	Mono<ProjectMeshMongo> findByName(String name);
+@Profile(Profiles.MONGO)
+public interface ProjectMeshMongoSpringRepository extends MongoRepository<ProjectMeshMongo, UUID> {
+	Optional<ProjectMeshMongo> findByName(String name);
 }

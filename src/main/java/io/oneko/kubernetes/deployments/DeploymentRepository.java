@@ -1,23 +1,22 @@
 package io.oneko.kubernetes.deployments;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
-
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 public interface DeploymentRepository {
 
-	Mono<Deployment> findByDeployableId(UUID projectVersionId);
+	Optional<ReadableDeployment> findByDeployableId(UUID deployableId);
 
-	Mono<Deployment> save(Deployment entity);
+	ReadableDeployment save(WritableDeployment entity);
 
-	Mono<Void> deleteById(UUID uuid);
+	void deleteById(UUID uuid);
 
-	Mono<Deployment> findById(UUID uuid);
+	Optional<ReadableDeployment> findById(UUID uuid);
 
-	Flux<Deployment> findAll();
+	List<ReadableDeployment> findAll();
 
-	Flux<Deployment> findAllById(Iterable<UUID> uuids);
+	List<ReadableDeployment> findAllById(Iterable<UUID> uuids);
 
-	Flux<Deployment> findAllByDeployableIdIn(Iterable<UUID> uuids);
+	List<ReadableDeployment> findAllByDeployableIdIn(Iterable<UUID> uuids);
 }

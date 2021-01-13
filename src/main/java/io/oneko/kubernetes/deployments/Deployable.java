@@ -1,16 +1,15 @@
 package io.oneko.kubernetes.deployments;
 
+import io.oneko.automations.LifetimeBehaviour;
+import io.oneko.deployable.DeployableConfigurationTemplates;
+import io.oneko.deployable.DeploymentBehaviour;
+import io.oneko.project.Project;
+import io.oneko.project.ProjectVersion;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-
-import io.oneko.automations.LifetimeBehaviour;
-import io.oneko.deployable.DeployableConfigurationTemplates;
-import io.oneko.deployable.DeploymentBehaviour;
-import io.oneko.docker.DockerRegistry;
-import io.oneko.project.Project;
-import io.oneko.project.ProjectVersion;
 
 /**
  * Deployable is a wrapper around entities that can be deployed to kubernetes.
@@ -28,11 +27,11 @@ public interface Deployable<T> {
 
 	String getFullLabel();
 
-	DockerRegistry getDockerRegistry();
+	UUID getDockerRegistryId();
 
-	Project getRelatedProject();
+	Project<?, ?> getRelatedProject();
 
-	ProjectVersion getRelatedProjectVersion();
+	ProjectVersion<?, ?> getRelatedProjectVersion();
 
 	DeployableConfigurationTemplates getConfigurationTemplates();
 

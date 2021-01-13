@@ -1,17 +1,19 @@
 package io.oneko.kubernetes.deployments.persistence;
 
 
+import io.oneko.Profiles;
+import org.springframework.context.annotation.Profile;
+import org.springframework.data.mongodb.repository.MongoRepository;
+
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
+@Profile(Profiles.MONGO)
+public interface DeploymentMongoSpringRepository extends MongoRepository<DeploymentMongo, UUID> {
 
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+	Optional<DeploymentMongo> findByDeployableId(UUID deployableId);
 
-public interface DeploymentMongoSpringRepository extends ReactiveMongoRepository<DeploymentMongo, UUID> {
-
-	Mono<DeploymentMongo> findByDeployableId(UUID deployableId);
-
-	Flux<DeploymentMongo> findAllByDeployableIdIn(Iterable<UUID> projectVersionIds);
+	List<DeploymentMongo> findAllByDeployableIdIn(Iterable<UUID> projectVersionIds);
 
 }

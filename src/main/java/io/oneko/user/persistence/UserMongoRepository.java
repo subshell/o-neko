@@ -1,30 +1,34 @@
 package io.oneko.user.persistence;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import io.oneko.Profiles;
 import io.oneko.event.EventDispatcher;
 import io.oneko.security.UserRole;
+import io.oneko.user.ReadableUser;
 import io.oneko.user.User;
+import io.oneko.user.WritableUser;
 import io.oneko.user.auth.PasswordBasedUserAuthentication;
 import io.oneko.user.auth.UserAuthentication;
 import io.oneko.user.event.EventAwareUserRepository;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 /**
  * Mongo implementation of UserRepository
  */
 @Service
+@Profile(Profiles.MONGO)
 class UserMongoRepository extends EventAwareUserRepository {
 	private final UserMongoSpringRepository innerUserRepo;
 	private final PasswordBasedUserAuthenticationMongoSpringRepository innerPasswordRepo;
 	private final PasswordEncoder passwordEncoder;
 
-	@Autowired
 	public UserMongoRepository(UserMongoSpringRepository innerUserRepo, PasswordBasedUserAuthenticationMongoSpringRepository innerPasswordRepo, PasswordEncoder passwordEncoder, EventDispatcher eventDispatcher) {
 		super(eventDispatcher);
 		this.innerUserRepo = innerUserRepo;
@@ -33,36 +37,41 @@ class UserMongoRepository extends EventAwareUserRepository {
 	}
 
 	@Override
-	public Mono<User> getById(UUID userId) {
+	public Optional<ReadableUser> getById(UUID userId) {
 		return this.innerUserRepo.findById(userId)
 				.flatMap(this::fromUserMongo);
 	}
 
 	@Override
-	public Mono<User> getByUserName(String userName) {
+	public Optional<ReadableUser> getByUserName(String userName) {
 		return this.innerUserRepo.findByUsername(userName).flatMap(this::fromUserMongo);
 	}
 
 	@Override
-	public Mono<User> getByUserEmail(String userEmail) {
+	public Optional<ReadableUser> getByUserEmail(String userEmail) {
 		return this.innerUserRepo.findByEmail(userEmail).flatMap(this::fromUserMongo);
 	}
 
 	@Override
-	public Flux<User> getAll() {
-		return this.innerUserRepo.findAll().flatMap(this::fromUserMongo);
+	public List<ReadableUser> getAll() {
+		return this.innerUserRepo.findAll().stream()
+				.map(this::fromUserMongo)
+				.filter(Optional::isPresent)
+				.map(Optional::get)
+				.collect(Collectors.toList());
 	}
 
 	@Override
-	protected Mono<User> addInternally(User user) {
-		return this.innerUserRepo.save(this.toUserMongo(user))
-				.zipWith(this.innerPasswordRepo.save(this.toPasswordMongo(user)), this::fromMongo);
+	protected ReadableUser addInternally(WritableUser user) {
+		UserMongo savedUser = this.innerUserRepo.save(this.toUserMongo(user));
+		PasswordBasedUserAuthenticationMongo savedAuth = this.innerPasswordRepo.save(this.toPasswordMongo(user));
+		return fromMongo(savedUser, savedAuth);
 	}
 
 	@Override
-	protected Mono<Void> removeInternally(User user) {
-		return Mono.zip(innerUserRepo.deleteById(user.getId()),
-				innerPasswordRepo.deleteById(user.getId())).then();
+	protected void removeInternally(User user) {
+		innerUserRepo.deleteById(user.getId());
+		innerPasswordRepo.deleteById(user.getId());
 	}
 
 	/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -92,9 +101,9 @@ class UserMongoRepository extends EventAwareUserRepository {
 		return passwordMongo;
 	}
 
-	private User fromMongo(UserMongo userMongo, PasswordBasedUserAuthenticationMongo passwordMongo) {
-		User[] user = new User[1];
-		user[0] = User.builder().uuid(userMongo.getUserUuid())
+	private ReadableUser fromMongo(UserMongo userMongo, PasswordBasedUserAuthenticationMongo passwordMongo) {
+		ReadableUser[] user = new ReadableUser[1];
+		user[0] = ReadableUser.builder().uuid(userMongo.getUserUuid())
 				.userName(userMongo.getUsername())
 				.email(userMongo.getEmail())
 				.firstName(userMongo.getFirstName())
@@ -108,8 +117,8 @@ class UserMongoRepository extends EventAwareUserRepository {
 	/**
 	 * Convenience mapper from UserMongo to User that implicitly loads the password entity and adds it to the user.
 	 */
-	private Mono<User> fromUserMongo(UserMongo userMongo) {
+	private Optional<ReadableUser> fromUserMongo(UserMongo userMongo) {
 		return this.innerPasswordRepo.findById(userMongo.getUserUuid())
-				.map(p -> this.fromMongo(userMongo, p));
+				.map(user -> fromMongo(userMongo, user));
 	}
 }

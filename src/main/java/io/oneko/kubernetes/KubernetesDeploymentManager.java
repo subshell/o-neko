@@ -1,24 +1,26 @@
 package io.oneko.kubernetes;
 
-import io.oneko.project.ProjectVersion;
-import io.oneko.projectmesh.MeshComponent;
-import io.oneko.projectmesh.ProjectMesh;
-import reactor.core.publisher.Mono;
+import io.oneko.project.ReadableProjectVersion;
+import io.oneko.project.WritableProjectVersion;
+import io.oneko.projectmesh.ReadableMeshComponent;
+import io.oneko.projectmesh.ReadableProjectMesh;
+import io.oneko.projectmesh.WritableMeshComponent;
+import io.oneko.projectmesh.WritableProjectMesh;
 
 /**
  * Deals with deployments of ProjectVersions counter parts on the kubernetes side.
  */
 public interface KubernetesDeploymentManager {
 
-	Mono<ProjectVersion> deploy(ProjectVersion version);
+	ReadableProjectVersion deploy(WritableProjectVersion version);
 
-	Mono<ProjectMesh> deploy(ProjectMesh mesh);
+	ReadableProjectMesh deploy(WritableProjectMesh mesh);
 
-	Mono<MeshComponent> deploy(MeshComponent mesh);
+	ReadableMeshComponent deploy(WritableMeshComponent mesh);
 
-	Mono<ProjectVersion> stopDeployment(ProjectVersion version);
+	ReadableProjectVersion stopDeployment(WritableProjectVersion version);
 
-	Mono<ProjectMesh> stopDeployment(ProjectMesh mesh);
+	ReadableProjectMesh stopDeployment(WritableProjectMesh mesh);
 
-	Mono<ProjectMesh> stopDeployment(MeshComponent mesh);
+	ReadableProjectMesh stopDeployment(WritableMeshComponent mesh);
 }

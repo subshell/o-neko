@@ -1,11 +1,11 @@
 package io.oneko.project.rest;
 
-import java.util.List;
-import java.util.Map;
-
 import io.oneko.templates.rest.ConfigurationTemplateDTO;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
+import java.util.Map;
 
 @NoArgsConstructor
 @Data

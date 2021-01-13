@@ -1,27 +1,29 @@
 package io.oneko.project.rest;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
+import io.oneko.project.ProjectVersion;
+import io.oneko.projectmesh.MeshComponent;
+import io.oneko.projectmesh.MeshService;
+import io.oneko.templates.rest.ConfigurationTemplateDTO;
+import io.oneko.templates.rest.ConfigurationTemplateDTOMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import io.oneko.project.ProjectVersion;
-import io.oneko.projectmesh.MeshComponent;
-import io.oneko.templates.rest.ConfigurationTemplateDTO;
-import io.oneko.templates.rest.ConfigurationTemplateDTOMapper;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class DeployableConfigurationDTOMapper {
 
 	private final ConfigurationTemplateDTOMapper configurationTemplateDTOMapper;
+	private final MeshService meshService;
 
 	@Autowired
-	public DeployableConfigurationDTOMapper(ConfigurationTemplateDTOMapper configurationTemplateDTOMapper) {
+	public DeployableConfigurationDTOMapper(ConfigurationTemplateDTOMapper configurationTemplateDTOMapper, MeshService meshService) {
 		this.configurationTemplateDTOMapper = configurationTemplateDTOMapper;
+		this.meshService = meshService;
 	}
 
-	public DeployableConfigurationDTO create(ProjectVersion version) {
+	public DeployableConfigurationDTO create(ProjectVersion<?, ?> version) {
 		final List<ConfigurationTemplateDTO> templateDTOs = version.getCalculatedConfigurationTemplates().stream()
 				.map(configurationTemplateDTOMapper::toDTO)
 				.collect(Collectors.toList());
@@ -33,15 +35,15 @@ public class DeployableConfigurationDTOMapper {
 		return dto;
 	}
 
-	public DeployableConfigurationDTO create(MeshComponent component) {
-		final List<ConfigurationTemplateDTO> templateDTOs = component.getCalculatedConfigurationTemplates().stream()
+	public DeployableConfigurationDTO create(MeshComponent<?, ?> component) {
+		final List<ConfigurationTemplateDTO> templateDTOs = meshService.getCalculatedConfigurationTemplates(component).stream()
 				.map(configurationTemplateDTOMapper::toDTO)
 				.collect(Collectors.toList());
 
 		DeployableConfigurationDTO dto = new DeployableConfigurationDTO();
 		dto.setName(component.getName());
 		dto.setConfigurationTemplates(templateDTOs);
-		dto.setAvailableTemplateVariables(component.calculateEffectiveTemplateVariables());
+		dto.setAvailableTemplateVariables(meshService.calculateEffectiveTemplateVariables(component));
 		return dto;
 	}
 }

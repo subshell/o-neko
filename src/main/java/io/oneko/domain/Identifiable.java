@@ -1,8 +1,8 @@
 package io.oneko.domain;
 
-import java.util.UUID;
-
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+
+import java.util.UUID;
 
 /**
  * Base class for model objects where instance can be identified by their ID.

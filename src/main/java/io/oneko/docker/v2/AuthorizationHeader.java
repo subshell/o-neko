@@ -1,10 +1,9 @@
 package io.oneko.docker.v2;
 
-import java.util.Base64;
-
+import lombok.experimental.UtilityClass;
 import org.springframework.http.HttpHeaders;
 
-import lombok.experimental.UtilityClass;
+import java.util.Base64;
 
 @UtilityClass
 public class AuthorizationHeader {

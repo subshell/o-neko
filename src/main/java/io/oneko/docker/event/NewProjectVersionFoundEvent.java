@@ -1,17 +1,15 @@
 package io.oneko.docker.event;
 
-import java.util.UUID;
-
 import io.oneko.event.Event;
-import io.oneko.event.EventTrigger;
 import io.oneko.project.ProjectVersion;
+
+import java.util.UUID;
 
 public class NewProjectVersionFoundEvent extends Event {
 
 	private final ProjectVersion version;
 
-	public NewProjectVersionFoundEvent(ProjectVersion version, EventTrigger trigger) {
-		super(trigger);
+	public NewProjectVersionFoundEvent(ProjectVersion version) {
 		this.version = version;
 	}
 

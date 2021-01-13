@@ -1,10 +1,5 @@
 package io.oneko.project.rest;
 
-import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
 import io.oneko.automations.LifetimeBehaviourDTO;
 import io.oneko.deployable.DeploymentBehaviour;
 import io.oneko.kubernetes.deployments.DeploymentDTO;
@@ -13,6 +8,11 @@ import io.oneko.namespace.rest.NamespaceDTO;
 import io.oneko.templates.rest.ConfigurationTemplateDTO;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @NoArgsConstructor
 @Data

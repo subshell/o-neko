@@ -1,19 +1,24 @@
 package io.oneko.docker.persistence;
 
-import java.util.UUID;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
+import io.oneko.Profiles;
 import io.oneko.docker.DockerRegistry;
+import io.oneko.docker.ReadableDockerRegistry;
+import io.oneko.docker.WritableDockerRegistry;
 import io.oneko.docker.event.EventAwareDockerRegistryRepository;
 import io.oneko.event.EventDispatcher;
 import io.oneko.security.AES;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
+@Profile(Profiles.MONGO)
 class DockerRegistryMongoRepository extends EventAwareDockerRegistryRepository {
 	private final DockerRegistryMongoSpringRepository innerRepo;
 	private final AES credentialsCoder;
@@ -26,36 +31,36 @@ class DockerRegistryMongoRepository extends EventAwareDockerRegistryRepository {
 	}
 
 	@Override
-	public Mono<DockerRegistry> getById(UUID registryId) {
+	public Optional<ReadableDockerRegistry> getById(UUID registryId) {
 		return this.innerRepo.findById(registryId).map(this::fromRegistryMongo);
 	}
 
 	@Override
-	public Mono<DockerRegistry> getByName(String name) {
+	public Optional<ReadableDockerRegistry> getByName(String name) {
 		return this.innerRepo.findByName(name).map(this::fromRegistryMongo);
 	}
 
 	@Override
-	public Flux<DockerRegistry> getAll() {
-		return this.innerRepo.findAll().map(this::fromRegistryMongo);
+	public List<ReadableDockerRegistry> getAll() {
+		return this.innerRepo.findAll().stream().map(this::fromRegistryMongo).collect(Collectors.toList());
 	}
 
 	@Override
-	protected Mono<DockerRegistry> addInternally(DockerRegistry registry) {
+	protected ReadableDockerRegistry addInternally(WritableDockerRegistry registry) {
 		DockerRegistryMongo registryMongo = this.toRegistryMongo(registry);
-		return this.innerRepo.save(registryMongo).map(this::fromRegistryMongo);
+		return this.fromRegistryMongo(this.innerRepo.save(registryMongo));
 	}
 
 	@Override
-	protected Mono<Void> removeInternally(DockerRegistry registry) {
-		return this.innerRepo.deleteById(registry.getId());
+	protected void removeInternally(DockerRegistry registry) {
+		this.innerRepo.deleteById(registry.getUuid());
 	}
 
     /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      * Mapping stuff
      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-	private DockerRegistryMongo toRegistryMongo(DockerRegistry registry) {
+	private DockerRegistryMongo toRegistryMongo(WritableDockerRegistry registry) {
 		DockerRegistryMongo registryMongo = new DockerRegistryMongo();
 		registryMongo.setRegistryUuid(registry.getUuid());
 		registryMongo.setName(registry.getName());
@@ -66,8 +71,8 @@ class DockerRegistryMongoRepository extends EventAwareDockerRegistryRepository {
 		return registryMongo;
 	}
 
-	private DockerRegistry fromRegistryMongo(DockerRegistryMongo registryMongo) {
-		return DockerRegistry.builder()
+	private ReadableDockerRegistry fromRegistryMongo(DockerRegistryMongo registryMongo) {
+		return ReadableDockerRegistry.builder()
 				.uuid(registryMongo.getRegistryUuid())
 				.name(registryMongo.getName())
 				.registryUrl(registryMongo.getRegistryUrl())

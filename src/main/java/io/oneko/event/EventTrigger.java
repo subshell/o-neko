@@ -1,11 +1,11 @@
 package io.oneko.event;
 
-import java.util.UUID;
-
 import io.oneko.activity.ActivityPriority;
 import io.oneko.domain.Identifiable;
 import lombok.Getter;
 import lombok.ToString;
+
+import java.util.UUID;
 
 @Getter
 @ToString

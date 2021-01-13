@@ -1,12 +1,12 @@
 package io.oneko.user.rest;
 
-import java.util.UUID;
-
 import io.oneko.security.UserRole;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.UUID;
 
 /**
  * Rest API representation of a user.

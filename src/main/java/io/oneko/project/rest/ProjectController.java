@@ -1,8 +1,9 @@
 package io.oneko.project.rest;
 
+import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,15 +19,17 @@ import org.springframework.web.server.ResponseStatusException;
 import io.oneko.configuration.Controllers;
 import io.oneko.docker.DockerRegistry;
 import io.oneko.docker.DockerRegistryRepository;
+import io.oneko.docker.ReadableDockerRegistry;
 import io.oneko.kubernetes.KubernetesDeploymentManager;
 import io.oneko.project.Project;
 import io.oneko.project.ProjectRepository;
-import io.oneko.project.ProjectVersion;
+import io.oneko.project.ReadableProject;
+import io.oneko.project.ReadableProjectVersion;
+import io.oneko.project.WritableProject;
+import io.oneko.project.WritableProjectVersion;
 import io.oneko.project.rest.export.ProjectExportDTO;
 import io.oneko.project.rest.export.ProjectExportDTOMapper;
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 @RestController
 @Slf4j
@@ -52,106 +55,106 @@ public class ProjectController {
 		this.kubernetesDeploymentManager = kubernetesDeploymentManager;
 	}
 
-	private Mono<DockerRegistry> getDockerRegistryForProject(Project project, ProjectDTO dto) {
-		if (Objects.equals(project.getDockerRegistryUuid(), dto.getDockerRegistryUUID())) {
+	/**
+	 * Ensures that the DTO refers to a docker registry that actually exists...
+	 */
+	private UUID getDockerRegistryIdForProject(Project project, ProjectDTO dto) {
+		//TODO: that check might not belong here...
+		if (Objects.equals(project.getDockerRegistryId(), dto.getDockerRegistryUUID())) {
 			//no change, so...
-			return Mono.just(project.getDockerRegistry());
+			return project.getDockerRegistryId();
 		} else if (Objects.isNull(dto.getDockerRegistryUUID())) {
-			return Mono.empty();
+			return null;
 		} else {
 			return dockerRegistryRepository.getById(dto.getDockerRegistryUUID())
-					.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "DockerRegistry with id " + dto.getDockerRegistryUUID() + " not found")));
+					.map(DockerRegistry::getUuid)
+					.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "DockerRegistry with id " + dto.getDockerRegistryUUID() + " not found"));
 		}
 	}
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'DOER', 'VIEWER')")
 	@GetMapping
-	Flux<ProjectDTO> getAllProjects() {
-		return this.projectRepository.getAll().flatMap(this.dtoMapper::projectToDTO);
+	List<ProjectDTO> getAllProjects() {
+		return this.projectRepository.getAll().stream()
+				.map(this.dtoMapper::projectToDTO)
+				.collect(Collectors.toList());
 	}
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'DOER')")
 	@PostMapping
-	Mono<ProjectDTO> createProject(@RequestBody ProjectDTO dto) {
-		return dockerRegistryRepository.getById(dto.getDockerRegistryUUID())
-				.map(Project::new)
-				.flatMap(p -> this.dtoMapper.updateProjectFromDTO(p, dto, p.getDockerRegistry()))
-				.flatMap(this.projectRepository::add)
-				.flatMap(this.dtoMapper::projectToDTO);
+	ProjectDTO createProject(@RequestBody ProjectDTO dto) {
+		ReadableDockerRegistry dockerRegistry = dockerRegistryRepository.getById(dto.getDockerRegistryUUID())
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "DockerRegistry with id " + dto.getDockerRegistryUUID() + " not found"));
+		WritableProject newProject = new WritableProject(dockerRegistry.getId());
+		dtoMapper.updateProjectFromDTO(newProject, dto, dockerRegistry.getId());
+		ReadableProject persistedProject = projectRepository.add(newProject);
+		return dtoMapper.projectToDTO(persistedProject);
 	}
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'DOER', 'VIEWER')")
 	@GetMapping("/{id}")
-	Mono<ProjectDTO> getProjectById(@PathVariable UUID id) {
+	ProjectDTO getProjectById(@PathVariable UUID id) {
 		return this.projectRepository.getById(id)
-				.flatMap(this.dtoMapper::projectToDTO)
-				.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Project with id " + id + " not found")));
+				.map(this.dtoMapper::projectToDTO)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project with id " + id + " not found"));
 	}
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'DOER')")
 	@PostMapping("/{id}")
-	Mono<ProjectDTO> updateProject(@PathVariable UUID id, @RequestBody ProjectDTO dto) {
-		return this.projectRepository.getById(id)
-				.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Project with id " + id + " not found")))
-				.zipWhen(project -> this.getDockerRegistryForProject(project, dto))
-				.flatMap(tuple2 -> this.dtoMapper.updateProjectFromDTO(tuple2.getT1(), dto, tuple2.getT2()))
-				.flatMap(this.projectRepository::add)
-				.flatMap(this.dtoMapper::projectToDTO);
+	ProjectDTO updateProject(@PathVariable UUID id, @RequestBody ProjectDTO dto) {
+		WritableProject project = getProjectOr404(id).writable();
+		final UUID dockerRegistryId = getDockerRegistryIdForProject(project, dto);
+		dtoMapper.updateProjectFromDTO(project, dto, dockerRegistryId);
+		final ReadableProject persisted = projectRepository.add(project);
+		return dtoMapper.projectToDTO(persisted);
 	}
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'DOER')")
 	@DeleteMapping("/{id}")
-	Mono<Void> deleteProject(@PathVariable UUID id) {
-		return this.projectRepository.getById(id)
-				.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Project with id " + id + " not found")))
-				.flatMap(this.projectRepository::remove);
+	void deleteProject(@PathVariable UUID id) {
+		final ReadableProject project = getProjectOr404(id);
+		projectRepository.remove(project);
 	}
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'DOER', 'VIEWER')")
 	@GetMapping("/{id}/export")
-	Mono<ProjectExportDTO> exportProject(@PathVariable UUID id) {
-		return this.projectRepository.getById(id)
-				.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Project with id " + id + " not found")))
-				.flatMap(this.dtoMapper::projectToDTO)
-				.map(ProjectExportDTOMapper.MAPPER::toProjectExportDto);
+	ProjectExportDTO exportProject(@PathVariable UUID id) {
+		final ReadableProject project = getProjectOr404(id);
+		final ProjectDTO projectDTO = dtoMapper.projectToDTO(project);
+		return ProjectExportDTOMapper.MAPPER.toProjectExportDto(projectDTO);
 	}
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'DOER', 'VIEWER')")
 	@PostMapping("/{id}/version/{versionId}/deploy")
-	Mono<ProjectDTO> triggerDeploymentOfVersion(@PathVariable UUID id, @PathVariable UUID versionId) {
-		return this.projectRepository.getById(id)
-				.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Project with id " + id + " not found")))
-				.map(project -> project.getVersionByUUID(versionId))
-				.filter(Optional::isPresent)
-				.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Project version with id " + versionId + " not found")))
-				.flatMap(version -> kubernetesDeploymentManager.deploy(version.get()))
-				.map(ProjectVersion::getProject)
-				.flatMap(dtoMapper::projectToDTO);
+	ProjectDTO triggerDeploymentOfVersion(@PathVariable UUID id, @PathVariable UUID versionId) {
+		WritableProject project = getProjectOr404(id).writable();
+		WritableProjectVersion projectVersion = project.getVersionById(versionId)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project version with id " + versionId + " not found"));
+		final ReadableProjectVersion deployedVersion = kubernetesDeploymentManager.deploy(projectVersion);
+		return dtoMapper.projectToDTO(deployedVersion.getProject());
 	}
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'DOER', 'VIEWER')")
 	@PostMapping("/{id}/version/{versionId}/stop")
-	Mono<Void> stopDeployment(@PathVariable UUID id, @PathVariable UUID versionId) {
-		return this.projectRepository.getById(id)
-				.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Project with id " + id + " not found")))
-				.map(project -> project.getVersionByUUID(versionId))
-				.filter(Optional::isPresent)
-				.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Project version with id " + versionId + " not found")))
-				.map(Optional::get)
-				.flatMap(kubernetesDeploymentManager::stopDeployment)
-				.then();
+	void stopDeployment(@PathVariable UUID id, @PathVariable UUID versionId) {
+		WritableProject project = getProjectOr404(id).writable();
+		WritableProjectVersion projectVersion = project.getVersionById(versionId)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project version with id " + versionId + " not found"));
+		kubernetesDeploymentManager.stopDeployment(projectVersion);
 	}
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'DOER')")
 	@GetMapping("/{id}/version/{versionId}/configuration")
-	Mono<DeployableConfigurationDTO> showCalculatedConfigurationOfVersion(@PathVariable UUID id, @PathVariable UUID versionId) {
-		return this.projectRepository.getById(id)
-				.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Project with id " + id + " not found")))
-				.map(project -> project.getVersionByUUID(versionId))
-				.filter(Optional::isPresent)
-				.map(Optional::get)
-				.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Project version with id " + versionId + " not found")))
-				.map(this.configurationDTOMapper::create);
+	DeployableConfigurationDTO showCalculatedConfigurationOfVersion(@PathVariable UUID id, @PathVariable UUID versionId) {
+		ReadableProject project = getProjectOr404(id);
+		ReadableProjectVersion projectVersion = project.getVersionById(versionId)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project version with id " + versionId + " not found"));
+		return configurationDTOMapper.create(projectVersion);
+	}
+
+	private ReadableProject getProjectOr404(UUID id) {
+		return projectRepository.getById(id)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project with id " + id + " not found"));
 	}
 
 }

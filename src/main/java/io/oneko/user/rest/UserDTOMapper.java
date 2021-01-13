@@ -1,8 +1,8 @@
 package io.oneko.user.rest;
 
-import org.springframework.stereotype.Service;
-
 import io.oneko.user.User;
+import io.oneko.user.WritableUser;
+import org.springframework.stereotype.Service;
 
 @Service
 public class UserDTOMapper {
@@ -18,7 +18,7 @@ public class UserDTOMapper {
 		return dto;
 	}
 
-	public User updateUserFromDTO(User user, UserDTO userDTO) {
+	public WritableUser updateUserFromDTO(WritableUser user, UserDTO userDTO) {
 		//id can not be changed
 		user.setUserName(userDTO.getUsername());
 		user.setEmail(userDTO.getEmail());

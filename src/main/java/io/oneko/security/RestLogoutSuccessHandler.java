@@ -1,39 +1,39 @@
 package io.oneko.security;
 
+import io.oneko.websocket.SessionWebSocketHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.server.WebFilterExchange;
-import org.springframework.security.web.server.authentication.logout.ServerLogoutSuccessHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.stereotype.Service;
 
-import io.oneko.websocket.ReactiveWebSocketHandler;
-import reactor.core.publisher.Mono;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
 
 @Service
-public class RestLogoutSuccessHandler implements ServerLogoutSuccessHandler {
+public class RestLogoutSuccessHandler implements LogoutSuccessHandler {
 
-	private final ReactiveWebSocketHandler reactiveWebSocketHandler;
+	private final SessionWebSocketHandler sessionWebSocketHandler;
 
 	@Autowired
-	public RestLogoutSuccessHandler(ReactiveWebSocketHandler reactiveWebSocketHandler) {
-		this.reactiveWebSocketHandler = reactiveWebSocketHandler;
+	public RestLogoutSuccessHandler(SessionWebSocketHandler sessionWebSocketHandler) {
+		this.sessionWebSocketHandler = sessionWebSocketHandler;
 	}
 
 	@Override
-	public Mono<Void> onLogoutSuccess(WebFilterExchange exchange, Authentication authentication) {
+	public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
 		if (authentication == null || "anonymous".equals(authentication.getPrincipal())) {
-			exchange.getExchange().getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-		} else {
-			authentication.setAuthenticated(false);
-			exchange.getExchange().getSession().subscribe(session -> {
-				reactiveWebSocketHandler.invalidateSession(session.getId());
-				session.invalidate();
-			});
-			exchange.getExchange().getResponse().setStatusCode(HttpStatus.OK);
+			response.setStatus(HttpStatus.UNAUTHORIZED.value());
+			return;
 		}
 
-
-		return Mono.empty();
+		authentication.setAuthenticated(false);
+		HttpSession session = request.getSession();
+		sessionWebSocketHandler.invalidateSession(session.getId());
+		session.invalidate();
+		response.setStatus(HttpStatus.OK.value());
 	}
 }

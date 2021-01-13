@@ -1,21 +1,29 @@
 package io.oneko.configuration;
 
-import org.springframework.stereotype.Component;
-import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.server.WebFilter;
-import org.springframework.web.server.WebFilterChain;
+import java.io.IOException;
 
-import reactor.core.publisher.Mono;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Component;
 
 @Component
-public class WelcomePageFilter implements WebFilter {
-
+public class WelcomePageFilter implements Filter {
 	@Override
-	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-		if (exchange.getRequest().getURI().getPath().equals("/")) {
-			return chain.filter(exchange.mutate().request(exchange.getRequest().mutate().path("/index.html").build()).build());
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+		if (request instanceof HttpServletRequest) {
+			final var requestURI = ((HttpServletRequest) request).getRequestURI();
+			if (StringUtils.equals(requestURI, "/")) {
+				request.getRequestDispatcher("/index.html").forward(request, response);
+				return;
+			}
 		}
-		return chain.filter(exchange);
-	}
 
+		chain.doFilter(request, response);
+	}
 }

@@ -1,14 +1,12 @@
 package io.oneko.namespace.rest;
 
-import java.util.Objects;
-
-import org.springframework.stereotype.Service;
-
 import io.oneko.namespace.DefinedNamespace;
 import io.oneko.namespace.DefinedNamespaceRepository;
-import io.oneko.namespace.HasNamespace;
 import io.oneko.namespace.Namespace;
-import reactor.core.publisher.Mono;
+import io.oneko.namespace.WritableHasNamespace;
+import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 @Service
 public class NamespaceDTOMapper {
@@ -28,19 +26,18 @@ public class NamespaceDTOMapper {
 		return dto;
 	}
 
-	public <T extends HasNamespace> Mono<T> updateNamespaceOfOwner(T owner, NamespaceDTO namespaceDTO) {
-		if (namespaceDTO == null || Objects.equals(owner.getDefinedNamespaceId(), namespaceDTO.getId())) {
-			return Mono.just(owner);
+	public <T extends WritableHasNamespace> Namespace updateNamespaceOfOwner(T owner, NamespaceDTO namespaceDTO) {
+		if (namespaceDTO != null && !Objects.equals(owner.getDefinedNamespaceId(), namespaceDTO.getId())) {
+			if (namespaceDTO.getId() != null) {
+				final var repository = namespaceRepository.getById(namespaceDTO.getId());
+				repository.ifPresent(owner::assignDefinedNamespace);
+
+				return repository.orElseThrow();
+			}
+
+			return owner.resetToImplicitNamespace();
 		}
-		if (namespaceDTO.getId() != null) {
-			return namespaceRepository.getById(namespaceDTO.getId())
-					.map(namespace -> {
-						owner.assignDefinedNamespace(namespace);
-						return owner;
-					});
-		} else {
-			owner.resetToImplicitNamespace();
-			return Mono.just(owner);
-		}
+
+		return owner.getNamespace();
 	}
 }

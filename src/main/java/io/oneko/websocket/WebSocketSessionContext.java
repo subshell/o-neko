@@ -1,17 +1,15 @@
 package io.oneko.websocket;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 import org.springframework.http.HttpHeaders;
-import org.springframework.web.reactive.socket.WebSocketSession;
+import org.springframework.security.web.authentication.session.SessionAuthenticationException;
+import org.springframework.web.socket.WebSocketSession;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
-import io.oneko.websocket.message.ONekoWebSocketMessage;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.EmitterProcessor;
 
 @Data
 @Builder
@@ -19,15 +17,15 @@ import reactor.core.publisher.EmitterProcessor;
 public class WebSocketSessionContext {
 	private final String id;
 	private final WebSocketSession session;
-	private final EmitterProcessor<JsonNode> inStream;
-	private final EmitterProcessor<ONekoWebSocketMessage> outStream;
 
 	public static WebSocketSessionContext of(WebSocketSession wsSession) {
-		if (!wsSession.getHandshakeInfo().getHeaders().containsKey(HttpHeaders.COOKIE)) {
-			throw new RuntimeException("No Session Cookie provided");
+		final var httpHeaders = wsSession.getHandshakeHeaders();
+		if (!httpHeaders.containsKey(HttpHeaders.COOKIE)) {
+			throw new SessionAuthenticationException("No Session Cookie provided");
 		}
 
-		String[] cookies = wsSession.getHandshakeInfo().getHeaders().get("cookie").get(0).split(";");
+		final String cookieString = httpHeaders.get(HttpHeaders.COOKIE).get(0);
+		String[] cookies = cookieString.split(";");
 
 		// The session id "SESSION" is send via a cookie. We have to extract that id in order to connect
 		// it to our HTTP Session.
@@ -41,15 +39,16 @@ public class WebSocketSessionContext {
 		return WebSocketSessionContext.builder()
 				.session(wsSession)
 				.id(sessionId)
-				.inStream(EmitterProcessor.create())
-				.outStream(EmitterProcessor.create())
 				.build();
 	}
 
 	public void close() {
-		log.debug("Closing WebSocket session", this.id);
-		inStream.onComplete();
-		outStream.onComplete();
-		session.close().doOnError(throwable -> log.debug("An error occurred while closing a websocket session. Maybe the session was already closed.")).subscribe();
+		log.debug("Closing WebSocket session {}", id);
+
+		try {
+			session.close();
+		} catch (IOException e) {
+			log.error("An error occurred while closing a websocket session. Maybe the session was already closed.", e);
+		}
 	}
 }

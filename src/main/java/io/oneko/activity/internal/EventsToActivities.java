@@ -1,16 +1,20 @@
 package io.oneko.activity.internal;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import java.util.function.Consumer;
+
+
+import javax.annotation.PreDestroy;
 
 import io.oneko.activity.Activity;
 import io.oneko.domain.DescribingEntityChange;
 import io.oneko.event.EntityChangedEvent;
 import io.oneko.event.Event;
 import io.oneko.event.EventDispatcher;
-import io.oneko.websocket.ReactiveWebSocketHandler;
+import io.oneko.websocket.SessionWebSocketHandler;
 import io.oneko.websocket.message.ActivityMessage;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * Listens to events adn converts them to activities dispatching them into the persistence and via websocket to the frontends.
@@ -20,15 +24,23 @@ import lombok.extern.slf4j.Slf4j;
 public class EventsToActivities {
 
 	private final WritableActivityLog activityLog;
-	private final ReactiveWebSocketHandler webSocketHandler;
+	private final SessionWebSocketHandler webSocketHandler;
+	private final EventDispatcher eventDispatcher;
+	private final Consumer<Event> eventListener = this::processEvent;
 
 	@Autowired
 	public EventsToActivities(WritableActivityLog activityLog,
-							  ReactiveWebSocketHandler webSocketHandler,
-							  EventDispatcher eventDispatcher) {
+	                          SessionWebSocketHandler webSocketHandler,
+	                          EventDispatcher eventDispatcher) {
 		this.activityLog = activityLog;
 		this.webSocketHandler = webSocketHandler;
-		eventDispatcher.streamEvents().subscribe(this::processEvent);
+		this.eventDispatcher = eventDispatcher;
+		eventDispatcher.registerListener(eventListener);
+	}
+
+	@PreDestroy
+	public void cleanup() {
+		eventDispatcher.removeListener(eventListener);
 	}
 
 	private void processEvent(Event event) {
@@ -56,8 +68,7 @@ public class EventsToActivities {
 		}
 
 		Activity activity = activityBuilder.build();
-		activityLog.addActivity(activity)
-				.doOnError(e -> log.error(e.getMessage(), e))
-				.subscribe(persistedActivity -> webSocketHandler.broadcast(new ActivityMessage(persistedActivity)));
+		Activity persistedActivity = activityLog.addActivity(activity);
+		webSocketHandler.broadcast(new ActivityMessage(persistedActivity));
 	}
 }

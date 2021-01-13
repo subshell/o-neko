@@ -1,9 +1,9 @@
 package io.oneko.docker.rest;
 
+import io.oneko.docker.DockerRegistry;
+import io.oneko.docker.WritableDockerRegistry;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-
-import io.oneko.docker.DockerRegistry;
 
 @Service
 public class DockerRegistryDTOMapper {
@@ -19,7 +19,7 @@ public class DockerRegistryDTOMapper {
 		return dto;
 	}
 
-	public DockerRegistry updateRegistryFromDTO(DockerRegistry registry, DockerRegistryDTO dto) {
+	public WritableDockerRegistry updateRegistryFromDTO(WritableDockerRegistry registry, DockerRegistryDTO dto) {
 		cleanupDTO(dto);
 
 		//id can not be changed

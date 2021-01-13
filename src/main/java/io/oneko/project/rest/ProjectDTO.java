@@ -1,15 +1,15 @@
 package io.oneko.project.rest;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
 import io.oneko.automations.LifetimeBehaviourDTO;
 import io.oneko.deployable.AggregatedDeploymentStatus;
 import io.oneko.deployable.DeploymentBehaviour;
 import io.oneko.templates.rest.ConfigurationTemplateDTO;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @NoArgsConstructor
 @Data

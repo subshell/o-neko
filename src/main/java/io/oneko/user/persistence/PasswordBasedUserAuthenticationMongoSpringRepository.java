@@ -1,11 +1,14 @@
 package io.oneko.user.persistence;
 
-import java.util.UUID;
+import io.oneko.Profiles;
+import org.springframework.context.annotation.Profile;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
-import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
+import java.util.UUID;
 
 /**
  * Wins the award for the longest interface name... For a short name use the acronym "PBUAMSR"
  */
-public interface PasswordBasedUserAuthenticationMongoSpringRepository extends ReactiveMongoRepository<PasswordBasedUserAuthenticationMongo, UUID> {
+@Profile(Profiles.MONGO)
+public interface PasswordBasedUserAuthenticationMongoSpringRepository extends MongoRepository<PasswordBasedUserAuthenticationMongo, UUID> {
 }

@@ -2,8 +2,9 @@ package io.oneko.docker.event;
 
 import io.oneko.docker.DockerRegistry;
 import io.oneko.docker.DockerRegistryRepository;
+import io.oneko.docker.ReadableDockerRegistry;
+import io.oneko.docker.WritableDockerRegistry;
 import io.oneko.event.EventDispatcher;
-import reactor.core.publisher.Mono;
 
 public abstract class EventAwareDockerRegistryRepository implements DockerRegistryRepository {
 
@@ -14,22 +15,23 @@ public abstract class EventAwareDockerRegistryRepository implements DockerRegist
 	}
 
 	@Override
-	public Mono<DockerRegistry> add(DockerRegistry dockerRegistry) {
+	public ReadableDockerRegistry add(WritableDockerRegistry dockerRegistry) {
 		if (dockerRegistry.isDirty()) {
-			Mono<DockerRegistry> dockerRegistryMono = addInternally(dockerRegistry);
-			return this.eventDispatcher.createAndDispatchEvent(dockerRegistryMono, (d, t) -> new DockerRegistrySavedEvent(dockerRegistry, t));
+			ReadableDockerRegistry persistedRegistry = addInternally(dockerRegistry);
+			this.eventDispatcher.dispatch(new DockerRegistrySavedEvent(dockerRegistry));
+			return persistedRegistry;
 		} else {
-			return Mono.just(dockerRegistry);
+			return dockerRegistry.readable();
 		}
 	}
 
-	protected abstract Mono<DockerRegistry> addInternally(DockerRegistry dockerRegistry);
+	protected abstract ReadableDockerRegistry addInternally(WritableDockerRegistry dockerRegistry);
 
 	@Override
-	public Mono<Void> remove(DockerRegistry dockerRegistry) {
-		Mono<Void> voidMono = removeInternally(dockerRegistry);
-		return this.eventDispatcher.createAndDispatchEvent(voidMono, (v, trigger) -> new DockerRegistryDeletedEvent(dockerRegistry, trigger));
+	public void remove(DockerRegistry dockerRegistry) {
+		removeInternally(dockerRegistry);
+		this.eventDispatcher.dispatch(new DockerRegistryDeletedEvent(dockerRegistry));
 	}
 
-	protected abstract Mono<Void> removeInternally(DockerRegistry dockerRegistry);
+	protected abstract void removeInternally(DockerRegistry dockerRegistry);
 }
