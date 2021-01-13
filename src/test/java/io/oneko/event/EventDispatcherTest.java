@@ -18,7 +18,7 @@ class EventDispatcherTest {
 
 	@BeforeEach
 	void setup() {
-		uut.streamEvents().subscribe(this.currentEvents::add);
+		uut.registerListener(this.currentEvents::add);
 	}
 
 	@AfterEach

@@ -1,5 +1,10 @@
 package io.oneko.activity.internal;
 
+import java.util.function.Consumer;
+
+
+import javax.annotation.PreDestroy;
+
 import io.oneko.activity.Activity;
 import io.oneko.domain.DescribingEntityChange;
 import io.oneko.event.EntityChangedEvent;
@@ -20,6 +25,8 @@ public class EventsToActivities {
 
 	private final WritableActivityLog activityLog;
 	private final SessionWebSocketHandler webSocketHandler;
+	private final EventDispatcher eventDispatcher;
+	private final Consumer<Event> eventListener = this::processEvent;
 
 	@Autowired
 	public EventsToActivities(WritableActivityLog activityLog,
@@ -27,7 +34,13 @@ public class EventsToActivities {
 	                          EventDispatcher eventDispatcher) {
 		this.activityLog = activityLog;
 		this.webSocketHandler = webSocketHandler;
-		eventDispatcher.streamEvents().subscribe(this::processEvent);
+		this.eventDispatcher = eventDispatcher;
+		eventDispatcher.registerListener(eventListener);
+	}
+
+	@PreDestroy
+	public void cleanup() {
+		eventDispatcher.removeListener(eventListener);
 	}
 
 	private void processEvent(Event event) {

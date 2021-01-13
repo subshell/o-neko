@@ -26,7 +26,7 @@ class EventAwareProjectRepositoryTest {
 	void setup() {
 		this.currentEvents = new ArrayList<>();
 		EventDispatcher dispatcher = new EventDispatcher(currentEventTrigger);
-		dispatcher.streamEvents().subscribe(this.currentEvents::add);
+		dispatcher.registerListener(this.currentEvents::add);
 		this.uut = new ProjectInMemoryRepository(dispatcher);
 	}
 
