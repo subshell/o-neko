@@ -1,12 +1,12 @@
-package io.oneko.helm.api;
+package io.oneko.helmapi.api;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import io.oneko.helm.process.CommandException;
-import io.oneko.helm.process.ICommandExecutor;
+import io.oneko.helmapi.process.CommandException;
+import io.oneko.helmapi.process.ICommandExecutor;
 
 public class TestCommandExecutor implements ICommandExecutor {
 

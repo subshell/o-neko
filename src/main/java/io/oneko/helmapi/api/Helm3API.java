@@ -1,14 +1,14 @@
-package io.oneko.helm.api;
+package io.oneko.helmapi.api;
 
 import java.io.File;
 import java.util.List;
 
-import io.oneko.helm.model.Chart;
-import io.oneko.helm.model.InstallStatus;
-import io.oneko.helm.model.Release;
-import io.oneko.helm.model.Repository;
-import io.oneko.helm.model.Status;
-import io.oneko.helm.model.Values;
+import io.oneko.helmapi.model.Chart;
+import io.oneko.helmapi.model.InstallStatus;
+import io.oneko.helmapi.model.Release;
+import io.oneko.helmapi.model.Repository;
+import io.oneko.helmapi.model.Status;
+import io.oneko.helmapi.model.Values;
 
 public interface Helm3API {
 
@@ -50,14 +50,11 @@ public interface Helm3API {
 	void updateRepos();
 
 	// search
-	enum SearchLocation { hub, repo }
-	default List<Chart> searchHub(String query) {
-		return search(SearchLocation.hub, query);
-	}
+	List<Chart> searchHub(String query);
+	List<Chart> searchRepo(String query, boolean versions, boolean devel);
 	default List<Chart> searchRepo(String query) {
-		return search(SearchLocation.repo, query);
+		return searchRepo(query, false, false);
 	}
-	List<Chart> search(SearchLocation location, String query);
 
 	// status
 	default Status status(String releaseName) {

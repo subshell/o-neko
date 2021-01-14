@@ -1,5 +1,10 @@
-package io.oneko.helm.api;
+package io.oneko.helmapi.api;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.FileAttribute;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -10,15 +15,15 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.google.gson.reflect.TypeToken;
 
-import io.oneko.helm.model.Chart;
-import io.oneko.helm.model.InstallStatus;
-import io.oneko.helm.model.Release;
-import io.oneko.helm.model.Repository;
-import io.oneko.helm.model.Status;
-import io.oneko.helm.model.Values;
-import io.oneko.helm.process.CommandExecutor;
-import io.oneko.helm.process.DelegatingCommandExecutor;
-import io.oneko.helm.process.ICommandExecutor;
+import io.oneko.helmapi.model.Chart;
+import io.oneko.helmapi.model.InstallStatus;
+import io.oneko.helmapi.model.Release;
+import io.oneko.helmapi.model.Repository;
+import io.oneko.helmapi.model.Status;
+import io.oneko.helmapi.model.Values;
+import io.oneko.helmapi.process.CommandExecutor;
+import io.oneko.helmapi.process.DelegatingCommandExecutor;
+import io.oneko.helmapi.process.ICommandExecutor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -56,11 +61,23 @@ public class Helm implements Helm3API {
 		return executor.execute("helm", "version", "--short");
 	}
 
+	/**
+	 * Installs the helm chart.
+	 *
+	 * Writes the values into a temporary file if they were not initialized from a File.
+	 *
+	 * @param name
+	 * @param chart
+	 * @param values
+	 * @param namespace
+	 * @param dryRun
+	 * @return
+	 */
 	@Override
 	public InstallStatus install(String name, String chart, Values values, String namespace, boolean dryRun) {
 		final String[] command = initCommand("helm", "install", name, chart)
 				.withFlag("--namespace", namespace)
-				.withFlag("--set", values.asString())
+				.withFlag("-f", values.getValuesFilePath().orElse(writeValuesToTemporaryFile(values, name).getAbsolutePath()))
 				.withFlag("--dry-run", Boolean.toString(dryRun))
 				.withFlag("-o", "json")
 				.build();
@@ -115,8 +132,19 @@ public class Helm implements Helm3API {
 	}
 
 	@Override
-	public List<Chart> search(SearchLocation location, String query) {
-		final String[] command = initCommand("helm", "search", location.name().toLowerCase(), query)
+	public List<Chart> searchHub(String query) {
+		final String[] command = initCommand("helm", "search", "hub", query)
+				.withFlag("-o", "json")
+				.build();
+		return executor.executeWithJsonOutput(new TypeToken<List<Chart>>() {
+		}.getType(), command);
+	}
+
+	@Override
+	public List<Chart> searchRepo(String query, boolean versions, boolean devel) {
+		final String[] command = initCommand("helm", "search", "repo", query)
+				.withFlag("--versions", Boolean.toString(versions))
+				.withFlag("--devel", Boolean.toString(devel))
 				.withFlag("-o", "json")
 				.build();
 		return executor.executeWithJsonOutput(new TypeToken<List<Chart>>() {
@@ -174,6 +202,16 @@ public class Helm implements Helm3API {
 			flags.putAll(commandFlags);
 			final String[] flagsArray = flags.entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue()).toArray(String[]::new);
 			return ArrayUtils.addAll(command, flagsArray);
+		}
+	}
+
+	private File writeValuesToTemporaryFile(Values values, String releaseName) {
+		try {
+			final Path valuesFile = Files.createTempFile("java-helm-api-" + releaseName, ".yaml");
+			Files.writeString(valuesFile, values.asYamlString());
+			return valuesFile.toFile();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
 	}
 

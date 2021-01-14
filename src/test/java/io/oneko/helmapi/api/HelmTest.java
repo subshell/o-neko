@@ -1,38 +1,45 @@
-package io.oneko.helm.api;
+package io.oneko.helmapi.api;
 
-import static io.oneko.helm.api.HelmTestStrings.*;
+import static io.oneko.helmapi.api.HelmTestStrings.*;
 import static org.assertj.core.api.Assertions.*;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import io.oneko.helm.model.Chart;
-import io.oneko.helm.model.Values;
+import io.oneko.helmapi.model.Chart;
+import io.oneko.helmapi.model.Values;
 
 class HelmTest {
 
 	private Helm uut;
+	private File tempFile;
 
 	@BeforeEach
-	void setup() {
+	void setup() throws IOException {
 		final TestCommandExecutor tce = new TestCommandExecutor();
 
 		// This will cause tests to fail if the command invoked changes.
 		// If this happens please check that the command produces identical output and then fix the command here
+		tempFile = Files.createTempFile("helmapitestvalues", "yaml").toFile();
 		tce.addDefinedCommand(helm_repo_list, "helm repo list -ojson");
 		tce.addDefinedCommand(helm_list_all_namespaces, "helm list -o=json --all-namespaces=true --time-format=2006-01-02T15:04:05Z07:00");
 		tce.addDefinedCommand(helm_status_oneko, "helm status oneko -o=json");
-		tce.addDefinedCommand(helm_search_repo_sophora, "helm search repo Sophora Server -o=json");
+		tce.addDefinedCommand(helm_search_repo_sophora, "helm search repo Sophora Server --versions=false --devel=false -o=json");
 		tce.addDefinedCommand(helm_list, "helm list -o=json --time-format=2006-01-02T15:04:05Z07:00");
 		tce.addDefinedCommand("v3.4.2+g23dd3af", "helm version --short");
-		tce.addDefinedCommand(helm_install, "helm install ontest o-neko --namespace=deletethispls --set=ingress.host=oneko.subshell.cloud,oneko.config.spring.data.mongodb.autoIndexCreation=true,oneko.credentialsCoderKeySecret.name=o-neko-credentials-coder-key,oneko.mongodb.secret.name=mongodb-credentials,resources.limits.cpu=1.5,resources.limits.memory=6G,resources.requests.cpu=0.5,resources.requests.memory=2G,serviceAccountName=o-neko-sa --dry-run=false -o=json");
+		tce.addDefinedCommand(helm_install, "helm install ontest o-neko --namespace=deletethispls -f=" + tempFile.getAbsolutePath() + " --dry-run=false -o=json");
 
 		uut = new Helm(tce);
 	}
 
 	@Test
-	void install() {
-		var result = uut.install("ontest", "o-neko", Values.fromYamlString(ONEKO_VALUES), "deletethispls");
+	void install() throws IOException {
+		Files.writeString(tempFile.toPath(), ONEKO_VALUES);
+		var result = uut.install("ontest", "o-neko", Values.fromFile(tempFile), "deletethispls");
 		assertThat(result).isNotNull();
 		assertThat(result.getName()).isEqualTo("ontest");
 		assertThat(result.getNamespace()).isEqualTo("deletethispls");

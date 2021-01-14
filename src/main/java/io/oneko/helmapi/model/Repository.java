@@ -1,4 +1,4 @@
-package io.oneko.helm.model;
+package io.oneko.helmapi.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

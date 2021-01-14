@@ -1,4 +1,4 @@
-package io.oneko.helm.api;
+package io.oneko.helmapi.api;
 
 public class HelmTestStrings {
 
