@@ -212,7 +212,10 @@ export class TemplateEditorComponent implements OnInit {
       id: null,
       name: '',
       content: '',
-      description: ''
+      description: '',
+      chartName: '',
+      chartVersion: '',
+      helmRegistryId: ''
     });
   }
 
