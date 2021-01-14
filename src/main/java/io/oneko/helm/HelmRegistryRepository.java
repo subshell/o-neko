@@ -5,7 +5,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface HelmRegistryRepository {
-  // name url username password
 	Optional<ReadableHelmRegistry> getById(UUID registryId);
 
 	Optional<ReadableHelmRegistry> getByName(String registryName);

@@ -16,10 +16,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import io.oneko.configuration.Controllers;
+import io.oneko.helm.HelmRegistryException;
 import io.oneko.helm.HelmRegistryMapper;
 import io.oneko.helm.HelmRegistryRepository;
 import io.oneko.helm.ReadableHelmRegistry;
 import io.oneko.helm.WritableHelmRegistry;
+import io.oneko.helm.util.HelmRegistryCommandUtils;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
@@ -45,8 +47,10 @@ public class HelmRegistryController {
 
 	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping
-	HelmRegistryDTO createRegistry(@RequestBody CreateHelmRegistryDTO dto) {
+	HelmRegistryDTO createRegistry(@RequestBody CreateHelmRegistryDTO dto) throws HelmRegistryException {
 		WritableHelmRegistry registry = mapper.createRegistryFromDTO(dto);
+		HelmRegistryCommandUtils.addRegistry(registry.readable());
+
 		final ReadableHelmRegistry persistedRegistry = helmRegistryRepository.add(registry);
 		return mapper.toHelmRegistryDTO(persistedRegistry);
 	}
@@ -60,9 +64,10 @@ public class HelmRegistryController {
 
 	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping("/{id}")
-	HelmRegistryDTO updateRegistry(@PathVariable UUID id, @RequestBody HelmRegistryDTO dto) {
-		ReadableHelmRegistry reg = getRegistryOr404(id);
-		WritableHelmRegistry updatedRegistry = mapper.updateRegistryFromDTO(reg.writable(), dto);
+	HelmRegistryDTO updateRegistry(@PathVariable UUID id, @RequestBody HelmRegistryDTO dto) throws HelmRegistryException {
+		ReadableHelmRegistry registry = getRegistryOr404(id);
+		HelmRegistryCommandUtils.addRegistry(registry);
+		WritableHelmRegistry updatedRegistry = mapper.updateRegistryFromDTO(registry.writable(), dto);
 		ReadableHelmRegistry persistedReg = helmRegistryRepository.add(updatedRegistry);
 		return mapper.toHelmRegistryDTO(persistedReg);
 	}
@@ -70,15 +75,20 @@ public class HelmRegistryController {
 	@PreAuthorize("hasRole('ADMIN')")
 	@DeleteMapping("/{id}")
 	void deleteRegistry(@PathVariable UUID id) {
-		ReadableHelmRegistry reg = getRegistryOr404(id);
-		helmRegistryRepository.remove(reg);
+		ReadableHelmRegistry registry = getRegistryOr404(id);
+
+		// TODO: remove registry only if it is not used anymore
+		HelmRegistryCommandUtils.deleteRegistry(registry);
+		helmRegistryRepository.remove(registry);
 	}
 
 	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping("/{id}/password")
-	HelmRegistryDTO changeRegistryPassword(@PathVariable UUID id, @RequestBody ChangeHelmRegistryPasswordDTO dto) {
-		ReadableHelmRegistry reg = getRegistryOr404(id);
-		WritableHelmRegistry writable = reg.writable();
+	HelmRegistryDTO changeRegistryPassword(@PathVariable UUID id, @RequestBody ChangeHelmRegistryPasswordDTO dto) throws HelmRegistryException {
+		ReadableHelmRegistry registry = getRegistryOr404(id);
+		HelmRegistryCommandUtils.addRegistry(registry);
+
+		WritableHelmRegistry writable = registry.writable();
 		writable.setPassword(dto.getPassword());
 		ReadableHelmRegistry persisted = helmRegistryRepository.add(writable);
 		return mapper.toHelmRegistryDTO(persisted);
