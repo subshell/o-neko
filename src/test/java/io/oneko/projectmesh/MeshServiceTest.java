@@ -30,10 +30,10 @@ public class MeshServiceTest {
         ReadableDockerRegistry reg = new WritableDockerRegistry().readable();
         WritableProject p = new WritableProject(reg.getId());
         p.setDefaultConfigurationTemplates(Arrays.asList(
-                new WritableConfigurationTemplate(UUID.randomUUID(), "content1 ${a}", "name1", ""),
-                new WritableConfigurationTemplate(UUID.randomUUID(), "content2 ${b}", "name2", ""),
-                new WritableConfigurationTemplate(UUID.randomUUID(), "content3 ${c}", "name3", ""),
-                new WritableConfigurationTemplate(UUID.randomUUID(), "content4 ${d}", "name4", "")));
+                new WritableConfigurationTemplate(UUID.randomUUID(), "content1 ${a}", "name1", "", "", null, null),
+                new WritableConfigurationTemplate(UUID.randomUUID(), "content2 ${b}", "name2", "", "", null, null),
+                new WritableConfigurationTemplate(UUID.randomUUID(), "content3 ${c}", "name3", "", "", null, null),
+                new WritableConfigurationTemplate(UUID.randomUUID(), "content4 ${d}", "name4", "", "", null, null)));
         List<WritableTemplateVariable> defaultTemplateVariables = new ArrayList<>();
         defaultTemplateVariables.add(new WritableTemplateVariable("a", "a", Collections.singletonList("a1"), true, "a1", false));
         defaultTemplateVariables.add(new WritableTemplateVariable("b", "b", Collections.singletonList("b1"), true, "b1", false));
@@ -43,9 +43,9 @@ public class MeshServiceTest {
 
         final WritableProjectVersion v = p.createVersion("v1");
         v.setConfigurationTemplates(Arrays.asList(
-                new WritableConfigurationTemplate(UUID.randomUUID(), "content3 ${c} from version", "name3", ""),
-                new WritableConfigurationTemplate(UUID.randomUUID(), "content4 ${d} from version", "name4", ""),
-                new WritableConfigurationTemplate(UUID.randomUUID(), "content5 ${e} from version", "name5", "")));
+                new WritableConfigurationTemplate(UUID.randomUUID(), "content3 ${c} from version", "name3", "", "", null, null),
+                new WritableConfigurationTemplate(UUID.randomUUID(), "content4 ${d} from version", "name4", "", "", null, null),
+                new WritableConfigurationTemplate(UUID.randomUUID(), "content5 ${e} from version", "name5", "", "", null, null)));
 
         Map<String, String> templateVariables = new HashMap<>();
         templateVariables.put("b", "b2");
@@ -57,9 +57,9 @@ public class MeshServiceTest {
         WritableProjectMesh mesh = new WritableProjectMesh();
         WritableMeshComponent c = new WritableMeshComponent(mesh, readable.getId(), readable.getVersionByName(v.getName()).get().getId());
         c.setConfigurationTemplates(Arrays.asList(
-                new WritableConfigurationTemplate(UUID.randomUUID(), "content2 ${b} from mesh", "name2", ""),
-                new WritableConfigurationTemplate(UUID.randomUUID(), "content4 ${d} from mesh", "name4", ""),
-                new WritableConfigurationTemplate(UUID.randomUUID(), "content6 ${f} from mesh", "name6", "")));
+                new WritableConfigurationTemplate(UUID.randomUUID(), "content2 ${b} from mesh", "name2", "", "", null, null),
+                new WritableConfigurationTemplate(UUID.randomUUID(), "content4 ${d} from mesh", "name4", "", "", null, null),
+                new WritableConfigurationTemplate(UUID.randomUUID(), "content6 ${f} from mesh", "name6", "", "", null, null)));
 
         Map<String, String> meshTemplateVariables = new HashMap<>();
         meshTemplateVariables.put("c", "c3");

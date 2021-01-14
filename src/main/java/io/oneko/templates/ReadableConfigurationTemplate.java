@@ -1,12 +1,12 @@
 package io.oneko.templates;
 
+import java.util.UUID;
+
 import io.oneko.domain.Identifiable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
-
-import java.util.UUID;
 
 @AllArgsConstructor
 @Builder
@@ -14,13 +14,15 @@ import java.util.UUID;
 public class ReadableConfigurationTemplate extends Identifiable implements ConfigurationTemplate {
 
 	@NonNull
-	private UUID id;
-	private String content;
-	private String name;
-	private String description;
+	private final UUID id;
+	private final String content;
+	private final String name;
+	private final String description;
+	private final String chartName;
+	private final String chartVersion;
+	private final UUID helmRegistryId;
 
 	public WritableConfigurationTemplate writable() {
-		return new WritableConfigurationTemplate(getId(), getContent(), getName(), getDescription());
+		return new WritableConfigurationTemplate(getId(), getContent(), getName(), getDescription(), chartName, chartVersion, helmRegistryId);
 	}
-
 }

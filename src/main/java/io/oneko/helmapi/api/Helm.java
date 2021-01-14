@@ -74,8 +74,9 @@ public class Helm implements Helm3API {
 	 * @return
 	 */
 	@Override
-	public InstallStatus install(String name, String chart, Values values, String namespace, boolean dryRun) {
+	public InstallStatus install(String name, String chart, String version, Values values, String namespace, boolean dryRun) {
 		final String[] command = initCommand("helm", "install", name, chart)
+				.withFlag("--version", version)
 				.withFlag("--namespace", namespace)
 				.withFlag("-f", values.getValuesFilePath().orElse(writeValuesToTemporaryFile(values, name).getAbsolutePath()))
 				.withFlag("--dry-run", Boolean.toString(dryRun))
@@ -196,7 +197,7 @@ public class Helm implements Helm3API {
 		 * @return
 		 */
 		public Command withFlag(String flag, String value) {
-			if (value != null) {
+			if (StringUtils.isNotBlank(value)) {
 				commandFlags.put(flag, value);
 			}
 			return this;
