@@ -18,7 +18,7 @@ public class DescribingEntityChange {
 	private final String name;
 	private final Collection<String> changedProperties;
 	public enum EntityType {
-		Project, DockerRegistry, User, Namespace, ProjectMesh
+		Project, DockerRegistry, User, Namespace, ProjectMesh, HelmRegistry
 	}
 	public enum ChangeType {
 		Saved, Deleted

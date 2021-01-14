@@ -10,7 +10,7 @@ import java.util.Collection;
 public class DockerRegistrySavedEvent extends EntityChangedEvent {
 
 	/**
-	 * Use this constructor with the DockerRegistry object prior to actually saving it.
+	 * Use this constructor with the HelmRegistry object prior to actually saving it.
 	 */
 	public DockerRegistrySavedEvent(WritableDockerRegistry dockerRegistry) {
 		this(dockerRegistry, dockerRegistry.getDirtyProperties());
@@ -20,11 +20,9 @@ public class DockerRegistrySavedEvent extends EntityChangedEvent {
 		super(DescribingEntityChange.builder()
 				.id(dockerRegistry.getUuid())
 				.name(dockerRegistry.getName())
-				.entityType(DescribingEntityChange.EntityType.DockerRegistry)
+				.entityType(DescribingEntityChange.EntityType.HelmRegistry)
 				.changeType(DescribingEntityChange.ChangeType.Saved)
 				.changedProperties(changedProperties)
 				.build());
 	}
-
-
 }
