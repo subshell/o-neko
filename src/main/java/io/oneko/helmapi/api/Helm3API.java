@@ -41,7 +41,10 @@ public interface Helm3API {
 	List<Release> listInAllNamespaces(String filter);
 
 	// repo
-	void addRepo(String name, String url, String username, String password);
+	default void addRepo(String name, String url, String username, String password) {
+		addRepo(name, url, username, password, false);
+	}
+	void addRepo(String name, String url, String username, String password, boolean forceUpdate);
 
 	List<Repository> listRepos();
 
