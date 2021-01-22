@@ -1,6 +1,24 @@
 package io.oneko.kubernetes.impl;
 
+import static io.oneko.kubernetes.deployments.DesiredState.*;
+import static io.oneko.project.ProjectConstants.LabelNames.*;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
+
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.Secret;
@@ -20,18 +38,18 @@ import io.oneko.kubernetes.KubernetesDeploymentManager;
 import io.oneko.kubernetes.deployments.Deployable;
 import io.oneko.kubernetes.deployments.Deployables;
 import io.oneko.kubernetes.deployments.DesiredState;
-import io.oneko.project.*;
-import io.oneko.projectmesh.*;
+import io.oneko.project.ProjectRepository;
+import io.oneko.project.ProjectVersion;
+import io.oneko.project.ReadableProject;
+import io.oneko.project.ReadableProjectVersion;
+import io.oneko.project.WritableProjectVersion;
+import io.oneko.projectmesh.MeshService;
+import io.oneko.projectmesh.ProjectMeshRepository;
+import io.oneko.projectmesh.ReadableMeshComponent;
+import io.oneko.projectmesh.ReadableProjectMesh;
+import io.oneko.projectmesh.WritableMeshComponent;
+import io.oneko.projectmesh.WritableProjectMesh;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
-
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static io.oneko.kubernetes.deployments.DesiredState.Deployed;
-import static io.oneko.kubernetes.deployments.DesiredState.NotDeployed;
-import static io.oneko.project.ProjectConstants.LabelNames.TEMPLATE_NAME;
 
 @Slf4j
 @Service
@@ -130,7 +148,7 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 
 	private <T extends Deployable<?>> T updateDeployableWithCreatedResources(T deployable, List<HasMetadata> createdResources) {
 		ProjectVersion<?, ?> relatedVersion = deployable.getRelatedProjectVersion();
-		createdResources.forEach(hasMetadata -> setDeploymentUrlsTo(deployable, hasMetadata));
+		updateDeploymentUrls(deployable, createdResources);
 		deployable.setOutdated(false);
 		if (!StringUtils.isEmpty(deployable.getDockerContentDigest())) {
 			return deployable;
@@ -163,6 +181,9 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 	}
 
 	private void addLabelToResource(HasMetadata resource, String key, String value) {
+		if (resource.getMetadata() == null) {
+			resource.setMetadata(new ObjectMeta());
+		}
 		if (resource instanceof Deployment) {
 			Deployment deployment = (Deployment) resource;
 			addLabelToMeta(deployment.getMetadata(), key, value);
@@ -176,19 +197,36 @@ class KubernetesDeploymentManagerImpl implements KubernetesDeploymentManager {
 		}
 	}
 
-	private void setDeploymentUrlsTo(Deployable<?> deployable, HasMetadata hasMetadata) {
-		if (hasMetadata instanceof Ingress) {
-			Ingress ingress = (Ingress) hasMetadata;
+	private void updateDeploymentUrls(Deployable<?> deployable, List<HasMetadata> createdResources) {
+		List<String> urls = createdResources.stream()
+				.flatMap(hasMetadata -> {
+					if (hasMetadata instanceof Ingress) {
+						var ingress = (Ingress) hasMetadata;
+						return ingress
+								.getSpec()
+								.getRules()
+								.stream()
+								.map(IngressRule::getHost);
+					} else if (hasMetadata instanceof io.fabric8.kubernetes.api.model.networking.v1beta1.Ingress) {
+						var ingress = (io.fabric8.kubernetes.api.model.networking.v1beta1.Ingress) hasMetadata;
+						return ingress
+								.getSpec()
+								.getRules()
+								.stream()
+								.map(io.fabric8.kubernetes.api.model.networking.v1beta1.IngressRule::getHost);
+					} else if (hasMetadata instanceof io.fabric8.kubernetes.api.model.networking.v1.Ingress) {
+						var ingress = (io.fabric8.kubernetes.api.model.networking.v1.Ingress) hasMetadata;
+						return ingress
+								.getSpec()
+								.getRules()
+								.stream()
+								.map(io.fabric8.kubernetes.api.model.networking.v1.IngressRule::getHost);
+					}
+					return Stream.empty();
+				}).collect(Collectors.toList());
 
-			List<String> urls = ingress
-					.getSpec()
-					.getRules()
-					.stream()
-					.map(IngressRule::getHost)
-					.collect(Collectors.toList());
-			log.trace("Found urls {} of {} {}", urls, deployable.getClass().getSimpleName(), deployable.getName());
-			deployable.setUrls(urls);
-		}
+		log.trace("Found urls {} of {} {}", urls, deployable.getClass().getSimpleName(), deployable.getName());
+		deployable.setUrls(urls);
 	}
 
 	private Secret createSecretIfNotExistent(DockerRegistry dockerRegistry, String namespace) throws JsonProcessingException {
