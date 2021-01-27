@@ -16,7 +16,6 @@ import {Observable} from 'rxjs';
 export class ExpandableMenuComponent extends CdkAccordionItem implements OnInit {
 
   @Input() entry: ExpandableMenuEntry;
-  @Input() expanded: boolean;
   subRouteIsActive: Observable<boolean>;
 
   constructor(changeDetectorRef: ChangeDetectorRef,
