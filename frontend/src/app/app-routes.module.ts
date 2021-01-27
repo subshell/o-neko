@@ -125,9 +125,10 @@ export const APP_ROUTES: Routes = [
 @NgModule({
   imports: [
     RouterModule.forRoot(APP_ROUTES, {
-      onSameUrlNavigation: 'ignore',
-      useHash: false
-    })
+    onSameUrlNavigation: 'ignore',
+    useHash: false,
+    relativeLinkResolution: 'legacy'
+})
   ],
   exports: [RouterModule]
 })
