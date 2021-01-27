@@ -1,5 +1,5 @@
 import {Registry} from "../registry";
-import {RegistryPasswordDto} from "../registry-password-d-t-o";
+import {RegistryPasswordDto} from "../registry-password-dto";
 
 export interface HelmRegistryDTO extends Registry {
   id: string

@@ -2,7 +2,7 @@ import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {map} from "rxjs/operators";
 import {HelmRegistry, HelmRegistryDTO} from "../registries/helm/helm-registry";
-import {RegistryPasswordDto} from "../registries/registry-password-d-t-o";
+import {RegistryPasswordDto} from "../registries/registry-password-dto";
 
 export class HelmRestService {
 
