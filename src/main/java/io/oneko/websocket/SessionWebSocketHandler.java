@@ -40,7 +40,7 @@ public class SessionWebSocketHandler extends TextWebSocketHandler {
 
 	@Override
 	public void handleTransportError(WebSocketSession session, Throwable exception) {
-		log.error("Error while transporting webSocket message for {}", session.getId(), exception);
+		log.trace("Error while transporting websocket message for {}", session.getId(), exception);
 	}
 
 	@Override
