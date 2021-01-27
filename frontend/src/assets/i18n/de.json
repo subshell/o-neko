@@ -88,7 +88,11 @@
       "createNewTemplate": "Neues Template erstellen",
       "downloadCurrentFile": "Aktuelle Datei herunterladen",
       "thisIsAnInheritedConfiguration": "Das ist eine geerbte Konfiguration.",
-      "overwritesInheritedConfiguration": "Das überschreibt eine geerbte Konfiguration."
+      "overwritesInheritedConfiguration": "Das überschreibt eine geerbte Konfiguration.",
+      "chartRegistry": "Chart Registry",
+      "chartName": "Chartname",
+      "chartVersion": "Chartversion",
+      "chartVersionPlaceholder": "Leer lassen für die neueste Version"
     },
     "dockerRegistry": {
       "deletionDialog": {

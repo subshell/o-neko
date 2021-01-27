@@ -1,3 +1,5 @@
+import {StringUtils} from "../util/string-utils";
+
 export interface ConfigurationTemplateDTO {
   id: string
   content: string
@@ -35,5 +37,9 @@ export class ConfigurationTemplate implements ConfigurationTemplateDTO {
     let tpl = ConfigurationTemplate.from(template);
     tpl.id = null;
     return tpl;
+  }
+
+  public isValid(): boolean {
+    return StringUtils.anyBlank([this.id, this.content, this.name, this.chartName, this.helmRegistryId]);
   }
 }

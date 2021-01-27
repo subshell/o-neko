@@ -12,6 +12,8 @@ import {ThemingState} from "../../store/theming/theming.state";
 import {Observable} from "rxjs";
 import {FileDownloadService} from '../../util/file-download.service';
 import {TranslateService} from "@ngx-translate/core";
+import {RestService} from "../../rest/rest.service";
+import {HelmRegistry} from "../../registries/helm/helm-registry";
 
 export class ConfigurationTemplateEditorModel {
   constructor(public template?: ConfigurationTemplate, public defaultTemplate?: ConfigurationTemplate) {
@@ -87,7 +89,9 @@ export class TemplateEditorComponent implements OnInit {
 
   @Select(ThemingState.isDarkMode) isDarkTheme$: Observable<boolean>;
 
-  public readonly editorOptions: IStandaloneEditorConstructionOptions = {
+  public chartRegistries: Observable<Array<HelmRegistry>>;
+
+  public editorOptions: IStandaloneEditorConstructionOptions = {
     theme: 'vs-light',
     renderLineHighlight: 'gutter',
     language: 'yaml',
@@ -107,11 +111,16 @@ export class TemplateEditorComponent implements OnInit {
   constructor(private readonly snackBar: MatSnackBar,
               private readonly dialog: MatDialog,
               private store: Store,
-              private translate: TranslateService) {
+              private translate: TranslateService,
+              private rest: RestService) {
     this._fileReaderService = new FileReaderService();
     this.isDarkTheme$.subscribe(isDark => {
-      this.editorOptions.theme = isDark ? 'vs-dark' : 'vs-light';
+      this.editorOptions = {
+        ...this.editorOptions,
+        theme: isDark ? 'vs-dark' : 'vs-light'
+      };
     });
+    this.chartRegistries = this.rest.helm().getAllHelmRegistries();
   }
 
   ngOnInit(): void {
@@ -157,6 +166,13 @@ export class TemplateEditorComponent implements OnInit {
     this.addNewTemplate(template);
   }
 
+  public helmChartSettingsChanged() {
+    if (this.isValid()) {
+      this.emitValidity();
+      this.emitTemplates();
+    }
+  }
+
   public onTextOverwrite(content: string, template: ConfigurationTemplateEditorModel) {
     if (this._skipTextOverwrite && this._skipTextOverwrite.getTime() + 50 < new Date().getTime() || content === template.effectiveTemplate.content) {
       this._skipTextOverwrite = null;
@@ -164,6 +180,7 @@ export class TemplateEditorComponent implements OnInit {
     }
 
     template.setContent(content);
+    this.emitValidity();
     this.emitTemplates();
   }
 
@@ -198,6 +215,7 @@ export class TemplateEditorComponent implements OnInit {
     setTimeout(() => {
       this.selectedTab.setValue(this.configurationTemplatesModels.length - 1);
     }, 0);
+    this.emitValidity();
     this.emitTemplates();
   }
 
@@ -232,12 +250,20 @@ export class TemplateEditorComponent implements OnInit {
       if (valid) {
         this.currentTemplateModel.name = filename;
         this.currentTemplateModel.description = description;
-        this.templatesValid.emit(valid);
+        this.emitValidity();
       }
     });
   }
 
   public onDownloadCurrentFile(currentTemplateModel: ConfigurationTemplateEditorModel): void {
     FileDownloadService.downloadFle(currentTemplateModel.template.content, `${currentTemplateModel.name}.yaml`, 'text/yaml');
+  }
+
+  private isValid(): boolean {
+    return this.templates.every(tpl => tpl.isValid());
+  }
+
+  private emitValidity() {
+    this.templatesValid.emit(this.isValid());
   }
 }

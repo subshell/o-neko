@@ -45,6 +45,22 @@
       </ng-template>
     </mat-tab>
   </mat-tab-group>
+  <div class="helm-chart-controls" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="1em">
+    <mat-form-field>
+      <mat-label>{{'components.templateEditor.chartRegistry' | translate}}</mat-label>
+      <mat-select required [(ngModel)]="currentTemplateModel.effectiveTemplate.helmRegistryId" (ngModelChange)="helmChartSettingsChanged()">
+        <mat-option *ngFor="let registry of (chartRegistries | async)" [value]="registry.id">{{ registry.name }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>{{'components.templateEditor.chartName' | translate}}</mat-label>
+      <input matInput required [(ngModel)]="currentTemplateModel.effectiveTemplate.chartName" (ngModelChange)="helmChartSettingsChanged()" />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>{{'components.templateEditor.chartVersion' | translate}}</mat-label>
+      <input matInput [placeholder]="'components.templateEditor.chartVersionPlaceholder' | translate" [(ngModel)]="currentTemplateModel.effectiveTemplate.chartVersion" (ngModelChange)="helmChartSettingsChanged()" />
+    </mat-form-field>
+  </div>
   <div class="code-editor-wrapper" *ngIf="currentTemplateModel">
     <ngx-monaco-editor class="code-editor" [options]="editorOptions" [ngModel]="currentTemplateModel.effectiveTemplate.content" (ngModelChange)="onTextOverwrite($event, currentTemplateModel)"></ngx-monaco-editor>
   </div>

@@ -55,7 +55,7 @@ export class Project implements ProjectDTO {
 
     project.imageName = from.imageName;
     project.newVersionsDeploymentBehaviour = from.newVersionsDeploymentBehaviour;
-    project.defaultConfigurationTemplates = from.defaultConfigurationTemplates || [];
+    project.defaultConfigurationTemplates = from.defaultConfigurationTemplates.map(tpl => ConfigurationTemplate.from(tpl)) || [];
     project.templateVariables = from.templateVariables || [];
     project.dockerRegistryUUID = from.dockerRegistryUUID;
     project.versions = from.versions.map(version => ProjectVersion.from(version));
