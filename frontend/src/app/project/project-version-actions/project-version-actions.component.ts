@@ -20,7 +20,7 @@ export class ProjectVersionActionsComponent {
   @Input() hideIcons: boolean = false;
   @Input() hideText: boolean = false;
   public hasDeployPermission: boolean;
-  public hasEditPermissions: boolean;
+  public hasEditVariablesPermission: boolean;
   private log = LogService.getLogger(ProjectVersionActionsComponent);
   private editingUser: User;
 
@@ -31,11 +31,11 @@ export class ProjectVersionActionsComponent {
         tap(currentUser => this.editingUser = currentUser),
         map(currentUser => [
           projectService.isUserAllowedToDeployProjects(currentUser),
-          projectService.isUserAllowedToEditProjects(currentUser)
+          projectService.isUserAllowedToEditProjectVersionVariables(currentUser)
         ])
-      ).subscribe(([allowedToDeploy, allowedToEdit]) => {
+      ).subscribe(([allowedToDeploy, allowedToEditVersionVariables]) => {
       this.hasDeployPermission = allowedToDeploy;
-      this.hasEditPermissions = allowedToEdit;
+      this.hasEditVariablesPermission = allowedToEditVersionVariables;
     });
 
   }
@@ -54,6 +54,6 @@ export class ProjectVersionActionsComponent {
 
   public saveVersion($event: ProjectVersionVariableActionChangeEvent) {
     this.log.debug(`Version of ${$event.version.name} changed`);
-    this.projectService.saveProject(this.project, this.editingUser);
+    this.projectService.saveProjectVersionVariables(this.project, $event.version);
   }
 }

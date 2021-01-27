@@ -48,17 +48,20 @@ export const APP_ROUTES: Routes = [
                 children: [
                   {
                     path: ':versionId',
-                    component: EditProjectVersionComponent
+                    component: EditProjectVersionComponent,
+                    canActivate: [AuthGuardService, IsAdminOrDoerGuardService]
                   },
                   {
                     path: '',
                     component: ProjectVersionListComponent,
+                    canActivate: [AuthGuardService]
                   }
                 ]
               },
               {
                 path: '',
-                component: EditProjectComponent
+                component: EditProjectComponent,
+                canActivate: [AuthGuardService, IsAdminOrDoerGuardService]
               }
             ]
           },
@@ -77,16 +80,19 @@ export const APP_ROUTES: Routes = [
               {
                 path: 'components',
                 component: ManageMeshComponentsComponent,
+                canActivate: [AuthGuardService, IsAdminOrDoerGuardService]
               },
               {
                 path: '',
                 component: EditMeshComponent,
+                canActivate: [AuthGuardService, IsAdminOrDoerGuardService]
               }
             ]
           },
           {
             path: '',
-            component: ProjectMeshListComponent
+            component: ProjectMeshListComponent,
+            canActivate: [AuthGuardService]
           }
         ]
       },

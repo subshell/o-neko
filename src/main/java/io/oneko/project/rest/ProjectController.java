@@ -2,6 +2,7 @@ package io.oneko.project.rest;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -105,6 +106,18 @@ public class ProjectController {
 		WritableProject project = getProjectOr404(id).writable();
 		final UUID dockerRegistryId = getDockerRegistryIdForProject(project, dto);
 		dtoMapper.updateProjectFromDTO(project, dto, dockerRegistryId);
+		final ReadableProject persisted = projectRepository.add(project);
+		return dtoMapper.projectToDTO(persisted);
+	}
+
+	@PreAuthorize("hasAnyRole('ADMIN', 'DOER', 'VIEWER')") // this method exists to let VIEWERs change values of variables
+	@PostMapping("/{id}/version/{versionId}/templateVariables")
+	ProjectDTO updateProjectVersionTemplateVariables(@PathVariable UUID id, @PathVariable UUID versionId, @RequestBody ProjectDTO dto) {
+		WritableProject project = getProjectOr404(id).writable();
+		project.getVersionById(versionId).ifPresent(version -> dto.getVersions().stream()
+				.filter(v -> v.getUuid().equals(version.getId()))
+				.findFirst()
+				.ifPresent(versionFromDto -> version.setTemplateVariables(versionFromDto.getTemplateVariables())));
 		final ReadableProject persisted = projectRepository.add(project);
 		return dtoMapper.projectToDTO(persisted);
 	}

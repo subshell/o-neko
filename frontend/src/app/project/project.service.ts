@@ -1,8 +1,8 @@
 import {Injectable} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSnackBar} from "@angular/material/snack-bar";
-import {Observable, throwError} from "rxjs";
-import {filter, mergeMap, shareReplay} from 'rxjs/operators';
+import {EMPTY, Observable, throwError} from "rxjs";
+import {filter, mergeMap, share, shareReplay} from 'rxjs/operators';
 import {DeployableStatus} from "../deployable/deployment";
 import {RestService} from "../rest/rest.service";
 import {User} from "../user/user";
@@ -37,6 +37,10 @@ export class ProjectService {
 
   public isUserAllowedToDeleteProjects(user: User): boolean {
     return this.isUserAllowedToEditProjects(user);
+  }
+
+  public isUserAllowedToEditProjectVersionVariables(user: User): boolean {
+    return true;
   }
 
   public isUserAllowedToDeployProjects(user: User): boolean {
@@ -98,6 +102,22 @@ export class ProjectService {
         duration: ProjectService.SNACKBAR_DEFAULT_DURATION
       });
       return savedProject;
+    });
+    return projectObservable;
+  }
+
+  public saveProjectVersionVariables(project: Project, projectVersion: ProjectVersion): Observable<Project> {
+    if (project.isNew()) {
+      return EMPTY;
+    }
+    const projectObservable = this.rest.project().persistProjectVersionVariables(project, projectVersion).pipe(shareReplay());
+    projectObservable.subscribe(savedProject => {
+      this.snackBar.openFromComponent(TimeoutSnackbarComponent, {
+        data: {
+          text: `Project ${savedProject.name} has been saved.`
+        },
+        duration: ProjectService.SNACKBAR_DEFAULT_DURATION
+      });
     });
     return projectObservable;
   }
