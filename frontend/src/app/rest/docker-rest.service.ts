@@ -2,7 +2,7 @@ import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {map} from "rxjs/operators";
 import {DockerRegistry, DockerRegistryDTO} from "../registries/docker/docker-registry";
-import {ChangeRegistryPasswordDTO} from "../registries/change-registry-password-dto";
+import {RegistryPasswordDto} from "../registries/registry-password-d-t-o";
 
 export class DockerRestService {
 
@@ -30,7 +30,7 @@ export class DockerRestService {
     }
   }
 
-  public changeDockerRegistryPassword(dockerRegistry: DockerRegistry, passwordDTO: ChangeRegistryPasswordDTO): Observable<DockerRegistry> {
+  public changeDockerRegistryPassword(dockerRegistry: DockerRegistry, passwordDTO: RegistryPasswordDto): Observable<DockerRegistry> {
     return this.http.post<DockerRegistryDTO>(`/${this.root_path}/${dockerRegistry.uuid}/password`, passwordDTO).pipe(map(DockerRegistry.from));
   }
 

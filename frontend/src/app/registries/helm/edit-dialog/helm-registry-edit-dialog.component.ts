@@ -47,9 +47,9 @@ export class HelmRegistryEditDialogComponent {
 
   public save(): void {
     let isNew = this.helmRegistry.isNew();
-    this.rest.helm().persistHelmRegistry(this.helmRegistry)
+    this.rest.helm().persistHelmRegistry(this.helmRegistry, this.newPassword)
       .pipe(flatMap(savedHelmRegistry => {
-        if (this.newPassword) {
+        if (!isNew && this.newPassword) {
           return this.rest.helm().changeHelmRegistryPassword(savedHelmRegistry, {password: this.newPassword});
         } else {
           return of(savedHelmRegistry);

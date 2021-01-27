@@ -1,9 +1,14 @@
 import {Registry} from "../registry";
+import {RegistryPasswordDto} from "../registry-password-d-t-o";
 
 export interface HelmRegistryDTO extends Registry {
   id: string
   url: string
   username: string
+}
+
+export interface NewHelmRegistryDTO extends HelmRegistryDTO, RegistryPasswordDto {
+
 }
 
 export class HelmRegistry implements HelmRegistryDTO {

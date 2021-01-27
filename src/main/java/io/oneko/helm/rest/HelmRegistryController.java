@@ -31,9 +31,9 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping(HelmRegistryController.PATH)
 public class HelmRegistryController {
 	public static final String PATH = Controllers.ROOT_PATH + "/helm/registries";
-	private HelmRegistryRepository helmRegistryRepository;
+	private final HelmRegistryRepository helmRegistryRepository;
 	private final ProjectRepository projectRepository;
-	private HelmRegistryMapper mapper;
+	private final HelmRegistryMapper mapper;
 
 	public HelmRegistryController(HelmRegistryRepository helmRegistryRepository,
 																ProjectRepository projectRepository,

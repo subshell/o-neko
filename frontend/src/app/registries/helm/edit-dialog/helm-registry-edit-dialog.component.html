@@ -17,7 +17,7 @@
         </div>
         <div fxLayout="row" fxLayoutGap="1em">
           <mat-form-field>
-            <input type="text" #username="ngModel" matInput [(ngModel)]="helmRegistry.username" name="userName" id="userName" [placeholder]="'general.username' | translate" [disabled]="isReadonly()">
+            <input type="text" #username="ngModel" matInput [(ngModel)]="helmRegistry.username" name="username" id="username" [placeholder]="'general.username' | translate" [disabled]="isReadonly()">
           </mat-form-field>
         </div>
         <div *ngIf="passwordFieldsVisible && !isReadonly()" fxLayout="row" fxLayoutGap="1em">
