@@ -21,13 +21,13 @@ public class HelmRegistryCommandUtils {
 		}
 	}
 
-	public static void deleteRegistry(ReadableHelmRegistry helmRegistry) {
+	public static void deleteRegistry(ReadableHelmRegistry helmRegistry) throws HelmRegistryException {
 		var helm = new Helm();
 
 		try {
-			helm.addRepo(helmRegistry.getName(), helmRegistry.getUrl(), helmRegistry.getUsername(), helmRegistry.getPassword());
+			helm.removeRepo(helmRegistry.getName());
 		} catch (CommandException e) {
-			log.error("", e);
+			throw HelmRegistryException.fromCommandException(e, helmRegistry.getUrl(), helmRegistry.getName());
 		}
 	}
 }

@@ -80,7 +80,7 @@ public class HelmRegistryController {
 
 	@PreAuthorize("hasRole('ADMIN')")
 	@DeleteMapping("/{id}")
-	void deleteRegistry(@PathVariable UUID id) {
+	void deleteRegistry(@PathVariable UUID id) throws HelmRegistryException {
 		ReadableHelmRegistry registry = getRegistryOr404(id);
 
 		// TODO: remove registry only if it is not used anymore
