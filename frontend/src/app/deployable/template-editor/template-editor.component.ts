@@ -167,10 +167,8 @@ export class TemplateEditorComponent implements OnInit {
   }
 
   public helmChartSettingsChanged() {
-    if (this.isValid()) {
-      this.emitValidity();
-      this.emitTemplates();
-    }
+    this.emitValidity();
+    this.emitTemplates();
   }
 
   public onTextOverwrite(content: string, template: ConfigurationTemplateEditorModel) {

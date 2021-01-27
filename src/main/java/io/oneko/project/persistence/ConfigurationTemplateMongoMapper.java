@@ -18,6 +18,9 @@ public class ConfigurationTemplateMongoMapper {
 				.name(configurationTemplate.getName())
 				.content(configurationTemplate.getContent())
 				.description(configurationTemplate.getDescription())
+				.chartName(configurationTemplate.getChartName())
+				.chartVersion(configurationTemplate.getChartVersion())
+				.helmRegistryId(configurationTemplate.getHelmRegistryId())
 				.build();
 	}
 
@@ -33,6 +36,9 @@ public class ConfigurationTemplateMongoMapper {
 				.name(templateMongo.getName())
 				.content(templateMongo.getContent())
 				.description(templateMongo.getDescription())
+				.chartName(templateMongo.getChartName())
+				.chartVersion(templateMongo.getChartVersion())
+				.helmRegistryId(templateMongo.getHelmRegistryId())
 				.build();
 	}
 

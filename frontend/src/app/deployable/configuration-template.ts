@@ -40,6 +40,6 @@ export class ConfigurationTemplate implements ConfigurationTemplateDTO {
   }
 
   public isValid(): boolean {
-    return StringUtils.anyBlank([this.id, this.content, this.name, this.chartName, this.helmRegistryId]);
+    return StringUtils.noneBlank([this.id, this.content, this.name, this.chartName, this.helmRegistryId]);
   }
 }
