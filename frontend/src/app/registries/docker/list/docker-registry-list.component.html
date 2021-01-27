@@ -11,19 +11,19 @@
       </span>
     </button>
     <span *ngIf="!mayCreateDockerRegistry()" class="place-holder"></span>
-    <mat-paginator [length]="dockerRegistries.length"
+    <mat-paginator [length]="registryTable.sortedRegistries.length"
                    [pageSize]="pageSettings.pageSize"
                    [pageSizeOptions]="pageSettings.pageSizeOptions"
-                   (page)="paginationEvent($event)"></mat-paginator>
+                   (page)="registryTable.paginationEvent($event)"></mat-paginator>
   </div>
 
-  <table matSort (matSortChange)="sortDockerRegistries($event)">
+  <table matSort (matSortChange)="registryTable.sortRegistries($event)">
     <tr>
       <th mat-sort-header="name">{{'general.name' | translate}}</th>
       <th mat-sort-header="registryUrl">{{'general.url' | translate}}</th>
       <th></th>
     </tr>
-    <tr *ngFor="let dockerRegistry of sortedDockerRegistries">
+    <tr *ngFor="let dockerRegistry of registryTable.sortedRegistries">
       <td>{{dockerRegistry.name}}</td>
       <td><div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="6px"><mat-icon [matTooltip]="(dockerRegistry.trustInsecureCertificate ? 'components.dockerRegistry.trustsInsecureCertificates' : 'components.dockerRegistry.doesNotTrustInsecureCertificates') | translate" class="shield-icon" [svgIcon]="dockerRegistry.trustInsecureCertificate ? 'mdi:shield-alert' : 'mdi:shield-check'" [class.insecure]="dockerRegistry.trustInsecureCertificate"></mat-icon><span>{{dockerRegistry.registryUrl}}</span></div></td>
       <td>

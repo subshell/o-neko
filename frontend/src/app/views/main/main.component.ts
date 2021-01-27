@@ -65,6 +65,10 @@ export class MainComponent {
             title: 'menu.administration.dockerRegistries',
             href: '/docker-registries',
             hidden: !user.hasAnyPermission(UserRole.ADMIN, UserRole.DOER)
+          }, {
+            title: 'menu.administration.helmRegistries',
+            href: '/helm-registries',
+            hidden: !user.hasAnyPermission(UserRole.ADMIN, UserRole.DOER)
           },{
             title: 'menu.administration.users',
             href: '/users',

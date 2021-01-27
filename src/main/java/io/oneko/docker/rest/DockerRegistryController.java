@@ -107,7 +107,7 @@ public class DockerRegistryController {
 	}
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'DOER')")
-	@GetMapping("/{id}/project")
+	@GetMapping("/{id}/projects")
 	List<String> getProjectsUsingRegistry(@PathVariable UUID id) {
 		return this.projectRepository.getByDockerRegistryUuid(id)
 				.stream()

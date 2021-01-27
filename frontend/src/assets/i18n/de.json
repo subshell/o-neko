@@ -27,6 +27,7 @@
     "administration": {
       "administration": "Administration",
       "dockerRegistries": "Docker Registries",
+      "helmRegistries": "Helm Registries",
       "users": "Benutzer",
       "activityLog": "!alias:views.logs.activityLog"
     }
@@ -108,6 +109,22 @@
       "createDockerRegistry": "!alias:components.dockerRegistry.editDialog.createRegistry",
       "trustsInsecureCertificates": "O-Neko wurde konfiguriert, unsicheren Zertifikaten dieser Registry zu vertrauen.",
       "doesNotTrustInsecureCertificates": "O-Neko vertraut unseren Zertifikaten dieser Registry nicht."
+    },
+    "helmRegistry": {
+      "deletionDialog": {
+        "registryIsUsedByProject": "Die Helm Registry <b>{registry}</b> wird von folgenden Projekten verwendet:",
+        "usedRegistryWarningText": "<p>Wenn diese Registry gelöscht wird, verwaisen diese Projekte.</p><p>Sie können danach nicht mehr deployed oder anderweitig verwendet werden, solang ihnen keine neue Registry zugewiesen wird, die die Images unter dem selben Namen bereitstellt.</p>",
+        "confirmDeletionText": "Bitte bestätigen Sie das Löschen der Registry indem Sie ihren Namen in das Eingabefeld tippen. Das Löschen kann nicht rückgängig gemacht werden.",
+        "confirmName": "Namen der Registry bestätigen"
+      },
+      "editDialog": {
+        "createRegistry": "Helm Registry anlegen",
+        "editRegistry": "Helm Registry bearbeiten",
+        "registryHasBeenModifiedByAction": "Die Helm Registry {registry} wurde {action, select, created{angelegt} deleted{gelöscht} saved{gespeichert} other{bearbeitet}}."
+      },
+      "registryUrl": "Registry URL",
+      "helmRegistries": "!alias:menu.administration.helmRegistries",
+      "createHelmRegistry": "!alias:components.helmRegistry.editDialog.createRegistry"
     },
     "forms": {
       "errors": {

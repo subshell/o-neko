@@ -1,14 +1,16 @@
 import {Component} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
-import {PageEvent} from "@angular/material/paginator";
-import {Sort} from "@angular/material/sort";
-import {RestService} from "../../rest/rest.service";
-import {User} from "../../user/user";
-import {UserRole} from "../../user/user-role";
-import {UserService} from "../../user/user.service";
-import {ConfirmDeletionDialogComponent} from "../confirm-deletion.dialog/confirm-deletion-dialog.component";
+import {RestService} from "../../../rest/rest.service";
+import {User} from "../../../user/user";
+import {UserRole} from "../../../user/user-role";
+import {UserService} from "../../../user/user.service";
+import {
+  ConfirmDeletionDialogComponent,
+  ConfirmDeletionDialogData
+} from "../../confirm-deletion.dialog/confirm-deletion-dialog.component";
 import {DockerRegistry} from "../docker-registry";
 import {DockerRegistryEditDialogComponent} from "../edit-dialog/docker-registry-edit-dialog.component";
+import {RegistryTable} from "../../registry-table";
 
 @Component({
   selector: 'docker-registry-list',
@@ -16,24 +18,22 @@ import {DockerRegistryEditDialogComponent} from "../edit-dialog/docker-registry-
   styleUrls: ['./docker-registry-list.component.scss']
 })
 export class DockerRegistryListComponent {
+  public registryTable: RegistryTable<DockerRegistry>;
 
-  public sortedDockerRegistries: Array<DockerRegistry>;
-  public dockerRegistries: Array<DockerRegistry> = [];
   public pageSettings = {
     pageSize: 10,
     pageSizeOptions: [10, 25, 50, 100]
   };
   private editingUser: User;
-  private pageEvent: PageEvent;
-  private sort: Sort;
 
   constructor(private rest: RestService,
               private userService: UserService,
               private dialog: MatDialog) {
+    this.registryTable = new RegistryTable();
     this.userService.currentUser().subscribe(currentUser => this.editingUser = currentUser);
     this.rest.docker().getAllDockerRegistries().subscribe(registries => {
-      this.dockerRegistries = registries;
-      this.sortDockerRegistries();
+      this.registryTable = new RegistryTable(registries);
+      this.registryTable.sortRegistries();
     });
   }
 
@@ -58,8 +58,8 @@ export class DockerRegistryListComponent {
       width: '80%'
     }).afterClosed().subscribe(result => {
       if (result) {
-        this.dockerRegistries.push(result);
-        this.sortDockerRegistries();
+        this.registryTable.addRegistry(result);
+        this.registryTable.sortRegistries();
       }
     });
   }
@@ -77,65 +77,29 @@ export class DockerRegistryListComponent {
       data: {registry, readOnly: false}
     }).afterClosed().subscribe(result => {
       if (result) {
-        this.updateDockerRegistryInList(result);
-        this.sortDockerRegistries();
+        this.registryTable.updateRegistryInList(result);
+        this.registryTable.sortRegistries();
       }
     });
   }
 
   public deleteDockerRegistry(registry: DockerRegistry) {
     this.rest.docker().getNamesOfProjectsUsingRegistry(registry).subscribe(names => {
-      this.dialog.open(ConfirmDeletionDialogComponent, {
+      this.dialog.open<ConfirmDeletionDialogComponent, ConfirmDeletionDialogData>(ConfirmDeletionDialogComponent, {
         width: '60%',
-        data: {registry, projectNames: names}
+        data: {
+          registry,
+          projectNames: names,
+          translationId: 'dockerRegistry',
+          onConfirm: this.rest.docker().deleteDockerRegistry(registry)
+        },
       }).afterClosed().subscribe(result => {
         if (result) {
-          this.dockerRegistries.splice(this.dockerRegistries.indexOf(result), 1);
-          this.sortDockerRegistries();
+          this.registryTable.removeRegistry(result);
+          this.registryTable.sortRegistries();
         }
       });
     });
-  }
-
-  public sortDockerRegistries(sort?: Sort) {
-    this.sort = sort;
-    let first = 0;
-    let pageSize = this.pageSettings.pageSize;
-    if (this.pageEvent) {
-      first = this.pageEvent.pageIndex * this.pageEvent.pageSize;
-      pageSize = this.pageEvent.pageSize;
-    }
-    this.sortedDockerRegistries = this.getSortedDockerRegistries(sort).slice(first, first + pageSize);
-  }
-
-  public paginationEvent(event: PageEvent) {
-    this.pageEvent = event;
-    this.sortDockerRegistries(this.sort);
-  }
-
-  public getSortedDockerRegistries(sort?: Sort): Array<DockerRegistry> {
-    const data = this.dockerRegistries.slice();
-    if (!sort || !sort.active || sort.direction == '') {
-      return data;
-    }
-
-    return data.sort((a, b) => {
-      let isAsc = sort.direction === 'asc';
-      if (a[sort.active] !== undefined) {
-        return this.compare(a[sort.active], b[sort.active], isAsc);
-      } else {
-        return 0;
-      }
-    });
-  }
-
-  private updateDockerRegistryInList(dockerRegistry: DockerRegistry) {
-    let idx = this.dockerRegistries.findIndex(reg => reg.uuid === dockerRegistry.uuid);
-    this.dockerRegistries.splice(idx, 1, dockerRegistry);
-  }
-
-  private compare(a: any, b: any, isAsc: boolean): number {
-    return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
   }
 
 }

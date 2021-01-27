@@ -1,4 +1,6 @@
-export interface DockerRegistryDTO {
+import {Registry} from "../registry";
+
+export interface DockerRegistryDTO extends Registry {
   uuid: string
   name: string
   registryUrl: string
@@ -25,5 +27,9 @@ export class DockerRegistry implements DockerRegistryDTO {
 
   public isNew(): boolean {
     return !this.uuid;
+  }
+
+  public getId(): string {
+    return this.uuid;
   }
 }

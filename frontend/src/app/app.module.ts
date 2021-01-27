@@ -42,9 +42,9 @@ import {DeployableStatusComponent} from "./deployable/deployable-status/deployab
 import {DeploymentsDashboardComponent} from "./deployable/deployments-dashboard/deployments-dashboard.component";
 import {ShowDeployableConfigurationDialog} from "./deployable/show-deployable-configuration-dialog/show-deployable-configuration-dialog.component";
 import {TemplateEditorComponent} from "./deployable/template-editor/template-editor.component";
-import {ConfirmDeletionDialogComponent} from "./docker/confirm-deletion.dialog/confirm-deletion-dialog.component";
-import {DockerRegistryEditDialogComponent} from "./docker/edit-dialog/docker-registry-edit-dialog.component";
-import {DockerRegistryListComponent} from "./docker/list/docker-registry-list.component";
+import {ConfirmDeletionDialogComponent} from "./registries/confirm-deletion.dialog/confirm-deletion-dialog.component";
+import {DockerRegistryEditDialogComponent} from "./registries/docker/edit-dialog/docker-registry-edit-dialog.component";
+import {DockerRegistryListComponent} from "./registries/docker/list/docker-registry-list.component";
 import {DeploymentBehaviourInputComponent} from "./form/deployment-behaviour/deployment-behaviour-input.component";
 import {KeyValueInputComponent} from "./form/key-value-input/key-value-input.component";
 import {LifetimeBehaviourInputComponent} from "./form/lifetime-behaviour/lifetime-behaviour-input.component";
@@ -121,6 +121,8 @@ import {FooterComponent} from "./components/footer/footer.component";
 import {TranslateCompiler, TranslateLoader, TranslateModule, TranslateService} from "@ngx-translate/core";
 import {TranslateHttpLoader} from "@ngx-translate/http-loader";
 import {AliasingTranslateCompiler} from "./util/aliasing-translate-compiler";
+import {HelmRegistryListComponent} from "./registries/helm/list/helm-registry-list.component";
+import {HelmRegistryEditDialogComponent} from "./registries/helm/edit-dialog/helm-registry-edit-dialog.component";
 
 @NgModule({
     declarations: [
@@ -182,7 +184,9 @@ import {AliasingTranslateCompiler} from "./util/aliasing-translate-compiler";
         ThemeSwitcherComponent,
         DndDirective,
         EditConfigurationTemplateDialogComponent,
-        FooterComponent
+        FooterComponent,
+        HelmRegistryListComponent,
+        HelmRegistryEditDialogComponent
     ],
   imports: [
     BrowserModule,

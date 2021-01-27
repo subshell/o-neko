@@ -22,6 +22,8 @@ import io.oneko.helm.HelmRegistryRepository;
 import io.oneko.helm.ReadableHelmRegistry;
 import io.oneko.helm.WritableHelmRegistry;
 import io.oneko.helm.util.HelmRegistryCommandUtils;
+import io.oneko.project.ProjectRepository;
+import io.oneko.project.ReadableProject;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
@@ -30,10 +32,14 @@ import lombok.extern.slf4j.Slf4j;
 public class HelmRegistryController {
 	public static final String PATH = Controllers.ROOT_PATH + "/helm/registries";
 	private HelmRegistryRepository helmRegistryRepository;
+	private final ProjectRepository projectRepository;
 	private HelmRegistryMapper mapper;
 
-	public HelmRegistryController(HelmRegistryRepository helmRegistryRepository, HelmRegistryMapper mapper) {
+	public HelmRegistryController(HelmRegistryRepository helmRegistryRepository,
+																ProjectRepository projectRepository,
+																HelmRegistryMapper mapper) {
 		this.helmRegistryRepository = helmRegistryRepository;
+		this.projectRepository = projectRepository;
 		this.mapper = mapper;
 	}
 
@@ -92,6 +98,16 @@ public class HelmRegistryController {
 		writable.setPassword(dto.getPassword());
 		ReadableHelmRegistry persisted = helmRegistryRepository.add(writable);
 		return mapper.toHelmRegistryDTO(persisted);
+	}
+
+	@PreAuthorize("hasAnyRole('ADMIN', 'DOER')")
+	@GetMapping("/{id}/projects")
+	List<String> getProjectsUsingRegistry(@PathVariable UUID id) {
+		// TODO create helm method getByHelmRegistryUuid
+		return this.projectRepository.getByDockerRegistryUuid(id)
+				.stream()
+				.map(ReadableProject::getName)
+				.collect(Collectors.toList());
 	}
 
 	private ReadableHelmRegistry getRegistryOr404(UUID id) {

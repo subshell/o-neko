@@ -5,7 +5,7 @@
 @import "general-themes/create-dialog.theme";
 @import "general-themes/full-page-form.theme";
 @import "general-themes/table-page.theme";
-@import "../app/docker/list/docker-registry-list.component.theme";
+@import "src/app/registries/docker/list/docker-registry-list.component.theme";
 @import "../app/components/theme-switcher/theme-switcher.component.theme";
 @import "../app/activity/activity-log/activity-log.component.theme";
 @import "src/app/components/breadcrumbs/breadcrumb.component.theme";

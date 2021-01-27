@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 import {switchMap} from 'rxjs/operators';
 import {ConfigurationTemplate} from '../../deployable/configuration-template';
-import {DockerRegistry} from '../../docker/docker-registry';
+import {DockerRegistry} from '../../registries/docker/docker-registry';
 import {RestService} from '../../rest/rest.service';
 import {User} from '../../user/user';
 import {UserService} from '../../user/user.service';

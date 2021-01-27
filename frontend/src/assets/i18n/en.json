@@ -27,6 +27,7 @@
     "administration": {
       "administration": "Administration",
       "dockerRegistries": "Docker Registries",
+      "helmRegistries": "Helm Registries",
       "users": "Users",
       "activityLog": "!alias:views.logs.activityLog"
     }
@@ -108,6 +109,22 @@
       "createDockerRegistry": "!alias:components.dockerRegistry.editDialog.createRegistry",
       "trustsInsecureCertificates": "O-Neko is configured to trust insecure certificates from this registry.",
       "doesNotTrustInsecureCertificates": "O-Neko does not trust insecure certificates from this registry."
+    },
+    "helmRegistry": {
+      "deletionDialog": {
+        "registryIsUsedByProject": "The helm registry <b>{registry}</b> is used by these projects:",
+        "usedRegistryWarningText": "<p>If you delete this registry then those projects will remain in an orphaned state.</p><p>They can no longer be deployed or used otherwise until they are assigned to a new registry serving images with the same name.</p>",
+        "confirmDeletionText": "Please confirm the deletion of this helm registry by entering its name below. This action cannot be undone.",
+        "confirmName": "!alias:components.forms.confirmName"
+      },
+      "editDialog": {
+        "createRegistry": "Create Helm Registry",
+        "editRegistry": "Edit Helm Registry",
+        "registryHasBeenModifiedByAction": "Helm Registry {registry} has been {action, select, created{created} deleted{deleted} saved{saved} other{modified}}."
+      },
+      "registryUrl": "Registry URL",
+      "helmRegistries": "!alias:menu.administration.helmRegistries",
+      "createHelmRegistry": "!alias:components.helmRegistry.editDialog.createRegistry"
     },
     "forms": {
       "errors": {

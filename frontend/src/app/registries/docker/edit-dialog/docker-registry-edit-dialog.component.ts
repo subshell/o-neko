@@ -2,10 +2,10 @@ import {Component, Inject} from "@angular/core";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {of} from "rxjs";
-import {flatMap, withLatestFrom} from "rxjs/operators";
-import {RestService} from "../../rest/rest.service";
-import {User} from "../../user/user";
-import {UserService} from "../../user/user.service";
+import {flatMap} from "rxjs/operators";
+import {RestService} from "../../../rest/rest.service";
+import {User} from "../../../user/user";
+import {UserService} from "../../../user/user.service";
 import {DockerRegistry} from "../docker-registry";
 import {TranslateService} from "@ngx-translate/core";
 

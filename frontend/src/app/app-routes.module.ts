@@ -13,11 +13,12 @@ import {EditProjectVersionComponent} from "./project/edit-version/edit-project-v
 import {ProjectMeshListComponent} from "./projectmesh/list/project-mesh-list.component";
 import {ManageMeshComponentsComponent} from "./projectmesh/manage-components/manage-mesh-components.component";
 import {EditMeshComponent} from "./projectmesh/edit-mesh/edit-mesh.component";
-import {DockerRegistryListComponent} from "./docker/list/docker-registry-list.component";
+import {DockerRegistryListComponent} from "./registries/docker/list/docker-registry-list.component";
 import {IsAdminOrDoerGuardService} from "./session/is-admin-or-doer-guard.service";
 import {DefinedNamespacesListComponent} from "./namespace/list/defined-namespaces-list.component";
 import {MeComponent} from "./user/me/me.component";
 import {LogsComponent} from "./logs/logs.component";
+import {HelmRegistryListComponent} from "./registries/helm/list/helm-registry-list.component";
 
 export const APP_ROUTES: Routes = [
   // Login
@@ -97,6 +98,11 @@ export const APP_ROUTES: Routes = [
       {
         path: 'docker-registries',
         component: DockerRegistryListComponent,
+        canActivate: [AuthGuardService, IsAdminOrDoerGuardService]
+      },
+      {
+        path: 'helm-registries',
+        component: HelmRegistryListComponent,
         canActivate: [AuthGuardService, IsAdminOrDoerGuardService]
       },
       {

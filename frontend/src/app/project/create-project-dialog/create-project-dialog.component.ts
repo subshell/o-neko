@@ -1,7 +1,7 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
-import {DockerRegistry} from '../../docker/docker-registry';
+import {DockerRegistry} from '../../registries/docker/docker-registry';
 import {RestService} from '../../rest/rest.service';
 import {Project} from '../project';
 import {FileReaderService} from '../../form/upload/file-reader.service';

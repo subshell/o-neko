@@ -7,7 +7,7 @@ import {flatMap, map} from "rxjs/operators";
 import {ConfigurationTemplate} from "../../deployable/configuration-template";
 import {EffectiveDeployableConfiguration} from "../../deployable/effective-deployable-configuration";
 import {ShowDeployableConfigurationDialog} from "../../deployable/show-deployable-configuration-dialog/show-deployable-configuration-dialog.component";
-import {DockerRegistry} from "../../docker/docker-registry";
+import {DockerRegistry} from "../../registries/docker/docker-registry";
 import {KeyValueChangeEvent} from "../../form/key-value-input/key-value-input.component";
 import {
   LabeledLifetimeBehaviour,

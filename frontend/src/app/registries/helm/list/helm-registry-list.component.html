@@ -1,0 +1,45 @@
+<div class="helm-registries table-page main-content-padding" fxLayout="column">
+  <h2 fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="12px">
+    <mat-icon svgIcon="mdi:account-cowboy-hat"></mat-icon>
+    <span>{{'components.helmRegistry.helmRegistries' | translate}}</span>
+  </h2>
+  <div fxLayout="row" fxLayoutAlign="space-between center">
+    <button *ngIf="mayCreateHelmRegistry()" mat-button (click)="createHelmRegistry()">
+      <span fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="1em">
+        <!-- TODO: use helm icon -->
+        <mat-icon svgIcon="mdi:account-cowboy-hat"></mat-icon>
+        <span>{{'components.helmRegistry.createHelmRegistry' | translate}}</span>
+      </span>
+    </button>
+    <span *ngIf="!mayCreateHelmRegistry()" class="place-holder"></span>
+    <mat-paginator [length]="registryTable.sortedRegistries.length"
+                   [pageSize]="pageSettings.pageSize"
+                   [pageSizeOptions]="pageSettings.pageSizeOptions"
+                   (page)="registryTable.paginationEvent($event)"></mat-paginator>
+  </div>
+
+  <table matSort (matSortChange)="registryTable.sortRegistries($event)">
+    <tr>
+      <th mat-sort-header="name">{{'general.name' | translate}}</th>
+      <th mat-sort-header="registryUrl">{{'general.url' | translate}}</th>
+      <th></th>
+    </tr>
+    <tr *ngFor="let helmRegistry of registryTable.sortedRegistries">
+      <td>{{helmRegistry.name}}</td>
+      <td><span>{{helmRegistry.url}}</span></td>
+      <td>
+        <div fxLayout="row" fxLayoutAlign="end center">
+          <button *ngIf="mayShowHelmRegistryDetails()" mat-icon-button (click)="showHelmRegistryDetails(helmRegistry)" [matTooltip]="'general.viewDetails' | translate">
+            <mat-icon svgIcon="mdi:information-outline"></mat-icon>
+          </button>
+          <button *ngIf="mayEditHelmRegistry()" mat-icon-button (click)="editHelmRegistry(helmRegistry)" [matTooltip]="'general.edit' | translate">
+            <mat-icon svgIcon="mdi:pencil"></mat-icon>
+          </button>
+          <button *ngIf="mayDeleteHelmRegistry()" mat-icon-button (click)="deleteHelmRegistry(helmRegistry)" [matTooltip]="'general.delete' | translate">
+            <mat-icon svgIcon="mdi:delete"></mat-icon>
+          </button>
+        </div>
+      </td>
+    </tr>
+  </table>
+</div>
