@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.FileAttribute;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -31,7 +30,6 @@ import lombok.extern.slf4j.Slf4j;
 public class Helm implements Helm3API {
 
 	private DelegatingCommandExecutor executor;
-	private final Map<String, String> defaultGlobalFlags;
 
 	public Helm() {
 		this(new CommandExecutor());
@@ -40,15 +38,6 @@ public class Helm implements Helm3API {
 	// visibleForTesting
 	Helm(ICommandExecutor executor) {
 		this.executor = new DelegatingCommandExecutor(executor);
-		this.defaultGlobalFlags = Map.of();
-	}
-
-	public Helm(String defaultNamespace) {
-		Map<String, String> defaultGlobalFlags = new HashMap<>();
-		if (StringUtils.isNotBlank(defaultNamespace)) {
-			defaultGlobalFlags.put("--namespace", defaultNamespace);
-		}
-		this.defaultGlobalFlags = Map.copyOf(defaultGlobalFlags);
 	}
 
 	// visibleForTesting
@@ -63,7 +52,7 @@ public class Helm implements Helm3API {
 
 	/**
 	 * Installs the helm chart.
-	 *
+	 * <p>
 	 * Writes the values into a temporary file if they were not initialized from a File.
 	 *
 	 * @param name
@@ -75,7 +64,9 @@ public class Helm implements Helm3API {
 	 */
 	@Override
 	public InstallStatus install(String name, String chart, String version, Values values, String namespace, boolean dryRun) {
-		final String[] command = initCommand("helm", "install", name, chart)
+		final String[] command = initCommand("helm", "install")
+				.withArgument(name)
+				.withArgument(chart)
 				.withFlag("--version", version)
 				.withFlag("--namespace", namespace)
 				.withFlag("-f", values.getValuesFilePath().orElse(writeValuesToTemporaryFile(values, name).getAbsolutePath()))
@@ -111,7 +102,9 @@ public class Helm implements Helm3API {
 
 	@Override
 	public void addRepo(String name, String url, String username, String password, boolean forceUpdate) {
-		final String[] command = initCommand("helm", "repo", "add", name, url)
+		final String[] command = initCommand("helm", "repo", "add")
+				.withArgument(name)
+				.withArgument(url)
 				.withFlag("--username", username)
 				.withFlag("--password", password)
 				.withFlag("--force-update", Boolean.toString(forceUpdate))
@@ -128,7 +121,10 @@ public class Helm implements Helm3API {
 
 	@Override
 	public void removeRepo(String name) {
-		var out = executor.execute("helm", "repo", "remove", name);
+		final String[] command = initCommand("helm", "repo", "remove")
+				.withArgument(name)
+				.build();
+		var out = executor.execute(command);
 		log.info(out);
 	}
 
@@ -139,7 +135,8 @@ public class Helm implements Helm3API {
 
 	@Override
 	public List<Chart> searchHub(String query) {
-		final String[] command = initCommand("helm", "search", "hub", query)
+		final String[] command = initCommand("helm", "search", "hub")
+				.withArgument(query)
 				.withFlag("-o", "json")
 				.build();
 		return executor.executeWithJsonOutput(new TypeToken<List<Chart>>() {
@@ -148,7 +145,8 @@ public class Helm implements Helm3API {
 
 	@Override
 	public List<Chart> searchRepo(String query, boolean versions, boolean devel) {
-		final String[] command = initCommand("helm", "search", "repo", query)
+		final String[] command = initCommand("helm", "search", "repo")
+				.withArgument(query)
 				.withFlag("--versions", Boolean.toString(versions))
 				.withFlag("--devel", Boolean.toString(devel))
 				.withFlag("-o", "json")
@@ -159,7 +157,8 @@ public class Helm implements Helm3API {
 
 	@Override
 	public Status status(String releaseName, String namespace) {
-		final String[] command = initCommand("helm", "status", releaseName)
+		final String[] command = initCommand("helm", "status")
+				.withArgument(releaseName)
 				.withFlag("--namespace", namespace)
 				.withFlag("-o", "json")
 				.build();
@@ -168,7 +167,8 @@ public class Helm implements Helm3API {
 
 	@Override
 	public void uninstall(String name, String namespace, boolean dryRun) {
-		final String[] command = initCommand("helm", "uninstall", name)
+		final String[] command = initCommand("helm", "uninstall")
+				.withArgument("name")
 				.withFlag("--namespace", namespace)
 				.withFlag("--dry-run", Boolean.toString(dryRun))
 				.build();
@@ -189,6 +189,15 @@ public class Helm implements Helm3API {
 			this.command = command;
 		}
 
+		public Command withArgument(String arg) {
+			if (StringUtils.isNotBlank(arg) && flagFormatValid(arg)) {
+				command = ArrayUtils.add(command, quoteIfNecessary(arg));
+			} else {
+				throw new IllegalArgumentException("The format of the argument is invalid: " + arg);
+			}
+			return this;
+		}
+
 		/**
 		 * Flags with null values are ignored.
 		 *
@@ -197,16 +206,22 @@ public class Helm implements Helm3API {
 		 * @return
 		 */
 		public Command withFlag(String flag, String value) {
-			if (StringUtils.isNotBlank(value)) {
-				commandFlags.put(flag, value);
+			if (StringUtils.isNotBlank(value) && flagFormatValid(value)) {
+				commandFlags.put(flag, quoteIfNecessary(value));
 			}
 			return this;
 		}
 
+		private boolean flagFormatValid(String flag) {
+			return flag.matches("[a-zA-Z0-9 /:_-]+");
+		}
+
+		private String quoteIfNecessary(String str) {
+			return StringUtils.wrapIfMissing(str, "\"");
+		}
+
 		public String[] build() {
-			Map<String, String> flags = new LinkedHashMap<>(defaultGlobalFlags);
-			flags.putAll(commandFlags);
-			final String[] flagsArray = flags.entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue()).toArray(String[]::new);
+			final String[] flagsArray = commandFlags.entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue()).toArray(String[]::new);
 			return ArrayUtils.addAll(command, flagsArray);
 		}
 	}
