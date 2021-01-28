@@ -2,6 +2,7 @@ package io.oneko.project;
 
 import io.oneko.automations.LifetimeBehaviour;
 import io.oneko.deployable.DeploymentBehaviour;
+import io.oneko.namespace.HasNamespace;
 import io.oneko.templates.ConfigurationTemplate;
 import org.apache.commons.lang3.StringUtils;
 

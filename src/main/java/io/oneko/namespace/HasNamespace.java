@@ -31,6 +31,4 @@ public interface HasNamespace {
 				.map(namespace -> ((DefinedNamespace) namespace).getId())
 				.orElse(null);
 	}
-
-	Map<String, String> getNamespaceLabels();
 }

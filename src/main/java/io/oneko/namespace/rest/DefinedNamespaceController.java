@@ -1,10 +1,13 @@
 package io.oneko.namespace.rest;
 
 import io.oneko.configuration.Controllers;
+import io.oneko.kubernetes.NamespaceManager;
 import io.oneko.namespace.DefinedNamespaceRepository;
 import io.oneko.namespace.ReadableDefinedNamespace;
 import io.oneko.namespace.WritableDefinedNamespace;
 import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.lang.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -23,17 +26,21 @@ public class DefinedNamespaceController {
 
 	private final DefinedNamespaceRepository namespaceRepository;
 	private final DefinedNamespaceDTOMapper dtoMapper;
+	private final NamespaceManager namespaceManager;
 
-	public DefinedNamespaceController(DefinedNamespaceRepository namespaceRepository, DefinedNamespaceDTOMapper dtoMapper) {
+	public DefinedNamespaceController(DefinedNamespaceRepository namespaceRepository,
+																		DefinedNamespaceDTOMapper dtoMapper,
+																		NamespaceManager namespaceManager) {
 		this.namespaceRepository = namespaceRepository;
 		this.dtoMapper = dtoMapper;
+		this.namespaceManager = namespaceManager;
 	}
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'DOER')")
 	@GetMapping
 	List<DefinedNamespaceDTO> getAllDefinedNamespaces() {
-		return this.namespaceRepository.getAll().stream()
-				.map(this.dtoMapper::namespaceToDTO)
+		return namespaceRepository.getAll().stream()
+				.map(dtoMapper::namespaceToDTO)
 				.collect(Collectors.toList());
 	}
 
@@ -42,21 +49,25 @@ public class DefinedNamespaceController {
 	DefinedNamespaceDTO createNamespace(@RequestBody DefinedNamespaceDTO dto) {
 		WritableDefinedNamespace newNamespace = new WritableDefinedNamespace(dto.getName());
 		final ReadableDefinedNamespace definedNamespace = namespaceRepository.add(newNamespace);
+		namespaceManager.createNamespaceAndAddImagePullSecrets(definedNamespace);
 		return dtoMapper.namespaceToDTO(definedNamespace);
 	}
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'DOER')")
 	@GetMapping("/{id}")
 	DefinedNamespaceDTO getNamespaceById(@PathVariable UUID id) {
-		return this.namespaceRepository.getById(id)
-				.map(this.dtoMapper::namespaceToDTO)
+		return namespaceRepository.getById(id)
+				.map(dtoMapper::namespaceToDTO)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Namespace with id " + id + " not found"));
 	}
 
 	@PreAuthorize("hasAnyRole('ADMIN')")
 	@DeleteMapping("/{id}")
 	void deleteNamespace(@PathVariable UUID id) {
-		this.namespaceRepository.getById(id).ifPresent(this.namespaceRepository::remove);
+		namespaceRepository.getById(id).ifPresent(namespace -> {
+			namespaceManager.deleteNamespace(namespace);
+			namespaceRepository.remove(namespace);
+		});
 	}
 
 }

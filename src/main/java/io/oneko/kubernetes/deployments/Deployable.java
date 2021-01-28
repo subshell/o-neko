@@ -1,10 +1,10 @@
 package io.oneko.kubernetes.deployments;
 
 import io.oneko.automations.LifetimeBehaviour;
-import io.oneko.deployable.DeployableConfigurationTemplates;
 import io.oneko.deployable.DeploymentBehaviour;
 import io.oneko.project.Project;
 import io.oneko.project.ProjectVersion;
+import io.oneko.templates.ConfigurationTemplate;
 
 import java.util.List;
 import java.util.Map;
@@ -33,7 +33,7 @@ public interface Deployable<T> {
 
 	ProjectVersion<?, ?> getRelatedProjectVersion();
 
-	DeployableConfigurationTemplates getConfigurationTemplates();
+	List<ConfigurationTemplate> getConfigurationTemplates();
 
 	boolean isOutdated();
 

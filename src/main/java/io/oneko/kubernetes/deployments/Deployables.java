@@ -4,15 +4,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
 
 import io.oneko.automations.LifetimeBehaviour;
-import io.oneko.deployable.DeployableConfigurationTemplates;
 import io.oneko.deployable.DeploymentBehaviour;
 import io.oneko.project.ProjectConstants;
 import io.oneko.project.WritableProject;
 import io.oneko.project.WritableProjectVersion;
+import io.oneko.templates.ConfigurationTemplate;
+import io.oneko.templates.WritableConfigurationTemplate;
 
 public class Deployables {
 
@@ -53,8 +55,8 @@ public class Deployables {
 			}
 
 			@Override
-			public DeployableConfigurationTemplates getConfigurationTemplates() {
-				return DeployableConfigurationTemplates.of(version.getCalculatedConfigurationTemplates());
+			public List<ConfigurationTemplate> getConfigurationTemplates() {
+				return version.getCalculatedConfigurationTemplates().stream().map(WritableConfigurationTemplate::readable).collect(Collectors.toList());
 			}
 
 			@Override

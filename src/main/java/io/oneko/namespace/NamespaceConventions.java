@@ -5,10 +5,11 @@ import org.apache.commons.lang3.StringUtils;
 
 @UtilityClass
 public class NamespaceConventions {
-	public static final String NAME_SPACE_REGEX = "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$";
+	public static final String NAMESPACE_REGEX = "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$";
+	public static final String NAMESPACE_PREFIX = "on-";
 
 	public static String sanitizeNamespace(String namespace) {
-		String candidate = namespace.toLowerCase();
+		String candidate = NAMESPACE_PREFIX + namespace.toLowerCase();
 		candidate = candidate.replaceAll("_", "-");//for readability replace all underscores with a dash
 		candidate = candidate.replaceAll("[^a-z0-9\\-]", StringUtils.EMPTY);//remove invalid chars (only alphanumeric and dash allowed)
 		candidate = candidate.replaceAll("^[\\-]*", StringUtils.EMPTY);//remove invalid start (remove dot, dash and underscore from start)

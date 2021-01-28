@@ -1,7 +1,6 @@
 package io.oneko.project;
 
 import io.oneko.automations.LifetimeBehaviour;
-import io.oneko.deployable.DeployableConfigurationTemplates;
 import io.oneko.deployable.DeploymentBehaviour;
 import io.oneko.kubernetes.deployments.DesiredState;
 import io.oneko.namespace.DefinedNamespace;
@@ -117,10 +116,6 @@ public interface ProjectVersion<P extends Project<P, V>, V extends ProjectVersio
 				.collect(Collectors.toList());
 	}
 
-	default DeployableConfigurationTemplates calculateDeployableConfigurationTemplates() {
-		return DeployableConfigurationTemplates.of(getCalculatedConfigurationTemplates());
-	}
-
 	Namespace getNamespace();
 
 	/**
@@ -147,15 +142,6 @@ public interface ProjectVersion<P extends Project<P, V>, V extends ProjectVersio
 				configurationTemplate.getDescription() +
 				")\n\n" +
 				configurationTemplate.getContent();
-	}
-
-	@Override
-	default Map<String, String> getNamespaceLabels() {
-		Map<String, String> labels = new HashMap<>();
-		labels.put(ProjectConstants.TemplateVariablesNames.ONEKO_VERSION, this.getId().toString());
-		labels.put(ProjectConstants.TemplateVariablesNames.ONEKO_PROJECT, getProject().getId().toString());
-		labels.put("name", this.getNamespace().asKubernetesNameSpace());
-		return labels;
 	}
 
 	DesiredState getDesiredState();

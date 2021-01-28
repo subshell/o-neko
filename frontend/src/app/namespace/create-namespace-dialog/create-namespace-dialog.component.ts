@@ -16,6 +16,7 @@ export class CreateNamespaceDialogComponent {
 
   public namespace: DefinedNamespace;
   public editingUser: User;
+  public readonly NAMESPACE_PREFIX = 'on-';
 
   constructor(public dialogRef: MatDialogRef<CreateNamespaceDialogComponent>,
               private rest: RestService,
@@ -30,7 +31,7 @@ export class CreateNamespaceDialogComponent {
     this.rest.namespace().persistDefinedNamespace(this.namespace)
       .subscribe(savedNamespace => {
         const text = this.translateService.instant('components.namespace.namespaceAction', {
-          namespace: savedNamespace.name,
+          namespace: this.NAMESPACE_PREFIX + savedNamespace.name,
           action: 'created'
         });
         this.snackBar.open(text, null, {

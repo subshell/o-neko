@@ -11,7 +11,7 @@ import {MatRippleModule} from "@angular/material/core";
 import {MatDialogModule} from "@angular/material/dialog";
 import {MatDividerModule} from "@angular/material/divider";
 import {MatExpansionModule} from "@angular/material/expansion";
-import {MatFormFieldModule} from "@angular/material/form-field";
+import {MatFormFieldModule, MatPrefix} from "@angular/material/form-field";
 import {MatIconModule, MatIconRegistry} from "@angular/material/icon";
 import {MatInputModule} from "@angular/material/input";
 import {MatListModule} from "@angular/material/list";
@@ -228,7 +228,7 @@ import {FilterDeepPipe} from "./util/filter-deep.pipe";
         useFactory: (http: HttpClient) => new TranslateHttpLoader(http),
         deps: [HttpClient]
       }
-    }),
+    })
   ],
   providers: [
     RestService,

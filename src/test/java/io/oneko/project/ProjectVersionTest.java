@@ -15,7 +15,6 @@ import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
-import io.oneko.deployable.DeployableConfigurationTemplates;
 import io.oneko.templates.WritableConfigurationTemplate;
 
 class ProjectVersionTest {
@@ -153,8 +152,8 @@ class ProjectVersionTest {
 
 		final WritableProjectVersion version = project.createVersion("version");
 
-		DeployableConfigurationTemplates deployableConfigurationTemplates = version.calculateDeployableConfigurationTemplates();
-		assertThat(deployableConfigurationTemplates.getTemplates(), hasSize(1));
+		var deployableConfigurationTemplates = version.getCalculatedConfigurationTemplates();
+		assertThat(deployableConfigurationTemplates, hasSize(1));
 
 		// overwrite the template without variables
 		List<WritableConfigurationTemplate> versionTemplates = Collections.singletonList(
@@ -165,7 +164,7 @@ class ProjectVersionTest {
 						.build()
 		);
 		version.setConfigurationTemplates(versionTemplates);
-		deployableConfigurationTemplates = version.calculateDeployableConfigurationTemplates();
-		assertThat(deployableConfigurationTemplates.getTemplates(), hasSize(2));
+		deployableConfigurationTemplates = version.getCalculatedConfigurationTemplates();
+		assertThat(deployableConfigurationTemplates, hasSize(2));
 	}
 }
