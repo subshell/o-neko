@@ -24,8 +24,7 @@ public class DeploymentMongo {
 	private UUID id;
 
 	@Indexed(unique = true)
-	@Field("projectVersionId")
-	private UUID deployableId;
+	private UUID projectVersionId;
 
 	private DeployableStatus status;
 	private Instant timestamp;

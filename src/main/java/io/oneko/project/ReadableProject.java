@@ -80,6 +80,7 @@ public class ReadableProject extends Identifiable implements Project<ReadablePro
 					.map(ReadableTemplateVariable::writable)
 					.collect(Collectors.toList()))
 				.versions(versions)
+				.namespace(getNamespace())
 				.build();
 	}
 }

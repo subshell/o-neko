@@ -13,7 +13,7 @@ public class HelmRegistryException extends Exception {
 	}
 
 	public static HelmRegistryException fromCommandException(CommandException e, String url, String name) {
-		return new HelmRegistryException(String.format("Error while adding helm registry %s (%s): %s", url, name, e.getMessage()), e);
+		return new HelmRegistryException(String.format("Error while interacting with helm registry %s (%s): %s", url, name, e.getMessage()), e);
 	}
 
 }

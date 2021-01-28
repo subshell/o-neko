@@ -69,22 +69,18 @@ public class DeploymentMongoRepository implements DeploymentRepository {
 	private ReadableDeployment fromDeploymentMongo(DeploymentMongo mongo) {
 		return ReadableDeployment.builder()
 				.id(mongo.getId())
-				.deployableId(mongo.getDeployableId())
+				.deployableId(mongo.getProjectVersionId())
 				.status(mongo.getStatus())
 				.timestamp(mongo.getTimestamp())
-				.containerCount(mongo.getContainerCount())
-				.readyContainerCount(mongo.getReadyContainerCount())
 				.build();
 	}
 
 	private DeploymentMongo toDeploymentMongo(WritableDeployment deployment) {
 		return DeploymentMongo.builder()
 				.id(deployment.getId())
-				.deployableId(deployment.getDeployableId())
+				.projectVersionId(deployment.getDeployableId())
 				.status(deployment.getStatus())
 				.timestamp(deployment.getTimestamp().orElse(null))
-				.containerCount(deployment.getContainerCount())
-				.readyContainerCount(deployment.getReadyContainerCount())
 				.build();
 	}
 }

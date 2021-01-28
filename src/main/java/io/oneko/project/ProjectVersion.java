@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.text.StringSubstitutor;
 
 import io.oneko.automations.LifetimeBehaviour;
@@ -119,6 +120,10 @@ public interface ProjectVersion<P extends Project<P, V>, V extends ProjectVersio
 	}
 
 	String getNamespace();
+
+	default String getNamespaceOrElseFromProject() {
+		return StringUtils.defaultIfBlank(getNamespace(), getProject().getNamespace());
+	}
 
 	default String templateAsYAMLString(ConfigurationTemplate configurationTemplate) {
 		return "# > " +

@@ -13,8 +13,4 @@ public interface Deployment {
     DeployableStatus getStatus();
 
     Optional<Instant> getTimestamp();
-
-    int getContainerCount();
-
-    int getReadyContainerCount();
 }

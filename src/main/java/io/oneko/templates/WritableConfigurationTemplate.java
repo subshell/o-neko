@@ -42,6 +42,9 @@ public class WritableConfigurationTemplate extends ModificationAwareIdentifiable
 				.id(from.getId())
 				.description(from.getDescription())
 				.content(from.getContent())
+				.chartName(from.getChartName())
+				.chartVersion(from.getChartVersion())
+				.helmRegistryId(from.getHelmRegistryId())
 				.build();
 	}
 

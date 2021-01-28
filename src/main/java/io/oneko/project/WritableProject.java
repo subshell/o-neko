@@ -20,8 +20,6 @@ import io.oneko.deployable.DeploymentBehaviour;
 import io.oneko.domain.ModificationAwareIdentifiable;
 import io.oneko.domain.ModificationAwareListProperty;
 import io.oneko.domain.ModificationAwareProperty;
-import io.oneko.namespace.Namespace;
-import io.oneko.namespace.WritableNamespace;
 import io.oneko.templates.ConfigurationTemplates;
 import io.oneko.templates.WritableConfigurationTemplate;
 import lombok.Builder;
@@ -235,6 +233,7 @@ public class WritableProject extends ModificationAwareIdentifiable implements Pr
 						.map(WritableTemplateVariable::readable)
 						.collect(Collectors.toList()))
 				.versions(versions)
+				.namespace(getNamespace())
 				.build();
 	}
 }

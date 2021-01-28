@@ -1,5 +1,8 @@
 package io.oneko.kubernetes.impl;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
@@ -13,6 +16,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.LocalObjectReference;
 import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
@@ -182,4 +186,11 @@ public class KubernetesAccess {
 		kubernetesClient.namespaces().withName(name).delete();
 	}
 
+	List<HasMetadata> loadResource(String staticContent) {
+		try (InputStream is = new ByteArrayInputStream(staticContent.getBytes())) {
+			return kubernetesClient.load(is).get();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 }

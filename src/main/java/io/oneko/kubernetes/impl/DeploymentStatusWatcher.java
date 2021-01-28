@@ -11,15 +11,12 @@ import io.fabric8.kubernetes.api.model.Pod;
 import io.oneko.event.CurrentEventTrigger;
 import io.oneko.event.EventTrigger;
 import io.oneko.event.ScheduledTask;
-import io.oneko.kubernetes.deployments.Deployable;
 import io.oneko.kubernetes.deployments.DeployableStatus;
-import io.oneko.kubernetes.deployments.Deployables;
 import io.oneko.kubernetes.deployments.Deployment;
 import io.oneko.kubernetes.deployments.DeploymentRepository;
 import io.oneko.kubernetes.deployments.DesiredState;
 import io.oneko.kubernetes.deployments.ReadableDeployment;
 import io.oneko.kubernetes.deployments.WritableDeployment;
-import io.oneko.namespace.Namespace;
 import io.oneko.project.ProjectRepository;
 import io.oneko.project.ProjectVersion;
 import io.oneko.project.ReadableProject;
@@ -54,27 +51,28 @@ class DeploymentStatusWatcher {
 	private EventTrigger asTrigger() {
 		return new ScheduledTask("Kubernetes Deployment Status Watcher");
 	}
+	/*
 
 	@Scheduled(fixedRate = 5000)
 	protected void updateProjectStatus() {
 		final List<WritableProjectVersion> writableVersions = projectRepository.getAll().stream()
 				.map(ReadableProject::writable)
 				.flatMap(writableProject -> writableProject.getVersions().stream())
-				.filter(writableVersion -> shouldScanDeployable(Deployables.of(writableVersion)))
+				.filter(this::shouldScanDeployable)
 				.collect(Collectors.toList());
 
 		try (var ignored = currentEventTrigger.forTryBlock(asTrigger())) {
-			writableVersions.forEach(version -> scanResourcesForDeployable(version.getNamespace(), Deployables.of(version)));
+			writableVersions.forEach(version -> scanResourcesForDeployable(version.getNamespace(), version));
 		}
 	}
 
-	private boolean shouldScanDeployable(Deployable<?> deployable) {
+	private boolean shouldScanDeployable(ProjectVersion<?,?> deployable) {
 		return deployable.getDesiredState() == DesiredState.Deployed
 				|| deploymentRepository.findByDeployableId(deployable.getId()).isPresent();
 	}
 
-	private void scanResourcesForDeployable(String namespace, Deployable<?> deployable) {
-		final List<Pod> podsByLabelInNameSpace = kubernetesAccess.getPodsByLabelInNameSpace(namespace, deployable.getPrimaryLabel());
+	private void scanResourcesForDeployable(String namespace, ProjectVersion<?,?> deployable) {
+		final List<Pod> podsByLabelInNameSpace = kubernetesAccess.getPodsByLabelInNameSpace(namespace, deployable.get());
 		if (podsByLabelInNameSpace.isEmpty()) {
 			cleanUpOnDeploymentRemoved(deployable);
 			return;
@@ -124,4 +122,6 @@ class DeploymentStatusWatcher {
 			webSocketHandler.broadcast(new DeploymentStatusChangedMessage(deployable.getId(), version.getProject().getId(), DeploymentStatusChangedMessage.DeployableType.projectVersion, newStatus, deployable.getDesiredState(), mysteriousRefDate, deployable.isOutdated(), version.getImageUpdatedDate()));
 		}
 	}
+
+	 */
 }

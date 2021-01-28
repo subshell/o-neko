@@ -168,7 +168,7 @@ public class Helm implements Helm3API {
 	@Override
 	public void uninstall(String name, String namespace, boolean dryRun) {
 		final String[] command = initCommand("helm", "uninstall")
-				.withArgument("name")
+				.withArgument(name)
 				.withFlag("--namespace", namespace)
 				.withFlag("--dry-run", dryRun)
 				.build();

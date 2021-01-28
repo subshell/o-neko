@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 public enum DeployableStatus {
 	Pending,
 	Running,
-	Succeeded,
 	Failed,
 	Unknown,
 	NotScheduled;
@@ -50,8 +49,6 @@ public enum DeployableStatus {
 			} else if (waiting.getReason().equals("ErrImagePull") || waiting.getReason().equals("ImagePullBackOff") || waiting.getReason().equals("CrashLoopBackOff")) {
 				return Failed;
 			}
-		} else if (state.getTerminated() != null) {
-			return Succeeded;
 		}
 		return Unknown;
 	}
