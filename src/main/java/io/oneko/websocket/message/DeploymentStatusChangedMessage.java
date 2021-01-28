@@ -23,6 +23,6 @@ public class DeploymentStatusChangedMessage implements ONekoWebSocketMessage {
 	private boolean outdated;
 	private Instant imageUpdatedDate;
 	public enum DeployableType {
-		projectVersion, meshComponent
+		projectVersion
 	}
 }

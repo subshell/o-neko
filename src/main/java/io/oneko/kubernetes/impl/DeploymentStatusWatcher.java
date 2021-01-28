@@ -1,28 +1,32 @@
 package io.oneko.kubernetes.impl;
 
+import java.time.Instant;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
 import io.fabric8.kubernetes.api.model.Pod;
 import io.oneko.event.CurrentEventTrigger;
 import io.oneko.event.EventTrigger;
 import io.oneko.event.ScheduledTask;
-import io.oneko.kubernetes.deployments.*;
+import io.oneko.kubernetes.deployments.Deployable;
+import io.oneko.kubernetes.deployments.DeployableStatus;
+import io.oneko.kubernetes.deployments.Deployables;
+import io.oneko.kubernetes.deployments.Deployment;
+import io.oneko.kubernetes.deployments.DeploymentRepository;
+import io.oneko.kubernetes.deployments.DesiredState;
+import io.oneko.kubernetes.deployments.ReadableDeployment;
+import io.oneko.kubernetes.deployments.WritableDeployment;
 import io.oneko.namespace.Namespace;
 import io.oneko.project.ProjectRepository;
 import io.oneko.project.ProjectVersion;
 import io.oneko.project.ReadableProject;
 import io.oneko.project.WritableProjectVersion;
-import io.oneko.projectmesh.MeshService;
-import io.oneko.projectmesh.ProjectMeshRepository;
-import io.oneko.projectmesh.ReadableProjectMesh;
-import io.oneko.projectmesh.WritableMeshComponent;
 import io.oneko.websocket.SessionWebSocketHandler;
 import io.oneko.websocket.message.DeploymentStatusChangedMessage;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
-
-import java.time.Instant;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -30,25 +34,21 @@ class DeploymentStatusWatcher {
 
 	private final KubernetesAccess kubernetesAccess;
 	private final ProjectRepository projectRepository;
-	private final ProjectMeshRepository meshRepository;
 	private final DeploymentRepository deploymentRepository;
 	private final SessionWebSocketHandler webSocketHandler;
 	private final PodToDeploymentMapper podToDeploymentMapper;
 	private final CurrentEventTrigger currentEventTrigger;
-	private final MeshService meshService;
 
 	DeploymentStatusWatcher(KubernetesAccess kubernetesAccess, ProjectRepository projectRepository,
-							ProjectMeshRepository meshRepository, DeploymentRepository deploymentRepository,
+							DeploymentRepository deploymentRepository,
 							SessionWebSocketHandler webSocketHandler,
-							PodToDeploymentMapper podToDeploymentMapper, CurrentEventTrigger currentEventTrigger, MeshService meshService) {
+							PodToDeploymentMapper podToDeploymentMapper, CurrentEventTrigger currentEventTrigger) {
 		this.kubernetesAccess = kubernetesAccess;
 		this.projectRepository = projectRepository;
-		this.meshRepository = meshRepository;
 		this.deploymentRepository = deploymentRepository;
 		this.webSocketHandler = webSocketHandler;
 		this.podToDeploymentMapper = podToDeploymentMapper;
 		this.currentEventTrigger = currentEventTrigger;
-		this.meshService = meshService;
 	}
 
 	private EventTrigger asTrigger() {
@@ -65,20 +65,6 @@ class DeploymentStatusWatcher {
 
 		try (var ignored = currentEventTrigger.forTryBlock(asTrigger())) {
 			writableVersions.forEach(version -> scanResourcesForDeployable(version.getNamespace(), Deployables.of(version)));
-		}
-	}
-
-	@Scheduled(fixedRate = 5000, initialDelay = 2500)
-	protected void updateMeshStatus() {
-		final List<WritableMeshComponent> writableMeshComponents = meshRepository.getAll().stream()
-				.map(ReadableProjectMesh::writable)
-				.flatMap(writableProjectMesh -> writableProjectMesh.getComponents().stream())
-				.filter(meshComponent -> shouldScanDeployable(Deployables.of(meshComponent, meshService)))
-				.collect(Collectors.toList());
-
-		try (var ignored = currentEventTrigger.forTryBlock(asTrigger())) {
-			writableMeshComponents
-					.forEach(component -> scanResourcesForDeployable(component.getOwner().getNamespace(), Deployables.of(component, meshService)));
 		}
 	}
 
@@ -136,9 +122,6 @@ class DeploymentStatusWatcher {
 		if (deployable.getEntity() instanceof ProjectVersion) {
 			ProjectVersion version = (ProjectVersion) deployable.getEntity();
 			webSocketHandler.broadcast(new DeploymentStatusChangedMessage(deployable.getId(), version.getProject().getId(), DeploymentStatusChangedMessage.DeployableType.projectVersion, newStatus, deployable.getDesiredState(), mysteriousRefDate, deployable.isOutdated(), version.getImageUpdatedDate()));
-		} else if (deployable.getEntity() instanceof WritableMeshComponent) {
-			WritableMeshComponent meshComponent = (WritableMeshComponent) deployable.getEntity();
-			webSocketHandler.broadcast(new DeploymentStatusChangedMessage(deployable.getId(), meshComponent.getOwner().getId(), DeploymentStatusChangedMessage.DeployableType.meshComponent, newStatus, deployable.getDesiredState(), mysteriousRefDate, deployable.isOutdated(), deployable.getRelatedProjectVersion().getImageUpdatedDate()));
 		}
 	}
 }

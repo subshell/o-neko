@@ -79,45 +79,16 @@ public class KubernetesAccess {
 				.getItems();
 	}
 
-	List<HasMetadata> getAllResourcesInNamespaceWithLabel(String namespace, String key, String value) {
-		List<HasMetadata> result = new ArrayList<>();
-
-		result.addAll(kubernetesClient.apps().deployments().inNamespace(namespace).withLabel(key, value).list().getItems());
-		result.addAll(kubernetesClient.apps().statefulSets().inNamespace(namespace).withLabel(key, value).list().getItems());
-		result.addAll(kubernetesClient.apps().replicaSets().inNamespace(namespace).withLabel(key, value).list().getItems());
-		result.addAll(kubernetesClient.pods().inNamespace(namespace).withLabel(key, value).list().getItems());
-		result.addAll(kubernetesClient.services().inNamespace(namespace).withLabel(key, value).list().getItems());
-		result.addAll(kubernetesClient.secrets().inNamespace(namespace).withLabel(key, value).list().getItems());
-		result.addAll(kubernetesClient.extensions().ingresses().inNamespace(namespace).withLabel(key, value).list().getItems());
-		result.addAll(kubernetesClient.configMaps().inNamespace(namespace).withLabel(key, value).list().getItems());
-		result.addAll(kubernetesClient.persistentVolumeClaims().inNamespace(namespace).withLabel(key, value).list().getItems());
-
-		return result;
-	}
-
-	void deleteAllResourcesFromNameSpace(String nameSpace, Map.Entry<String, String> label) {
-		final var deletables = kubernetesClient.resourceList(getAllResourcesInNamespaceWithLabel(nameSpace, label.getKey(), label.getValue())).withPropagationPolicy(DeletionPropagation.BACKGROUND);
-		deletables.delete();
-	}
-
-	List<HasMetadata> createResourcesInNameSpace(String namespace, Collection<HasMetadata> resources) {
-		return kubernetesClient.resourceList(resources)
-				.inNamespace(namespace)
-				.createOrReplace();
-	}
-
-	Namespace createNamespaceIfNotExistent(HasNamespace hasNamespace) {
-		final String namespace = hasNamespace.getNamespace().asKubernetesNameSpace();
+	Namespace createNamespaceIfNotExistent(String namespace) {
 		Namespace existingNamespace = kubernetesClient.namespaces().withName(namespace).get();
 		if (existingNamespace != null) {
 			return existingNamespace;
 		}
 
-		log.info("Creating namespace with name {} for {} {}", namespace, hasNamespace.getClass().getSimpleName(), hasNamespace.getId());
+		log.info("Creating namespace with name {}", namespace);
 		Namespace newNameSpace = new Namespace();
 		ObjectMeta meta = new ObjectMeta();
 		meta.setName(namespace);
-		meta.setLabels(hasNamespace.getNamespaceLabels());
 		newNameSpace.setMetadata(meta);
 		kubernetesClient.namespaces().create(newNameSpace);
 
@@ -126,7 +97,7 @@ public class KubernetesAccess {
 		return newNameSpace;
 	}
 
-	Secret createSecretIfNotExistent(String namespace, String secretName, String userName, String password, String url) throws JsonProcessingException {
+	Secret createImagePullSecretIfNotExistent(String namespace, String secretName, String userName, String password, String url) throws JsonProcessingException {
 		final Secret existingSecret = kubernetesClient.secrets()
 				.inNamespace(namespace)
 				.withName(secretName).get();
@@ -161,7 +132,7 @@ public class KubernetesAccess {
 		}
 	}
 
-	ServiceAccount createServiceAccountIfNotExisting(String namespace, String accountName) {
+	ServiceAccount patchServiceAccountIfNecessary(String namespace, String imagePullSecretName) {
 		final ServiceAccount defaultServiceAccount = kubernetesClient.serviceAccounts()
 				.inNamespace(namespace)
 				.withName("default")
@@ -172,40 +143,41 @@ public class KubernetesAccess {
 			imagePullSecrets = new ArrayList<>();
 		}
 
-		if (imagePullSecrets.stream().anyMatch(ips -> ips.getName().equals(accountName))) {
+		if (imagePullSecrets.stream().anyMatch(ips -> ips.getName().equals(imagePullSecretName))) {
 			return defaultServiceAccount;
 		}
 
-		log.info("Adding ImagePullSecret with name {} to default service account in namespace {}", accountName, namespace);
-		imagePullSecrets.add(new LocalObjectReference(accountName));
+		log.info("Adding ImagePullSecret with name {} to default service account in namespace {}", imagePullSecretName, namespace);
+		imagePullSecrets.add(new LocalObjectReference(imagePullSecretName));
 		defaultServiceAccount.setImagePullSecrets(imagePullSecrets);
 		return kubernetesClient.serviceAccounts()
 				.inNamespace(namespace)
 				.createOrReplace(defaultServiceAccount);
 	}
 
-	List<HasMetadata> loadResource(String staticContent) {
-		try (InputStream is = new ByteArrayInputStream(staticContent.getBytes())) {
-			return kubernetesClient.load(is).get();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
+	ServiceAccount removeImagePullSecretFromServiceAccountIfNecessary(String namespace, String imagePullSecretName) {
+		final ServiceAccount defaultServiceAccount = kubernetesClient.serviceAccounts()
+				.inNamespace(namespace)
+				.withName("default")
+				.get();
+
+		List<LocalObjectReference> imagePullSecrets = defaultServiceAccount.getImagePullSecrets();
+		if (imagePullSecrets == null) {
+			return defaultServiceAccount;
 		}
-	}
 
-	public void deleteNamespacesWithProjectId(String projectId) {
-		this.deleteNamespaceByLabel(ONEKO_PROJECT, projectId);
-	}
+		if (imagePullSecrets.stream().noneMatch(ips -> ips.getName().equals(imagePullSecretName))) {
+			return defaultServiceAccount;
+		}
 
-	public void deleteNamespaceWithProjectVersionId(String versionId) {
-		this.deleteNamespaceByLabel(ONEKO_VERSION, versionId);
-	}
+		imagePullSecrets.removeIf(ips -> ips.getName().equals(imagePullSecretName));
 
-	public void deleteNamespaceByLabel(String key, String value) {
-		kubernetesClient.namespaces().withLabel(key, value).delete();
-	}
-
-	public void deleteNamespaceByLabel(Map.Entry<String, String> label) {
-		kubernetesClient.namespaces().withLabel(label.getKey(), label.getValue()).delete();
+		log.info("Removed ImagePullSecret with name {} from default service account in namespace {}", imagePullSecretName, namespace);
+		imagePullSecrets.add(new LocalObjectReference(imagePullSecretName));
+		defaultServiceAccount.setImagePullSecrets(imagePullSecrets);
+		return kubernetesClient.serviceAccounts()
+				.inNamespace(namespace)
+				.createOrReplace(defaultServiceAccount);
 	}
 
 	public void deleteNamespaceByName(String name) {

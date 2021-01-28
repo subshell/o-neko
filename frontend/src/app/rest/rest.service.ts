@@ -1,4 +1,4 @@
-import {HttpClient, HttpHeaders, HttpParams} from "@angular/common/http";
+import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {Injectable} from "@angular/core";
 import {Observable} from "rxjs";
 import {map, tap} from "rxjs/operators";
@@ -8,7 +8,6 @@ import {User, UserDTO} from "../user/user";
 import {ActivityRestService} from "./activity-rest.service";
 import {DefinedNamespaceRestService} from "./defined-namespace-rest.service";
 import {DockerRestService} from "./docker-rest.service";
-import {ProjectMeshRestService} from "./project-mesh-rest.service";
 import {ProjectRestService} from "./project-rest.service";
 import {HelmRestService} from "./helm-rest.service";
 
@@ -20,7 +19,6 @@ export class RestService {
   private readonly projectRestService: ProjectRestService;
   private readonly activityRestService: ActivityRestService;
   private readonly namespaceRestService: DefinedNamespaceRestService;
-  private readonly projectMeshRestService: ProjectMeshRestService;
 
   constructor(private http: HttpClient, private authService: AuthService) {
     this.dockerRestService = new DockerRestService(this.http, RestService.ROOT_PATH);
@@ -28,7 +26,6 @@ export class RestService {
     this.projectRestService = new ProjectRestService(this.http, RestService.ROOT_PATH);
     this.activityRestService = new ActivityRestService(this.http, RestService.ROOT_PATH);
     this.namespaceRestService = new DefinedNamespaceRestService(this.http, RestService.ROOT_PATH);
-    this.projectMeshRestService = new ProjectMeshRestService(this.http, RestService.ROOT_PATH);
   }
 
   /*------------------------------------------------------------
@@ -125,9 +122,4 @@ export class RestService {
   public namespace(): DefinedNamespaceRestService {
     return this.namespaceRestService;
   }
-
-  public projectMesh(): ProjectMeshRestService {
-    return this.projectMeshRestService;
-  }
-
 }

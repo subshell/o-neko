@@ -19,8 +19,6 @@ development versions of your software into Kubernetes to allow everybody to try 
 * Configure projects with native Kubernetes .yaml files
 * Automatically re-deploy running versions when the corresponding Docker image has changed (configurable per project and version)
 * Automatically stop running versions after a specific time (configurable per project and version)
-* Project meshes that allow you to wrap multiple projects into one pool and deploy specific versions of them together,
-effectively providing a way to deploy dynamic test server setups with ease
 * Select variables that allow fast changes to frequently used configuration settings (e.g. server URLs)
 
 ## Pre-requisites

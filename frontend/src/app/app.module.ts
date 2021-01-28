@@ -68,15 +68,6 @@ import {ProjectService} from "./project/project.service";
 import {TemplateVariableEditorComponent} from './project/template-variables/template-variable-editor/template-variable-editor.component';
 import {TemplateVariablesComponent} from './project/template-variables/template-variables.component';
 import {ProjectVersionListComponent} from "./project/versions-list/project-version-list.component";
-import {CreateMeshComponentDialogComponent} from "./projectmesh/create-mesh-component-dialog/create-mesh-component-dialog.component";
-import {CreateProjectMeshDialogComponent} from "./projectmesh/create-mesh-dialog/create-project-mesh-dialog.component";
-import {ProjectmeshDashboardComponent} from "./projectmesh/dashboard/projectmesh-dashboard.component";
-import {EditMeshComponent} from "./projectmesh/edit-mesh/edit-mesh.component";
-import {ProjectMeshListComponent} from "./projectmesh/list/project-mesh-list.component";
-import {ManageMeshComponentsComponent} from "./projectmesh/manage-components/manage-mesh-components.component";
-import {MeshComponentActionsComponent} from "./projectmesh/mesh-component-actions/mesh-component-actions.component";
-import {ProjectMeshActionsComponent} from "./projectmesh/project-mesh-actions/project-mesh-actions.component";
-import {ProjectMeshService} from "./projectmesh/project-mesh.service";
 import {RestService} from "./rest/rest.service";
 import {AdminGuardService} from "./session/admin-guard.service";
 import {AuthGuardService} from "./session/auth-guard.service";
@@ -168,15 +159,7 @@ import {HelmRegistryEditDialogComponent} from "./registries/helm/edit-dialog/hel
         TemplateVariablesComponent,
         TemplateVariableEditorComponent,
         ValueInputComponent,
-        ProjectMeshListComponent,
-        CreateProjectMeshDialogComponent,
-        EditMeshComponent,
-        ManageMeshComponentsComponent,
-        CreateMeshComponentDialogComponent,
-        ProjectMeshActionsComponent,
         DeploymentsDashboardComponent,
-        ProjectmeshDashboardComponent,
-        MeshComponentActionsComponent,
         DeployableActionsComponent,
         ProjectVersionVariableActionsComponent,
         MainComponent,
@@ -269,7 +252,6 @@ import {HelmRegistryEditDialogComponent} from "./registries/helm/edit-dialog/hel
     ProjectService,
     WebSocketService,
     WebSocketServiceWrapper,
-    ProjectMeshService,
     {
       provide: AnimationDriver,
       useFactory: () => provideAnimationDriverBasedOnUserPreferences()

@@ -213,7 +213,7 @@ public class Helm implements Helm3API {
 		}
 
 		private boolean flagFormatValid(String flag) {
-			return flag.matches("[a-zA-Z0-9 /:_-]+");
+			return flag.matches("[a-zA-Z0-9 /:_.-]+");
 		}
 
 		private String quoteIfNecessary(String str) {

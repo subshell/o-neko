@@ -1,20 +1,5 @@
 package io.oneko.automations;
 
-import io.oneko.kubernetes.KubernetesDeploymentManager;
-import io.oneko.kubernetes.deployments.*;
-import io.oneko.project.ProjectRepository;
-import io.oneko.project.ProjectVersion;
-import io.oneko.project.ReadableProject;
-import io.oneko.project.WritableProjectVersion;
-import io.oneko.projectmesh.MeshService;
-import io.oneko.projectmesh.ProjectMeshRepository;
-import io.oneko.projectmesh.ReadableProjectMesh;
-import io.oneko.projectmesh.WritableMeshComponent;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -22,22 +7,34 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+import io.oneko.kubernetes.DeploymentManager;
+import io.oneko.kubernetes.deployments.Deployable;
+import io.oneko.kubernetes.deployments.DeployableStatus;
+import io.oneko.kubernetes.deployments.Deployables;
+import io.oneko.kubernetes.deployments.Deployment;
+import io.oneko.kubernetes.deployments.DeploymentRepository;
+import io.oneko.project.ProjectRepository;
+import io.oneko.project.ProjectVersion;
+import io.oneko.project.ReadableProject;
+import io.oneko.project.WritableProjectVersion;
+import lombok.extern.slf4j.Slf4j;
+
 @Component
 @Slf4j
 public class ScheduledLifetimeController {
 
 	private final ProjectRepository projectRepository;
-	private final ProjectMeshRepository meshRepository;
 	private final DeploymentRepository deploymentRepository;
-	private final KubernetesDeploymentManager kubernetesDeploymentManager;
-	private final MeshService meshService;
+	private final DeploymentManager deploymentManager;
 
-	public ScheduledLifetimeController(ProjectRepository projectRepository, ProjectMeshRepository meshRepository, DeploymentRepository deploymentRepository, KubernetesDeploymentManager kubernetesDeploymentManager, MeshService meshService) {
+	public ScheduledLifetimeController(ProjectRepository projectRepository, DeploymentRepository deploymentRepository, DeploymentManager deploymentManager) {
 		this.projectRepository = projectRepository;
-		this.meshRepository = meshRepository;
 		this.deploymentRepository = deploymentRepository;
-		this.kubernetesDeploymentManager = kubernetesDeploymentManager;
-		this.meshService = meshService;
+		this.deploymentManager = deploymentManager;
 	}
 
 	@Scheduled(fixedRate = 5 * 60000)
@@ -53,18 +50,6 @@ public class ScheduledLifetimeController {
 				deployable -> log.info("Deployment of project version {} of project {} expired.", deployable.getRelatedProjectVersion().getName(), deployable.getRelatedProject().getName()));
 	}
 
-	@Scheduled(fixedRate = 5 * 60000, initialDelay = 2 * 60000)
-	public void checkProjectVersions() {
-		final var meshComponents = meshRepository.getAll().stream()
-				.map(ReadableProjectMesh::writable)
-				.flatMap(mesh -> mesh.getComponents().stream())
-				.filter(component -> this.shouldConsider(component.getOwner().getLifetimeBehaviour()))
-				.map(component -> Deployables.of(component, meshService))
-				.collect(Collectors.toList());
-
-		stopExpiredDeployments(meshComponents, deployable -> log.info("Deployment of component {} expired.", deployable.getFullLabel()));
-	}
-
 	private <T> void stopExpiredDeployments(List<Deployable<T>> deployables, Consumer<Deployable<T>> beforeStopDeployment) {
 		final var deployments = getRelevantDeploymentsFor(deployables);
 		final var expiredPairsOfDeployableAndDeployment = getExpiredPairsOfDeployableAndDeployment(deployables, deployments);
@@ -72,10 +57,8 @@ public class ScheduledLifetimeController {
 		expiredPairsOfDeployableAndDeployment.forEach(expiredVersionDeploymentPair -> {
 			final var deployable = expiredVersionDeploymentPair.getLeft();
 			beforeStopDeployment.accept(deployable);
-			if (deployable instanceof WritableMeshComponent) {
-				kubernetesDeploymentManager.stopDeployment((WritableMeshComponent) deployable.getEntity());
-			} else if (deployable instanceof WritableProjectVersion) {
-				kubernetesDeploymentManager.stopDeployment((WritableProjectVersion) deployable.getEntity());
+			if (deployable instanceof WritableProjectVersion) {
+				deploymentManager.stopDeployment((WritableProjectVersion) deployable.getEntity());
 			} else {
 				log.error("Stopping {} is not supported.", deployable.getClass());
 			}

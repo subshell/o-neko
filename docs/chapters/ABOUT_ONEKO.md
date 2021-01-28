@@ -11,8 +11,6 @@ The most important features of O-Neko are:
 * Configure projects with native Kubernetes .yaml files
 * Automatically re-deploy running versions when the corresponding Docker image has changed (configurable per project and version)
 * Automatically stop running versions after a specific time (configurable per project and version)
-* Project meshes that allow you to wrap multiple projects into one pool and deploy specific versions of them together,
-effectively providing a way to deploy dynamic test server setups with ease
 * Select variables that allow fast changes to frequently used configuration settings (e.g. server URLs)
 
 ## Pre-requisites
@@ -62,13 +60,6 @@ having to modify the templates per version.
 Select variables are template variables with pre-defined values. If (e.g.) your application
 needs to connect to an external service E, you could have a variable consisting of the hostnames of the production, test
 and development versions of E and you could quickly choose which instance of E to connect to from the O-Neko dashboard.
-
-### Project mesh
-
-A project mesh is a conglomerate of specific project versions. They can be used to create "static"
-test setups that get automatically updated when the software changes. Example use case: Let's say you are developing a software that
-consists of multiple programs (e.g. server + tools, microservices, etc.). You could e.g. set up a project mesh for every
-major version of your software that is still actively maintained to get a "full" test setup.
 
 ### Docker registries
 

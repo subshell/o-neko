@@ -19,7 +19,7 @@ export class TestMessage implements ONekoWebsocketMessage {
 export class DeploymentStatusChangedMessage implements ONekoWebsocketMessage {
   public deployableId: string;
   public ownerId: string;
-  public deployableType: 'projectVersion' | 'meshComponent';
+  public deployableType: 'projectVersion';
   public status: DeployableStatus;
   public desiredState: DesiredState;
   public timestamp: Date;

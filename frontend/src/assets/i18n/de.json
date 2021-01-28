@@ -21,7 +21,6 @@
     "projectManagement": {
       "projectManagement": "Projektverwaltung",
       "projects": "Projekte",
-      "projectMeshes": "Projekt-Meshes",
       "namespaces": "!alias:views.namespaces.namespaces"
     },
     "administration": {

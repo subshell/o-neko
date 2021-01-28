@@ -10,9 +10,6 @@ import {AdminGuardService} from "./session/admin-guard.service";
 import {EditProjectComponent} from "./project/edit/edit-project.component";
 import {ProjectVersionListComponent} from "./project/versions-list/project-version-list.component";
 import {EditProjectVersionComponent} from "./project/edit-version/edit-project-version.component";
-import {ProjectMeshListComponent} from "./projectmesh/list/project-mesh-list.component";
-import {ManageMeshComponentsComponent} from "./projectmesh/manage-components/manage-mesh-components.component";
-import {EditMeshComponent} from "./projectmesh/edit-mesh/edit-mesh.component";
 import {DockerRegistryListComponent} from "./registries/docker/list/docker-registry-list.component";
 import {IsAdminOrDoerGuardService} from "./session/is-admin-or-doer-guard.service";
 import {DefinedNamespacesListComponent} from "./namespace/list/defined-namespaces-list.component";
@@ -68,31 +65,6 @@ export const APP_ROUTES: Routes = [
           {
             path: '',
             component: ProjectListComponent,
-          }
-        ]
-      },
-      {
-        path: 'project-meshes',
-        children: [
-          {
-            path: ':id',
-            children: [
-              {
-                path: 'components',
-                component: ManageMeshComponentsComponent,
-                canActivate: [AuthGuardService, IsAdminOrDoerGuardService]
-              },
-              {
-                path: '',
-                component: EditMeshComponent,
-                canActivate: [AuthGuardService, IsAdminOrDoerGuardService]
-              }
-            ]
-          },
-          {
-            path: '',
-            component: ProjectMeshListComponent,
-            canActivate: [AuthGuardService]
           }
         ]
       },

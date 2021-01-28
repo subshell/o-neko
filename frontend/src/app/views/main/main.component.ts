@@ -49,9 +49,6 @@ export class MainComponent {
             title: 'menu.projectManagement.projects',
             href: '/projects'
           },{
-            title: 'menu.projectManagement.projectMeshes',
-            href: '/project-meshes'
-          },{
             title: 'menu.projectManagement.namespaces',
             href: '/namespaces',
             hidden: !user.hasAnyPermission(UserRole.ADMIN, UserRole.DOER)

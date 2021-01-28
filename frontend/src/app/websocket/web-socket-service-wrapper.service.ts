@@ -29,14 +29,6 @@ export class WebSocketServiceWrapper {
       );
   }
 
-  public getMeshComponentChanges(meshId: string): Observable<DeploymentStatusChangedMessage> {
-    return this.streamType(DeploymentStatusChangedMessage)
-      .pipe(
-        filter(msg => msg.deployableType === 'meshComponent'),
-        filter(msg => msg.ownerId === meshId)
-      );
-  }
-
   public getActivityStream(): Observable<Activity> {
     return this.streamType(ActivityMessage)
       .pipe(map(message => message.activity));

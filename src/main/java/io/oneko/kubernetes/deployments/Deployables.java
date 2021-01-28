@@ -1,17 +1,18 @@
 package io.oneko.kubernetes.deployments;
 
-import io.oneko.automations.LifetimeBehaviour;
-import io.oneko.deployable.DeployableConfigurationTemplates;
-import io.oneko.deployable.DeploymentBehaviour;
-import io.oneko.project.*;
-import io.oneko.projectmesh.MeshService;
-import io.oneko.projectmesh.WritableMeshComponent;
-import org.apache.commons.lang3.tuple.Pair;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+
+import org.apache.commons.lang3.tuple.Pair;
+
+import io.oneko.automations.LifetimeBehaviour;
+import io.oneko.deployable.DeployableConfigurationTemplates;
+import io.oneko.deployable.DeploymentBehaviour;
+import io.oneko.project.ProjectConstants;
+import io.oneko.project.WritableProject;
+import io.oneko.project.WritableProjectVersion;
 
 public class Deployables {
 
@@ -107,105 +108,6 @@ public class Deployables {
 			@Override
 			public void setDesiredState(DesiredState desiredState) {
 				version.setDesiredState(desiredState);
-			}
-		};
-	}
-
-	public static Deployable<WritableMeshComponent> of(WritableMeshComponent component, MeshService meshService) {
-		return new Deployable<>() {
-
-			private final ReadableProjectVersion projectVersion = meshService.getVersionOfComponent(component);
-			private final ReadableProject project = projectVersion.getProject();
-
-			@Override
-			public WritableMeshComponent getEntity() {
-				return component;
-			}
-
-			@Override
-			public UUID getId() {
-				return component.getId();
-			}
-
-			@Override
-			public String getName() {
-				return component.getName();
-			}
-
-			@Override
-			public String getFullLabel() {
-				return "Component " + component.getName() + " of project mesh " + component.getOwner().getName();
-			}
-
-			@Override
-			public UUID getDockerRegistryId() {
-				return project.getDockerRegistryId();
-			}
-
-			public ReadableProject getRelatedProject() {
-				return project;
-			}
-
-			public ReadableProjectVersion getRelatedProjectVersion() {
-				return projectVersion;
-			}
-
-			@Override
-			public DeployableConfigurationTemplates getConfigurationTemplates() {
-				return DeployableConfigurationTemplates.of(meshService.getCalculatedConfigurationTemplates(component));
-			}
-
-			@Override
-			public boolean isOutdated() {
-				return component.isOutdated();
-			}
-
-			@Override
-			public List<String> getUrls() {
-				return component.getUrls();
-			}
-
-			@Override
-			public void setOutdated(boolean outdated) {
-				component.setOutdated(outdated);
-			}
-
-			@Override
-			public String getDockerContentDigest() {
-				return component.getDockerContentDigest();
-			}
-
-			@Override
-			public Optional<LifetimeBehaviour> calculateEffectiveLifetimeBehaviour() {
-				return component.getOwner().getLifetimeBehaviour();
-			}			@Override
-			public void setUrls(List<String> urls) {
-				component.setUrls(urls);
-			}
-
-			@Override
-			public DeploymentBehaviour getDeploymentBehaviour() {
-				return component.getOwner().getDeploymentBehaviour();
-			}
-
-			@Override
-			public Map.Entry<String, String> getPrimaryLabel() {
-				return Pair.of(ProjectConstants.TemplateVariablesNames.ONEKO_MESH_COMPONENT, component.getId().toString());
-			}
-
-			@Override
-			public void setDockerContentDigest(String dockerContentDigest) {
-				component.setDockerContentDigest(dockerContentDigest);
-			}
-
-			@Override
-			public DesiredState getDesiredState() {
-				return component.getDesiredState();
-			}
-
-			@Override
-			public void setDesiredState(DesiredState desiredState) {
-				component.setDesiredState(desiredState);
 			}
 		};
 	}
