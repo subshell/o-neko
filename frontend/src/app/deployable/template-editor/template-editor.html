@@ -1,9 +1,15 @@
 <div fxLayout="row" fxLayoutAlign="space-between center">
   <h4>{{label}}</h4>
   <div>
-    <button mat-icon-button [matMenuTriggerFor]="menu" [matTooltip]="'general.options' | translate">
-      <mat-icon svgIcon="mdi:dots-vertical"></mat-icon>
-    </button>
+    <div fxLayout="row" fxLayoutAlign="space-between center">
+      <div *ngIf="!currentTemplateModel" fxLayout="row" fxLayoutAlign="space-between center">
+        <mat-icon svgIcon="mdi:information-outline" color="primary"></mat-icon>
+        <span class="create-template-info">{{'components.templateEditor.createTemplateHelpInfo' | translate}}</span>
+      </div>
+      <button mat-icon-button [matMenuTriggerFor]="menu" [matTooltip]="'general.options' | translate">
+        <mat-icon svgIcon="mdi:dots-vertical"></mat-icon>
+      </button>
+    </div>
     <mat-menu #menu="matMenu">
       <button mat-menu-item [disabled]="readonly" (click)="openEditConfigurationTemplateDialog(currentTemplateModel)">
         <mat-icon svgIcon="mdi:pencil-outline"></mat-icon>
@@ -32,7 +38,7 @@
   <em *ngIf="currentTemplateModel?.isOverwriting()" class="mat-caption italic">{{'components.templateEditor.overwritesInheritedConfiguration' | translate}}</em>
 </div>
 
-<div class="template-editor-wrapper">
+<div class="template-editor-wrapper" *ngIf="currentTemplateModel; else noTemplatesAvailable">
   <mat-tab-group [selectedIndex]="selectedTab.value" (selectedIndexChange)="selectedTab.setValue($event)" animationDuration="0ms">
 
     <!-- Default Templates -->
@@ -65,3 +71,7 @@
     <ngx-monaco-editor class="code-editor" [options]="editorOptions" [ngModel]="currentTemplateModel.effectiveTemplate.content" (ngModelChange)="onTextOverwrite($event, currentTemplateModel)"></ngx-monaco-editor>
   </div>
 </div>
+
+<ng-template #noTemplatesAvailable>
+  <span><i>{{'components.templateEditor.noTemplatesAvailable' | translate}}</i></span>
+</ng-template>

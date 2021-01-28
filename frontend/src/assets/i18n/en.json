@@ -92,7 +92,9 @@
       "chartRegistry": "Chart registry",
       "chartName": "Chart name",
       "chartVersion": "Chart version",
-      "chartVersionPlaceholder": "Leave blank for latest version"
+      "chartVersionPlaceholder": "Leave blank for latest version",
+      "noTemplatesAvailable": "No configuration templates.",
+      "createTemplateHelpInfo": "Create a new template here:"
     },
     "dockerRegistry": {
       "deletionDialog": {

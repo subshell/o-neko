@@ -166,6 +166,10 @@ export class TemplateEditorComponent implements OnInit {
     this.addNewTemplate(template);
   }
 
+  public hasTemplates(): boolean {
+    return this.configurationTemplatesModels.length > 0;
+  }
+
   public helmChartSettingsChanged() {
     this.emitValidity();
     this.emitTemplates();
@@ -193,7 +197,19 @@ export class TemplateEditorComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
+        // select another tab if the latest one is active and is going to be deleted.
+        if (this.selectedTab.value === this.configurationTemplatesModels.length - 1 &&  this.selectedTab.value !== 0) {
+          this.selectedTab.setValue(this.selectedTab.value - 1);
+        }
+
         this.configurationTemplatesModels.splice(this.configurationTemplatesModels.indexOf(template), 1);
+
+        if (!this.hasTemplates()) {
+          // ensure at least one empty template
+          //const template = this.createNewTemplate();
+          //this.addNewTemplate(template);
+        }
+
         this.emitTemplates();
       }
     });
