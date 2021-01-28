@@ -94,7 +94,6 @@ export class TemplateEditorComponent implements OnInit {
   public chartRegistries: Observable<Array<HelmRegistry>>;
 
   public chartsByRegistry: {[registry: string]: Array<HelmChart>} = {};
-  public helmChartsReady: boolean = false;
 
   public editorOptions: IStandaloneEditorConstructionOptions = {
     theme: 'vs-light',
@@ -152,13 +151,9 @@ export class TemplateEditorComponent implements OnInit {
 
   private loadHelmCharts() {
     this.chartRegistries.subscribe(registries => {
-      let remainingRegistries = registries.length;
-
       registries.forEach(registry => {
         this.rest.helm().getHelmChartsByRegistry(registry).subscribe(charts => {
-          remainingRegistries--;
           this.chartsByRegistry[registry.getId()] = charts;
-          this.helmChartsReady = remainingRegistries === 0;
         });
       });
     })

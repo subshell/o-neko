@@ -51,7 +51,7 @@
       </ng-template>
     </mat-tab>
   </mat-tab-group>
-  <div class="helm-chart-controls" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="1em" *ngIf="helmChartsReady">
+  <div class="helm-chart-controls" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="1em">
     <mat-form-field>
       <mat-label>{{'components.templateEditor.chartRegistry' | translate}}</mat-label>
       <mat-select required [(ngModel)]="currentTemplateModel.effectiveTemplate.helmRegistryId" (ngModelChange)="helmChartSettingsChanged()">
