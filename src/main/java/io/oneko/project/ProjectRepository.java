@@ -16,6 +16,8 @@ public interface ProjectRepository {
 
 	List<ReadableProject> getByDockerRegistryUuid(UUID dockerRegistryUUID);
 
+	List<ReadableProject> getByHelmRegistryId(UUID helmRegistryId);
+
 	List<ReadableProject> getAll();
 
 	/**

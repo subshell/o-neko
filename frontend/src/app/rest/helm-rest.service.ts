@@ -23,11 +23,11 @@ export class HelmRestService {
   public persistHelmRegistry(helmRegistry: HelmRegistry, password: string): Observable<HelmRegistry> {
     if (helmRegistry.isNew()) {
       //create new helmRegistry call
-      return this.http.post<HelmRegistry>(this.root_path, {...helmRegistry, password});
-    } else {
-      //update the existing project
-      return this.http.post<HelmRegistryDTO>(`/${this.root_path}/${helmRegistry.id}`, helmRegistry).pipe(map(helmRegistryDTO => HelmRegistry.from(helmRegistryDTO)));
+      return this.http.post<HelmRegistryDTO>(this.root_path, {...helmRegistry, password}).pipe(map(helmRegistryDTO => HelmRegistry.from(helmRegistryDTO)));;
     }
+
+    //update the existing project
+    return this.http.post<HelmRegistryDTO>(`/${this.root_path}/${helmRegistry.id}`, helmRegistry).pipe(map(helmRegistryDTO => HelmRegistry.from(helmRegistryDTO)));
   }
 
   public changeHelmRegistryPassword(helmRegistry: HelmRegistry, passwordDTO: RegistryPasswordDto): Observable<HelmRegistry> {

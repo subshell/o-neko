@@ -64,6 +64,18 @@ public class ProjectInMemoryRepository extends EventAwareProjectRepository {
 	}
 
 	@Override
+	public List<ReadableProject> getByHelmRegistryId(UUID helmRegistryId) {
+		return this.projects.values()
+				.stream()
+				.filter(project ->
+						// does the base project reference this helm registry?
+						project.getDefaultConfigurationTemplates().stream().anyMatch(template -> helmRegistryId.equals(template.getHelmRegistryId())) ||
+						// does any of the versions reference this helm registry?
+						project.getVersions().stream().flatMap(version -> version.getConfigurationTemplates().stream()).anyMatch(template -> helmRegistryId.equals(template.getHelmRegistryId())))
+				.collect(Collectors.toList());
+	}
+
+	@Override
 	public List<ReadableProject> getAll() {
 		return new ArrayList<>(this.projects.values());
 	}

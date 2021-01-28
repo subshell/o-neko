@@ -11,10 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Slf4j
@@ -47,6 +50,18 @@ class ProjectMongoRepository extends EventAwareProjectRepository {
 	}
 
 	@Override
+	public List<ReadableProject> getByHelmRegistryId(UUID helmRegistryId) {
+		return this.innerProjectRepo.findAll().stream()
+				.filter(project ->
+						// does the base project reference this helm registry?
+						project.getDefaultConfigurationTemplates().stream().anyMatch(template -> templateReferencesHelmRegistry(template, helmRegistryId)) ||
+						// does any of the versions reference this helm registry?
+						project.getVersions().stream().flatMap(version -> version.getConfigurationTemplates().stream()).anyMatch(template -> templateReferencesHelmRegistry(template, helmRegistryId)))
+				.map(this::fromProjectMongo).collect(Collectors.toList());
+	}
+
+
+	@Override
 	public List<ReadableProject> getAll() {
 		return this.innerProjectRepo.findAll().stream().map(this::fromProjectMongo).collect(Collectors.toList());
 	}
@@ -60,6 +75,10 @@ class ProjectMongoRepository extends EventAwareProjectRepository {
 	@Override
 	protected void removeInternally(Project<?, ?> project) {
 		this.innerProjectRepo.deleteById(project.getId());
+	}
+
+	private boolean templateReferencesHelmRegistry(ConfigurationTemplateMongo configurationTemplate, UUID helmRegistryId) {
+		return helmRegistryId.equals(configurationTemplate.getHelmRegistryId());
 	}
 
     /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

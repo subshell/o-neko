@@ -2,7 +2,7 @@ import {Component, Inject} from "@angular/core";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {of} from "rxjs";
-import {flatMap} from "rxjs/operators";
+import {mergeMap} from "rxjs/operators";
 import {RestService} from "../../../rest/rest.service";
 import {User} from "../../../user/user";
 import {UserService} from "../../../user/user.service";
@@ -47,8 +47,8 @@ export class HelmRegistryEditDialogComponent {
 
   public save(): void {
     let isNew = this.helmRegistry.isNew();
-    this.rest.helm().persistHelmRegistry(this.helmRegistry, this.newPassword)
-      .pipe(flatMap(savedHelmRegistry => {
+    this.rest.helm().persistHelmRegistry(this.helmRegistry, !isNew && this.newPassword)
+      .pipe(mergeMap(savedHelmRegistry => {
         if (!isNew && this.newPassword) {
           return this.rest.helm().changeHelmRegistryPassword(savedHelmRegistry, {password: this.newPassword});
         } else {

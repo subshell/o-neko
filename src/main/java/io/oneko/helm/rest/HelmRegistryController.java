@@ -83,7 +83,10 @@ public class HelmRegistryController {
 	void deleteRegistry(@PathVariable UUID id) throws HelmRegistryException {
 		ReadableHelmRegistry registry = getRegistryOr404(id);
 
-		// TODO: remove registry only if it is not used anymore
+		if (this.projectRepository.getByHelmRegistryId(id).size() > 0) {
+			throw new HelmRegistryException("The Helm registry is still referenced in projects");
+		}
+
 		HelmRegistryCommandUtils.deleteRegistry(registry);
 		helmRegistryRepository.remove(registry);
 	}
@@ -103,8 +106,7 @@ public class HelmRegistryController {
 	@PreAuthorize("hasAnyRole('ADMIN', 'DOER')")
 	@GetMapping("/{id}/projects")
 	List<String> getProjectsUsingRegistry(@PathVariable UUID id) {
-		// TODO create helm method getByHelmRegistryUuid
-		return this.projectRepository.getByDockerRegistryUuid(id)
+		return this.projectRepository.getByHelmRegistryId(id)
 				.stream()
 				.map(ReadableProject::getName)
 				.collect(Collectors.toList());
