@@ -88,13 +88,13 @@ public class KubernetesAccess {
 		return newNameSpace;
 	}
 
-	Secret createImagePullSecretIfNotExistent(String namespace, String secretName, String userName, String password, String url) throws JsonProcessingException {
+	Secret createOrUpdateImagePullSecretInNamespace(String namespace, String secretName, String userName, String password, String url) throws JsonProcessingException {
 		final Secret existingSecret = kubernetesClient.secrets()
 				.inNamespace(namespace)
 				.withName(secretName).get();
 
 		if (existingSecret != null) {
-			return existingSecret;
+			log.info("Updating imagePullSecret {} in namespace {}", secretName, namespace);
 		}
 
 		Map<String, Object> dockerConfigMap = new HashMap<>();
@@ -110,7 +110,7 @@ public class KubernetesAccess {
 			final HashMap<String, String> dataMap = new HashMap<>();
 			dataMap.put(".dockerconfigjson", new String(Base64.getEncoder().encode(dockerConfigJson.getBytes())));
 
-			return kubernetesClient.secrets().inNamespace(namespace).create(new SecretBuilder()
+			return kubernetesClient.secrets().inNamespace(namespace).createOrReplace(new SecretBuilder()
 					.withApiVersion("v1")
 					.withKind("Secret")
 					.withData(dataMap)
@@ -123,7 +123,14 @@ public class KubernetesAccess {
 		}
 	}
 
-	ServiceAccount patchServiceAccountIfNecessary(String namespace, String imagePullSecretName) {
+	void deleteImagePullSecretInNamespace(String namespace, String secretName) {
+		kubernetesClient.secrets()
+				.inNamespace(namespace)
+				.withName(secretName)
+				.delete();
+	}
+
+	ServiceAccount addImagePullSecretToServiceAccountIfNecessary(String namespace, String imagePullSecretName) {
 		final ServiceAccount defaultServiceAccount = kubernetesClient.serviceAccounts()
 				.inNamespace(namespace)
 				.withName("default")
