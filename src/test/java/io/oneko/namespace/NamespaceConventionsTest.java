@@ -11,25 +11,25 @@ class NamespaceConventionsTest {
 	@Test
 	void testSanitizeNamespace() {
 		//upper case
-		assertThat(NamespaceConventions.sanitizeNamespace("Hallo"), is("hallo"));
+		assertThat(NamespaceConventions.sanitizeNamespace("Hallo"), is("on-hallo"));
 
 		//upper case everywhere
-		assertThat(NamespaceConventions.sanitizeNamespace("bR.o-o_Oo.T"), is("bro-o-oot"));
+		assertThat(NamespaceConventions.sanitizeNamespace("bR.o-o_Oo.T"), is("on-bro-o-oot"));
 
 		//max length
 		assertThat(NamespaceConventions.sanitizeNamespace(
 				"sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss"),
-				is("sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss"));
+				is("on-ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss"));
 
 		//illegal characters
-		assertThat(NamespaceConventions.sanitizeNamespace("k%s"), is("ks"));
-		assertThat(NamespaceConventions.sanitizeNamespace("__a_b-c__d__"), is("a-b-c--d"));
+		assertThat(NamespaceConventions.sanitizeNamespace("k%s"), is("on-ks"));
+		assertThat(NamespaceConventions.sanitizeNamespace("__a_b-c__d__"), is("on-a-b-c--d"));
 
 		//illegal start and end character
-		assertThat(NamespaceConventions.sanitizeNamespace("._-legal-name-_."), is("legal-name"));
+		assertThat(NamespaceConventions.sanitizeNamespace("._-legal-name-_."), is("on-legal-name"));
 
 		try {
-			NamespaceConventions.sanitizeNamespace("%");
+			final String s = NamespaceConventions.sanitizeNamespace("%");
 			fail();
 		} catch (IllegalArgumentException e) {
 			//expected
