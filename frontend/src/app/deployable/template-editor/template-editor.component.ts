@@ -9,13 +9,12 @@ import {EditConfigurationTemplateDialogComponent} from './edit-configuration-tem
 import IStandaloneEditorConstructionOptions = monaco.editor.IStandaloneEditorConstructionOptions;
 import {Select, Store} from "@ngxs/store";
 import {ThemingState} from "../../store/theming/theming.state";
-import {Observable, of} from "rxjs";
+import {Observable} from "rxjs";
 import {FileDownloadService} from '../../util/file-download.service';
 import {TranslateService} from "@ngx-translate/core";
 import {RestService} from "../../rest/rest.service";
 import {HelmRegistry} from "../../registries/helm/helm-registry";
-import {combineAll, concatAll, map, mergeAll, mergeMap} from "rxjs/operators";
-import {HelmChart} from "../../registries/helm-chart";
+import {HelmCharts, HelmChartVersion} from "../../registries/helm-charts";
 
 export class ConfigurationTemplateEditorModel {
   constructor(public template?: ConfigurationTemplate, public defaultTemplate?: ConfigurationTemplate) {
@@ -91,9 +90,9 @@ export class TemplateEditorComponent implements OnInit {
 
   @Select(ThemingState.isDarkMode) isDarkTheme$: Observable<boolean>;
 
+  public registryNameByRegistryId: {[name: string]: string} = {};
   public chartRegistries: Observable<Array<HelmRegistry>>;
-
-  public chartsByRegistry: {[registry: string]: Array<HelmChart>} = {};
+  public chartsByRegistry: {[registry: string]: HelmCharts} = {};
 
   public editorOptions: IStandaloneEditorConstructionOptions = {
     theme: 'vs-light',
@@ -110,6 +109,24 @@ export class TemplateEditorComponent implements OnInit {
 
   public get currentTemplateModel(): ConfigurationTemplateEditorModel {
     return this.configurationTemplatesModels[this.selectedTab.value];
+  }
+
+  public get currentHelmCharts(): HelmCharts {
+    return this.chartsByRegistry[this.currentTemplateModel.effectiveTemplate.helmRegistryId];
+  }
+
+  public get currentHelmChartNames(): Array<string> {
+    if (!this.currentHelmCharts || !this.currentHelmCharts.charts) {
+      return [];
+    }
+    return Object.keys(this.currentHelmCharts.charts);
+  }
+
+  public get currentHelmChartVersions(): Array<HelmChartVersion> {
+    if (!this.currentHelmCharts) {
+      return [];
+    }
+    return this.currentHelmCharts.charts[this.currentTemplateModel.effectiveTemplate.chartName];
   }
 
   constructor(private readonly snackBar: MatSnackBar,
@@ -154,9 +171,14 @@ export class TemplateEditorComponent implements OnInit {
       registries.forEach(registry => {
         this.rest.helm().getHelmChartsByRegistry(registry).subscribe(charts => {
           this.chartsByRegistry[registry.getId()] = charts;
+          this.registryNameByRegistryId[registry.getId()] = registry.name;
         });
       });
     })
+  }
+
+  public removeRegistryPart(chartName: string) {
+    return chartName.substr(this.registryNameByRegistryId[this.currentHelmCharts.registryId].length + 1, chartName.length);
   }
 
   public async onConfigUpload($event: FileList | File[]) {

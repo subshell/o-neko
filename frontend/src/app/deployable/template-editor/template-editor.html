@@ -61,14 +61,14 @@
     <mat-form-field>
       <mat-label>{{'components.templateEditor.chartName' | translate}}</mat-label>
       <mat-select [disabled]="!currentTemplateModel.effectiveTemplate.helmRegistryId" required [(ngModel)]="currentTemplateModel.effectiveTemplate.chartName" (ngModelChange)="helmChartSettingsChanged()">
-        <mat-option *ngFor="let chart of chartsByRegistry[currentTemplateModel.effectiveTemplate.helmRegistryId] | distinctObjects: 'name'" [value]="chart.name">{{ chart.name }}</mat-option>
+        <mat-option *ngFor="let chartName of currentHelmChartNames" [value]="chartName">{{ removeRegistryPart(chartName) }}</mat-option>
       </mat-select>
     </mat-form-field>
     <mat-form-field>
       <mat-label>{{'components.templateEditor.chartVersionPlaceholder' | translate}}</mat-label>
       <mat-select [disabled]="!currentTemplateModel.effectiveTemplate.chartName" [(ngModel)]="currentTemplateModel.effectiveTemplate.chartVersion" (ngModelChange)="helmChartSettingsChanged()">
         <mat-option [value]="undefined">latest</mat-option>
-        <mat-option *ngFor="let chart of chartsByRegistry[currentTemplateModel.effectiveTemplate.helmRegistryId] | filterDeep: 'name':currentTemplateModel.effectiveTemplate.chartName | distinctObjects: 'version'" [value]="chart.version">{{ chart.version }}</mat-option>
+        <mat-option *ngFor="let chartVersion of currentHelmChartVersions" [value]="chartVersion.version">{{ chartVersion.version }}</mat-option>
       </mat-select>
     </mat-form-field>
   </div>

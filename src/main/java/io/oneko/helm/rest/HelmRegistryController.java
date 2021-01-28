@@ -16,8 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import io.oneko.configuration.Controllers;
-import io.oneko.helm.HelmChartDTO;
-import io.oneko.helm.HelmChartMapper;
+import io.oneko.helm.HelmChartsDTO;
 import io.oneko.helm.HelmCharts;
 import io.oneko.helm.HelmRegistryException;
 import io.oneko.helm.HelmRegistryMapper;
@@ -38,18 +37,15 @@ public class HelmRegistryController {
 	private final ProjectRepository projectRepository;
 	private final HelmCharts helmCharts;
 	private final HelmRegistryMapper mapper;
-	private final HelmChartMapper helmChartMapper;
 
 	public HelmRegistryController(HelmRegistryRepository helmRegistryRepository,
 																ProjectRepository projectRepository,
 																HelmCharts helmCharts,
-																HelmRegistryMapper mapper,
-																HelmChartMapper helmChartMapper) {
+																HelmRegistryMapper mapper) {
 		this.helmRegistryRepository = helmRegistryRepository;
 		this.projectRepository = projectRepository;
 		this.helmCharts = helmCharts;
 		this.mapper = mapper;
-		this.helmChartMapper = helmChartMapper;
 	}
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'DOER')")
@@ -130,9 +126,8 @@ public class HelmRegistryController {
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'DOER')")
 	@GetMapping("/{id}/charts")
-	List<HelmChartDTO> getCharts(@PathVariable UUID id) throws ResponseStatusException  {
+	HelmChartsDTO getCharts(@PathVariable UUID id) throws ResponseStatusException  {
 		return helmCharts.getChartsByHelmRegistry(id)
-				.map(charts -> charts.stream().map(helmChartMapper::toHelmChartDTO).collect(Collectors.toList()))
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No Helm charts in Helm registry with id " + id + " found."));
 	}
 

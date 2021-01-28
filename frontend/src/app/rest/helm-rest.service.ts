@@ -3,7 +3,7 @@ import {Observable} from "rxjs";
 import {map} from "rxjs/operators";
 import {HelmRegistry, HelmRegistryDTO} from "../registries/helm/helm-registry";
 import {RegistryPasswordDto} from "../registries/registry-password-dto";
-import {HelmChart} from "../registries/helm-chart";
+import {HelmCharts} from "../registries/helm-charts";
 
 export class HelmRestService {
 
@@ -43,7 +43,7 @@ export class HelmRestService {
     return this.http.get<Array<string>>(`/${this.root_path}/${helmRegistry.id}/projects`);
   }
 
-  public getHelmChartsByRegistry(helmRegistry: HelmRegistry): Observable<Array<HelmChart>> {
-    return this.http.get<Array<HelmChart>>(`/${this.root_path}/${helmRegistry.id}/charts`);
+  public getHelmChartsByRegistry(helmRegistry: HelmRegistry): Observable<HelmCharts> {
+    return this.http.get<HelmCharts>(`/${this.root_path}/${helmRegistry.id}/charts`);
   }
 }
