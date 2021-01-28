@@ -3,6 +3,7 @@ import {Observable} from "rxjs";
 import {map} from "rxjs/operators";
 import {HelmRegistry, HelmRegistryDTO} from "../registries/helm/helm-registry";
 import {RegistryPasswordDto} from "../registries/registry-password-dto";
+import {HelmChart} from "../registries/helm-chart";
 
 export class HelmRestService {
 
@@ -38,7 +39,11 @@ export class HelmRestService {
     return this.http.delete(`/${this.root_path}/${helmRegistry.id}`);
   }
 
-  public getNamesOfProjectsUsingRegistry(dockerRegistry: HelmRegistry): Observable<Array<string>> {
-    return this.http.get<Array<string>>(`/${this.root_path}/${dockerRegistry.id}/projects`);
+  public getNamesOfProjectsUsingRegistry(helmRegistry: HelmRegistry): Observable<Array<string>> {
+    return this.http.get<Array<string>>(`/${this.root_path}/${helmRegistry.id}/projects`);
+  }
+
+  public getHelmChartsByRegistry(helmRegistry: HelmRegistry): Observable<Array<HelmChart>> {
+    return this.http.get<Array<HelmChart>>(`/${this.root_path}/${helmRegistry.id}/charts`);
   }
 }

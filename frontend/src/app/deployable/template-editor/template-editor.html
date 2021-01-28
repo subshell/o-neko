@@ -51,7 +51,7 @@
       </ng-template>
     </mat-tab>
   </mat-tab-group>
-  <div class="helm-chart-controls" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="1em">
+  <div class="helm-chart-controls" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="1em" *ngIf="helmChartsReady">
     <mat-form-field>
       <mat-label>{{'components.templateEditor.chartRegistry' | translate}}</mat-label>
       <mat-select required [(ngModel)]="currentTemplateModel.effectiveTemplate.helmRegistryId" (ngModelChange)="helmChartSettingsChanged()">
@@ -60,11 +60,16 @@
     </mat-form-field>
     <mat-form-field>
       <mat-label>{{'components.templateEditor.chartName' | translate}}</mat-label>
-      <input matInput required [(ngModel)]="currentTemplateModel.effectiveTemplate.chartName" (ngModelChange)="helmChartSettingsChanged()" />
+      <mat-select [disabled]="!currentTemplateModel.effectiveTemplate.helmRegistryId" required [(ngModel)]="currentTemplateModel.effectiveTemplate.chartName" (ngModelChange)="helmChartSettingsChanged()">
+        <mat-option *ngFor="let chart of chartsByRegistry[currentTemplateModel.effectiveTemplate.helmRegistryId] | distinctObjects: 'name'" [value]="chart.name">{{ chart.name }}</mat-option>
+      </mat-select>
     </mat-form-field>
     <mat-form-field>
-      <mat-label>{{'components.templateEditor.chartVersion' | translate}}</mat-label>
-      <input matInput [placeholder]="'components.templateEditor.chartVersionPlaceholder' | translate" [(ngModel)]="currentTemplateModel.effectiveTemplate.chartVersion" (ngModelChange)="helmChartSettingsChanged()" />
+      <mat-label>{{'components.templateEditor.chartVersionPlaceholder' | translate}}</mat-label>
+      <mat-select [disabled]="!currentTemplateModel.effectiveTemplate.chartName" [(ngModel)]="currentTemplateModel.effectiveTemplate.chartVersion" (ngModelChange)="helmChartSettingsChanged()">
+        <mat-option [value]="undefined">latest</mat-option>
+        <mat-option *ngFor="let chart of chartsByRegistry[currentTemplateModel.effectiveTemplate.helmRegistryId] | filterDeep: 'name':currentTemplateModel.effectiveTemplate.chartName | distinctObjects: 'version'" [value]="chart.version">{{ chart.version }}</mat-option>
+      </mat-select>
     </mat-form-field>
   </div>
   <div class="code-editor-wrapper" *ngIf="currentTemplateModel">

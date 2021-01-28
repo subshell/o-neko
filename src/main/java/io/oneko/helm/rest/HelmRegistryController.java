@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import io.oneko.configuration.Controllers;
+import io.oneko.helm.HelmChartDTO;
+import io.oneko.helm.HelmChartMapper;
+import io.oneko.helm.HelmCharts;
 import io.oneko.helm.HelmRegistryException;
 import io.oneko.helm.HelmRegistryMapper;
 import io.oneko.helm.HelmRegistryRepository;
@@ -33,14 +36,20 @@ public class HelmRegistryController {
 	public static final String PATH = Controllers.ROOT_PATH + "/helm/registries";
 	private final HelmRegistryRepository helmRegistryRepository;
 	private final ProjectRepository projectRepository;
+	private final HelmCharts helmCharts;
 	private final HelmRegistryMapper mapper;
+	private final HelmChartMapper helmChartMapper;
 
 	public HelmRegistryController(HelmRegistryRepository helmRegistryRepository,
 																ProjectRepository projectRepository,
-																HelmRegistryMapper mapper) {
+																HelmCharts helmCharts,
+																HelmRegistryMapper mapper,
+																HelmChartMapper helmChartMapper) {
 		this.helmRegistryRepository = helmRegistryRepository;
 		this.projectRepository = projectRepository;
+		this.helmCharts = helmCharts;
 		this.mapper = mapper;
+		this.helmChartMapper = helmChartMapper;
 	}
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'DOER')")
@@ -58,6 +67,7 @@ public class HelmRegistryController {
 		HelmRegistryCommandUtils.addRegistry(registry.readable());
 
 		final ReadableHelmRegistry persistedRegistry = helmRegistryRepository.add(registry);
+		helmCharts.refreshHelmChartsInRegistry(persistedRegistry.getId());
 		return mapper.toHelmRegistryDTO(persistedRegistry);
 	}
 
@@ -75,6 +85,8 @@ public class HelmRegistryController {
 		HelmRegistryCommandUtils.addRegistry(registry);
 		WritableHelmRegistry updatedRegistry = mapper.updateRegistryFromDTO(registry.writable(), dto);
 		ReadableHelmRegistry persistedReg = helmRegistryRepository.add(updatedRegistry);
+
+		helmCharts.refreshHelmChartsInRegistry(id);
 		return mapper.toHelmRegistryDTO(persistedReg);
 	}
 
@@ -88,6 +100,8 @@ public class HelmRegistryController {
 		}
 
 		HelmRegistryCommandUtils.deleteRegistry(registry);
+
+		helmCharts.invalidateHelmChartsInRegistry(id);
 		helmRegistryRepository.remove(registry);
 	}
 
@@ -100,6 +114,8 @@ public class HelmRegistryController {
 		WritableHelmRegistry writable = registry.writable();
 		writable.setPassword(dto.getPassword());
 		ReadableHelmRegistry persisted = helmRegistryRepository.add(writable);
+
+		helmCharts.refreshHelmChartsInRegistry(id);
 		return mapper.toHelmRegistryDTO(persisted);
 	}
 
@@ -112,8 +128,16 @@ public class HelmRegistryController {
 				.collect(Collectors.toList());
 	}
 
+	@PreAuthorize("hasAnyRole('ADMIN', 'DOER')")
+	@GetMapping("/{id}/charts")
+	List<HelmChartDTO> getCharts(@PathVariable UUID id) throws ResponseStatusException  {
+		return helmCharts.getChartsByHelmRegistry(id)
+				.map(charts -> charts.stream().map(helmChartMapper::toHelmChartDTO).collect(Collectors.toList()))
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No Helm charts in Helm registry with id " + id + " found."));
+	}
+
 	private ReadableHelmRegistry getRegistryOr404(UUID id) {
 		return this.helmRegistryRepository.getById(id)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Helm Registry with id " + id + "not found."));
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Helm Registry with id " + id + " not found."));
 	}
 }

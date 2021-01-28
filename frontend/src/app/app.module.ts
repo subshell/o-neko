@@ -114,6 +114,8 @@ import {TranslateHttpLoader} from "@ngx-translate/http-loader";
 import {AliasingTranslateCompiler} from "./util/aliasing-translate-compiler";
 import {HelmRegistryListComponent} from "./registries/helm/list/helm-registry-list.component";
 import {HelmRegistryEditDialogComponent} from "./registries/helm/edit-dialog/helm-registry-edit-dialog.component";
+import {DistinctObjectArrayPipe} from "./util/distinct-object-array.pipe";
+import {FilterDeepPipe} from "./util/filter-deep.pipe";
 
 @NgModule({
     declarations: [
@@ -169,7 +171,9 @@ import {HelmRegistryEditDialogComponent} from "./registries/helm/edit-dialog/hel
         EditConfigurationTemplateDialogComponent,
         FooterComponent,
         HelmRegistryListComponent,
-        HelmRegistryEditDialogComponent
+        HelmRegistryEditDialogComponent,
+        DistinctObjectArrayPipe,
+        FilterDeepPipe
     ],
   imports: [
     BrowserModule,
