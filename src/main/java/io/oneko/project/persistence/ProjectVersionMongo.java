@@ -30,7 +30,7 @@ public class ProjectVersionMongo {
 	private List<ConfigurationTemplateMongo> configurationTemplates;
 	private boolean outdated;
 	private LifetimeBehaviour lifetimeBehaviour;
-	private UUID namespace;
+	private String namespace;
 	private Map<String, String> templateVariables;
 	private DesiredState desiredState;
 	private Instant imageUpdatedDate;

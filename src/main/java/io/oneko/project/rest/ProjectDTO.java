@@ -24,4 +24,5 @@ public class ProjectDTO {
 	private List<ProjectVersionDTO> versions = new ArrayList<>();
 	private AggregatedDeploymentStatus status;
 	private LifetimeBehaviourDTO defaultLifetimeBehaviour;
+	private String namespace;
 }

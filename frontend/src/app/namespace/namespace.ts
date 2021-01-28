@@ -1,21 +1,21 @@
 export interface NamespaceDTO {
+  id: string;
   name: string;
-  id?: string;
 }
 
 export class Namespace implements NamespaceDTO {
-  name: string;
-  id?: string;
 
-  static from(dto: NamespaceDTO): Namespace {
+  id: string;
+  name: string;
+
+  public static from(from: NamespaceDTO): Namespace {
     let namespace = new Namespace();
-    namespace.name = dto.name;
-    namespace.id = dto.id;
+    namespace.id = from.id;
+    namespace.name = from.name;
     return namespace;
   }
 
-  public isImplicit(): boolean {
+  public isNew(): boolean {
     return !this.id;
   }
-
 }

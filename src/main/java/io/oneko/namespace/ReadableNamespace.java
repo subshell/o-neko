@@ -1,15 +1,15 @@
 package io.oneko.namespace;
 
+import java.util.UUID;
+
 import io.oneko.domain.Identifiable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.util.UUID;
-
 @AllArgsConstructor
 @Builder
-public class ReadableDefinedNamespace extends Identifiable implements DefinedNamespace {
+public class ReadableNamespace extends Identifiable implements Namespace {
 
 	@Getter
 	private final UUID id;
@@ -20,7 +20,7 @@ public class ReadableDefinedNamespace extends Identifiable implements DefinedNam
 		return name;
 	}
 
-	public WritableDefinedNamespace writable() {
-		return new WritableDefinedNamespace(getId(), asKubernetesNameSpace());
+	public WritableNamespace writable() {
+		return new WritableNamespace(getId(), asKubernetesNameSpace());
 	}
 }

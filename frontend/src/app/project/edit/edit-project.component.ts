@@ -9,6 +9,7 @@ import {UserService} from '../../user/user.service';
 import {DeploymentBehaviour, Project, TemplateVariable} from '../project';
 import {ProjectService} from '../project.service';
 import {FileDownloadService} from '../../util/file-download.service';
+import {Namespace} from "../../namespace/namespace";
 
 @Component({
   selector: 'edit-project',
@@ -34,6 +35,7 @@ export class EditProjectComponent implements OnInit {
   };
   public newVersionsDeploymentBehaviourAccess = new this.HasNewVersionsDeployment(this);
   private editingUser: User;
+  public namespaces: Array<Namespace> = [];
 
   constructor(private rest: RestService,
               private projectService: ProjectService,
@@ -42,6 +44,7 @@ export class EditProjectComponent implements OnInit {
               private router: Router) {
     this.userService.currentUser().subscribe(currentUser => this.editingUser = currentUser);
     this.rest.docker().getAllDockerRegistries().subscribe(regs => this.dockerRegistries = regs);
+    this.rest.namespace().getAllDefinedNamespaces().subscribe(namespaces => this.namespaces = namespaces);
   }
 
   ngOnInit() {

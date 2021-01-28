@@ -2,12 +2,11 @@ package io.oneko.namespace.rest;
 
 import io.oneko.configuration.Controllers;
 import io.oneko.kubernetes.NamespaceManager;
-import io.oneko.namespace.DefinedNamespaceRepository;
-import io.oneko.namespace.ReadableDefinedNamespace;
-import io.oneko.namespace.WritableDefinedNamespace;
+import io.oneko.namespace.NamespaceRepository;
+import io.oneko.namespace.ReadableNamespace;
+import io.oneko.namespace.WritableNamespace;
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.lang.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -19,18 +18,18 @@ import java.util.stream.Collectors;
 
 @RestController
 @Slf4j
-@RequestMapping(DefinedNamespaceController.PATH)
-public class DefinedNamespaceController {
+@RequestMapping(NamespaceController.PATH)
+public class NamespaceController {
 
 	public static final String PATH = Controllers.ROOT_PATH + "/namespace";
 
-	private final DefinedNamespaceRepository namespaceRepository;
+	private final NamespaceRepository namespaceRepository;
 	private final DefinedNamespaceDTOMapper dtoMapper;
 	private final NamespaceManager namespaceManager;
 
-	public DefinedNamespaceController(DefinedNamespaceRepository namespaceRepository,
-																		DefinedNamespaceDTOMapper dtoMapper,
-																		NamespaceManager namespaceManager) {
+	public NamespaceController(NamespaceRepository namespaceRepository,
+														 DefinedNamespaceDTOMapper dtoMapper,
+														 NamespaceManager namespaceManager) {
 		this.namespaceRepository = namespaceRepository;
 		this.dtoMapper = dtoMapper;
 		this.namespaceManager = namespaceManager;
@@ -47,8 +46,8 @@ public class DefinedNamespaceController {
 	@PreAuthorize("hasAnyRole('ADMIN')")
 	@PostMapping
 	DefinedNamespaceDTO createNamespace(@RequestBody DefinedNamespaceDTO dto) {
-		WritableDefinedNamespace newNamespace = new WritableDefinedNamespace(dto.getName());
-		final ReadableDefinedNamespace definedNamespace = namespaceRepository.add(newNamespace);
+		WritableNamespace newNamespace = new WritableNamespace(dto.getName());
+		final ReadableNamespace definedNamespace = namespaceRepository.add(newNamespace);
 		namespaceManager.createNamespaceAndAddImagePullSecrets(definedNamespace);
 		return dtoMapper.namespaceToDTO(definedNamespace);
 	}

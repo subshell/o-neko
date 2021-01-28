@@ -15,7 +15,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @Document
-public class DefinedNamespaceMongo {
+public class NamespaceMongo {
 	@Id
 	private UUID id;
 	@Indexed(unique = true)

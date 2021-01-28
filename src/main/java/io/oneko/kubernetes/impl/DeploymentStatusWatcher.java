@@ -73,8 +73,8 @@ class DeploymentStatusWatcher {
 				|| deploymentRepository.findByDeployableId(deployable.getId()).isPresent();
 	}
 
-	private void scanResourcesForDeployable(Namespace namespace, Deployable<?> deployable) {
-		final List<Pod> podsByLabelInNameSpace = kubernetesAccess.getPodsByLabelInNameSpace(namespace.asKubernetesNameSpace(), deployable.getPrimaryLabel());
+	private void scanResourcesForDeployable(String namespace, Deployable<?> deployable) {
+		final List<Pod> podsByLabelInNameSpace = kubernetesAccess.getPodsByLabelInNameSpace(namespace, deployable.getPrimaryLabel());
 		if (podsByLabelInNameSpace.isEmpty()) {
 			cleanUpOnDeploymentRemoved(deployable);
 			return;

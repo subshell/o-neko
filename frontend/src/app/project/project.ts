@@ -23,6 +23,7 @@ export interface ProjectDTO {
   versions: Array<ProjectVersion>;
   status: AggregatedDeploymentStatus;
   defaultLifetimeBehaviour?: LifetimeBehaviour;
+  namespace: string;
 }
 
 export interface TemplateVariable {
@@ -45,6 +46,7 @@ export class Project implements ProjectDTO {
   versions: Array<ProjectVersion>;
   status: AggregatedDeploymentStatus;
   defaultLifetimeBehaviour?: LifetimeBehaviour;
+  namespace: string;
 
   constructor(public readonly uuid?: string) {
   }
@@ -61,6 +63,7 @@ export class Project implements ProjectDTO {
     project.versions = from.versions.map(version => ProjectVersion.from(version));
     project.status = from.status;
     project.defaultLifetimeBehaviour = from.defaultLifetimeBehaviour;
+    project.namespace = from.namespace;
 
     return project;
   }

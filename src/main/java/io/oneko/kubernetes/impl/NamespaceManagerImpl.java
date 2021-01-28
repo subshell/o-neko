@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.oneko.docker.DockerRegistryRepository;
 import io.oneko.kubernetes.KubernetesConventions;
 import io.oneko.kubernetes.NamespaceManager;
-import io.oneko.namespace.DefinedNamespace;
+import io.oneko.namespace.Namespace;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -23,7 +23,7 @@ public class NamespaceManagerImpl implements NamespaceManager {
 	}
 
 	@Override
-	public void createNamespaceAndAddImagePullSecrets(DefinedNamespace namespace) {
+	public void createNamespaceAndAddImagePullSecrets(Namespace namespace) {
 		final String namespaceName = namespace.asKubernetesNameSpace();
 		kubernetesAccess.createNamespaceIfNotExistent(namespaceName);
 		dockerRegistryRepository.getAll().forEach(registry -> {
@@ -38,7 +38,7 @@ public class NamespaceManagerImpl implements NamespaceManager {
 	}
 
 	@Override
-	public void deleteNamespace(DefinedNamespace namespace) {
+	public void deleteNamespace(Namespace namespace) {
 		kubernetesAccess.deleteNamespaceByName(namespace.asKubernetesNameSpace());
 	}
 }

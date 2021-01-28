@@ -2,7 +2,6 @@ package io.oneko.project;
 
 import io.oneko.automations.LifetimeBehaviour;
 import io.oneko.deployable.DeploymentBehaviour;
-import io.oneko.namespace.HasNamespace;
 import io.oneko.templates.ConfigurationTemplate;
 import org.apache.commons.lang3.StringUtils;
 
@@ -23,6 +22,8 @@ public interface Project<P extends Project<P, V>, V extends ProjectVersion<P, V>
 	List<? extends ConfigurationTemplate> getDefaultConfigurationTemplates();
 
 	List<? extends TemplateVariable> getTemplateVariables();
+
+	String getNamespace();
 
 	default Map<String, String> getImplicitTemplateVariables() {
 		Map<String, String> implicitTemplateVariables = new HashMap<>();

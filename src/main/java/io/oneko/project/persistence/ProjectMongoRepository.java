@@ -2,8 +2,8 @@ package io.oneko.project.persistence;
 
 import io.oneko.Profiles;
 import io.oneko.event.EventDispatcher;
-import io.oneko.namespace.DefinedNamespaceRepository;
-import io.oneko.namespace.ReadableDefinedNamespace;
+import io.oneko.namespace.NamespaceRepository;
+import io.oneko.namespace.ReadableNamespace;
 import io.oneko.project.*;
 import io.oneko.project.event.EventAwareProjectRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -11,13 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @Slf4j
@@ -25,13 +22,13 @@ import java.util.stream.Stream;
 class ProjectMongoRepository extends EventAwareProjectRepository {
 
 	private final ProjectMongoSpringRepository innerProjectRepo;
-	private final DefinedNamespaceRepository definedNamespaceRepository;
+	private final NamespaceRepository namespaceRepository;
 
 	@Autowired
-	ProjectMongoRepository(ProjectMongoSpringRepository innerProjectRepo, DefinedNamespaceRepository definedNamespaceRepository, EventDispatcher eventDispatcher) {
+	ProjectMongoRepository(ProjectMongoSpringRepository innerProjectRepo, NamespaceRepository namespaceRepository, EventDispatcher eventDispatcher) {
 		super(eventDispatcher);
 		this.innerProjectRepo = innerProjectRepo;
-		this.definedNamespaceRepository = definedNamespaceRepository;
+		this.namespaceRepository = namespaceRepository;
 	}
 
 	@Override
@@ -93,6 +90,7 @@ class ProjectMongoRepository extends EventAwareProjectRepository {
 		projectMongo.setNewVersionsDeploymentBehaviour(project.getNewVersionsDeploymentBehaviour());
 		projectMongo.setDefaultConfigurationTemplates(ConfigurationTemplateMongoMapper.toConfigurationTemplateMongos(project.getDefaultConfigurationTemplates()));
 		projectMongo.setTemplateVariables(this.toTemplateVariablesMongo(project.getTemplateVariables()));
+		projectMongo.setNamespace(project.getNamespace());
 
 		if (project.isOrphan()) {
 			projectMongo.setDockerRegistryUUID(null);
@@ -154,7 +152,7 @@ class ProjectMongoRepository extends EventAwareProjectRepository {
 		versionMongo.setOutdated(version.isOutdated());
 		versionMongo.setConfigurationTemplates(ConfigurationTemplateMongoMapper.toConfigurationTemplateMongos(version.getConfigurationTemplates()));
 		versionMongo.setLifetimeBehaviour(version.getLifetimeBehaviour().orElse(null));
-		versionMongo.setNamespace(version.getDefinedNamespaceId());
+		versionMongo.setNamespace(version.getNamespace());
 		versionMongo.setDesiredState(version.getDesiredState());
 		versionMongo.setImageUpdatedDate(version.getImageUpdatedDate());
 
@@ -178,12 +176,11 @@ class ProjectMongoRepository extends EventAwareProjectRepository {
 				.dockerRegistryId(projectMongo.getDockerRegistryUUID())
 				.versions(versions)
 				.defaultLifetimeBehaviour(projectMongo.getDefaultLifetimeBehaviour())
+				.namespace(projectMongo.getNamespace())
 				.build();
 	}
 
 	private ReadableProjectVersion fromProjectVersionMongo(ProjectVersionMongo versionMongo) {
-		UUID namespaceId = versionMongo.getNamespace();
-		ReadableDefinedNamespace readableDefinedNamespace1 = Optional.ofNullable(namespaceId).flatMap(definedNamespaceRepository::getById).orElse(null);
 		return ReadableProjectVersion.builder()
 				.uuid(versionMongo.getProjectVersionUuid())
 				.name(versionMongo.getName())
@@ -196,6 +193,6 @@ class ProjectMongoRepository extends EventAwareProjectRepository {
 				.lifetimeBehaviour(versionMongo.getLifetimeBehaviour())
 				.desiredState(versionMongo.getDesiredState())
 				.imageUpdatedDate(versionMongo.getImageUpdatedDate())
-				.namespace(readableDefinedNamespace1).build();
+				.namespace(versionMongo.getNamespace()).build();
 	}
 }

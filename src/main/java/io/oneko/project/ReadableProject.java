@@ -1,17 +1,20 @@
 package io.oneko.project;
 
-import com.google.common.collect.ImmutableList;
-import io.oneko.automations.LifetimeBehaviour;
-import io.oneko.deployable.DeploymentBehaviour;
-import io.oneko.domain.Identifiable;
-import io.oneko.templates.ReadableConfigurationTemplate;
-import lombok.Builder;
-import lombok.Getter;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import com.google.common.collect.ImmutableList;
+
+import io.oneko.automations.LifetimeBehaviour;
+import io.oneko.deployable.DeploymentBehaviour;
+import io.oneko.domain.Identifiable;
+import io.oneko.namespace.Namespace;
+import io.oneko.namespace.ReadableNamespace;
+import io.oneko.templates.ReadableConfigurationTemplate;
+import lombok.Builder;
+import lombok.Getter;
 
 @Getter
 public class ReadableProject extends Identifiable implements Project<ReadableProject, ReadableProjectVersion> {
@@ -25,12 +28,13 @@ public class ReadableProject extends Identifiable implements Project<ReadablePro
 	private final LifetimeBehaviour defaultLifetimeBehaviour;
 	private final ImmutableList<ReadableTemplateVariable> templateVariables;
 	private final ImmutableList<ReadableProjectVersion> versions;
+	private final String namespace;
 
 	@Builder
 	public ReadableProject(UUID id, String name, String imageName, DeploymentBehaviour newVersionsDeploymentBehaviour,
 						   List<ReadableConfigurationTemplate> defaultConfigurationTemplates,
 						   UUID dockerRegistryId, LifetimeBehaviour defaultLifetimeBehaviour,
-						   List<ReadableTemplateVariable> templateVariables, List<ReadableProjectVersion> versions) {
+						   List<ReadableTemplateVariable> templateVariables, List<ReadableProjectVersion> versions, String namespace) {
 		this.id = id;
 		this.name = name;
 		this.imageName = imageName;
@@ -41,11 +45,17 @@ public class ReadableProject extends Identifiable implements Project<ReadablePro
 		this.templateVariables = templateVariables == null ? ImmutableList.of() : ImmutableList.copyOf(templateVariables);
 		this.versions = versions == null ? ImmutableList.of() : ImmutableList.copyOf(versions);
 		this.versions.forEach(v -> v.setProject(this));
+		this.namespace = namespace;
 	}
 
 	@Override
 	public UUID getId() {
 		return id;
+	}
+
+	@Override
+	public String getNamespace() {
+		return namespace;
 	}
 
 	public Optional<LifetimeBehaviour> getDefaultLifetimeBehaviour() {

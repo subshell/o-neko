@@ -2,13 +2,12 @@ package io.oneko.namespace.persistence;
 
 import io.oneko.Profiles;
 import io.oneko.event.EventDispatcher;
-import io.oneko.namespace.DefinedNamespace;
-import io.oneko.namespace.ReadableDefinedNamespace;
-import io.oneko.namespace.WritableDefinedNamespace;
-import io.oneko.namespace.event.EventAwareDefinedNamespaceRepository;
+import io.oneko.namespace.Namespace;
+import io.oneko.namespace.ReadableNamespace;
+import io.oneko.namespace.WritableNamespace;
+import io.oneko.namespace.event.EventAwareNamespaceRepository;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,37 +16,37 @@ import java.util.stream.Collectors;
 
 @Component
 @Profile(Profiles.MONGO)
-public class DefinedNamespaceMongoRepository extends EventAwareDefinedNamespaceRepository {
+public class NamespaceMongoRepository extends EventAwareNamespaceRepository {
 
 	private final DefinedNamespaceMongoSpringRepository innerRepo;
 
-	public DefinedNamespaceMongoRepository(DefinedNamespaceMongoSpringRepository innerRepo, EventDispatcher eventDispatcher) {
+	public NamespaceMongoRepository(DefinedNamespaceMongoSpringRepository innerRepo, EventDispatcher eventDispatcher) {
 		super(eventDispatcher);
 		this.innerRepo = innerRepo;
 	}
 
 	@Override
-	protected ReadableDefinedNamespace addInternally(WritableDefinedNamespace namespace) {
+	protected ReadableNamespace addInternally(WritableNamespace namespace) {
 		return this.fromNamespaceMongo(this.innerRepo.save(this.toNamespaceMongo(namespace)));
 	}
 
 	@Override
-	protected void removeInternally(DefinedNamespace namespace) {
+	protected void removeInternally(Namespace namespace) {
 		innerRepo.deleteById(namespace.getId());
 	}
 
 	@Override
-	public Optional<ReadableDefinedNamespace> getById(UUID id) {
+	public Optional<ReadableNamespace> getById(UUID id) {
 		return this.innerRepo.findById(id).map(this::fromNamespaceMongo);
 	}
 
 	@Override
-	public Optional<ReadableDefinedNamespace> getByName(String name) {
+	public Optional<ReadableNamespace> getByName(String name) {
 		return this.innerRepo.findByName(name).map(this::fromNamespaceMongo);
 	}
 
 	@Override
-	public List<ReadableDefinedNamespace> getAll() {
+	public List<ReadableNamespace> getAll() {
 		return this.innerRepo.findAll().stream().map(this::fromNamespaceMongo).collect(Collectors.toList());
 	}
 
@@ -55,15 +54,15 @@ public class DefinedNamespaceMongoRepository extends EventAwareDefinedNamespaceR
      * Mapping stuff
      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-	private DefinedNamespaceMongo toNamespaceMongo(DefinedNamespace namespace) {
-		DefinedNamespaceMongo namespaceMongo = new DefinedNamespaceMongo();
+	private NamespaceMongo toNamespaceMongo(Namespace namespace) {
+		NamespaceMongo namespaceMongo = new NamespaceMongo();
 		namespaceMongo.setId(namespace.getId());
 		namespaceMongo.setName(namespace.asKubernetesNameSpace());
 		return namespaceMongo;
 	}
 
-	private ReadableDefinedNamespace fromNamespaceMongo(DefinedNamespaceMongo namespaceMongo) {
-		return ReadableDefinedNamespace.builder()
+	private ReadableNamespace fromNamespaceMongo(NamespaceMongo namespaceMongo) {
+		return ReadableNamespace.builder()
 				.id(namespaceMongo.getId())
 				.name(namespaceMongo.getName())
 				.build();

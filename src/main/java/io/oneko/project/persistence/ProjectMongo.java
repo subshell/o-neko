@@ -31,4 +31,5 @@ class ProjectMongo {
 	private List<ProjectVersionMongo> versions;
 	private LifetimeBehaviour defaultLifetimeBehaviour;
 	private List<TemplateVariableMongo> templateVariables;
+	private String namespace;
 }

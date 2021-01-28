@@ -6,7 +6,7 @@ import lombok.Builder;
 
 import java.util.UUID;
 
-public class WritableDefinedNamespace extends ModificationAwareIdentifiable implements DefinedNamespace {
+public class WritableNamespace extends ModificationAwareIdentifiable implements Namespace {
 
 	private final ModificationAwareProperty<UUID> id = new ModificationAwareProperty<>(this, "id");
 	private final ModificationAwareProperty<String> name = new ModificationAwareProperty<>(this, "name");
@@ -16,7 +16,7 @@ public class WritableDefinedNamespace extends ModificationAwareIdentifiable impl
 	 *
 	 * @param name - must not be <code>null</code>
 	 */
-	public WritableDefinedNamespace(String name) {
+	public WritableNamespace(String name) {
 		this.id.set(UUID.randomUUID());
 		this.name.set(NamespaceConventions.sanitizeNamespace(name));
 	}
@@ -28,7 +28,7 @@ public class WritableDefinedNamespace extends ModificationAwareIdentifiable impl
 	 * @param name - must not be <code>null</code>
 	 */
 	@Builder
-	public WritableDefinedNamespace(UUID id, String name) {
+	public WritableNamespace(UUID id, String name) {
 		this.id.init(id);
 		this.name.init(NamespaceConventions.sanitizeNamespace(name));
 	}
@@ -43,8 +43,8 @@ public class WritableDefinedNamespace extends ModificationAwareIdentifiable impl
 		return name.get();
 	}
 
-	public ReadableDefinedNamespace readable() {
-		return new ReadableDefinedNamespace(getId(), asKubernetesNameSpace());
+	public ReadableNamespace readable() {
+		return new ReadableNamespace(getId(), asKubernetesNameSpace());
 	}
 
 }

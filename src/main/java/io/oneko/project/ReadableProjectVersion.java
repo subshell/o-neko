@@ -1,24 +1,27 @@
 package io.oneko.project;
 
+import static io.oneko.kubernetes.deployments.DesiredState.*;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+
 import io.oneko.automations.LifetimeBehaviour;
 import io.oneko.deployable.DeploymentBehaviour;
 import io.oneko.domain.Identifiable;
 import io.oneko.kubernetes.deployments.DesiredState;
-import io.oneko.namespace.DefinedNamespace;
-import io.oneko.namespace.ImplicitNamespace;
 import io.oneko.namespace.Namespace;
 import io.oneko.templates.ReadableConfigurationTemplate;
 import lombok.Builder;
 import lombok.Getter;
-
-import java.time.Instant;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static io.oneko.kubernetes.deployments.DesiredState.NotDeployed;
 
 @Getter
 public class ReadableProjectVersion extends Identifiable implements ProjectVersion<ReadableProject, ReadableProjectVersion> {
@@ -33,7 +36,7 @@ public class ReadableProjectVersion extends Identifiable implements ProjectVersi
 	private final ImmutableList<ReadableConfigurationTemplate> configurationTemplates;
 	private final boolean outdated;
 	private final LifetimeBehaviour lifetimeBehaviour;
-	private Namespace namespace;
+	private final String namespace;
 	private final DesiredState desiredState;
 	private final Instant imageUpdatedDate;
 
@@ -41,7 +44,7 @@ public class ReadableProjectVersion extends Identifiable implements ProjectVersi
 	public ReadableProjectVersion(UUID uuid, String name, DeploymentBehaviour deploymentBehaviour,
 								  Map<String, String> templateVariables, String dockerContentDigest, List<String> urls,
 								  List<ReadableConfigurationTemplate> configurationTemplates, boolean outdated, LifetimeBehaviour lifetimeBehaviour,
-								  DefinedNamespace namespace, DesiredState desiredState, Instant imageUpdatedDate) {
+								  String namespace, DesiredState desiredState, Instant imageUpdatedDate) {
 		this.uuid = uuid;
 		this.name = name;
 		this.deploymentBehaviour = deploymentBehaviour;
@@ -60,10 +63,6 @@ public class ReadableProjectVersion extends Identifiable implements ProjectVersi
 	void setProject(ReadableProject project) {
 		Preconditions.checkArgument(this.project == null, "The project can not be set more than once");
 		this.project = project;
-		//The implicit namespace requires the project to be set
-		if (this.namespace == null) {
-			this.namespace = new ImplicitNamespace(this);
-		}
 	}
 
 	@Override
@@ -92,7 +91,7 @@ public class ReadableProjectVersion extends Identifiable implements ProjectVersi
 					.collect(Collectors.toList()))
 				.outdated(isOutdated())
 				.lifetimeBehaviour(lifetimeBehaviour)
-				.namespace(namespace instanceof DefinedNamespace ? (DefinedNamespace)getNamespace() : null)
+				.namespace(getNamespace())
 				.desiredState(getDesiredState())
 				.imageUpdatedDate(getImageUpdatedDate())
 				.build();

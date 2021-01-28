@@ -1,11 +1,11 @@
 package io.oneko.kubernetes;
 
-import io.oneko.namespace.DefinedNamespace;
+import io.oneko.namespace.Namespace;
 
 public interface NamespaceManager {
 
-	void createNamespaceAndAddImagePullSecrets(DefinedNamespace namespace);
+	void createNamespaceAndAddImagePullSecrets(Namespace namespace);
 
-	void deleteNamespace(DefinedNamespace namespace);
+	void deleteNamespace(Namespace namespace);
 
 }

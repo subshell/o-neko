@@ -1,7 +1,6 @@
 import {cloneDeep} from "lodash";
 import {ConfigurationTemplate} from "../deployable/configuration-template";
 import {Deployment, DeploymentDTO, DesiredState} from "../deployable/deployment";
-import {Namespace, NamespaceDTO} from "../namespace/namespace";
 import {DeploymentBehaviour, LifetimeBehaviour, TemplateVariable} from "./project";
 import {relativeDateString} from "../util/date-time-parser";
 
@@ -16,8 +15,7 @@ export interface ProjectVersionDTO {
   configurationTemplates: Array<ConfigurationTemplate>;
   outdated: boolean
   lifetimeBehaviour?: LifetimeBehaviour;
-  namespace: NamespaceDTO;
-  implicitNamespace: NamespaceDTO;
+  namespace: string;
   desiredState: DesiredState;
   imageUpdatedDate: string | Date;
 }
@@ -33,8 +31,7 @@ export class ProjectVersion implements ProjectVersionDTO {
   configurationTemplates: Array<ConfigurationTemplate>;
   outdated: boolean;
   lifetimeBehaviour?: LifetimeBehaviour;
-  namespace: Namespace;
-  implicitNamespace: Namespace;
+  namespace: string;
   desiredState: DesiredState;
   imageUpdatedDate: Date;
 
@@ -58,8 +55,7 @@ export class ProjectVersion implements ProjectVersionDTO {
     version.configurationTemplates = from.configurationTemplates;
     version.outdated = from.outdated;
     version.lifetimeBehaviour = from.lifetimeBehaviour;
-    version.namespace = Namespace.from(from.namespace);
-    version.implicitNamespace = Namespace.from(from.implicitNamespace);
+    version.namespace = from.namespace;
     version.desiredState = from.desiredState;
     version.imageUpdatedDate = from.imageUpdatedDate ? new Date(from.imageUpdatedDate) : null;
     return version;
@@ -76,6 +72,7 @@ export class ProjectVersion implements ProjectVersionDTO {
     this.configurationTemplates = from.configurationTemplates;
     this.outdated = from.outdated;
     this.lifetimeBehaviour = from.lifetimeBehaviour;
+    this.namespace = from.namespace;
     this.desiredState = from.desiredState;
     this.imageUpdatedDate = from.imageUpdatedDate ? new Date(from.imageUpdatedDate) : null;
   }

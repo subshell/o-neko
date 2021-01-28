@@ -4,7 +4,7 @@ import {MatSnackBar} from "@angular/material/snack-bar";
 import {RestService} from "../../rest/rest.service";
 import {User} from "../../user/user";
 import {UserService} from "../../user/user.service";
-import {DefinedNamespace} from "../defined-namespace";
+import {Namespace} from "../namespace";
 import {TranslateService} from "@ngx-translate/core";
 
 @Component({
@@ -14,7 +14,7 @@ import {TranslateService} from "@ngx-translate/core";
 })
 export class CreateNamespaceDialogComponent {
 
-  public namespace: DefinedNamespace;
+  public namespace: Namespace;
   public editingUser: User;
   public readonly NAMESPACE_PREFIX = 'on-';
 
@@ -24,7 +24,7 @@ export class CreateNamespaceDialogComponent {
               private snackBar: MatSnackBar,
               private translateService: TranslateService) {
     this.userService.currentUser().subscribe(cu => this.editingUser = cu);
-    this.namespace = new DefinedNamespace();
+    this.namespace = new Namespace();
   }
 
   public save(): void {
