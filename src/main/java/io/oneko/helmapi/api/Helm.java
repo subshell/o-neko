@@ -70,7 +70,7 @@ public class Helm implements Helm3API {
 				.withFlag("--version", version)
 				.withFlag("--namespace", namespace)
 				.withFlag("-f", values.getValuesFilePath().orElse(writeValuesToTemporaryFile(values, name).getAbsolutePath()))
-				.withFlag("--dry-run", Boolean.toString(dryRun))
+				.withFlag("--dry-run", dryRun)
 				.withFlag("-o", "json")
 				.build();
 		return executor.executeWithJsonOutput(InstallStatus.class, command);
@@ -107,7 +107,7 @@ public class Helm implements Helm3API {
 				.withArgument(url)
 				.withFlag("--username", username)
 				.withFlag("--password", password)
-				.withFlag("--force-update", Boolean.toString(forceUpdate))
+				.withFlag("--force-update", forceUpdate)
 				.build();
 		var out = executor.execute(command);
 		log.info(out);
@@ -147,8 +147,8 @@ public class Helm implements Helm3API {
 	public List<Chart> searchRepo(String query, boolean versions, boolean devel) {
 		final String[] command = initCommand("helm", "search", "repo")
 				.withArgument(query)
-				.withFlag("--versions", Boolean.toString(versions))
-				.withFlag("--devel", Boolean.toString(devel))
+				.withFlag("--versions", versions)
+				.withFlag("--devel", devel)
 				.withFlag("-o", "json")
 				.build();
 		return executor.executeWithJsonOutput(new TypeToken<List<Chart>>() {
@@ -170,7 +170,7 @@ public class Helm implements Helm3API {
 		final String[] command = initCommand("helm", "uninstall")
 				.withArgument("name")
 				.withFlag("--namespace", namespace)
-				.withFlag("--dry-run", Boolean.toString(dryRun))
+				.withFlag("--dry-run", dryRun)
 				.build();
 		var out = executor.execute(command);
 		log.info(out);
@@ -191,7 +191,7 @@ public class Helm implements Helm3API {
 
 		public Command withArgument(String arg) {
 			if (StringUtils.isNotBlank(arg) && flagFormatValid(arg)) {
-				command = ArrayUtils.add(command, quoteIfNecessary(arg));
+				command = ArrayUtils.add(command, arg);
 			} else {
 				throw new IllegalArgumentException("The format of the argument is invalid: " + arg);
 			}
@@ -207,17 +207,18 @@ public class Helm implements Helm3API {
 		 */
 		public Command withFlag(String flag, String value) {
 			if (StringUtils.isNotBlank(value) && flagFormatValid(value)) {
-				commandFlags.put(flag, quoteIfNecessary(value));
+				commandFlags.put(flag, value);
 			}
+			return this;
+		}
+
+		public Command withFlag(String flag, boolean value) {
+			commandFlags.put(flag, Boolean.toString(value));
 			return this;
 		}
 
 		private boolean flagFormatValid(String flag) {
 			return flag.matches("[a-zA-Z0-9 /:_.-]+");
-		}
-
-		private String quoteIfNecessary(String str) {
-			return StringUtils.wrapIfMissing(str, "\"");
 		}
 
 		public String[] build() {

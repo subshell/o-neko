@@ -26,12 +26,12 @@ class HelmTest {
 		// If this happens please check that the command produces identical output and then fix the command here
 		tempFile = Files.createTempFile("helmapitestvalues", "yaml").toFile();
 		tce.addDefinedCommand(helm_repo_list, "helm repo list -ojson");
-		tce.addDefinedCommand(helm_list_all_namespaces, "helm list -o=\"json\" --all-namespaces=\"true\" --time-format=\"2006-01-02T15:04:05Z07:00\"");
-		tce.addDefinedCommand(helm_status_oneko, "helm status \"oneko\" -o=\"json\"");
-		tce.addDefinedCommand(helm_search_repo_sophora, "helm search repo \"Sophora Server\" --versions=\"false\" --devel=\"false\" -o=\"json\"");
-		tce.addDefinedCommand(helm_list, "helm list -o=\"json\" --time-format=\"2006-01-02T15:04:05Z07:00\"");
+		tce.addDefinedCommand(helm_list_all_namespaces, "helm list -o=json --all-namespaces=true --time-format=2006-01-02T15:04:05Z07:00");
+		tce.addDefinedCommand(helm_status_oneko, "helm status oneko -o=json");
+		tce.addDefinedCommand(helm_search_repo_sophora, "helm search repo Sophora Server --versions=false --devel=false -o=json");
+		tce.addDefinedCommand(helm_list, "helm list -o=json --time-format=2006-01-02T15:04:05Z07:00");
 		tce.addDefinedCommand("v3.4.2+g23dd3af", "helm version --short");
-		tce.addDefinedCommand(helm_install, "helm install \"ontest\" \"o-neko\" --namespace=\"deletethispls\" -f=\"" + tempFile.getAbsolutePath() + "\" --dry-run=\"false\" -o=\"json\"");
+		tce.addDefinedCommand(helm_install, "helm install ontest o-neko --namespace=deletethispls -f=" + tempFile.getAbsolutePath() + " --dry-run=false -o=json");
 
 		uut = new Helm(tce);
 	}
