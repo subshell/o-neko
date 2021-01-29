@@ -44,6 +44,7 @@ public interface Helm3API {
 	default void addRepo(String name, String url, String username, String password) {
 		addRepo(name, url, username, password, false);
 	}
+
 	void addRepo(String name, String url, String username, String password, boolean forceUpdate);
 
 	List<Repository> listRepos();
@@ -54,7 +55,9 @@ public interface Helm3API {
 
 	// search
 	List<Chart> searchHub(String query);
+
 	List<Chart> searchRepo(String query, boolean versions, boolean devel);
+
 	default List<Chart> searchRepo(String query) {
 		return searchRepo(query, false, false);
 	}
@@ -70,9 +73,11 @@ public interface Helm3API {
 	default void uninstall(String name) {
 		uninstall(name, null);
 	}
+
 	default void uninstall(String name, String namespace) {
 		uninstall(name, namespace, false);
 	}
+
 	void uninstall(String name, String namespace, boolean dryRun);
 
 	// version

@@ -19,11 +19,13 @@ public class DockerRegistryManifest {
 	public static class Digest {
 		String algorithm;
 		String digest;
+
 		public Digest(String digest) {
 			final String[] split = StringUtils.defaultString(digest).split(":");
 			this.algorithm = StringUtils.defaultString(split[0]);
 			this.digest = StringUtils.defaultString(split[1]);
 		}
+
 		public String getFullDigest() {
 			return algorithm + ":" + digest;
 		}

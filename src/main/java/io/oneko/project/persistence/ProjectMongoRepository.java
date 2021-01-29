@@ -1,20 +1,26 @@
 package io.oneko.project.persistence;
 
-import io.oneko.Profiles;
-import io.oneko.event.EventDispatcher;
-import io.oneko.namespace.NamespaceRepository;
-import io.oneko.namespace.ReadableNamespace;
-import io.oneko.project.*;
-import io.oneko.project.event.EventAwareProjectRepository;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Service;
+
+import io.oneko.Profiles;
+import io.oneko.event.EventDispatcher;
+import io.oneko.namespace.NamespaceRepository;
+import io.oneko.project.Project;
+import io.oneko.project.ReadableProject;
+import io.oneko.project.ReadableProjectVersion;
+import io.oneko.project.ReadableTemplateVariable;
+import io.oneko.project.WritableProject;
+import io.oneko.project.WritableProjectVersion;
+import io.oneko.project.WritableTemplateVariable;
+import io.oneko.project.event.EventAwareProjectRepository;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
@@ -52,8 +58,8 @@ class ProjectMongoRepository extends EventAwareProjectRepository {
 				.filter(project ->
 						// does the base project reference this helm registry?
 						project.getDefaultConfigurationTemplates().stream().anyMatch(template -> templateReferencesHelmRegistry(template, helmRegistryId)) ||
-						// does any of the versions reference this helm registry?
-						project.getVersions().stream().flatMap(version -> version.getConfigurationTemplates().stream()).anyMatch(template -> templateReferencesHelmRegistry(template, helmRegistryId)))
+								// does any of the versions reference this helm registry?
+								project.getVersions().stream().flatMap(version -> version.getConfigurationTemplates().stream()).anyMatch(template -> templateReferencesHelmRegistry(template, helmRegistryId)))
 				.map(this::fromProjectMongo).collect(Collectors.toList());
 	}
 

@@ -1,10 +1,10 @@
 package io.oneko.docker;
 
+import java.util.UUID;
+
 import io.oneko.domain.ModificationAwareIdentifiable;
 import io.oneko.domain.ModificationAwareProperty;
 import lombok.Builder;
-
-import java.util.UUID;
 
 public class WritableDockerRegistry extends ModificationAwareIdentifiable implements DockerRegistry {
 

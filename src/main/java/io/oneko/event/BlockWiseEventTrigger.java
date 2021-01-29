@@ -7,18 +7,18 @@ import lombok.Getter;
  */
 public class BlockWiseEventTrigger implements AutoCloseable {
 
-    @Getter
-    private final EventTrigger trigger;
-    private final CurrentEventTrigger currentEventTrigger;
+	@Getter
+	private final EventTrigger trigger;
+	private final CurrentEventTrigger currentEventTrigger;
 
-    BlockWiseEventTrigger(EventTrigger trigger, CurrentEventTrigger currentEventTrigger) {
-        this.trigger = trigger;
-        this.currentEventTrigger = currentEventTrigger;
-        currentEventTrigger.setCurrentTrigger(trigger);
-    }
+	BlockWiseEventTrigger(EventTrigger trigger, CurrentEventTrigger currentEventTrigger) {
+		this.trigger = trigger;
+		this.currentEventTrigger = currentEventTrigger;
+		currentEventTrigger.setCurrentTrigger(trigger);
+	}
 
-    @Override
-    public void close() {
-        currentEventTrigger.unset();
-    }
+	@Override
+	public void close() {
+		currentEventTrigger.unset();
+	}
 }

@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import io.oneko.configuration.Controllers;
-import io.oneko.helm.HelmChartsDTO;
 import io.oneko.helm.HelmCharts;
+import io.oneko.helm.HelmChartsDTO;
 import io.oneko.helm.HelmRegistryException;
 import io.oneko.helm.HelmRegistryMapper;
 import io.oneko.helm.HelmRegistryRepository;
@@ -126,7 +126,7 @@ public class HelmRegistryController {
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'DOER')")
 	@GetMapping("/{id}/charts")
-	HelmChartsDTO getCharts(@PathVariable UUID id) throws ResponseStatusException  {
+	HelmChartsDTO getCharts(@PathVariable UUID id) throws ResponseStatusException {
 		return helmCharts.getChartsByHelmRegistry(id)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No Helm charts in Helm registry with id " + id + " found."));
 	}

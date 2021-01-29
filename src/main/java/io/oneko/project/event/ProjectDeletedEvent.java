@@ -1,10 +1,10 @@
 package io.oneko.project.event;
 
+import java.util.Collections;
+
 import io.oneko.domain.DescribingEntityChange;
 import io.oneko.event.EntityChangedEvent;
 import io.oneko.project.Project;
-
-import java.util.Collections;
 
 public class ProjectDeletedEvent extends EntityChangedEvent {
 

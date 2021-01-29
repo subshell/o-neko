@@ -1,11 +1,16 @@
 package io.oneko.project;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.apache.commons.lang3.StringUtils;
+
 import io.oneko.automations.LifetimeBehaviour;
 import io.oneko.deployable.DeploymentBehaviour;
 import io.oneko.templates.ConfigurationTemplate;
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.*;
 
 public interface Project<P extends Project<P, V>, V extends ProjectVersion<P, V>> {
 

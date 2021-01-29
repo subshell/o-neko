@@ -1,8 +1,8 @@
 package io.oneko.user.auth;
 
-import io.oneko.user.User;
-
 import java.util.UUID;
+
+import io.oneko.user.User;
 
 /**
  * An abstraction of authentications for user objects with an identifier.

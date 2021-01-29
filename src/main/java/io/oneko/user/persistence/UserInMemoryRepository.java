@@ -1,16 +1,22 @@
 package io.oneko.user.persistence;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Service;
+
 import io.oneko.Profiles;
 import io.oneko.event.EventDispatcher;
 import io.oneko.user.ReadableUser;
 import io.oneko.user.User;
 import io.oneko.user.WritableUser;
 import io.oneko.user.event.EventAwareUserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Service;
-
-import java.util.*;
 
 @Service
 @Profile(Profiles.IN_MEMORY)

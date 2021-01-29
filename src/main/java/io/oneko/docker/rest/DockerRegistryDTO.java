@@ -1,9 +1,9 @@
 package io.oneko.docker.rest;
 
+import java.util.UUID;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.UUID;
 
 @NoArgsConstructor
 @Data

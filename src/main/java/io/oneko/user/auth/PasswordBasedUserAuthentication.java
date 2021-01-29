@@ -1,14 +1,15 @@
 package io.oneko.user.auth;
 
+import java.util.UUID;
+import java.util.function.Supplier;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import io.oneko.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.util.UUID;
-import java.util.function.Supplier;
 
 /**
  * Straight-forward implementation of user authentication using string based passwords.

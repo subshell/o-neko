@@ -23,6 +23,7 @@ public class InstallStatus extends Status {
 		private Object schema;
 		private List<Template> files;
 	}
+
 	@Data
 	@NoArgsConstructor
 	public static class ChartMetadata {
@@ -35,12 +36,14 @@ public class InstallStatus extends Status {
 		private String appVersion;
 		private String type;
 	}
+
 	@Data
 	@NoArgsConstructor
 	public static class Maintainer {
 		private String name;
 		private String email;
 	}
+
 	@Data
 	@NoArgsConstructor
 	public static class Template {

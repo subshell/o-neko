@@ -1,13 +1,13 @@
 package io.oneko.project.persistence;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import io.oneko.templates.ConfigurationTemplate;
 import io.oneko.templates.ReadableConfigurationTemplate;
 import io.oneko.templates.WritableConfigurationTemplate;
 import lombok.experimental.UtilityClass;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @UtilityClass
 public class ConfigurationTemplateMongoMapper {

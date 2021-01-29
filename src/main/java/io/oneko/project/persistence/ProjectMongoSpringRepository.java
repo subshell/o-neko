@@ -1,12 +1,13 @@
 package io.oneko.project.persistence;
 
-import io.oneko.Profiles;
-import org.springframework.context.annotation.Profile;
-import org.springframework.data.mongodb.repository.MongoRepository;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import org.springframework.context.annotation.Profile;
+import org.springframework.data.mongodb.repository.MongoRepository;
+
+import io.oneko.Profiles;
 
 @Profile(Profiles.MONGO)
 interface ProjectMongoSpringRepository extends MongoRepository<ProjectMongo, UUID> {

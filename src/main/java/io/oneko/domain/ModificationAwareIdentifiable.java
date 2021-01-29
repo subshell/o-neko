@@ -12,7 +12,7 @@ import java.util.Set;
 public abstract class ModificationAwareIdentifiable extends Identifiable implements ModificationAware {
 
 	private transient boolean dirty;
-	private transient Set<String> dirtyProperties = new HashSet<>();
+	private final transient Set<String> dirtyProperties = new HashSet<>();
 
 	@Override
 	public void touch() {

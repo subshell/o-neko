@@ -1,10 +1,10 @@
 package io.oneko.docker.event;
 
+import java.util.Collections;
+
 import io.oneko.docker.DockerRegistry;
 import io.oneko.domain.DescribingEntityChange;
 import io.oneko.event.EntityChangedEvent;
-
-import java.util.Collections;
 
 public class DockerRegistryDeletedEvent extends EntityChangedEvent {
 

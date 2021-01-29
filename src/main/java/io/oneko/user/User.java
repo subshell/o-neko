@@ -1,9 +1,9 @@
 package io.oneko.user;
 
+import java.util.UUID;
+
 import io.oneko.security.UserRole;
 import io.oneko.user.auth.UserAuthentication;
-
-import java.util.UUID;
 
 /**
  * User domain object. Contains all logic for doing whatever users need to do.<br/>

@@ -45,9 +45,9 @@ public class ProjectController {
 	private final DeploymentManager deploymentManager;
 
 	public ProjectController(ProjectRepository projectRepository, DockerRegistryRepository dockerRegistryRepository,
-	                         ProjectDTOMapper dtoMapper,
-	                         DeployableConfigurationDTOMapper configurationDTOMapper,
-	                         DeploymentManager deploymentManager) {
+													 ProjectDTOMapper dtoMapper,
+													 DeployableConfigurationDTOMapper configurationDTOMapper,
+													 DeploymentManager deploymentManager) {
 		this.projectRepository = projectRepository;
 		this.dockerRegistryRepository = dockerRegistryRepository;
 		this.dtoMapper = dtoMapper;

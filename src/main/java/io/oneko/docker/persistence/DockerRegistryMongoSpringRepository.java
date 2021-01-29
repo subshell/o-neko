@@ -1,11 +1,12 @@
 package io.oneko.docker.persistence;
 
-import io.oneko.Profiles;
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-import java.util.Optional;
-import java.util.UUID;
+import io.oneko.Profiles;
 
 @Profile(Profiles.MONGO)
 interface DockerRegistryMongoSpringRepository extends MongoRepository<DockerRegistryMongo, UUID> {

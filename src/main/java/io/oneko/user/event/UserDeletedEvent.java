@@ -1,10 +1,10 @@
 package io.oneko.user.event;
 
+import java.util.Collections;
+
 import io.oneko.domain.DescribingEntityChange;
 import io.oneko.event.EntityChangedEvent;
 import io.oneko.user.User;
-
-import java.util.Collections;
 
 public class UserDeletedEvent extends EntityChangedEvent {
 

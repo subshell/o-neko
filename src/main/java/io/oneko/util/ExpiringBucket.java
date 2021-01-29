@@ -1,12 +1,16 @@
 package io.oneko.util;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * This bucket holds values with a time to live and expires them passively on access.

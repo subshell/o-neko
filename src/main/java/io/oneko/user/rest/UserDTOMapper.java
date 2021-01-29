@@ -1,8 +1,9 @@
 package io.oneko.user.rest;
 
+import org.springframework.stereotype.Service;
+
 import io.oneko.user.User;
 import io.oneko.user.WritableUser;
-import org.springframework.stereotype.Service;
 
 @Service
 public class UserDTOMapper {
