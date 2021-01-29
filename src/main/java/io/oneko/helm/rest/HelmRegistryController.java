@@ -23,7 +23,7 @@ import io.oneko.helm.HelmRegistryMapper;
 import io.oneko.helm.HelmRegistryRepository;
 import io.oneko.helm.ReadableHelmRegistry;
 import io.oneko.helm.WritableHelmRegistry;
-import io.oneko.helm.util.HelmRegistryCommandUtils;
+import io.oneko.helm.util.HelmCommandUtils;
 import io.oneko.project.ProjectRepository;
 import io.oneko.project.ReadableProject;
 import lombok.extern.slf4j.Slf4j;
@@ -60,7 +60,7 @@ public class HelmRegistryController {
 	@PostMapping
 	HelmRegistryDTO createRegistry(@RequestBody CreateHelmRegistryDTO dto) throws HelmRegistryException {
 		WritableHelmRegistry registry = mapper.createRegistryFromDTO(dto);
-		HelmRegistryCommandUtils.addRegistry(registry.readable());
+		HelmCommandUtils.addRegistry(registry.readable());
 
 		final ReadableHelmRegistry persistedRegistry = helmRegistryRepository.add(registry);
 		helmCharts.refreshHelmChartsInRegistry(persistedRegistry.getId());
@@ -78,7 +78,7 @@ public class HelmRegistryController {
 	@PostMapping("/{id}")
 	HelmRegistryDTO updateRegistry(@PathVariable UUID id, @RequestBody HelmRegistryDTO dto) throws HelmRegistryException {
 		ReadableHelmRegistry registry = getRegistryOr404(id);
-		HelmRegistryCommandUtils.addRegistry(registry);
+		HelmCommandUtils.addRegistry(registry);
 		WritableHelmRegistry updatedRegistry = mapper.updateRegistryFromDTO(registry.writable(), dto);
 		ReadableHelmRegistry persistedReg = helmRegistryRepository.add(updatedRegistry);
 
@@ -95,7 +95,7 @@ public class HelmRegistryController {
 			throw new HelmRegistryException("The Helm registry is still referenced in projects");
 		}
 
-		HelmRegistryCommandUtils.deleteRegistry(registry);
+		HelmCommandUtils.deleteRegistry(registry);
 
 		helmCharts.invalidateHelmChartsInRegistry(id);
 		helmRegistryRepository.remove(registry);
@@ -105,7 +105,7 @@ public class HelmRegistryController {
 	@PostMapping("/{id}/password")
 	HelmRegistryDTO changeRegistryPassword(@PathVariable UUID id, @RequestBody ChangeHelmRegistryPasswordDTO dto) throws HelmRegistryException {
 		ReadableHelmRegistry registry = getRegistryOr404(id);
-		HelmRegistryCommandUtils.addRegistry(registry);
+		HelmCommandUtils.addRegistry(registry);
 
 		WritableHelmRegistry writable = registry.writable();
 		writable.setPassword(dto.getPassword());

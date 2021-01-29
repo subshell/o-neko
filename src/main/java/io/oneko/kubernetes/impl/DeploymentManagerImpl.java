@@ -15,11 +15,10 @@ import org.springframework.stereotype.Service;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.extensions.Ingress;
 import io.fabric8.kubernetes.api.model.extensions.IngressRule;
-import io.oneko.docker.DockerRegistryRepository;
 import io.oneko.docker.v2.DockerRegistryClientFactory;
 import io.oneko.docker.v2.model.manifest.Manifest;
 import io.oneko.helm.HelmRegistryException;
-import io.oneko.helm.util.HelmRegistryCommandUtils;
+import io.oneko.helm.util.HelmCommandUtils;
 import io.oneko.kubernetes.DeploymentManager;
 import io.oneko.kubernetes.deployments.DesiredState;
 import io.oneko.project.ProjectRepository;
@@ -49,7 +48,7 @@ class DeploymentManagerImpl implements DeploymentManager {
 	public ReadableProjectVersion deploy(WritableProjectVersion version) {
 		try {
 			final UUID versionId = version.getId();
-			HelmRegistryCommandUtils.install(version);
+			HelmCommandUtils.install(version);
 			final Set<HasMetadata> createdKubernetesResources = getTemplateAsResources(version);
 			version = updateDeployableWithCreatedResources(version, createdKubernetesResources);
 			version = updateDesiredStateOfDeployable(version, Deployed);
@@ -86,7 +85,7 @@ class DeploymentManagerImpl implements DeploymentManager {
 
 	private Set<HasMetadata> getTemplateAsResources(ProjectVersion<?, ?> deployable) {
 		Set<HasMetadata> resources = new HashSet<>();
-		HelmRegistryCommandUtils.getKubernetesYamlResources(deployable).forEach(template -> resources.addAll(kubernetesAccess.loadResource(template)));
+		HelmCommandUtils.getKubernetesYamlResources(deployable).forEach(template -> resources.addAll(kubernetesAccess.loadResource(template)));
 		return resources;
 	}
 
@@ -125,7 +124,7 @@ class DeploymentManagerImpl implements DeploymentManager {
 	@Override
 	public ReadableProjectVersion stopDeployment(WritableProjectVersion version) {
 		try {
-			HelmRegistryCommandUtils.uninstall(version);
+			HelmCommandUtils.uninstall(version);
 			version.setUrls(List.of());
 			version.setDesiredState(NotDeployed);
 			final ReadableProject readableProject = projectRepository.add(version.getProject());

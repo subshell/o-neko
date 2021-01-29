@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @UtilityClass
 @Slf4j
-public class HelmRegistryCommandUtils {
+public class HelmCommandUtils {
 
 	private static final Helm helm = new Helm();
 
@@ -50,6 +50,7 @@ public class HelmRegistryCommandUtils {
 	}
 
 	public static void install(ProjectVersion<?, ?> projectVersion) throws HelmRegistryException {
+		uninstall(projectVersion); // we always want to do full clean installs
 		try {
 			boolean didRepoUpdate = false;
 			for (WritableConfigurationTemplate template : projectVersion.getCalculatedConfigurationTemplates()) {

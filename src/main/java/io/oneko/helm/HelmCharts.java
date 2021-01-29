@@ -9,14 +9,13 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
-import io.oneko.helm.util.HelmRegistryCommandUtils;
+import io.oneko.helm.util.HelmCommandUtils;
 import io.oneko.helmapi.model.Chart;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,18 +25,15 @@ public class HelmCharts {
 
 	private final HelmRegistryRepository helmRegistryRepository;
 
-	private static final long DURATION_BETWEEN_SEARCH_MS = 12 * 60 * 60 * 1000L;
-
 	private final LoadingCache<UUID, HelmChartsDTO> chartsCache = CacheBuilder.newBuilder()
-			.maximumSize(100)
-			.expireAfterWrite(10, TimeUnit.MINUTES)
+			.expireAfterWrite(3, TimeUnit.MINUTES)
 			.build(new CacheLoader<>() {
 				@Override
 				public HelmChartsDTO load(UUID registryId) {
 					return helmRegistryRepository.getById(registryId)
 							.flatMap(helmRegistry -> {
 								try {
-									List<Chart> charts = HelmRegistryCommandUtils.getCharts(helmRegistry);
+									List<Chart> charts = HelmCommandUtils.getCharts(helmRegistry);
 									log.debug("Found {} helm charts in helm registry {}", charts.size(), helmRegistry.getName());
 
 									return toHelmChartDTO(helmRegistry, charts);
@@ -51,12 +47,6 @@ public class HelmCharts {
 
 	public HelmCharts(HelmRegistryRepository helmRegistryRepository) {
 		this.helmRegistryRepository = helmRegistryRepository;
-	}
-
-	@Scheduled(fixedRate = DURATION_BETWEEN_SEARCH_MS, initialDelay = 0)
-	public void fetchHelmCharts() {
-		chartsCache.invalidateAll();
-		helmRegistryRepository.getAll().forEach(helmRegistry -> this.refreshHelmChartsInRegistry(helmRegistry.getId()));
 	}
 
 	public Optional<HelmChartsDTO> getChartsByHelmRegistry(UUID registryId) {

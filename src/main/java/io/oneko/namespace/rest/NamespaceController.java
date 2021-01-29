@@ -1,5 +1,6 @@
 package io.oneko.namespace.rest;
 
+import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.oneko.configuration.Controllers;
 import io.oneko.kubernetes.NamespaceManager;
 import io.oneko.namespace.NamespaceRepository;
@@ -9,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -48,8 +50,14 @@ public class NamespaceController {
 	DefinedNamespaceDTO createNamespace(@RequestBody DefinedNamespaceDTO dto) {
 		WritableNamespace newNamespace = new WritableNamespace(dto.getName());
 		final ReadableNamespace definedNamespace = namespaceRepository.add(newNamespace);
-		namespaceManager.createNamespaceAndAddImagePullSecrets(definedNamespace);
-		return dtoMapper.namespaceToDTO(definedNamespace);
+		try {
+			namespaceManager.createNamespaceAndAddImagePullSecrets(definedNamespace);
+			return dtoMapper.namespaceToDTO(definedNamespace);
+		} catch (KubernetesClientException e) {
+			log.error("Failed to create namespace in kubernetes");
+			namespaceRepository.remove(definedNamespace); // rollback
+			throw e;
+		}
 	}
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'DOER')")
