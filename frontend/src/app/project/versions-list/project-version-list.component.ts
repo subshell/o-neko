@@ -86,7 +86,7 @@ export class ProjectVersionListComponent implements OnInit, OnDestroy {
         .subscribe(message => {
           for (let i = 0; i < this.project.versions.length; i++) {
             let pv = this.project.versions[i];
-            if (pv.uuid === message.deployableId) {
+            if (pv.uuid === message.projectVersionId) {
               this.project.versions[i].deployment.updateWith(message);
               this.project.versions[i].outdated = message.outdated;
               this.project.versions[i].imageUpdatedDate = message.imageUpdatedDate;

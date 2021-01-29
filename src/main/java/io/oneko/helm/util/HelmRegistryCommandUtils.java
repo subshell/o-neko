@@ -9,7 +9,6 @@ import io.oneko.helm.HelmRegistryException;
 import io.oneko.helm.ReadableHelmRegistry;
 import io.oneko.helmapi.api.Helm;
 import io.oneko.helmapi.model.Chart;
-import io.oneko.helmapi.model.InstallStatus;
 import io.oneko.helmapi.model.Release;
 import io.oneko.helmapi.model.Status;
 import io.oneko.helmapi.model.Values;
@@ -50,7 +49,7 @@ public class HelmRegistryCommandUtils {
 		}
 	}
 
-	public static void install(ProjectVersion<?,?> projectVersion) throws HelmRegistryException {
+	public static void install(ProjectVersion<?, ?> projectVersion) throws HelmRegistryException {
 		try {
 			boolean didRepoUpdate = false;
 			for (WritableConfigurationTemplate template : projectVersion.getCalculatedConfigurationTemplates()) {
@@ -66,10 +65,11 @@ public class HelmRegistryCommandUtils {
 	}
 
 	public static void uninstall(ProjectVersion<?, ?> projectVersion) throws HelmRegistryException {
+		final String namespace = projectVersion.getNamespaceOrElseFromProject();
 		try {
-			for (WritableConfigurationTemplate template : projectVersion.getCalculatedConfigurationTemplates()) {
-				helm.uninstall(getReleaseName(projectVersion, template), projectVersion.getNamespaceOrElseFromProject());
-			}
+		helm.list(namespace, null).stream()
+				.filter(release -> release.getName().startsWith(getReleaseNamePrefix(projectVersion)))
+				.forEach(release -> helm.uninstall(release.getName(), namespace));
 		} catch (CommandException e) {
 			throw new HelmRegistryException(e.getMessage());
 		}
@@ -85,12 +85,12 @@ public class HelmRegistryCommandUtils {
 				}).collect(Collectors.toList());
 	}
 
-	private static String getReleaseName(ProjectVersion<?,?> projectVersion, ConfigurationTemplate template) {
+	private static String getReleaseName(ProjectVersion<?, ?> projectVersion, ConfigurationTemplate template) {
 		final String fullReleaseName = getReleaseNamePrefix(projectVersion) + "-" + maxLength(template.getName().replace(".yaml", "").replace(".yml", ""), 15);
 		return sanitizeReleaseName(fullReleaseName.substring(0, Math.min(fullReleaseName.length(), 53)));
 	}
 
-	private static String getReleaseNamePrefix(ProjectVersion<?,?> projectVersion) {
+	private static String getReleaseNamePrefix(ProjectVersion<?, ?> projectVersion) {
 		return sanitizeReleaseName("on-" + maxLength(projectVersion.getProject().getName(), 15) + "-" + maxLength(projectVersion.getName(), 15));
 	}
 

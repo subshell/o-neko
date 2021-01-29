@@ -26,7 +26,7 @@ export class ProjectDashboardComponent implements OnDestroy {
           .subscribe(message => {
             for (let i = 0; i < project.versions.length; i++) {
               let pv = project.versions[i];
-              if (pv.uuid === message.deployableId) {
+              if (pv.uuid === message.projectVersionId) {
                 project.versions[i].desiredState = message.desiredState;
                 project.versions[i].deployment.updateWith(message);
                 project.versions[i].outdated = message.outdated;

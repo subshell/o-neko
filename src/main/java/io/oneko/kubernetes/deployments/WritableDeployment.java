@@ -11,21 +11,21 @@ import java.util.UUID;
 public class WritableDeployment extends ModificationAwareIdentifiable implements Deployment {
 
 	private ModificationAwareProperty<UUID> id = new ModificationAwareProperty<>(this, "id");
-	private ModificationAwareProperty<UUID> deployableId = new ModificationAwareProperty<>(this, "deployableId");
+	private ModificationAwareProperty<UUID> projectVersionId = new ModificationAwareProperty<>(this, "projectVersionId");
 	private ModificationAwareProperty<DeployableStatus> status = new ModificationAwareProperty<>(this, "status");
 	private ModificationAwareProperty<Instant> timestamp = new ModificationAwareProperty<>(this, "timestamp");
 
 	public WritableDeployment(UUID projectVersionID, DeployableStatus status, Instant timestamp, int containerCount, int readyContainerCount) {
 		this.id.set(UUID.randomUUID());
-		this.deployableId.set(projectVersionID);
+		this.projectVersionId.set(projectVersionID);
 		this.status.set(status);
 		this.timestamp.set(timestamp);
 	}
 
 	@Builder
-	public WritableDeployment(UUID id, UUID deployableId, DeployableStatus status, Instant timestamp, int containerCount, int readyContainerCount) {
+	public WritableDeployment(UUID id, UUID projectVersionId, DeployableStatus status, Instant timestamp, int containerCount, int readyContainerCount) {
 		this.id.init(id);
-		this.deployableId.init(deployableId);
+		this.projectVersionId.init(projectVersionId);
 		this.status.init(status);
 		this.timestamp.init(timestamp);
 	}
@@ -39,8 +39,8 @@ public class WritableDeployment extends ModificationAwareIdentifiable implements
 		return id.get();
 	}
 
-	public UUID getDeployableId() {
-		return deployableId.get();
+	public UUID getProjectVersionId() {
+		return projectVersionId.get();
 	}
 
 	public DeployableStatus getStatus() {
@@ -62,7 +62,7 @@ public class WritableDeployment extends ModificationAwareIdentifiable implements
 	public ReadableDeployment readable() {
 		return ReadableDeployment.builder()
 				.id(getId())
-				.deployableId(getDeployableId())
+				.projectVersionId(getProjectVersionId())
 				.status(getStatus())
 				.timestamp(timestamp.get())
 				.build();

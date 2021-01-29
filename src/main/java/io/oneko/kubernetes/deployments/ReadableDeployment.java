@@ -15,14 +15,14 @@ import java.util.UUID;
 public class ReadableDeployment extends Identifiable implements Deployment {
 
     private final UUID id;
-    private final UUID deployableId;
+    private final UUID projectVersionId;
     private final DeployableStatus status;
     private final Instant timestamp;
 
     public WritableDeployment writable() {
         return WritableDeployment.builder()
                 .id(id)
-                .deployableId(deployableId)
+                .projectVersionId(projectVersionId)
                 .status(status)
                 .timestamp(timestamp)
                 .build();

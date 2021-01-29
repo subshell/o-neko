@@ -12,8 +12,8 @@ import java.util.UUID;
 @Profile(Profiles.MONGO)
 public interface DeploymentMongoSpringRepository extends MongoRepository<DeploymentMongo, UUID> {
 
-	Optional<DeploymentMongo> findByDeployableId(UUID deployableId);
+	Optional<DeploymentMongo> findByProjectVersionId(UUID projectVersionId);
 
-	List<DeploymentMongo> findAllByDeployableIdIn(Iterable<UUID> projectVersionIds);
+	List<DeploymentMongo> findAllByProjectVersionIdIn(Iterable<UUID> projectVersionIds);
 
 }

@@ -6,7 +6,7 @@ import java.util.UUID;
 
 public interface DeploymentRepository {
 
-	Optional<ReadableDeployment> findByDeployableId(UUID deployableId);
+	Optional<ReadableDeployment> findByProjectVersionId(UUID projectVersionId);
 
 	ReadableDeployment save(WritableDeployment entity);
 
@@ -18,5 +18,5 @@ public interface DeploymentRepository {
 
 	List<ReadableDeployment> findAllById(Iterable<UUID> uuids);
 
-	List<ReadableDeployment> findAllByDeployableIdIn(Iterable<UUID> uuids);
+	List<ReadableDeployment> findAllByProjectVersionIdIn(Iterable<UUID> uuids);
 }

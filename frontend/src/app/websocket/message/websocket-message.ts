@@ -17,9 +17,8 @@ export class TestMessage implements ONekoWebsocketMessage {
 }
 
 export class DeploymentStatusChangedMessage implements ONekoWebsocketMessage {
-  public deployableId: string;
+  public projectVersionId: string;
   public ownerId: string;
-  public deployableType: 'projectVersion';
   public status: DeployableStatus;
   public desiredState: DesiredState;
   public timestamp: Date;
@@ -27,9 +26,8 @@ export class DeploymentStatusChangedMessage implements ONekoWebsocketMessage {
   public imageUpdatedDate: Date;
 
   constructor(rawMessage: any) {
-    this.deployableId = rawMessage.deployableId;
+    this.projectVersionId = rawMessage.projectVersionId;
     this.ownerId = rawMessage.ownerId;
-    this.deployableType = rawMessage.deployableType;
     this.status = rawMessage.status;
     this.desiredState = rawMessage.desiredState;
     this.timestamp = rawMessage.timestamp ? new Date(rawMessage.timestamp) : null;

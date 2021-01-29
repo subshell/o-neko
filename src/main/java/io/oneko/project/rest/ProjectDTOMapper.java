@@ -123,7 +123,7 @@ public class ProjectDTOMapper {
 	}
 
 	private ProjectVersionDTO projectVersionToDTO(ReadableProjectVersion version) {
-		final Deployment deployment = deploymentRepository.findByDeployableId(version.getId()).orElse(null);
+		final Deployment deployment = deploymentRepository.findByProjectVersionId(version.getId()).orElse(null);
 		return projectVersionToDTO(version, deployment);
 	}
 
@@ -188,7 +188,7 @@ public class ProjectDTOMapper {
 	}
 
 	private void updateDeploymentStatusOfVersion(WritableProjectVersion version) {
-		this.deploymentRepository.findByDeployableId(version.getId()).ifPresent(deployment -> {
+		this.deploymentRepository.findByProjectVersionId(version.getId()).ifPresent(deployment -> {
 			if (shouldVersionBeMarkedAsOutdated(version, deployment)) {
 				version.setOutdated(true);
 			}

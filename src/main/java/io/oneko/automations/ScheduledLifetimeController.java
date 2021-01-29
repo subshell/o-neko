@@ -73,7 +73,7 @@ public class ScheduledLifetimeController {
 
 	private List<Deployment> getRelevantDeploymentsFor(List<ProjectVersion<?,?>> deployables) {
 		final var uuids = deployables.stream().map(ProjectVersion::getId).collect(Collectors.toSet());
-		return deploymentRepository.findAllByDeployableIdIn(uuids).stream()
+		return deploymentRepository.findAllByProjectVersionIdIn(uuids).stream()
 				.filter(deployment -> !deployment.getStatus().equals(DeployableStatus.NotScheduled))
 				.collect(Collectors.toList());
 	}
@@ -92,7 +92,7 @@ public class ScheduledLifetimeController {
 		return (deployment) -> {
 
 			final var matchingDeployableOptional = deployables.stream()
-					.filter(d -> d.getId().equals(deployment.getDeployableId()))
+					.filter(d -> d.getId().equals(deployment.getProjectVersionId()))
 					.findFirst();
 
 			if (matchingDeployableOptional.isPresent()) {

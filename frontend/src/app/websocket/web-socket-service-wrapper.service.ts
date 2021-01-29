@@ -2,7 +2,6 @@ import {Injectable} from "@angular/core";
 import {Observable} from "rxjs/internal/Observable";
 import {filter, map} from "rxjs/operators";
 import {Activity} from "../activity/activity";
-import {RestService} from "../rest/rest.service";
 import {LogService} from "../util/log.service";
 import {
   ActivityMessage,
@@ -18,13 +17,12 @@ export class WebSocketServiceWrapper {
 
   private log = LogService.getLogger(WebSocketServiceWrapper);
 
-  constructor(private websocket: WebSocketService, private rest: RestService) {
+  constructor(private websocket: WebSocketService) {
   }
 
   public getProjectVersionChanges(projectId: string): Observable<DeploymentStatusChangedMessage> {
     return this.streamType(DeploymentStatusChangedMessage)
       .pipe(
-        filter(msg => msg.deployableType === 'projectVersion'),
         filter(msg => msg.ownerId === projectId)
       );
   }
