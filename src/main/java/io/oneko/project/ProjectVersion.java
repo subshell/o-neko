@@ -30,6 +30,10 @@ public interface ProjectVersion<P extends Project<P, V>, V extends ProjectVersio
 
 	String getName();
 
+	default String getNameWithProjectName() {
+		return getProject().getName() + ":" + getName();
+	}
+
 	Optional<LifetimeBehaviour> getLifetimeBehaviour();
 
 	default Optional<LifetimeBehaviour> getEffectiveLifetimeBehaviour() {

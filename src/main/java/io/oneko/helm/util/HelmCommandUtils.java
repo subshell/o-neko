@@ -68,9 +68,22 @@ public class HelmCommandUtils {
 	public static void uninstall(ProjectVersion<?, ?> projectVersion) throws HelmRegistryException {
 		final String namespace = projectVersion.getNamespaceOrElseFromProject();
 		try {
-		helm.list(namespace, null).stream()
-				.filter(release -> release.getName().startsWith(getReleaseNamePrefix(projectVersion)))
-				.forEach(release -> helm.uninstall(release.getName(), namespace));
+			helm.list(namespace, null).stream()
+					.filter(release -> release.getName().startsWith(getReleaseNamePrefix(projectVersion)))
+					.forEach(release -> helm.uninstall(release.getName(), namespace));
+		} catch (CommandException e) {
+			throw new HelmRegistryException(e.getMessage());
+		}
+	}
+
+	public static List<Status> status(ProjectVersion<?, ?> projectVersion) throws HelmRegistryException {
+		try {
+			final String namespace = projectVersion.getNamespaceOrElseFromProject();
+			return helm.list(namespace, null)
+					.stream()
+					.filter(release -> release.getName().startsWith(getReleaseNamePrefix(projectVersion)))
+					.map(release -> helm.status(release.getName(), release.getNamespace()))
+					.collect(Collectors.toList());
 		} catch (CommandException e) {
 			throw new HelmRegistryException(e.getMessage());
 		}

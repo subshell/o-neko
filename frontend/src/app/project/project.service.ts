@@ -150,10 +150,10 @@ export class ProjectService {
     if (!this.isUserAllowedToDeployProjects(user)) {
       return throwError('User has no permissions to trigger version deployments');
     }
+    projectVersion.deployment.status = DeployableStatus.Pending;
     let triggerObservable = this.rest.project().deployProjectVersion(projectVersion, project)
       .pipe(shareReplay());
     triggerObservable.subscribe(() => {
-      projectVersion.deployment.status = DeployableStatus.Pending;
       this.snackBar.openFromComponent(TimeoutSnackbarComponent, {
         data: {
           text: `Project ${project.name} version ${projectVersion.name} has been deployed.`
@@ -161,6 +161,7 @@ export class ProjectService {
         duration: ProjectService.SNACKBAR_DEFAULT_DURATION
       });
     }, (response) => {
+      projectVersion.deployment.status = DeployableStatus.Unknown;
       this.snackBar.openFromComponent(TimeoutSnackbarComponent, {
         data: {
           text: `Error: ${response.error.message}`
@@ -176,8 +177,8 @@ export class ProjectService {
       return throwError('User has no permissions to trigger version deployments');
     }
 
+    projectVersion.deployment.status = DeployableStatus.Pending;
     this.rest.project().stopDeployment(projectVersion, project).subscribe(() => {
-      projectVersion.deployment.status = DeployableStatus.Pending;
       this.snackBar.openFromComponent(TimeoutSnackbarComponent, {
         data: {
           text: `Project ${project.name} version ${projectVersion.name} is stopped.`
@@ -185,6 +186,7 @@ export class ProjectService {
         duration: ProjectService.SNACKBAR_DEFAULT_DURATION
       });
     }, (response) => {
+      projectVersion.deployment.status = DeployableStatus.Unknown;
       this.snackBar.openFromComponent(TimeoutSnackbarComponent, {
         data: {
           text: `Error: ${response.error.message}`

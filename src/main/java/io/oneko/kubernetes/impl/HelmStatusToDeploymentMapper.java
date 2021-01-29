@@ -1,41 +1,34 @@
 package io.oneko.kubernetes.impl;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
-import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.PodStatus;
+import io.oneko.helmapi.model.Status;
 import io.oneko.kubernetes.deployments.DeployableStatus;
 import io.oneko.kubernetes.deployments.WritableDeployment;
 
 @Component
-public class PodToDeploymentMapper {
+public class HelmStatusToDeploymentMapper {
 
-	public WritableDeployment updateDeploymentFromPods(WritableDeployment deployment, List<Pod> pods) {
-		List<PodStatus> podStatuses = pods.stream()
-				.map(Pod::getStatus)
-				.collect(Collectors.toList());
+	public WritableDeployment updateDeploymentFromHelmReleaseStatus(WritableDeployment deployment, List<Status> statuses) {
+		var deployableStatuses = statuses.stream().map(status -> status.getInfo().getStatus())
+				.map(status -> DeployableStatus.fromReleaseStatus(status)).collect(Collectors.toSet());
 
-		Set<DeployableStatus> deployableStatuses = pods.stream()
-				.map(pod -> DeployableStatus.fromPodStatus(pod.getStatus()))
-				.collect(Collectors.toSet());
-
+		setTimestamp(deployment, statuses);
 		setStatus(deployment, deployableStatuses);
-		setTimestamp(deployment, podStatuses);
-
 		return deployment;
 	}
 
-	private void setTimestamp(WritableDeployment deployment, List<PodStatus> podStatuses) {
+	private void setTimestamp(WritableDeployment deployment, List<Status> statuses) {
 		Optional<Instant> timestamp = deployment.getTimestamp();
 
-		Instant newTimestamp = podStatuses.stream()
-				.map(podStatus -> Instant.parse(podStatus.getStartTime()))
+		Instant newTimestamp = statuses.stream()
+				.map(status -> status.getInfo().getLastDeployed().toInstant())
 				.sorted()
 				.findFirst()
 				.orElse(null);
@@ -47,7 +40,7 @@ public class PodToDeploymentMapper {
 		}
 	}
 
-	private void setStatus(WritableDeployment deployment, Set<DeployableStatus> deployableStatuses) {
+	private void setStatus(WritableDeployment deployment, Collection<DeployableStatus> deployableStatuses) {
 		if (deployableStatuses.isEmpty() && deployment.getStatus() != DeployableStatus.NotScheduled) {
 			deployment.setStatus(DeployableStatus.NotScheduled);
 		} else if (deployableStatuses.contains(DeployableStatus.Failed) && deployment.getStatus() != DeployableStatus.Failed) {
@@ -60,5 +53,4 @@ public class PodToDeploymentMapper {
 			deployment.setStatus(DeployableStatus.Unknown);
 		}
 	}
-
 }
