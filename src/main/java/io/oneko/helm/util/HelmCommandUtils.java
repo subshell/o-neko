@@ -52,12 +52,8 @@ public class HelmCommandUtils {
 	public static void install(ProjectVersion<?, ?> projectVersion) throws HelmRegistryException {
 		uninstall(projectVersion); // we always want to do full clean installs
 		try {
-			boolean didRepoUpdate = false;
+			helm.updateRepos();
 			for (WritableConfigurationTemplate template : projectVersion.getCalculatedConfigurationTemplates()) {
-				if (!didRepoUpdate && StringUtils.isBlank(template.getChartVersion())) {
-					helm.updateRepos();
-					didRepoUpdate = true;
-				}
 				helm.install(getReleaseName(projectVersion, template), template.getChartName(), template.getChartVersion(), Values.fromYamlString(template.getContent()), projectVersion.getNamespaceOrElseFromProject(), false);
 			}
 		} catch (CommandException e) {
