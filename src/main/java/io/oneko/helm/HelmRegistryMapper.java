@@ -26,7 +26,7 @@ public abstract class HelmRegistryMapper {
 		cleanup(dto);
 
 		//id can not be changed
-		registry.setName(dto.getName());
+		registry.setName(dto.getName().toLowerCase());
 		registry.setUrl(dto.getUrl());
 		registry.setUsername(dto.getUsername());
 		registry.setPassword(dto.getPassword());

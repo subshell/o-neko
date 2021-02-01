@@ -6,7 +6,7 @@
         <div fxLayout="row" fxLayoutGap="1em">
           <mat-form-field>
             <input type="text" matInput [(ngModel)]="helmRegistry.name" autocomplete="off" required name="name" id="name"
-                   [placeholder]="'general.name' | translate" #name="ngModel" [disabled]="isReadonly()">
+                   [placeholder]="'general.name' | translate" #name="ngModel" [disabled]="isReadonly()" (ngModelChange)="nameUpdated()">
             <mat-error *ngIf="name.invalid && name.errors.required">{{'components.forms.errors.fieldIsRequired' | translate}}</mat-error>
           </mat-form-field>
           <mat-form-field>

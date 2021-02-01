@@ -66,4 +66,8 @@ export class HelmRegistryEditDialogComponent {
   public cancel(): void {
     this.dialogRef.close();
   }
+
+  public nameUpdated(): void {
+    this.helmRegistry.name = this.helmRegistry.name.toLowerCase();
+  }
 }
