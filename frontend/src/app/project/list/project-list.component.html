@@ -5,13 +5,13 @@
   </h2>
   <div fxLayout="row" fxLayoutAlign="space-between center">
     <div>
-      <button mat-button (click)="createProject(false)">
+      <button mat-button (click)="createProject(false)" [disabled]="!userMayEditProjects">
         <span fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="1em">
           <mat-icon svgIcon="mdi:folder-plus"></mat-icon>
           <span>Create Project</span>
         </span>
       </button>
-      <button mat-button (click)="createProject(true)">
+      <button mat-button (click)="createProject(true)" [disabled]="!userMayEditProjects">
         <span fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="1em">
           <mat-icon svgIcon="mdi:import"></mat-icon>
           <span>Import Project</span>
