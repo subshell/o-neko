@@ -100,12 +100,12 @@ public class HelmCommandUtils {
 	}
 
 	private static String getReleaseName(ProjectVersion<?, ?> projectVersion, ConfigurationTemplate template) {
-		final String fullReleaseName = getReleaseNamePrefix(projectVersion) + "-" + maxLength(template.getName().replace(".yaml", "").replace(".yml", ""), 15);
+		final String fullReleaseName = getReleaseNamePrefix(projectVersion) + "-" + maxLength(template.getName().replace(".yaml", "").replace(".yml", ""), 10) + "-" + maxLength(Long.toString(System.currentTimeMillis()), 10);
 		return sanitizeReleaseName(fullReleaseName.substring(0, Math.min(fullReleaseName.length(), 53)));
 	}
 
 	private static String getReleaseNamePrefix(ProjectVersion<?, ?> projectVersion) {
-		return sanitizeReleaseName("on-" + maxLength(projectVersion.getProject().getName(), 15) + "-" + maxLength(projectVersion.getName(), 15));
+		return sanitizeReleaseName("on-" + maxLength(projectVersion.getProject().getName(), 12) + "-" + maxLength(projectVersion.getName(), 15));
 	}
 
 	private static String sanitizeReleaseName(String in) {
