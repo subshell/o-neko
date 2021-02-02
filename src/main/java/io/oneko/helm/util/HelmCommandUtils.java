@@ -43,6 +43,7 @@ public class HelmCommandUtils {
 
 	public static List<Chart> getCharts(ReadableHelmRegistry helmRegistry) throws HelmRegistryException {
 		try {
+			helm.updateRepos();
 			return helm.searchRepo(helmRegistry.getName() + "/", true, false);
 		} catch (CommandException e) {
 			throw HelmRegistryException.fromCommandException(e, helmRegistry.getUrl(), helmRegistry.getName());
