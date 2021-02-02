@@ -10,6 +10,8 @@ public class KubernetesConventions {
 	 * Returns the name for this docker registry to be used in secrets.
 	 */
 	public static String secretName(DockerRegistry registry) {
-		return registry.getName().toLowerCase();
+		String s = registry.getName().toLowerCase();
+		s = s.replaceAll("_", "-");
+		return s;
 	}
 }
