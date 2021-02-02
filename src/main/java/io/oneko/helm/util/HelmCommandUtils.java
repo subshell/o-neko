@@ -1,5 +1,6 @@
 package io.oneko.helm.util;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 public class HelmCommandUtils {
 
 	private static final Helm helm = new Helm();
+	private static Instant lastRepoUpdate = Instant.MIN;
 
 	public static void addRegistry(ReadableHelmRegistry helmRegistry) throws HelmRegistryException {
 		try {
@@ -41,9 +43,19 @@ public class HelmCommandUtils {
 		}
 	}
 
+	public static synchronized void updateReposNotTooOften() {
+		final Instant now = Instant.now();
+		if (now.isBefore(lastRepoUpdate.plusSeconds(30))) {
+			log.debug("Not updating helm repos because the last update was less than 30 seconds ago");
+			return;
+		}
+		lastRepoUpdate = now;
+		helm.updateRepos();
+	}
+
 	public static List<Chart> getCharts(ReadableHelmRegistry helmRegistry) throws HelmRegistryException {
 		try {
-			helm.updateRepos();
+			updateReposNotTooOften();
 			return helm.searchRepo(helmRegistry.getName() + "/", true, false);
 		} catch (CommandException e) {
 			throw HelmRegistryException.fromCommandException(e, helmRegistry.getUrl(), helmRegistry.getName());
@@ -53,7 +65,7 @@ public class HelmCommandUtils {
 	public static void install(ProjectVersion<?, ?> projectVersion) throws HelmRegistryException {
 		uninstall(projectVersion); // we always want to do full clean installs
 		try {
-			helm.updateRepos();
+			updateReposNotTooOften();
 			for (WritableConfigurationTemplate template : projectVersion.getCalculatedConfigurationTemplates()) {
 				helm.install(getReleaseName(projectVersion, template), template.getChartName(), template.getChartVersion(), Values.fromYamlString(template.getContent()), projectVersion.getNamespaceOrElseFromProject(), false);
 			}
