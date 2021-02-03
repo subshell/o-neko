@@ -1,8 +1,8 @@
 import {Injectable} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSnackBar} from "@angular/material/snack-bar";
-import {Observable, throwError} from "rxjs";
-import {filter, mergeMap, shareReplay} from 'rxjs/operators';
+import {EMPTY, Observable, throwError} from "rxjs";
+import {filter, mergeMap, share, shareReplay} from 'rxjs/operators';
 import {DeployableStatus} from "../deployable/deployment";
 import {RestService} from "../rest/rest.service";
 import {User} from "../user/user";
@@ -37,6 +37,10 @@ export class ProjectService {
 
   public isUserAllowedToDeleteProjects(user: User): boolean {
     return this.isUserAllowedToEditProjects(user);
+  }
+
+  public isUserAllowedToEditProjectVersionVariables(user: User): boolean {
+    return true;
   }
 
   public isUserAllowedToDeployProjects(user: User): boolean {
@@ -102,6 +106,22 @@ export class ProjectService {
     return projectObservable;
   }
 
+  public saveProjectVersionVariables(project: Project, projectVersion: ProjectVersion): Observable<Project> {
+    if (project.isNew()) {
+      return EMPTY;
+    }
+    const projectObservable = this.rest.project().persistProjectVersionVariables(project, projectVersion).pipe(shareReplay());
+    projectObservable.subscribe(savedProject => {
+      this.snackBar.openFromComponent(TimeoutSnackbarComponent, {
+        data: {
+          text: `Project ${savedProject.name} has been saved.`
+        },
+        duration: ProjectService.SNACKBAR_DEFAULT_DURATION
+      });
+    });
+    return projectObservable;
+  }
+
   /**
    * Deletes the given project straigt away - will show a notification to the user.
    *
@@ -130,10 +150,10 @@ export class ProjectService {
     if (!this.isUserAllowedToDeployProjects(user)) {
       return throwError('User has no permissions to trigger version deployments');
     }
+    projectVersion.deployment.status = DeployableStatus.Pending;
     let triggerObservable = this.rest.project().deployProjectVersion(projectVersion, project)
       .pipe(shareReplay());
     triggerObservable.subscribe(() => {
-      projectVersion.deployment.status = DeployableStatus.Pending;
       this.snackBar.openFromComponent(TimeoutSnackbarComponent, {
         data: {
           text: `Project ${project.name} version ${projectVersion.name} has been deployed.`
@@ -141,6 +161,7 @@ export class ProjectService {
         duration: ProjectService.SNACKBAR_DEFAULT_DURATION
       });
     }, (response) => {
+      projectVersion.deployment.status = DeployableStatus.Unknown;
       this.snackBar.openFromComponent(TimeoutSnackbarComponent, {
         data: {
           text: `Error: ${response.error.message}`
@@ -156,8 +177,8 @@ export class ProjectService {
       return throwError('User has no permissions to trigger version deployments');
     }
 
+    projectVersion.deployment.status = DeployableStatus.Pending;
     this.rest.project().stopDeployment(projectVersion, project).subscribe(() => {
-      projectVersion.deployment.status = DeployableStatus.Pending;
       this.snackBar.openFromComponent(TimeoutSnackbarComponent, {
         data: {
           text: `Project ${project.name} version ${projectVersion.name} is stopped.`
@@ -165,6 +186,7 @@ export class ProjectService {
         duration: ProjectService.SNACKBAR_DEFAULT_DURATION
       });
     }, (response) => {
+      projectVersion.deployment.status = DeployableStatus.Unknown;
       this.snackBar.openFromComponent(TimeoutSnackbarComponent, {
         data: {
           text: `Error: ${response.error.message}`

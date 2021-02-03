@@ -5,6 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import io.oneko.helm.HelmRegistryException;
+
 @ControllerAdvice
 public class ExceptionInterceptor {
 
@@ -12,5 +14,11 @@ public class ExceptionInterceptor {
 	public ResponseEntity badRequest() {
 		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 	}
+
+	@ExceptionHandler(value = HelmRegistryException.class)
+	public ResponseEntity<String> badRequestForHelmRegistry(HelmRegistryException e) {
+		return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+	}
+
 
 }

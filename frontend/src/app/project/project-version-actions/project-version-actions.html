@@ -1,6 +1,6 @@
 <div fxLayout="row" fxLayoutAlign="space-between center">
   <project-version-variable-actions
-    [hasEditPermission]="hasEditPermissions"
+    [hasEditPermission]="hasEditVariablesPermission"
     [version]="version"
     (onVariableChange)="saveVersion($event)">
   </project-version-variable-actions>

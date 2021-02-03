@@ -13,10 +13,6 @@ public class ProjectConstants {
 		public static final String ONEKO_PROJECT = "ONEKO_PROJECT";
 		public static final String ONEKO_VERSION = "ONEKO_VERSION";
 		public static final String SAFE_VERSION_NAME = "SAFE_VERSION_NAME";
-		public static final String MESH_NAME = "MESH_NAME";
-		public static final String MESH_COMPONENT_NAME = "MESH_COMPONENT_NAME";
-		public static final String ONEKO_MESH = "ONEKO_MESH";
-		public static final String ONEKO_MESH_COMPONENT = "ONEKO_MESH_COMPONENT";
 	}
 
 	public static final class LabelNames {

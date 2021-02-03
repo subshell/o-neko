@@ -9,7 +9,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import io.oneko.project.event.EventAwareProjectRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -19,6 +18,7 @@ import io.oneko.event.EventDispatcher;
 import io.oneko.project.Project;
 import io.oneko.project.ReadableProject;
 import io.oneko.project.WritableProject;
+import io.oneko.project.event.EventAwareProjectRepository;
 
 @Service
 @Profile(Profiles.IN_MEMORY)
@@ -60,6 +60,18 @@ public class ProjectInMemoryRepository extends EventAwareProjectRepository {
 		return this.projects.values()
 				.stream()
 				.filter(p -> Objects.equals(dockerRegistryUUID, p.getDockerRegistryId()))
+				.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<ReadableProject> getByHelmRegistryId(UUID helmRegistryId) {
+		return this.projects.values()
+				.stream()
+				.filter(project ->
+						// does the base project reference this helm registry?
+						project.getDefaultConfigurationTemplates().stream().anyMatch(template -> helmRegistryId.equals(template.getHelmRegistryId())) ||
+								// does any of the versions reference this helm registry?
+								project.getVersions().stream().flatMap(version -> version.getConfigurationTemplates().stream()).anyMatch(template -> helmRegistryId.equals(template.getHelmRegistryId())))
 				.collect(Collectors.toList());
 	}
 

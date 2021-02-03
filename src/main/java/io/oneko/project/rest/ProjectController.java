@@ -20,7 +20,7 @@ import io.oneko.configuration.Controllers;
 import io.oneko.docker.DockerRegistry;
 import io.oneko.docker.DockerRegistryRepository;
 import io.oneko.docker.ReadableDockerRegistry;
-import io.oneko.kubernetes.KubernetesDeploymentManager;
+import io.oneko.kubernetes.DeploymentManager;
 import io.oneko.project.Project;
 import io.oneko.project.ProjectRepository;
 import io.oneko.project.ReadableProject;
@@ -42,17 +42,17 @@ public class ProjectController {
 	private final DockerRegistryRepository dockerRegistryRepository;
 	private final ProjectDTOMapper dtoMapper;
 	private final DeployableConfigurationDTOMapper configurationDTOMapper;
-	private final KubernetesDeploymentManager kubernetesDeploymentManager;
+	private final DeploymentManager deploymentManager;
 
 	public ProjectController(ProjectRepository projectRepository, DockerRegistryRepository dockerRegistryRepository,
-	                         ProjectDTOMapper dtoMapper,
-	                         DeployableConfigurationDTOMapper configurationDTOMapper,
-	                         KubernetesDeploymentManager kubernetesDeploymentManager) {
+													 ProjectDTOMapper dtoMapper,
+													 DeployableConfigurationDTOMapper configurationDTOMapper,
+													 DeploymentManager deploymentManager) {
 		this.projectRepository = projectRepository;
 		this.dockerRegistryRepository = dockerRegistryRepository;
 		this.dtoMapper = dtoMapper;
 		this.configurationDTOMapper = configurationDTOMapper;
-		this.kubernetesDeploymentManager = kubernetesDeploymentManager;
+		this.deploymentManager = deploymentManager;
 	}
 
 	/**
@@ -109,6 +109,18 @@ public class ProjectController {
 		return dtoMapper.projectToDTO(persisted);
 	}
 
+	@PreAuthorize("hasAnyRole('ADMIN', 'DOER', 'VIEWER')") // this method exists to let VIEWERs change values of variables
+	@PostMapping("/{id}/version/{versionId}/templateVariables")
+	ProjectDTO updateProjectVersionTemplateVariables(@PathVariable UUID id, @PathVariable UUID versionId, @RequestBody ProjectDTO dto) {
+		WritableProject project = getProjectOr404(id).writable();
+		project.getVersionById(versionId).ifPresent(version -> dto.getVersions().stream()
+				.filter(v -> v.getUuid().equals(version.getId()))
+				.findFirst()
+				.ifPresent(versionFromDto -> version.setTemplateVariables(versionFromDto.getTemplateVariables())));
+		final ReadableProject persisted = projectRepository.add(project);
+		return dtoMapper.projectToDTO(persisted);
+	}
+
 	@PreAuthorize("hasAnyRole('ADMIN', 'DOER')")
 	@DeleteMapping("/{id}")
 	void deleteProject(@PathVariable UUID id) {
@@ -130,7 +142,7 @@ public class ProjectController {
 		WritableProject project = getProjectOr404(id).writable();
 		WritableProjectVersion projectVersion = project.getVersionById(versionId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project version with id " + versionId + " not found"));
-		final ReadableProjectVersion deployedVersion = kubernetesDeploymentManager.deploy(projectVersion);
+		final ReadableProjectVersion deployedVersion = deploymentManager.deploy(projectVersion);
 		return dtoMapper.projectToDTO(deployedVersion.getProject());
 	}
 
@@ -140,7 +152,7 @@ public class ProjectController {
 		WritableProject project = getProjectOr404(id).writable();
 		WritableProjectVersion projectVersion = project.getVersionById(versionId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project version with id " + versionId + " not found"));
-		kubernetesDeploymentManager.stopDeployment(projectVersion);
+		deploymentManager.stopDeployment(projectVersion);
 	}
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'DOER')")

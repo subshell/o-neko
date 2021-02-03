@@ -1,7 +1,20 @@
 package io.oneko.project;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
+
 import io.oneko.automations.LifetimeBehaviour;
 import io.oneko.deployable.DeploymentBehaviour;
 import io.oneko.domain.ModificationAwareIdentifiable;
@@ -11,10 +24,6 @@ import io.oneko.templates.ConfigurationTemplates;
 import io.oneko.templates.WritableConfigurationTemplate;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Project domain object. Each project has a number of different images that are run in kubernetes and organized through o-neko.
@@ -32,6 +41,7 @@ public class WritableProject extends ModificationAwareIdentifiable implements Pr
 	private final ModificationAwareProperty<List<WritableConfigurationTemplate>> defaultConfigurationTemplates = new ModificationAwareListProperty<>(this, "defaultConfigurationTemplates");
 	private final ModificationAwareProperty<UUID> dockerRegistryId = new ModificationAwareProperty<>(this, "dockerRegistry");
 	private final ModificationAwareProperty<LifetimeBehaviour> defaultLifetimeBehaviour = new ModificationAwareProperty<>(this, "defaultLifetimeBehaviour");
+	private final ModificationAwareProperty<String> namespace = new ModificationAwareProperty<>(this, "namespace");
 	private final List<WritableTemplateVariable> templateVariables;
 	private final List<WritableProjectVersion> versions;
 	private final boolean newProject;
@@ -55,7 +65,7 @@ public class WritableProject extends ModificationAwareIdentifiable implements Pr
 	@Builder
 	public WritableProject(UUID id, String name, String imageName, DeploymentBehaviour newVersionsDeploymentBehaviour,
 						   List<WritableConfigurationTemplate> defaultConfigurationTemplates, List<WritableTemplateVariable> templateVariables,
-						   UUID dockerRegistryId, List<WritableProjectVersion> versions, LifetimeBehaviour defaultLifetimeBehaviour) {
+						   UUID dockerRegistryId, List<WritableProjectVersion> versions, LifetimeBehaviour defaultLifetimeBehaviour, String namespace) {
 		this.id.init(id);
 		this.name.init(name);
 		this.imageName.init(imageName);
@@ -67,11 +77,20 @@ public class WritableProject extends ModificationAwareIdentifiable implements Pr
 		this.newProject = false;
 		this.versions = versions == null ? new ArrayList<>() : new ArrayList<>(versions);
 		this.versions.forEach(v -> v.setProject(this));
+		this.namespace.init(namespace);
 	}
 
 	@Override
 	public UUID getId() {
 		return this.id.get();
+	}
+
+	public String getNamespace() {
+		return namespace.get();
+	}
+
+	public void setNamespace(String namespace) {
+		this.namespace.set(namespace);
 	}
 
 	public String getName() {
@@ -214,6 +233,7 @@ public class WritableProject extends ModificationAwareIdentifiable implements Pr
 						.map(WritableTemplateVariable::readable)
 						.collect(Collectors.toList()))
 				.versions(versions)
+				.namespace(getNamespace())
 				.build();
 	}
 }

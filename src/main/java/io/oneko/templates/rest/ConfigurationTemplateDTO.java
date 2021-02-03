@@ -17,4 +17,7 @@ public class ConfigurationTemplateDTO {
 	private String content;
 	private String name;
 	private String description;
+	private String chartName;
+	private String chartVersion;
+	private UUID helmRegistryId;
 }

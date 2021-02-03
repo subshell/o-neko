@@ -15,6 +15,9 @@ public class ConfigurationTemplateDTOMapper {
 				.name(template.getName())
 				.content(template.getContent())
 				.description(template.getDescription())
+				.chartName(template.getChartName())
+				.chartVersion(template.getChartVersion())
+				.helmRegistryId(template.getHelmRegistryId())
 				.build();
 	}
 
@@ -26,6 +29,9 @@ public class ConfigurationTemplateDTOMapper {
 				.name(templateDTO.getName())
 				.content(templateDTO.getContent())
 				.description(templateDTO.getDescription())
+				.chartName(templateDTO.getChartName())
+				.chartVersion(templateDTO.getChartVersion())
+				.helmRegistryId(templateDTO.getHelmRegistryId())
 				.build();
 	}
 
@@ -36,6 +42,9 @@ public class ConfigurationTemplateDTOMapper {
 				template.setName(dto.getName());
 				template.setDescription(dto.getDescription());
 				template.setContent(dto.getContent());
+				template.setChartName(dto.getChartName());
+				template.setChartVersion(dto.getChartVersion());
+				template.setHelmRegistryId(dto.getHelmRegistryId());
 				result.add(template);
 			});
 		}

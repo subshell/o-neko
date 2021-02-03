@@ -8,6 +8,7 @@
       <form fxLayout="column" #namespaceForm="ngForm" fxLayoutGap="1em">
         <div fxLayout="row" fxLayoutGap="1em">
           <mat-form-field>
+            <span matPrefix>{{ NAMESPACE_PREFIX }}</span>
             <input type="text" matInput [(ngModel)]="namespace.name" autocomplete="off" required name="name" id="name"
                    placeholder="Name" #name="ngModel" pattern="[a-z0-9]([-a-z0-9]*[a-z0-9])?" maxlength="63">
             <mat-error *ngIf="name.invalid && name.errors.required">{{'components.forms.errors.fieldIsRequired' | translate}}</mat-error>

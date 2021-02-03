@@ -6,13 +6,10 @@ import io.oneko.event.CurrentEventTrigger;
 import io.oneko.event.EventDispatcher;
 import io.oneko.kubernetes.deployments.DeploymentRepository;
 import io.oneko.kubernetes.deployments.persistence.DeploymentInMemoryRepository;
-import io.oneko.namespace.DefinedNamespaceRepository;
-import io.oneko.namespace.persistence.DefinedNamespaceInMemoryRepository;
+import io.oneko.namespace.NamespaceRepository;
+import io.oneko.namespace.persistence.NamespaceInMemoryRepository;
 import io.oneko.project.ProjectRepository;
 import io.oneko.project.persistence.ProjectInMemoryRepository;
-import io.oneko.projectmesh.MeshService;
-import io.oneko.projectmesh.ProjectMeshRepository;
-import io.oneko.projectmesh.persistence.ProjectMeshInMemoryRepository;
 import io.oneko.user.UserRepository;
 import io.oneko.user.persistence.UserInMemoryRepository;
 
@@ -26,12 +23,9 @@ public class InMemoryTestBench {
 
     public final DockerRegistryRepository dockerRegistryRepository = new DockerRegistryInMemoryRepository(eventDispatcher);
     public final ProjectRepository projectRepository = new ProjectInMemoryRepository(eventDispatcher);
-    public final ProjectMeshRepository projectMeshRepository = new ProjectMeshInMemoryRepository(eventDispatcher);
     public final UserRepository userRepository = new UserInMemoryRepository(eventDispatcher);
-    public final DefinedNamespaceRepository definedNamespaceRepository = new DefinedNamespaceInMemoryRepository(eventDispatcher);
+    public final NamespaceRepository namespaceRepository = new NamespaceInMemoryRepository(eventDispatcher);
     public final DeploymentRepository deploymentRepository = new DeploymentInMemoryRepository();
-
-    public final MeshService meshService = new MeshService(projectRepository);
 
     /**
      * Provides a new empty test bench with a bunch of in memory repos.

@@ -12,6 +12,9 @@ import {ThemingState} from "../../store/theming/theming.state";
 import {Observable} from "rxjs";
 import {FileDownloadService} from '../../util/file-download.service';
 import {TranslateService} from "@ngx-translate/core";
+import {RestService} from "../../rest/rest.service";
+import {HelmRegistry} from "../../registries/helm/helm-registry";
+import {HelmCharts, HelmChartVersion} from "../../registries/helm-charts";
 
 export class ConfigurationTemplateEditorModel {
   constructor(public template?: ConfigurationTemplate, public defaultTemplate?: ConfigurationTemplate) {
@@ -87,7 +90,11 @@ export class TemplateEditorComponent implements OnInit {
 
   @Select(ThemingState.isDarkMode) isDarkTheme$: Observable<boolean>;
 
-  public readonly editorOptions: IStandaloneEditorConstructionOptions = {
+  public registryNameByRegistryId: {[name: string]: string} = {};
+  public chartRegistries: Observable<Array<HelmRegistry>>;
+  public chartsByRegistry: {[registry: string]: HelmCharts} = {};
+
+  public editorOptions: IStandaloneEditorConstructionOptions = {
     theme: 'vs-light',
     renderLineHighlight: 'gutter',
     language: 'yaml',
@@ -104,14 +111,37 @@ export class TemplateEditorComponent implements OnInit {
     return this.configurationTemplatesModels[this.selectedTab.value];
   }
 
+  public get currentHelmCharts(): HelmCharts {
+    return this.chartsByRegistry[this.currentTemplateModel.effectiveTemplate.helmRegistryId];
+  }
+
+  public get currentHelmChartNames(): Array<string> {
+    if (!this.currentHelmCharts || !this.currentHelmCharts.charts) {
+      return [];
+    }
+    return Object.keys(this.currentHelmCharts.charts);
+  }
+
+  public get currentHelmChartVersions(): Array<HelmChartVersion> {
+    if (!this.currentHelmCharts) {
+      return [];
+    }
+    return this.currentHelmCharts.charts[this.currentTemplateModel.effectiveTemplate.chartName];
+  }
+
   constructor(private readonly snackBar: MatSnackBar,
               private readonly dialog: MatDialog,
               private store: Store,
-              private translate: TranslateService) {
+              private translate: TranslateService,
+              private rest: RestService) {
     this._fileReaderService = new FileReaderService();
     this.isDarkTheme$.subscribe(isDark => {
-      this.editorOptions.theme = isDark ? 'vs-dark' : 'vs-light';
+      this.editorOptions = {
+        ...this.editorOptions,
+        theme: isDark ? 'vs-dark' : 'vs-light'
+      };
     });
+    this.chartRegistries = this.rest.helm().getAllHelmRegistries();
   }
 
   ngOnInit(): void {
@@ -132,6 +162,23 @@ export class TemplateEditorComponent implements OnInit {
         this.configurationTemplatesModels.push(new ConfigurationTemplateEditorModel(null, template));
       }
     }
+
+    this.loadHelmCharts();
+  }
+
+  private loadHelmCharts() {
+    this.chartRegistries.subscribe(registries => {
+      registries.forEach(registry => {
+        this.rest.helm().getHelmChartsByRegistry(registry).subscribe(charts => {
+          this.chartsByRegistry[registry.getId()] = charts;
+          this.registryNameByRegistryId[registry.getId()] = registry.name;
+        });
+      });
+    })
+  }
+
+  public removeRegistryPart(chartName: string) {
+    return chartName.substr(this.registryNameByRegistryId[this.currentHelmCharts.registryId].length + 1, chartName.length);
   }
 
   public async onConfigUpload($event: FileList | File[]) {
@@ -157,6 +204,15 @@ export class TemplateEditorComponent implements OnInit {
     this.addNewTemplate(template);
   }
 
+  public hasTemplates(): boolean {
+    return this.configurationTemplatesModels.length > 0;
+  }
+
+  public helmChartSettingsChanged() {
+    this.emitValidity();
+    this.emitTemplates();
+  }
+
   public onTextOverwrite(content: string, template: ConfigurationTemplateEditorModel) {
     if (this._skipTextOverwrite && this._skipTextOverwrite.getTime() + 50 < new Date().getTime() || content === template.effectiveTemplate.content) {
       this._skipTextOverwrite = null;
@@ -164,6 +220,7 @@ export class TemplateEditorComponent implements OnInit {
     }
 
     template.setContent(content);
+    this.emitValidity();
     this.emitTemplates();
   }
 
@@ -178,7 +235,19 @@ export class TemplateEditorComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
+        // select another tab if the latest one is active and is going to be deleted.
+        if (this.selectedTab.value === this.configurationTemplatesModels.length - 1 &&  this.selectedTab.value !== 0) {
+          this.selectedTab.setValue(this.selectedTab.value - 1);
+        }
+
         this.configurationTemplatesModels.splice(this.configurationTemplatesModels.indexOf(template), 1);
+
+        if (!this.hasTemplates()) {
+          // ensure at least one empty template
+          //const template = this.createNewTemplate();
+          //this.addNewTemplate(template);
+        }
+
         this.emitTemplates();
       }
     });
@@ -198,6 +267,7 @@ export class TemplateEditorComponent implements OnInit {
     setTimeout(() => {
       this.selectedTab.setValue(this.configurationTemplatesModels.length - 1);
     }, 0);
+    this.emitValidity();
     this.emitTemplates();
   }
 
@@ -212,7 +282,10 @@ export class TemplateEditorComponent implements OnInit {
       id: null,
       name: '',
       content: '',
-      description: ''
+      description: '',
+      chartName: '',
+      chartVersion: '',
+      helmRegistryId: ''
     });
   }
 
@@ -229,12 +302,20 @@ export class TemplateEditorComponent implements OnInit {
       if (valid) {
         this.currentTemplateModel.name = filename;
         this.currentTemplateModel.description = description;
-        this.templatesValid.emit(valid);
+        this.emitValidity();
       }
     });
   }
 
   public onDownloadCurrentFile(currentTemplateModel: ConfigurationTemplateEditorModel): void {
     FileDownloadService.downloadFle(currentTemplateModel.template.content, `${currentTemplateModel.name}.yaml`, 'text/yaml');
+  }
+
+  private isValid(): boolean {
+    return this.templates.every(tpl => tpl.isValid());
+  }
+
+  private emitValidity() {
+    this.templatesValid.emit(this.isValid());
   }
 }

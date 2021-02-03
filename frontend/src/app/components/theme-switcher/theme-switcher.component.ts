@@ -1,7 +1,7 @@
 import {Component} from "@angular/core";
 import {SetThemeMode, ThemingMode, ThemingState} from "../../store/theming/theming.state";
 import {Select, Store} from "@ngxs/store";
-import {Observable} from "rxjs";
+import {Observable, of} from "rxjs";
 import {map} from "rxjs/operators";
 import {TranslateService} from "@ngx-translate/core";
 
@@ -15,10 +15,11 @@ export class ThemeSwitcherComponent {
   modes: Array<{ label: Observable<string>, mode: ThemingMode, icon: string }>;
 
   @Select(ThemingState.themingMode) themingMode$: Observable<ThemingMode>;
-  currentModeIcon = this.themingMode$.pipe(map(mode => this.modes.find(m => m.mode === mode)?.icon ?? 'settings-brightness'))
+  currentModeIcon: Observable<string>;
 
   constructor(private store: Store,
               translate: TranslateService) {
+    this.currentModeIcon = this.themingMode$.pipe(map(mode => this.modes.find(m => m.mode === mode)?.icon ?? 'settings-brightness'))
     this.modes = [
       {
         label: translate.get('components.themeSwitcher.auto'),

@@ -18,11 +18,13 @@ o-neko:
 ---
 # Development profile
 spring:
-  profiles: development
   data:
     mongodb:
       uri: mongodb://localhost:27017/o-neko?
       autoIndexCreation: true
+  config:
+    activate:
+      on-profile: development
 
 logging:
   file:

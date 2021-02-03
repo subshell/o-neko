@@ -1,7 +1,7 @@
 import {relativeDateString} from "../util/date-time-parser";
 
 export type PRIORITY = 'INFO' | 'WARNING' | 'ERROR';
-export type ENTITY_TYPE = 'Project' | 'DockerRegistry' | 'User' | 'Namespace' | 'ProjectMesh';
+export type ENTITY_TYPE = 'Project' | 'DockerRegistry' | 'User' | 'Namespace';
 export type CHANGE_TYPE = 'Saved' | 'Deleted';
 
 export interface ActivityDTO {

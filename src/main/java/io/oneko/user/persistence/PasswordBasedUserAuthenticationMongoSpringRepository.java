@@ -1,10 +1,11 @@
 package io.oneko.user.persistence;
 
-import io.oneko.Profiles;
+import java.util.UUID;
+
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-import java.util.UUID;
+import io.oneko.Profiles;
 
 /**
  * Wins the award for the longest interface name... For a short name use the acronym "PBUAMSR"

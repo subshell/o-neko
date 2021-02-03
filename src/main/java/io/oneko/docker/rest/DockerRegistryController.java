@@ -20,6 +20,7 @@ import io.oneko.docker.DockerRegistryRepository;
 import io.oneko.docker.ReadableDockerRegistry;
 import io.oneko.docker.WritableDockerRegistry;
 import io.oneko.docker.v2.DockerRegistryClientFactory;
+import io.oneko.kubernetes.NamespaceManager;
 import io.oneko.project.ProjectRepository;
 import io.oneko.project.ReadableProject;
 import lombok.extern.slf4j.Slf4j;
@@ -35,12 +36,18 @@ public class DockerRegistryController {
 	private final ProjectRepository projectRepository;
 	private final DockerRegistryDTOMapper dtoMapper;
 	private final DockerRegistryClientFactory clientFactory;
+	private final NamespaceManager namespaceManager;
 
-	public DockerRegistryController(DockerRegistryRepository dockerRegistryRepository, ProjectRepository projectRepository, DockerRegistryDTOMapper dtoMapper, DockerRegistryClientFactory clientFactory) {
+	public DockerRegistryController(DockerRegistryRepository dockerRegistryRepository,
+																	ProjectRepository projectRepository,
+																	DockerRegistryDTOMapper dtoMapper,
+																	DockerRegistryClientFactory clientFactory,
+																	NamespaceManager namespaceManager) {
 		this.dockerRegistryRepository = dockerRegistryRepository;
 		this.projectRepository = projectRepository;
 		this.dtoMapper = dtoMapper;
 		this.clientFactory = clientFactory;
+		this.namespaceManager = namespaceManager;
 	}
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'DOER')")
@@ -56,6 +63,7 @@ public class DockerRegistryController {
 	DockerRegistryDTO createRegistry(@RequestBody DockerRegistryDTO dto) {
 		WritableDockerRegistry registry = dtoMapper.updateRegistryFromDTO(new WritableDockerRegistry(), dto);
 		final ReadableDockerRegistry persistedRegistry = dockerRegistryRepository.add(registry);
+		namespaceManager.updateImagePullSecretsWithRegistry(persistedRegistry);
 		return dtoMapper.registryToDTO(persistedRegistry);
 	}
 
@@ -72,6 +80,7 @@ public class DockerRegistryController {
 		ReadableDockerRegistry reg = getRegistryOr404(id);
 		WritableDockerRegistry updatedRegistry = dtoMapper.updateRegistryFromDTO(reg.writable(), dto);
 		ReadableDockerRegistry persistedReg = dockerRegistryRepository.add(updatedRegistry);
+		namespaceManager.updateImagePullSecretsWithRegistry(persistedReg);
 		return dtoMapper.registryToDTO(persistedReg);
 	}
 
@@ -80,6 +89,7 @@ public class DockerRegistryController {
 	void deleteRegistry(@PathVariable UUID id) {
 		ReadableDockerRegistry reg = getRegistryOr404(id);
 		dockerRegistryRepository.remove(reg);
+		namespaceManager.removeImagePullSecretsForRegistry(reg);
 	}
 
 	@PreAuthorize("hasRole('ADMIN')")
@@ -89,6 +99,7 @@ public class DockerRegistryController {
 		WritableDockerRegistry writable = reg.writable();
 		writable.setPassword(dto.getPassword());
 		ReadableDockerRegistry persisted = dockerRegistryRepository.add(writable);
+		namespaceManager.updateImagePullSecretsWithRegistry(persisted);
 		return dtoMapper.registryToDTO(persisted);
 	}
 
@@ -107,7 +118,7 @@ public class DockerRegistryController {
 	}
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'DOER')")
-	@GetMapping("/{id}/project")
+	@GetMapping("/{id}/projects")
 	List<String> getProjectsUsingRegistry(@PathVariable UUID id) {
 		return this.projectRepository.getByDockerRegistryUuid(id)
 				.stream()

@@ -1,32 +1,38 @@
 package io.oneko.project;
 
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.text.StringSubstitutor;
+
 import io.oneko.automations.LifetimeBehaviour;
-import io.oneko.deployable.DeployableConfigurationTemplates;
 import io.oneko.deployable.DeploymentBehaviour;
 import io.oneko.kubernetes.deployments.DesiredState;
-import io.oneko.namespace.DefinedNamespace;
-import io.oneko.namespace.HasNamespace;
-import io.oneko.namespace.Namespace;
 import io.oneko.templates.ConfigurationTemplate;
 import io.oneko.templates.ConfigurationTemplates;
 import io.oneko.templates.WritableConfigurationTemplate;
-import org.apache.commons.text.StringSubstitutor;
-
-import java.time.Instant;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Each project has a number of versions. These versions are stored as part of the project they belong to.
  * As for all model entities, there are
  */
-public interface ProjectVersion<P extends Project<P, V>, V extends ProjectVersion<P, V>> extends HasNamespace {
+public interface ProjectVersion<P extends Project<P, V>, V extends ProjectVersion<P, V>> {
 
 	UUID getId();
 
 	P getProject();
 
 	String getName();
+
+	default String getNameWithProjectName() {
+		return getProject().getName() + ":" + getName();
+	}
 
 	Optional<LifetimeBehaviour> getLifetimeBehaviour();
 
@@ -117,27 +123,10 @@ public interface ProjectVersion<P extends Project<P, V>, V extends ProjectVersio
 				.collect(Collectors.toList());
 	}
 
-	default DeployableConfigurationTemplates calculateDeployableConfigurationTemplates() {
-		return DeployableConfigurationTemplates.of(getCalculatedConfigurationTemplates());
-	}
+	String getNamespace();
 
-	Namespace getNamespace();
-
-	/**
-	 * Provides the ID of the defined namespace (if one is set.)
-	 *
-	 * @return might be <code>null</code>
-	 */
-	default UUID getDefinedNamespaceId() {
-		return Optional.of(getNamespace())
-				.filter(DefinedNamespace.class::isInstance)
-				.map(namespace -> ((DefinedNamespace) namespace).getId())
-				.orElse(null);
-	}
-
-	@Override
-	default String getProtoNamespace() {
-		return getProject().getName() + "-" + getName();
+	default String getNamespaceOrElseFromProject() {
+		return StringUtils.defaultIfBlank(getNamespace(), getProject().getNamespace());
 	}
 
 	default String templateAsYAMLString(ConfigurationTemplate configurationTemplate) {
@@ -147,15 +136,6 @@ public interface ProjectVersion<P extends Project<P, V>, V extends ProjectVersio
 				configurationTemplate.getDescription() +
 				")\n\n" +
 				configurationTemplate.getContent();
-	}
-
-	@Override
-	default Map<String, String> getNamespaceLabels() {
-		Map<String, String> labels = new HashMap<>();
-		labels.put(ProjectConstants.TemplateVariablesNames.ONEKO_VERSION, this.getId().toString());
-		labels.put(ProjectConstants.TemplateVariablesNames.ONEKO_PROJECT, getProject().getId().toString());
-		labels.put("name", this.getNamespace().asKubernetesNameSpace());
-		return labels;
 	}
 
 	DesiredState getDesiredState();

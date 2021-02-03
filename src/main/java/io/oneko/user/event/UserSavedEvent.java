@@ -1,11 +1,11 @@
 package io.oneko.user.event;
 
+import java.util.Collection;
+
 import io.oneko.domain.DescribingEntityChange;
 import io.oneko.event.EntityChangedEvent;
 import io.oneko.user.User;
 import io.oneko.user.WritableUser;
-
-import java.util.Collection;
 
 public class UserSavedEvent extends EntityChangedEvent {
 

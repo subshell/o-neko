@@ -11,7 +11,7 @@ import {MatRippleModule} from "@angular/material/core";
 import {MatDialogModule} from "@angular/material/dialog";
 import {MatDividerModule} from "@angular/material/divider";
 import {MatExpansionModule} from "@angular/material/expansion";
-import {MatFormFieldModule} from "@angular/material/form-field";
+import {MatFormFieldModule, MatPrefix} from "@angular/material/form-field";
 import {MatIconModule, MatIconRegistry} from "@angular/material/icon";
 import {MatInputModule} from "@angular/material/input";
 import {MatListModule} from "@angular/material/list";
@@ -42,9 +42,9 @@ import {DeployableStatusComponent} from "./deployable/deployable-status/deployab
 import {DeploymentsDashboardComponent} from "./deployable/deployments-dashboard/deployments-dashboard.component";
 import {ShowDeployableConfigurationDialog} from "./deployable/show-deployable-configuration-dialog/show-deployable-configuration-dialog.component";
 import {TemplateEditorComponent} from "./deployable/template-editor/template-editor.component";
-import {ConfirmDeletionDialogComponent} from "./docker/confirm-deletion.dialog/confirm-deletion-dialog.component";
-import {DockerRegistryEditDialogComponent} from "./docker/edit-dialog/docker-registry-edit-dialog.component";
-import {DockerRegistryListComponent} from "./docker/list/docker-registry-list.component";
+import {ConfirmDeletionDialogComponent} from "./registries/confirm-deletion.dialog/confirm-deletion-dialog.component";
+import {DockerRegistryEditDialogComponent} from "./registries/docker/edit-dialog/docker-registry-edit-dialog.component";
+import {DockerRegistryListComponent} from "./registries/docker/list/docker-registry-list.component";
 import {DeploymentBehaviourInputComponent} from "./form/deployment-behaviour/deployment-behaviour-input.component";
 import {KeyValueInputComponent} from "./form/key-value-input/key-value-input.component";
 import {LifetimeBehaviourInputComponent} from "./form/lifetime-behaviour/lifetime-behaviour-input.component";
@@ -68,15 +68,6 @@ import {ProjectService} from "./project/project.service";
 import {TemplateVariableEditorComponent} from './project/template-variables/template-variable-editor/template-variable-editor.component';
 import {TemplateVariablesComponent} from './project/template-variables/template-variables.component';
 import {ProjectVersionListComponent} from "./project/versions-list/project-version-list.component";
-import {CreateMeshComponentDialogComponent} from "./projectmesh/create-mesh-component-dialog/create-mesh-component-dialog.component";
-import {CreateProjectMeshDialogComponent} from "./projectmesh/create-mesh-dialog/create-project-mesh-dialog.component";
-import {ProjectmeshDashboardComponent} from "./projectmesh/dashboard/projectmesh-dashboard.component";
-import {EditMeshComponent} from "./projectmesh/edit-mesh/edit-mesh.component";
-import {ProjectMeshListComponent} from "./projectmesh/list/project-mesh-list.component";
-import {ManageMeshComponentsComponent} from "./projectmesh/manage-components/manage-mesh-components.component";
-import {MeshComponentActionsComponent} from "./projectmesh/mesh-component-actions/mesh-component-actions.component";
-import {ProjectMeshActionsComponent} from "./projectmesh/project-mesh-actions/project-mesh-actions.component";
-import {ProjectMeshService} from "./projectmesh/project-mesh.service";
 import {RestService} from "./rest/rest.service";
 import {AdminGuardService} from "./session/admin-guard.service";
 import {AuthGuardService} from "./session/auth-guard.service";
@@ -121,6 +112,10 @@ import {FooterComponent} from "./components/footer/footer.component";
 import {TranslateCompiler, TranslateLoader, TranslateModule, TranslateService} from "@ngx-translate/core";
 import {TranslateHttpLoader} from "@ngx-translate/http-loader";
 import {AliasingTranslateCompiler} from "./util/aliasing-translate-compiler";
+import {HelmRegistryListComponent} from "./registries/helm/list/helm-registry-list.component";
+import {HelmRegistryEditDialogComponent} from "./registries/helm/edit-dialog/helm-registry-edit-dialog.component";
+import {DistinctObjectArrayPipe} from "./util/distinct-object-array.pipe";
+import {FilterDeepPipe} from "./util/filter-deep.pipe";
 
 @NgModule({
     declarations: [
@@ -166,15 +161,7 @@ import {AliasingTranslateCompiler} from "./util/aliasing-translate-compiler";
         TemplateVariablesComponent,
         TemplateVariableEditorComponent,
         ValueInputComponent,
-        ProjectMeshListComponent,
-        CreateProjectMeshDialogComponent,
-        EditMeshComponent,
-        ManageMeshComponentsComponent,
-        CreateMeshComponentDialogComponent,
-        ProjectMeshActionsComponent,
         DeploymentsDashboardComponent,
-        ProjectmeshDashboardComponent,
-        MeshComponentActionsComponent,
         DeployableActionsComponent,
         ProjectVersionVariableActionsComponent,
         MainComponent,
@@ -182,7 +169,11 @@ import {AliasingTranslateCompiler} from "./util/aliasing-translate-compiler";
         ThemeSwitcherComponent,
         DndDirective,
         EditConfigurationTemplateDialogComponent,
-        FooterComponent
+        FooterComponent,
+        HelmRegistryListComponent,
+        HelmRegistryEditDialogComponent,
+        DistinctObjectArrayPipe,
+        FilterDeepPipe
     ],
   imports: [
     BrowserModule,
@@ -237,7 +228,7 @@ import {AliasingTranslateCompiler} from "./util/aliasing-translate-compiler";
         useFactory: (http: HttpClient) => new TranslateHttpLoader(http),
         deps: [HttpClient]
       }
-    }),
+    })
   ],
   providers: [
     RestService,
@@ -265,7 +256,6 @@ import {AliasingTranslateCompiler} from "./util/aliasing-translate-compiler";
     ProjectService,
     WebSocketService,
     WebSocketServiceWrapper,
-    ProjectMeshService,
     {
       provide: AnimationDriver,
       useFactory: () => provideAnimationDriverBasedOnUserPreferences()

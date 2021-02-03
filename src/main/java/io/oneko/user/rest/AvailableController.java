@@ -1,11 +1,5 @@
 package io.oneko.user.rest;
 
-import io.oneko.configuration.Controllers;
-import io.oneko.user.UserRepository;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +7,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+
+import io.oneko.configuration.Controllers;
+import io.oneko.user.UserRepository;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @Slf4j
@@ -32,7 +33,7 @@ public class AvailableController {
 	AvailableDTO isUsernameAvailable(@PathVariable String userName) {
 		return userRepository.getByUserName(userName)
 				.map(exists -> new AvailableDTO(userName, false))
-				.orElseThrow(()  -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User with name " + userName + "not found"));
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User with name " + userName + "not found"));
 	}
 
 	@PreAuthorize("isAuthenticated()")
@@ -40,7 +41,7 @@ public class AvailableController {
 	AvailableDTO isEmailAvailable(@PathVariable String email) {
 		return userRepository.getByUserEmail(email)
 				.map(exists -> new AvailableDTO(email, false))
-				.orElseThrow(()  -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User with email " + email + "not found"));
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User with email " + email + "not found"));
 	}
 
 	@Data

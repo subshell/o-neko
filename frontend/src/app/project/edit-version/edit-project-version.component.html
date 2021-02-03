@@ -25,9 +25,9 @@
                    placeholder="Belonging to project" #projectname="ngModel">
           </mat-form-field>
           <mat-form-field>
-            <mat-select required placeholder="Namespace in Kubernetes" name="namespace" id="namespace" [(ngModel)]="projectVersion.namespace" [compareWith]="compareNameSpaces">
-              <mat-option [value]="projectVersion.implicitNamespace">{{projectVersion.implicitNamespace.name + ' (implicit namespace)'}}</mat-option>
-              <mat-option *ngFor="let namespace of namespaces" [value]="namespace">{{namespace.name}}</mat-option>
+            <mat-select placeholder="Namespace in Kubernetes" name="namespace" id="namespace" [(ngModel)]="projectVersion.namespace">
+              <mat-option [value]="">Inherit from project</mat-option>
+              <mat-option *ngFor="let namespace of namespaces" [value]="namespace.name">{{namespace.name}}</mat-option>
             </mat-select>
           </mat-form-field>
 

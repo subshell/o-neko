@@ -47,8 +47,6 @@ export class DeployableStatusComponent implements OnDestroy {
         return 'help-circle';
       case DeployableStatus.Failed:
         return 'alert-circle';
-      case DeployableStatus.Succeeded:
-        return 'star-circle';
       default:
         return 'check-circle';
     }
@@ -62,8 +60,6 @@ export class DeployableStatusComponent implements OnDestroy {
         return 'gray';
       case DeployableStatus.Failed:
         return 'red';
-      case DeployableStatus.Succeeded:
-        return 'green';
       default:
         return 'green';
     }

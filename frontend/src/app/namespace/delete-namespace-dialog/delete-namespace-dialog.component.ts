@@ -2,7 +2,7 @@ import {Component, Inject} from "@angular/core";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {RestService} from "../../rest/rest.service";
-import {DefinedNamespace} from "../defined-namespace";
+import {Namespace} from "../namespace";
 import {TranslateService} from "@ngx-translate/core";
 
 @Component({
@@ -15,13 +15,13 @@ export class DeleteNamespaceDialogComponent {
   confirmedName: string;
 
   constructor(public dialogRef: MatDialogRef<DeleteNamespaceDialogComponent>,
-              @Inject(MAT_DIALOG_DATA) private data: { namespace: DefinedNamespace },
+              @Inject(MAT_DIALOG_DATA) private data: { namespace: Namespace },
               private rest: RestService,
               private snackBar: MatSnackBar,
               private translateService: TranslateService) {
   }
 
-  get namespace(): DefinedNamespace {
+  get namespace(): Namespace {
     return this.data.namespace;
   }
 

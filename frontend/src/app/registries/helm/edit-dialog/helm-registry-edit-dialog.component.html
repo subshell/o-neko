@@ -1,0 +1,49 @@
+<div class="helm-registry-edit-dialog">
+  <h1 mat-dialog-title>{{(helmRegistry.isNew() ? 'components.helmRegistry.editDialog.createRegistry' : 'components.helmRegistry.editDialog.editRegistry') | translate}}</h1>
+  <div mat-dialog-content="">
+    <div>
+      <form fxLayout="column" #helmRegistryForm="ngForm" fxLayoutGap="1em">
+        <div fxLayout="row" fxLayoutGap="1em">
+          <mat-form-field>
+            <input type="text" matInput [(ngModel)]="helmRegistry.name" autocomplete="off" required name="name" id="name"
+                   [placeholder]="'general.name' | translate" #name="ngModel" [disabled]="isReadonly()" (ngModelChange)="nameUpdated()">
+            <mat-error *ngIf="name.invalid && name.errors.required">{{'components.forms.errors.fieldIsRequired' | translate}}</mat-error>
+          </mat-form-field>
+          <mat-form-field>
+            <input type="text" matInput [(ngModel)]="helmRegistry.url" autocomplete="off" required name="url" id="url"
+                   [placeholder]="'components.helmRegistry.registryUrl' | translate" #url="ngModel" [disabled]="isReadonly()">
+            <mat-error *ngIf="url.invalid && url.errors.required">{{'components.forms.errors.fieldIsRequired' | translate}}</mat-error>
+          </mat-form-field>
+        </div>
+        <div fxLayout="row" fxLayoutGap="1em">
+          <mat-form-field>
+            <input type="text" #username="ngModel" matInput [(ngModel)]="helmRegistry.username" name="username" id="username" [placeholder]="'general.username' | translate" [disabled]="isReadonly()">
+          </mat-form-field>
+        </div>
+        <div *ngIf="passwordFieldsVisible && !isReadonly()" fxLayout="row" fxLayoutGap="1em">
+          <mat-form-field>
+            <input type="password" matInput #password="ngModel" [(ngModel)]="newPassword" name="password" id="password" [placeholder]="'general.password' | translate">
+          </mat-form-field>
+          <mat-form-field>
+            <input #verify_password="ngModel" type="password" matInput [mustMatch]="newPassword" [(ngModel)]="passwordVerification" name="verify_password" id="verify_password" [placeholder]="'components.forms.repeatPassword' | translate">
+            <mat-error *ngIf="verify_password.invalid && verify_password.errors.mustMatch">{{'components.forms.errors.passwordsMustMatch' | translate}}</mat-error>
+          </mat-form-field>
+        </div>
+        <div *ngIf="!passwordFieldsVisible && !isReadonly()">
+          <button mat-button color="primary" (click)="passwordFieldsVisible = true;">
+            <span fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="0.3em">
+              <mat-icon svgIcon="mdi:lock-reset"></mat-icon>
+              <span>{{'components.forms.changePassword' | translate}}</span>
+            </span>
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+  <div mat-dialog-actions fxLayoutAlign="space-between center">
+    <button *ngIf="!isReadonly()" mat-button [disabled]="helmRegistryForm.form.invalid" color="primary" (click)="save()">{{'general.save' | translate}}</button>
+    <button *ngIf="!isReadonly()" mat-button (click)="cancel()">{{'general.cancel' | translate}}</button>
+    <button *ngIf="isReadonly()" mat-button (click)="cancel()">{{'general.close' | translate}}</button>
+  </div>
+</div>

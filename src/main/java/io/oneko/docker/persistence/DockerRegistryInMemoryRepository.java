@@ -1,16 +1,21 @@
 package io.oneko.docker.persistence;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Service;
+
 import io.oneko.Profiles;
 import io.oneko.docker.DockerRegistry;
 import io.oneko.docker.ReadableDockerRegistry;
 import io.oneko.docker.WritableDockerRegistry;
 import io.oneko.docker.event.EventAwareDockerRegistryRepository;
 import io.oneko.event.EventDispatcher;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Service;
-
-import java.util.*;
 
 @Service
 @Profile(Profiles.IN_MEMORY)

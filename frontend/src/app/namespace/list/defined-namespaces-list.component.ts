@@ -6,7 +6,7 @@ import {User} from "../../user/user";
 import {UserRole} from "../../user/user-role";
 import {UserService} from "../../user/user.service";
 import {CreateNamespaceDialogComponent} from "../create-namespace-dialog/create-namespace-dialog.component";
-import {DefinedNamespace} from "../defined-namespace";
+import {Namespace} from "../namespace";
 import {DeleteNamespaceDialogComponent} from "../delete-namespace-dialog/delete-namespace-dialog.component";
 
 @Component({
@@ -16,8 +16,8 @@ import {DeleteNamespaceDialogComponent} from "../delete-namespace-dialog/delete-
 })
 export class DefinedNamespacesListComponent {
 
-  public sortedDefinedNamespaces: Array<DefinedNamespace>;
-  public definedNamespaces: Array<DefinedNamespace> = [];
+  public sortedDefinedNamespaces: Array<Namespace>;
+  public definedNamespaces: Array<Namespace> = [];
   public pageSettings = {
     pageSize: 10,
     pageSizeOptions: [10, 25, 50, 100]
@@ -54,7 +54,7 @@ export class DefinedNamespacesListComponent {
     });
   }
 
-  public deleteDefinedNamespace(namespace: DefinedNamespace) {
+  public deleteDefinedNamespace(namespace: Namespace) {
     this.dialog.open(DeleteNamespaceDialogComponent, {
       width: '50%',
       data: {namespace}
@@ -81,7 +81,7 @@ export class DefinedNamespacesListComponent {
     this.sortDefinedNamespaces();
   }
 
-  public getSortedDefinedNamespaces(): Array<DefinedNamespace> {
+  public getSortedDefinedNamespaces(): Array<Namespace> {
     const data = this.definedNamespaces.slice();
     return data.sort();
   }

@@ -27,8 +27,6 @@ import io.oneko.docker.v2.DockerRegistryVersionChecker.BearerAuthRequired;
 import io.oneko.docker.v2.DockerRegistryVersionChecker.V2APIUnavailable;
 import io.oneko.docker.v2.model.TokenResponse;
 import io.oneko.project.Project;
-import io.oneko.projectmesh.MeshComponent;
-import io.oneko.projectmesh.MeshService;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -38,17 +36,15 @@ public class DockerRegistryClientFactory {
 	private final ObjectMapper objectMapper;
 	private final DockerRegistryVersionChecker dockerRegistryVersionChecker;
 	private final DockerRegistryRepository dockerRegistryRepository;
-	private final MeshService meshService;
 	private final Cache<UUID, DockerRegistryV2Client> projectToDockerRegistryClientCache = Caffeine.newBuilder()
 			.expireAfterWrite(Duration.ofMinutes(5))
 			.build();
 
 	@Autowired
-	DockerRegistryClientFactory(ObjectMapper objectMapper, DockerRegistryVersionChecker dockerRegistryVersionChecker, DockerRegistryRepository dockerRegistryRepository, MeshService meshService) {
+	DockerRegistryClientFactory(ObjectMapper objectMapper, DockerRegistryVersionChecker dockerRegistryVersionChecker, DockerRegistryRepository dockerRegistryRepository) {
 		this.objectMapper = objectMapper;
 		this.dockerRegistryVersionChecker = dockerRegistryVersionChecker;
 		this.dockerRegistryRepository = dockerRegistryRepository;
-		this.meshService = meshService;
 	}
 
 	/**
@@ -80,10 +76,6 @@ public class DockerRegistryClientFactory {
 					DockerRegistryVersionChecker.DockerRegistryCheckResult dockerRegistryCheckResult = dockerRegistryVersionChecker.checkV2ApiOf(dockerRegistry);
 					return this.buildClientBasedOnApiCheck(dockerRegistryCheckResult, dockerRegistry, "repository:" + project.getImageName() + ":pull");
 				});
-	}
-
-	public Optional<DockerRegistryV2Client> getDockerRegistryClient(MeshComponent<?, ?> component) {
-		return getDockerRegistryClient(meshService.getVersionOfComponent(component).getProject());
 	}
 
 	/**

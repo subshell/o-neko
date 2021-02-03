@@ -35,6 +35,11 @@
             </mat-select>
             <mat-error *ngIf="dockerregistry.invalid && dockerregistry.errors.required">Each project must have a docker registry assigned.</mat-error>
           </mat-form-field>
+          <mat-form-field>
+            <mat-select required placeholder="Namespace in Kubernetes" name="namespace" id="namespace" [(ngModel)]="project.namespace">
+              <mat-option *ngFor="let namespace of namespaces" [value]="namespace.name">{{namespace.name}}</mat-option>
+            </mat-select>
+          </mat-form-field>
 
           <div class="form-field-group">
             <template-editor [templates]="project.defaultConfigurationTemplates"

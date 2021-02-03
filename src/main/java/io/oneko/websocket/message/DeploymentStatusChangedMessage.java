@@ -14,15 +14,12 @@ import java.util.UUID;
 @NoArgsConstructor
 public class DeploymentStatusChangedMessage implements ONekoWebSocketMessage {
 
-	private UUID deployableId;
+	private UUID projectVersionId;
 	private UUID ownerId;
-	private DeployableType deployableType;
 	private DeployableStatus status;
 	private DesiredState desiredState;
 	private Instant timestamp;
 	private boolean outdated;
 	private Instant imageUpdatedDate;
-	public enum DeployableType {
-		projectVersion, meshComponent
-	}
+
 }

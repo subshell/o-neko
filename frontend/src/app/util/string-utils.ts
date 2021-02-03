@@ -86,6 +86,14 @@ export class StringUtils {
     }
   }
 
+  public static noneBlank(strings: Array<string>): boolean {
+    return !this.anyBlank(strings);
+  }
+
+  public static anyBlank(strings: Array<string>): boolean {
+    return strings.some(str => this.isBlank(str));
+  }
+
   public static isEmpty(str?: string): boolean {
     if (str) {
       return str.length === 0;

@@ -54,6 +54,8 @@ export class ProjectListComponent {
   private pageEvent: PageEvent;
   private sort: Sort;
 
+  public userMayEditProjects = false;
+
   constructor(private rest: RestService,
               private userService: UserService,
               private projectService: ProjectService,
@@ -64,10 +66,7 @@ export class ProjectListComponent {
       this.projects = projects;
       this.sortProjects();
     });
-  }
-
-  public mayEditProjects(): boolean {
-    return this.projectService.isUserAllowedToEditProjects(this.editingUser);
+    this.userMayEditProjects = this.projectService.isUserAllowedToEditProjects(this.editingUser)
   }
 
   public createProject(allowImport: boolean = false) {
@@ -87,7 +86,7 @@ export class ProjectListComponent {
   }
 
   public deleteProject(project: Project) {
-    if (!this.mayEditProjects()) {
+    if (!this.userMayEditProjects) {
       return;
     }
     this.projectService.deleteProjectInteractively(project, this.editingUser).subscribe(() => {

@@ -1,7 +1,20 @@
 package io.oneko.project;
 
+import static io.oneko.kubernetes.deployments.DesiredState.*;
+
+import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Sets;
+
 import io.oneko.automations.LifetimeBehaviour;
 import io.oneko.deployable.DeploymentBehaviour;
 import io.oneko.domain.ModificationAwareIdentifiable;
@@ -9,21 +22,11 @@ import io.oneko.domain.ModificationAwareListProperty;
 import io.oneko.domain.ModificationAwareMapProperty;
 import io.oneko.domain.ModificationAwareProperty;
 import io.oneko.kubernetes.deployments.DesiredState;
-import io.oneko.namespace.DefinedNamespace;
-import io.oneko.namespace.ImplicitNamespace;
-import io.oneko.namespace.Namespace;
-import io.oneko.namespace.WritableHasNamespace;
 import io.oneko.templates.ConfigurationTemplates;
 import io.oneko.templates.WritableConfigurationTemplate;
 import lombok.Builder;
 
-import java.time.Instant;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static io.oneko.kubernetes.deployments.DesiredState.NotDeployed;
-
-public class WritableProjectVersion extends ModificationAwareIdentifiable implements WritableHasNamespace, ProjectVersion<WritableProject, WritableProjectVersion> {
+public class WritableProjectVersion extends ModificationAwareIdentifiable implements ProjectVersion<WritableProject, WritableProjectVersion> {
 
 	private final ModificationAwareProperty<UUID> uuid = new ModificationAwareProperty<>(this, "uuid");
 	private WritableProject project;
@@ -35,7 +38,7 @@ public class WritableProjectVersion extends ModificationAwareIdentifiable implem
 	private final ModificationAwareProperty<List<WritableConfigurationTemplate>> configurationTemplates = new ModificationAwareListProperty<>(this, "configurationTemplates");
 	private final ModificationAwareProperty<Boolean> outdated = new ModificationAwareProperty<>(this, "outdated");
 	private final ModificationAwareProperty<LifetimeBehaviour> lifetimeBehaviour = new ModificationAwareProperty<>(this, "lifetimeBehaviour");
-	private final ModificationAwareProperty<Namespace> namespace = new ModificationAwareProperty<>(this, "namespace");
+	private final ModificationAwareProperty<String> namespace = new ModificationAwareProperty<>(this, "namespace");
 	private final ModificationAwareProperty<DesiredState> desiredState = new ModificationAwareProperty<>(this, "desiredState");
 	private final ModificationAwareProperty<Instant> imageUpdatedDate = new ModificationAwareProperty<>(this, "imageUpdatedDate");
 
@@ -43,7 +46,7 @@ public class WritableProjectVersion extends ModificationAwareIdentifiable implem
 	public WritableProjectVersion(UUID uuid, String name, DeploymentBehaviour deploymentBehaviour,
 	                              Map<String, String> templateVariables, String dockerContentDigest, List<String> urls,
 	                              List<WritableConfigurationTemplate> configurationTemplates, boolean outdated, LifetimeBehaviour lifetimeBehaviour,
-	                              DefinedNamespace namespace, DesiredState desiredState, Instant imageUpdatedDate) {
+																String namespace, DesiredState desiredState, Instant imageUpdatedDate) {
 		this.uuid.init(uuid);
 		this.name.init(name);
 		this.deploymentBehaviour.init(deploymentBehaviour);
@@ -63,10 +66,6 @@ public class WritableProjectVersion extends ModificationAwareIdentifiable implem
 	 */
 	void setProject(WritableProject project) {
 		this.project = project;
-		//The implicit namespace requires the project to be set
-		if (this.namespace.get() == null) {
-			this.namespace.init(new ImplicitNamespace(this));
-		}
 	}
 
 	/**
@@ -78,7 +77,6 @@ public class WritableProjectVersion extends ModificationAwareIdentifiable implem
 		this.name.set(name);
 		this.outdated.set(false);
 		this.deploymentBehaviour.set(project.getNewVersionsDeploymentBehaviour());
-		this.namespace.set(new ImplicitNamespace(this));
 		this.desiredState.set(NotDeployed);
 	}
 
@@ -168,23 +166,12 @@ public class WritableProjectVersion extends ModificationAwareIdentifiable implem
 		this.templateVariables.set(templateVariables);
 	}
 
-	public Namespace getNamespace() {
+	public String getNamespace() {
 		return namespace.get();
 	}
 
-	public void assignDefinedNamespace(DefinedNamespace namespace) {
+	public void setNamespace(String namespace) {
 		this.namespace.set(namespace);
-	}
-
-	public ImplicitNamespace resetToImplicitNamespace() {
-		if (this.getNamespace() instanceof ImplicitNamespace) {
-			return (ImplicitNamespace) this.getNamespace();
-		}
-
-		final var implicitNamespace = new ImplicitNamespace(this);
-		this.namespace.set(implicitNamespace);
-
-		return implicitNamespace;
 	}
 
 	@Override
@@ -225,7 +212,7 @@ public class WritableProjectVersion extends ModificationAwareIdentifiable implem
 						.collect(Collectors.toList()))
 				.outdated(isOutdated())
 				.lifetimeBehaviour(lifetimeBehaviour.get())
-				.namespace(getNamespace() instanceof DefinedNamespace ? (DefinedNamespace) getNamespace() : null)
+				.namespace(getNamespace())
 				.desiredState(getDesiredState())
 				.imageUpdatedDate(getImageUpdatedDate())
 				.build();

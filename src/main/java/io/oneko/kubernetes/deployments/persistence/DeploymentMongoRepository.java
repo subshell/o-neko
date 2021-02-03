@@ -26,8 +26,8 @@ public class DeploymentMongoRepository implements DeploymentRepository {
 	}
 
 	@Override
-	public Optional<ReadableDeployment> findByDeployableId(UUID deployableId) {
-		return innerRepository.findByDeployableId(deployableId)
+	public Optional<ReadableDeployment> findByProjectVersionId(UUID projectVersionId) {
+		return innerRepository.findByProjectVersionId(projectVersionId)
 				.map(this::fromDeploymentMongo);
 	}
 
@@ -62,29 +62,25 @@ public class DeploymentMongoRepository implements DeploymentRepository {
 	}
 
 	@Override
-	public List<ReadableDeployment> findAllByDeployableIdIn(Iterable<UUID> uuids) {
-		return innerRepository.findAllByDeployableIdIn(uuids).stream().map(this::fromDeploymentMongo).collect(Collectors.toList());
+	public List<ReadableDeployment> findAllByProjectVersionIdIn(Iterable<UUID> uuids) {
+		return innerRepository.findAllByProjectVersionIdIn(uuids).stream().map(this::fromDeploymentMongo).collect(Collectors.toList());
 	}
 
 	private ReadableDeployment fromDeploymentMongo(DeploymentMongo mongo) {
 		return ReadableDeployment.builder()
 				.id(mongo.getId())
-				.deployableId(mongo.getDeployableId())
+				.projectVersionId(mongo.getProjectVersionId())
 				.status(mongo.getStatus())
 				.timestamp(mongo.getTimestamp())
-				.containerCount(mongo.getContainerCount())
-				.readyContainerCount(mongo.getReadyContainerCount())
 				.build();
 	}
 
 	private DeploymentMongo toDeploymentMongo(WritableDeployment deployment) {
 		return DeploymentMongo.builder()
 				.id(deployment.getId())
-				.deployableId(deployment.getDeployableId())
+				.projectVersionId(deployment.getProjectVersionId())
 				.status(deployment.getStatus())
 				.timestamp(deployment.getTimestamp().orElse(null))
-				.containerCount(deployment.getContainerCount())
-				.readyContainerCount(deployment.getReadyContainerCount())
 				.build();
 	}
 }

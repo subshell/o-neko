@@ -1,9 +1,15 @@
 <div fxLayout="row" fxLayoutAlign="space-between center">
   <h4>{{label}}</h4>
   <div>
-    <button mat-icon-button [matMenuTriggerFor]="menu" [matTooltip]="'general.options' | translate">
-      <mat-icon svgIcon="mdi:dots-vertical"></mat-icon>
-    </button>
+    <div fxLayout="row" fxLayoutAlign="space-between center">
+      <div *ngIf="!currentTemplateModel" fxLayout="row" fxLayoutAlign="space-between center">
+        <mat-icon svgIcon="mdi:information-outline" color="primary"></mat-icon>
+        <span class="create-template-info">{{'components.templateEditor.createTemplateHelpInfo' | translate}}</span>
+      </div>
+      <button mat-icon-button [matMenuTriggerFor]="menu" [matTooltip]="'general.options' | translate">
+        <mat-icon svgIcon="mdi:dots-vertical"></mat-icon>
+      </button>
+    </div>
     <mat-menu #menu="matMenu">
       <button mat-menu-item [disabled]="readonly" (click)="openEditConfigurationTemplateDialog(currentTemplateModel)">
         <mat-icon svgIcon="mdi:pencil-outline"></mat-icon>
@@ -23,7 +29,7 @@
   </div>
 </div>
 
-<div *ngIf="readonly && currentTemplateModel.description">
+<div *ngIf="readonly && currentTemplateModel?.description">
   <span class="mat-caption">{{currentTemplateModel.description}}</span>
 </div>
 
@@ -32,7 +38,7 @@
   <em *ngIf="currentTemplateModel?.isOverwriting()" class="mat-caption italic">{{'components.templateEditor.overwritesInheritedConfiguration' | translate}}</em>
 </div>
 
-<div class="template-editor-wrapper">
+<div class="template-editor-wrapper" *ngIf="currentTemplateModel; else noTemplatesAvailable">
   <mat-tab-group [selectedIndex]="selectedTab.value" (selectedIndexChange)="selectedTab.setValue($event)" animationDuration="0ms">
 
     <!-- Default Templates -->
@@ -45,7 +51,32 @@
       </ng-template>
     </mat-tab>
   </mat-tab-group>
+  <div class="helm-chart-controls" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="1em">
+    <mat-form-field>
+      <mat-label>{{'components.templateEditor.chartRegistry' | translate}}</mat-label>
+      <mat-select required [(ngModel)]="currentTemplateModel.effectiveTemplate.helmRegistryId" (ngModelChange)="helmChartSettingsChanged()">
+        <mat-option *ngFor="let registry of (chartRegistries | async)" [value]="registry.id">{{ registry.name }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>{{'components.templateEditor.chartName' | translate}}</mat-label>
+      <mat-select [disabled]="!currentTemplateModel.effectiveTemplate.helmRegistryId" required [(ngModel)]="currentTemplateModel.effectiveTemplate.chartName" (ngModelChange)="helmChartSettingsChanged()">
+        <mat-option *ngFor="let chartName of currentHelmChartNames" [value]="chartName">{{ removeRegistryPart(chartName) }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>{{'components.templateEditor.chartVersionPlaceholder' | translate}}</mat-label>
+      <mat-select [disabled]="!currentTemplateModel.effectiveTemplate.chartName" [(ngModel)]="currentTemplateModel.effectiveTemplate.chartVersion" (ngModelChange)="helmChartSettingsChanged()">
+        <mat-option [value]="undefined">latest</mat-option>
+        <mat-option *ngFor="let chartVersion of currentHelmChartVersions" [value]="chartVersion.version">{{ chartVersion.version }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
   <div class="code-editor-wrapper" *ngIf="currentTemplateModel">
     <ngx-monaco-editor class="code-editor" [options]="editorOptions" [ngModel]="currentTemplateModel.effectiveTemplate.content" (ngModelChange)="onTextOverwrite($event, currentTemplateModel)"></ngx-monaco-editor>
   </div>
 </div>
+
+<ng-template #noTemplatesAvailable>
+  <span><i>{{'components.templateEditor.noTemplatesAvailable' | translate}}</i></span>
+</ng-template>

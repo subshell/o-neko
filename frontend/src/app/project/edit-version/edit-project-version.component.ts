@@ -7,19 +7,15 @@ import {flatMap, map} from "rxjs/operators";
 import {ConfigurationTemplate} from "../../deployable/configuration-template";
 import {EffectiveDeployableConfiguration} from "../../deployable/effective-deployable-configuration";
 import {ShowDeployableConfigurationDialog} from "../../deployable/show-deployable-configuration-dialog/show-deployable-configuration-dialog.component";
-import {DockerRegistry} from "../../docker/docker-registry";
+import {DockerRegistry} from "../../registries/docker/docker-registry";
 import {KeyValueChangeEvent} from "../../form/key-value-input/key-value-input.component";
-import {
-  LabeledLifetimeBehaviour,
-  LifetimeBehaviourInputComponent
-} from "../../form/lifetime-behaviour/lifetime-behaviour-input.component";
+import {LabeledLifetimeBehaviour} from "../../form/lifetime-behaviour/lifetime-behaviour-input.component";
 import {
   createValueInfoFromTemplateVariable,
   ValueInfoChangeEvent,
   ValueInfoMap
 } from "../../form/value-input/value-info";
 
-import {DefinedNamespace} from "../../namespace/defined-namespace";
 import {Namespace} from "../../namespace/namespace";
 import {RestService} from "../../rest/rest.service";
 import {User} from "../../user/user";
@@ -39,7 +35,7 @@ export class EditProjectVersionComponent implements OnInit, OnDestroy {
   public project: Project;
   public projectVersion: ProjectVersion;
   public dockerRegistries: Array<DockerRegistry> = [];
-  public namespaces: Array<DefinedNamespace> = [];
+  public namespaces: Array<Namespace> = [];
   public templatesValid = true;
   public lifetimeBehaviourOptions: Array<LabeledLifetimeBehaviour> = [{
     label: 'Inherit from project',
@@ -120,10 +116,6 @@ export class EditProjectVersionComponent implements OnInit, OnDestroy {
     this.rest.project().getCalculatedProjectVersionConfiguration(this.projectVersion, this.project).subscribe((config: EffectiveDeployableConfiguration) =>
       this.dialog.open(ShowDeployableConfigurationDialog, {data: config, width: "80%"})
     );
-  }
-
-  public compareNameSpaces(o1: DefinedNamespace | Namespace, o2: DefinedNamespace | Namespace): boolean {
-    return o1 && o2 ? o1.name === o2.name : o1 === o2;
   }
 
   public updateProjectVariables(event: ValueInfoChangeEvent): void {

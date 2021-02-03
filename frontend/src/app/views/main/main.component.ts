@@ -49,9 +49,6 @@ export class MainComponent {
             title: 'menu.projectManagement.projects',
             href: '/projects'
           },{
-            title: 'menu.projectManagement.projectMeshes',
-            href: '/project-meshes'
-          },{
             title: 'menu.projectManagement.namespaces',
             href: '/namespaces',
             hidden: !user.hasAnyPermission(UserRole.ADMIN, UserRole.DOER)
@@ -64,6 +61,10 @@ export class MainComponent {
           children: [{
             title: 'menu.administration.dockerRegistries',
             href: '/docker-registries',
+            hidden: !user.hasAnyPermission(UserRole.ADMIN, UserRole.DOER)
+          }, {
+            title: 'menu.administration.helmRegistries',
+            href: '/helm-registries',
             hidden: !user.hasAnyPermission(UserRole.ADMIN, UserRole.DOER)
           },{
             title: 'menu.administration.users',

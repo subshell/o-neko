@@ -1,10 +1,10 @@
 package io.oneko.docker.event;
 
+import java.util.UUID;
+
 import io.oneko.event.Event;
 import io.oneko.project.ProjectVersion;
 import lombok.Getter;
-
-import java.util.UUID;
 
 public class ObsoleteProjectVersionRemovedEvent extends Event {
 

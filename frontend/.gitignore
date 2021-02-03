@@ -45,5 +45,4 @@ Thumbs.db
 node
 
 # Generated Icon Stuff
-/src/app/configuration/generated/*.ts
 /src/assets/icons/mdi/

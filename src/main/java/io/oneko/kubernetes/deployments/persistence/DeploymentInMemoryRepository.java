@@ -19,9 +19,9 @@ public class DeploymentInMemoryRepository implements DeploymentRepository {
     Map<UUID, ReadableDeployment> deployments = new HashMap<>();
 
     @Override
-    public Optional<ReadableDeployment> findByDeployableId(UUID deployableId) {
+    public Optional<ReadableDeployment> findByProjectVersionId(UUID projectVersionId) {
         return deployments.values().stream()
-                .filter(deployment -> deployment.getDeployableId().equals(deployableId))
+                .filter(deployment -> deployment.getProjectVersionId().equals(projectVersionId))
                 .findFirst();
     }
 
@@ -56,11 +56,11 @@ public class DeploymentInMemoryRepository implements DeploymentRepository {
     }
 
     @Override
-    public List<ReadableDeployment> findAllByDeployableIdIn(Iterable<UUID> uuids) {
+    public List<ReadableDeployment> findAllByProjectVersionIdIn(Iterable<UUID> uuids) {
         Set<UUID> uuidsAsSet = new HashSet<>();
         uuids.forEach(uuidsAsSet::add);
         return deployments.values().stream()
-                .filter(deployment -> uuidsAsSet.contains(deployment.getDeployableId()))
+                .filter(deployment -> uuidsAsSet.contains(deployment.getProjectVersionId()))
                 .collect(Collectors.toList());
     }
 }

@@ -1,14 +1,15 @@
 package io.oneko.user;
 
+import java.util.UUID;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import io.oneko.domain.ModificationAwareIdentifiable;
 import io.oneko.domain.ModificationAwareProperty;
 import io.oneko.security.UserRole;
 import io.oneko.user.auth.PasswordBasedUserAuthentication;
 import io.oneko.user.auth.UserAuthentication;
 import lombok.Builder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.util.UUID;
 
 public class WritableUser extends ModificationAwareIdentifiable implements User {
 
@@ -19,7 +20,7 @@ public class WritableUser extends ModificationAwareIdentifiable implements User 
 	private final ModificationAwareProperty<String> email = new ModificationAwareProperty<>(this, "email");
 	private final ModificationAwareProperty<UserRole> role = new ModificationAwareProperty<>(this, "role");
 
-	private ModificationAwareProperty<UserAuthentication<?>> authentication = new ModificationAwareProperty<>(this, "authentication");
+	private final ModificationAwareProperty<UserAuthentication<?>> authentication = new ModificationAwareProperty<>(this, "authentication");
 
 	/**
 	 * Creates a completely new user.

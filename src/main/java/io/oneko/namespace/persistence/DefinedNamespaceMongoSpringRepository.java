@@ -8,6 +8,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Profile(Profiles.MONGO)
-public interface DefinedNamespaceMongoSpringRepository extends MongoRepository<DefinedNamespaceMongo, UUID> {
-	Optional<DefinedNamespaceMongo> findByName(String name);
+public interface DefinedNamespaceMongoSpringRepository extends MongoRepository<NamespaceMongo, UUID> {
+	Optional<NamespaceMongo> findByName(String name);
 }

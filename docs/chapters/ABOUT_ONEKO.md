@@ -1,27 +1,27 @@
 # About O-Neko
 
-O-Neko is a Kubernetes-native application that closes a gap between developers and other stakeholders by
-deploying development versions of your software into Kubernetes to allow everybody to try and test them.
+O-Neko is a Kubernetes-native application that allows to cross a bridge between developers and other stakeholders by deploying
+development versions of your software into Kubernetes via Helm to allow everybody to try and test them.
 
 ## Features
 
 The most important features of O-Neko are:
 
 * Deploy development versions (e.g. every branch) to Kubernetes with one click
-* Configure projects with native Kubernetes .yaml files
+* Configure projects via Helm charts
 * Automatically re-deploy running versions when the corresponding Docker image has changed (configurable per project and version)
 * Automatically stop running versions after a specific time (configurable per project and version)
-* Project meshes that allow you to wrap multiple projects into one pool and deploy specific versions of them together,
-effectively providing a way to deploy dynamic test server setups with ease
 * Select variables that allow fast changes to frequently used configuration settings (e.g. server URLs)
 
 ## Pre-requisites
 
-Generally, nearly every project able to run in Kubernetes can be deployed with O-Neko (unless it relies on CRDs because our Kubernetes-Java-Client probably can't handle them correctly). To run a project in O-Neko:
+Generally, nearly every project able to run in Kubernetes can be deployed with O-Neko. To run a project in O-Neko:
 
 * You need Docker containers of all project versions you want to deploy with O-Neko
-* You need to provide the Kubernetes .yaml files in a simple template format to configure a project
-* O-Neko works with kubernetes versions 1.9.0 - 1.17.0
+* You need Helm charts for each project you want to deploy. The charts need to be hosted in a chart registry.
+    * Currently we support standard Helm chart registries and Helm GCS
+    * The Docker image tag and the image pull policy need to be configurable
+* O-Neko works with kubernetes versions 1.9.0 - 1.19.1 (these versions are officially supported by the client library we use)
 
 ## How does it work?
 
@@ -52,7 +52,7 @@ feature/my-new-feature").
 
 ### Configuration template
 
-A configuration template is a native kubernetes .yaml file (e.g. a service definition).
+A configuration template is a native Helm values .yaml file (e.g. a service definition).
 Variable placeholders like `${MY_VARIABLE_NAME}` can be used to insert O-Neko specific variables into these templates.
 The variables can be overridden in project versions to e.g. achieve slightly different configurations of versions without
 having to modify the templates per version.
@@ -63,25 +63,21 @@ Select variables are template variables with pre-defined values. If (e.g.) your 
 needs to connect to an external service E, you could have a variable consisting of the hostnames of the production, test
 and development versions of E and you could quickly choose which instance of E to connect to from the O-Neko dashboard.
 
-### Project mesh
-
-A project mesh is a conglomerate of specific project versions. They can be used to create "static"
-test setups that get automatically updated when the software changes. Example use case: Let's say you are developing a software that
-consists of multiple programs (e.g. server + tools, microservices, etc.). You could e.g. set up a project mesh for every
-major version of your software that is still actively maintained to get a "full" test setup.
-
 ### Docker registries
 
 Docker registries in O-Neko are references to the registries your projects'
 images are pulled from. To briefly learn how to set up a reference to a docker registry please see the 
 "Show O-Neko your Docker Registry" section in the [getting started](./GETTING_STARTED.md).
 
+### Helm registries
+
+Helm registries in O-Neko are references to the registries your Helm charts reside in.
+
 ### Namespaces
 
-Namespaces are references to namespaces in your Kubernetes cluster. By default all project versions will be deployed into
-their own namespaces with a generated name consisting of the project's name and the project version's name.
-If you want a project version to be deployed into a specific namespace you can create a namespace reference via the
-"Namespaces" page and select this namespace in the settings of the project version. 
+Namespaces are references to namespaces in your Kubernetes cluster. You need to create at least one namespace to create and
+deploy a project. Namespaces created via O-Neko are automatically created in your Kubernetes cluster. The namespace names
+are prefixed with `on-`.
 
 ### Activity Log
 

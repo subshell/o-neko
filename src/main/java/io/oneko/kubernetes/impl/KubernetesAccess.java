@@ -1,13 +1,10 @@
 package io.oneko.kubernetes.impl;
 
-import static io.oneko.project.ProjectConstants.TemplateVariablesNames.*;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +16,6 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.fabric8.kubernetes.api.model.DeletionPropagation;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.LocalObjectReference;
 import io.fabric8.kubernetes.api.model.Namespace;
@@ -34,7 +30,6 @@ import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.oneko.event.EventDispatcher;
 import io.oneko.kubernetes.NamespaceCreatedEvent;
-import io.oneko.namespace.HasNamespace;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -79,45 +74,16 @@ public class KubernetesAccess {
 				.getItems();
 	}
 
-	List<HasMetadata> getAllResourcesInNamespaceWithLabel(String namespace, String key, String value) {
-		List<HasMetadata> result = new ArrayList<>();
-
-		result.addAll(kubernetesClient.apps().deployments().inNamespace(namespace).withLabel(key, value).list().getItems());
-		result.addAll(kubernetesClient.apps().statefulSets().inNamespace(namespace).withLabel(key, value).list().getItems());
-		result.addAll(kubernetesClient.apps().replicaSets().inNamespace(namespace).withLabel(key, value).list().getItems());
-		result.addAll(kubernetesClient.pods().inNamespace(namespace).withLabel(key, value).list().getItems());
-		result.addAll(kubernetesClient.services().inNamespace(namespace).withLabel(key, value).list().getItems());
-		result.addAll(kubernetesClient.secrets().inNamespace(namespace).withLabel(key, value).list().getItems());
-		result.addAll(kubernetesClient.extensions().ingresses().inNamespace(namespace).withLabel(key, value).list().getItems());
-		result.addAll(kubernetesClient.configMaps().inNamespace(namespace).withLabel(key, value).list().getItems());
-		result.addAll(kubernetesClient.persistentVolumeClaims().inNamespace(namespace).withLabel(key, value).list().getItems());
-
-		return result;
-	}
-
-	void deleteAllResourcesFromNameSpace(String nameSpace, Map.Entry<String, String> label) {
-		final var deletables = kubernetesClient.resourceList(getAllResourcesInNamespaceWithLabel(nameSpace, label.getKey(), label.getValue())).withPropagationPolicy(DeletionPropagation.BACKGROUND);
-		deletables.delete();
-	}
-
-	List<HasMetadata> createResourcesInNameSpace(String namespace, Collection<HasMetadata> resources) {
-		return kubernetesClient.resourceList(resources)
-				.inNamespace(namespace)
-				.createOrReplace();
-	}
-
-	Namespace createNamespaceIfNotExistent(HasNamespace hasNamespace) {
-		final String namespace = hasNamespace.getNamespace().asKubernetesNameSpace();
+	Namespace createNamespaceIfNotExistent(String namespace) {
 		Namespace existingNamespace = kubernetesClient.namespaces().withName(namespace).get();
 		if (existingNamespace != null) {
 			return existingNamespace;
 		}
 
-		log.info("Creating namespace with name {} for {} {}", namespace, hasNamespace.getClass().getSimpleName(), hasNamespace.getId());
+		log.info("Creating namespace with name {}", namespace);
 		Namespace newNameSpace = new Namespace();
 		ObjectMeta meta = new ObjectMeta();
 		meta.setName(namespace);
-		meta.setLabels(hasNamespace.getNamespaceLabels());
 		newNameSpace.setMetadata(meta);
 		kubernetesClient.namespaces().create(newNameSpace);
 
@@ -126,13 +92,13 @@ public class KubernetesAccess {
 		return newNameSpace;
 	}
 
-	Secret createSecretIfNotExistent(String namespace, String secretName, String userName, String password, String url) throws JsonProcessingException {
+	Secret createOrUpdateImagePullSecretInNamespace(String namespace, String secretName, String userName, String password, String url) throws JsonProcessingException {
 		final Secret existingSecret = kubernetesClient.secrets()
 				.inNamespace(namespace)
 				.withName(secretName).get();
 
 		if (existingSecret != null) {
-			return existingSecret;
+			log.info("Updating imagePullSecret {} in namespace {}", secretName, namespace);
 		}
 
 		Map<String, Object> dockerConfigMap = new HashMap<>();
@@ -148,7 +114,7 @@ public class KubernetesAccess {
 			final HashMap<String, String> dataMap = new HashMap<>();
 			dataMap.put(".dockerconfigjson", new String(Base64.getEncoder().encode(dockerConfigJson.getBytes())));
 
-			return kubernetesClient.secrets().inNamespace(namespace).create(new SecretBuilder()
+			return kubernetesClient.secrets().inNamespace(namespace).createOrReplace(new SecretBuilder()
 					.withApiVersion("v1")
 					.withKind("Secret")
 					.withData(dataMap)
@@ -161,7 +127,14 @@ public class KubernetesAccess {
 		}
 	}
 
-	ServiceAccount createServiceAccountIfNotExisting(String namespace, String accountName) {
+	void deleteImagePullSecretInNamespace(String namespace, String secretName) {
+		kubernetesClient.secrets()
+				.inNamespace(namespace)
+				.withName(secretName)
+				.delete();
+	}
+
+	ServiceAccount addImagePullSecretToServiceAccountIfNecessary(String namespace, String imagePullSecretName) {
 		final ServiceAccount defaultServiceAccount = kubernetesClient.serviceAccounts()
 				.inNamespace(namespace)
 				.withName("default")
@@ -172,16 +145,45 @@ public class KubernetesAccess {
 			imagePullSecrets = new ArrayList<>();
 		}
 
-		if (imagePullSecrets.stream().anyMatch(ips -> ips.getName().equals(accountName))) {
+		if (imagePullSecrets.stream().anyMatch(ips -> ips.getName().equals(imagePullSecretName))) {
 			return defaultServiceAccount;
 		}
 
-		log.info("Adding ImagePullSecret with name {} to default service account in namespace {}", accountName, namespace);
-		imagePullSecrets.add(new LocalObjectReference(accountName));
+		log.info("Adding ImagePullSecret with name {} to default service account in namespace {}", imagePullSecretName, namespace);
+		imagePullSecrets.add(new LocalObjectReference(imagePullSecretName));
 		defaultServiceAccount.setImagePullSecrets(imagePullSecrets);
 		return kubernetesClient.serviceAccounts()
 				.inNamespace(namespace)
 				.createOrReplace(defaultServiceAccount);
+	}
+
+	ServiceAccount removeImagePullSecretFromServiceAccountIfNecessary(String namespace, String imagePullSecretName) {
+		final ServiceAccount defaultServiceAccount = kubernetesClient.serviceAccounts()
+				.inNamespace(namespace)
+				.withName("default")
+				.get();
+
+		List<LocalObjectReference> imagePullSecrets = defaultServiceAccount.getImagePullSecrets();
+		if (imagePullSecrets == null) {
+			return defaultServiceAccount;
+		}
+
+		if (imagePullSecrets.stream().noneMatch(ips -> ips.getName().equals(imagePullSecretName))) {
+			return defaultServiceAccount;
+		}
+
+		imagePullSecrets.removeIf(ips -> ips.getName().equals(imagePullSecretName));
+
+		log.info("Removed ImagePullSecret with name {} from default service account in namespace {}", imagePullSecretName, namespace);
+		imagePullSecrets.add(new LocalObjectReference(imagePullSecretName));
+		defaultServiceAccount.setImagePullSecrets(imagePullSecrets);
+		return kubernetesClient.serviceAccounts()
+				.inNamespace(namespace)
+				.createOrReplace(defaultServiceAccount);
+	}
+
+	public void deleteNamespaceByName(String name) {
+		kubernetesClient.namespaces().withName(name).delete();
 	}
 
 	List<HasMetadata> loadResource(String staticContent) {
@@ -191,25 +193,4 @@ public class KubernetesAccess {
 			throw new RuntimeException(e);
 		}
 	}
-
-	public void deleteNamespacesWithProjectId(String projectId) {
-		this.deleteNamespaceByLabel(ONEKO_PROJECT, projectId);
-	}
-
-	public void deleteNamespaceWithProjectVersionId(String versionId) {
-		this.deleteNamespaceByLabel(ONEKO_VERSION, versionId);
-	}
-
-	public void deleteNamespaceByLabel(String key, String value) {
-		kubernetesClient.namespaces().withLabel(key, value).delete();
-	}
-
-	public void deleteNamespaceByLabel(Map.Entry<String, String> label) {
-		kubernetesClient.namespaces().withLabel(label.getKey(), label.getValue()).delete();
-	}
-
-	public void deleteNamespaceByName(String name) {
-		kubernetesClient.namespaces().withName(name).delete();
-	}
-
 }

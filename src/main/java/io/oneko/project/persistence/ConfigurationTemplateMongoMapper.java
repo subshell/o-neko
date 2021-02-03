@@ -1,13 +1,13 @@
 package io.oneko.project.persistence;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import io.oneko.templates.ConfigurationTemplate;
 import io.oneko.templates.ReadableConfigurationTemplate;
 import io.oneko.templates.WritableConfigurationTemplate;
 import lombok.experimental.UtilityClass;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @UtilityClass
 public class ConfigurationTemplateMongoMapper {
@@ -18,6 +18,9 @@ public class ConfigurationTemplateMongoMapper {
 				.name(configurationTemplate.getName())
 				.content(configurationTemplate.getContent())
 				.description(configurationTemplate.getDescription())
+				.chartName(configurationTemplate.getChartName())
+				.chartVersion(configurationTemplate.getChartVersion())
+				.helmRegistryId(configurationTemplate.getHelmRegistryId())
 				.build();
 	}
 
@@ -33,6 +36,9 @@ public class ConfigurationTemplateMongoMapper {
 				.name(templateMongo.getName())
 				.content(templateMongo.getContent())
 				.description(templateMongo.getDescription())
+				.chartName(templateMongo.getChartName())
+				.chartVersion(templateMongo.getChartVersion())
+				.helmRegistryId(templateMongo.getHelmRegistryId())
 				.build();
 	}
 

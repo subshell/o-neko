@@ -12,4 +12,11 @@ public interface ConfigurationTemplate {
 	String getName();
 
 	String getDescription();
+
+	String getChartName();
+
+	String getChartVersion();
+
+	UUID getHelmRegistryId();
+
 }

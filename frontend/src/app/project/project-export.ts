@@ -1,5 +1,4 @@
-import {AggregatedDeploymentStatus, DeploymentBehaviour, LifetimeBehaviour, TemplateVariable} from './project';
-import {ConfigurationTemplate} from '../deployable/configuration-template';
+import {AggregatedDeploymentStatus, DeploymentBehaviour, LifetimeBehaviour} from './project';
 
 export interface ProjectExportMetadataDTO {
   version: number;

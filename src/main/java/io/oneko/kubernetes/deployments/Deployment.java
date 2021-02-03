@@ -8,13 +8,9 @@ public interface Deployment {
 
     UUID getId();
 
-    UUID getDeployableId();
+    UUID getProjectVersionId();
 
     DeployableStatus getStatus();
 
     Optional<Instant> getTimestamp();
-
-    int getContainerCount();
-
-    int getReadyContainerCount();
 }

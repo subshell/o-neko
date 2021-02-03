@@ -1,5 +1,5 @@
 import {HttpClient} from '@angular/common/http';
-import {Observable} from 'rxjs';
+import {Observable, throwError} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {EffectiveDeployableConfiguration} from '../deployable/effective-deployable-configuration';
 import {Project, ProjectDTO} from '../project/project';
@@ -31,6 +31,13 @@ export class ProjectRestService implements ProjectRestClient {
       //update the existing project
       return this.http.post<ProjectDTO>(`${this.root_path}/${project.uuid}`, project).pipe(map(projectDTO => Project.from(projectDTO)));
     }
+  }
+
+  public persistProjectVersionVariables(project: Project, projectVersion: ProjectVersion) {
+    if (project.isNew()) {
+      return throwError("Cannot persist variables for a new project");
+    }
+    return this.http.post<ProjectDTO>(`${this.root_path}/${project.uuid}/version/${projectVersion.uuid}/templateVariables`, project).pipe(map(projectDTO => Project.from(projectDTO)));
   }
 
   public deleteProject(project: Project): Observable<void> {

@@ -1,22 +1,37 @@
 package io.oneko.project.rest;
 
-import com.google.common.base.MoreObjects;
-import io.oneko.automations.LifetimeBehaviourDTOMapper;
-import io.oneko.deployable.AggregatedDeploymentStatus;
-import io.oneko.kubernetes.deployments.*;
-import io.oneko.namespace.ImplicitNamespace;
-import io.oneko.namespace.rest.NamespaceDTOMapper;
-import io.oneko.project.*;
-import io.oneko.templates.rest.ConfigurationTemplateDTOMapper;
+import static java.util.Optional.*;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import com.google.common.base.MoreObjects;
 
-import static java.util.Optional.ofNullable;
+import io.oneko.automations.LifetimeBehaviourDTOMapper;
+import io.oneko.deployable.AggregatedDeploymentStatus;
+import io.oneko.kubernetes.deployments.DeployableStatus;
+import io.oneko.kubernetes.deployments.Deployment;
+import io.oneko.kubernetes.deployments.DeploymentDTO;
+import io.oneko.kubernetes.deployments.DeploymentDTOs;
+import io.oneko.kubernetes.deployments.DeploymentRepository;
+import io.oneko.project.ProjectConstants;
+import io.oneko.project.ReadableProject;
+import io.oneko.project.ReadableProjectVersion;
+import io.oneko.project.ReadableTemplateVariable;
+import io.oneko.project.WritableProject;
+import io.oneko.project.WritableProjectVersion;
+import io.oneko.project.WritableTemplateVariable;
+import io.oneko.templates.rest.ConfigurationTemplateDTOMapper;
 
 @Service
 public class ProjectDTOMapper {
@@ -32,13 +47,11 @@ public class ProjectDTOMapper {
 	);
 
 	private final ConfigurationTemplateDTOMapper templateDTOMapper;
-	private final NamespaceDTOMapper namespaceDTOMapper;
 	private final DeploymentRepository deploymentRepository;
 	private final LifetimeBehaviourDTOMapper lifetimeBehaviourDTOMapper;
 
-	public ProjectDTOMapper(ConfigurationTemplateDTOMapper templateDTOMapper, NamespaceDTOMapper namespaceDTOMapper, DeploymentRepository deploymentRepository, LifetimeBehaviourDTOMapper lifetimeBehaviourDTOMapper) {
+	public ProjectDTOMapper(ConfigurationTemplateDTOMapper templateDTOMapper, DeploymentRepository deploymentRepository, LifetimeBehaviourDTOMapper lifetimeBehaviourDTOMapper) {
 		this.templateDTOMapper = templateDTOMapper;
-		this.namespaceDTOMapper = namespaceDTOMapper;
 		this.deploymentRepository = deploymentRepository;
 		this.lifetimeBehaviourDTOMapper = lifetimeBehaviourDTOMapper;
 	}
@@ -59,6 +72,7 @@ public class ProjectDTOMapper {
 		final List<ProjectVersionDTO> versionDTOs = projectVersionsToDTO(project.getVersions());
 		dto.setVersions(versionDTOs);
 		dto.setStatus(aggregateDeploymentStatus(versionDTOs));
+		dto.setNamespace(project.getNamespace());
 		return dto;
 	}
 
@@ -109,7 +123,7 @@ public class ProjectDTOMapper {
 	}
 
 	private ProjectVersionDTO projectVersionToDTO(ReadableProjectVersion version) {
-		final Deployment deployment = deploymentRepository.findByDeployableId(version.getId()).orElse(null);
+		final Deployment deployment = deploymentRepository.findByProjectVersionId(version.getId()).orElse(null);
 		return projectVersionToDTO(version, deployment);
 	}
 
@@ -127,8 +141,7 @@ public class ProjectDTOMapper {
 				.map(templateDTOMapper::toDTO)
 				.collect(Collectors.toList()));
 		dto.setLifetimeBehaviour(version.getLifetimeBehaviour().map(lifetimeBehaviourDTOMapper::toLifetimeBehaviourDTO).orElse(null));
-		dto.setNamespace(namespaceDTOMapper.namespaceToDTO(version.getNamespace()));
-		dto.setImplicitNamespace(namespaceDTOMapper.namespaceToDTO(new ImplicitNamespace(version)));
+		dto.setNamespace(version.getNamespace());
 		dto.setDesiredState(version.getDesiredState());
 		dto.setImageUpdatedDate(version.getImageUpdatedDate());
 		return dto;
@@ -143,6 +156,7 @@ public class ProjectDTOMapper {
 		project.setDefaultConfigurationTemplates(templateDTOMapper.updateFromDTOs(project.getDefaultConfigurationTemplates(), projectDTO.getDefaultConfigurationTemplates()));
 		project.setDefaultLifetimeBehaviour(ofNullable(projectDTO.getDefaultLifetimeBehaviour()).map(lifetimeBehaviourDTOMapper::toLifetimeBehaviour).orElse(null));
 		project.setTemplateVariables(fromTemplateVariableDTOs(projectDTO.getTemplateVariables()));
+		project.setNamespace(projectDTO.getNamespace());
 
 		updateProjectVersionsFromDTO(project.getVersions(), projectDTO.getVersions());
 	}
@@ -169,12 +183,12 @@ public class ProjectDTOMapper {
 
 		version.setConfigurationTemplates(templateDTOMapper.updateFromDTOs(version.getConfigurationTemplates(), projectVersionDTO.getConfigurationTemplates()));
 		version.setLifetimeBehaviour(ofNullable(projectVersionDTO.getLifetimeBehaviour()).filter(dto -> dto.getDaysToLive() != -1).map(lifetimeBehaviourDTOMapper::toLifetimeBehaviour).orElse(null));
-		namespaceDTOMapper.updateNamespaceOfOwner(version, projectVersionDTO.getNamespace());
+		version.setNamespace(projectVersionDTO.getNamespace());
 		updateDeploymentStatusOfVersion(version);
 	}
 
 	private void updateDeploymentStatusOfVersion(WritableProjectVersion version) {
-		this.deploymentRepository.findByDeployableId(version.getId()).ifPresent(deployment -> {
+		this.deploymentRepository.findByProjectVersionId(version.getId()).ifPresent(deployment -> {
 			if (shouldVersionBeMarkedAsOutdated(version, deployment)) {
 				version.setOutdated(true);
 			}

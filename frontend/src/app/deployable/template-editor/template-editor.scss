@@ -1,5 +1,10 @@
 @import "src/styles/mixins";
 
+.create-template-info {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
 .template-editor-wrapper {
   mat-form-field.box {
     width: 200px;
@@ -11,6 +16,10 @@
 
   .file-metadata {
     margin: 8px;
+  }
+
+  .helm-chart-controls {
+    margin: 8px auto;
   }
 
   .code-editor-wrapper {

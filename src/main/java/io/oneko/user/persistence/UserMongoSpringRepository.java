@@ -1,11 +1,12 @@
 package io.oneko.user.persistence;
 
-import io.oneko.Profiles;
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-import java.util.Optional;
-import java.util.UUID;
+import io.oneko.Profiles;
 
 // https://github.com/hantsy/spring-reactive-sample/tree/master/security-data-mongo/src/main/java/com/example/demo
 @Profile(Profiles.MONGO)
