@@ -67,7 +67,7 @@ jobs:
       - checkout
       - setup_remote_docker
       - restore_cache:
-          key: oneko-artifacts-$CIRCLE_TAG
+          key: oneko-artifacts-{{ .Environment.CIRCLE_SHA1 }}
       - run: cp /home/circleci/project/circle-artifacts/*-layered.jar .
       - run: docker build --build-arg JAR_FILE=$(find . -type f -name '*-layered.jar') -t subshellgmbh/o-neko:$CIRCLE_TAG .
       - run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
