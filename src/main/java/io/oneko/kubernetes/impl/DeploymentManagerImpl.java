@@ -46,6 +46,9 @@ class DeploymentManagerImpl implements DeploymentManager {
 
 	@Override
 	public ReadableProjectVersion deploy(WritableProjectVersion version) {
+		if (StringUtils.isBlank(version.getNamespaceOrElseFromProject())) {
+			throw new RuntimeException("A namespace must be configured in the project.");
+		}
 		try {
 			final UUID versionId = version.getId();
 			HelmCommandUtils.install(version);
