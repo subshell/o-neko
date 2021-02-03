@@ -11,9 +11,9 @@ const git = require("simple-git/promise")();
   const pomXmlFilePath = path.join(rootDir, "pom.xml");
   const [, , versionId] = process.argv;
 
-  if (!/^(v[0-9]+(\.[0-9]+)*|major|minor|patch)$/.test(versionId)) {
+  if (!/^([0-9]+(\.[0-9]+)*|major|minor|patch)$/.test(versionId)) {
     throw new Error(
-      "Version identifier is missing or invalid. Possible values are: [<v[major.minor.patch]> | major | minor | patch]"
+      "Version identifier is missing or invalid. Possible values are: [<[major.minor.patch]> | major | minor | patch]"
     );
   }
 
@@ -33,7 +33,7 @@ const git = require("simple-git/promise")();
     packageJsonDir,
     versionId
   );
-  const nextVersion = nextVersionTag.substr(1);
+  const nextVersion = nextVersionTag;
 
   // pom.xml
   await setPomXmlVersion(pomXmlDir, nextVersionTag);

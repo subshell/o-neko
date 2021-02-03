@@ -12,7 +12,7 @@ To create a release you need NodeJs. First, install the dependencies:
 
 To prepare a release, run the NPM script:     
 
-    npm run release [<v[major.minor.patch]> | major | minor | patch]
+    npm run release [<[major.minor.patch]> | major | minor | patch]
     
 That's it!🎉🎉🎉
     
@@ -25,13 +25,13 @@ Make sure the Node dependencies are installed. If not, run `npm i` in the `relea
     ## Output:
     
     > release@1.0.0 start /home/schoener/gitworkspace/test-private/release
-    > node index.js "v1.0.16"
+    > node index.js "1.0.16"
     
       ===  
-      old version: v1.1.12
-      new version: v1.2.0
+      old version: 1.1.12
+      new version: 1.2.0
     
-      This will create a new release with the git tag v1.0.16 and push it to origin master. 
+      This will create a new release with the git tag 1.0.16 and push it to origin master. 
       ==
       
     Does this look right? (y/N) y
