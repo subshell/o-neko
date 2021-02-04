@@ -73,6 +73,7 @@ jobs:
       - run: docker build --build-arg JAR_FILE=$(find . -type f -name '*-layered.jar') -t subshellgmbh/o-neko:$CIRCLE_TAG .
       - run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
       - run: docker push subshellgmbh/o-neko:$CIRCLE_TAG
+      - run: docker push subshellgmbh/o-neko:latest
 
 workflows:
   version: 2
