@@ -1,6 +1,7 @@
 package io.oneko.kubernetes.deployments.persistence;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.annotation.Id;
@@ -28,5 +29,6 @@ public class DeploymentMongo {
 
 	private DeployableStatus status;
 	private Instant timestamp;
+	private List<String> releaseNames;
 
 }

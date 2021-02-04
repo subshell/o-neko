@@ -1,6 +1,7 @@
 package io.oneko.helm.util;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -10,6 +11,7 @@ import io.oneko.helm.HelmRegistryException;
 import io.oneko.helm.ReadableHelmRegistry;
 import io.oneko.helmapi.api.Helm;
 import io.oneko.helmapi.model.Chart;
+import io.oneko.helmapi.model.InstallStatus;
 import io.oneko.helmapi.model.Release;
 import io.oneko.helmapi.model.Status;
 import io.oneko.helmapi.model.Values;
@@ -62,24 +64,36 @@ public class HelmCommandUtils {
 		}
 	}
 
-	public static void install(ProjectVersion<?, ?> projectVersion) throws HelmRegistryException {
-		uninstall(projectVersion); // we always want to do full clean installs
+	public static List<InstallStatus> install(ProjectVersion<?, ?> projectVersion) throws HelmRegistryException {
 		try {
 			updateReposNotTooOften();
-			for (WritableConfigurationTemplate template : projectVersion.getCalculatedConfigurationTemplates()) {
-				helm.install(getReleaseName(projectVersion, template), template.getChartName(), template.getChartVersion(), Values.fromYamlString(template.getContent()), projectVersion.getNamespaceOrElseFromProject(), false);
+			List<WritableConfigurationTemplate> calculatedConfigurationTemplates = projectVersion.getCalculatedConfigurationTemplates();
+			List<InstallStatus> result = new ArrayList<>();
+			for (int i = 0; i < calculatedConfigurationTemplates.size(); i++) {
+				WritableConfigurationTemplate template = calculatedConfigurationTemplates.get(i);
+				result.add(helm.install(getReleaseName(projectVersion, i), template.getChartName(), template.getChartVersion(), Values.fromYamlString(template.getContent()), projectVersion.getNamespaceOrElseFromProject(), false));
 			}
+			return result;
+		} catch (CommandException e) {
+			throw new HelmRegistryException(e.getMessage());
+		}
+	}
+
+	public static void uninstall(List<String> releaseNames) throws HelmRegistryException {
+		try {
+			helm.listInAllNamespaces().stream()
+					.filter(release -> releaseNames.contains(release.getName()))
+					.forEach(release -> helm.uninstall(release.getName(), release.getNamespace()));
 		} catch (CommandException e) {
 			throw new HelmRegistryException(e.getMessage());
 		}
 	}
 
 	public static void uninstall(ProjectVersion<?, ?> projectVersion) throws HelmRegistryException {
-		final String namespace = projectVersion.getNamespaceOrElseFromProject();
 		try {
-			helm.list(namespace, null).stream()
+			helm.listInAllNamespaces().stream()
 					.filter(release -> release.getName().startsWith(getReleaseNamePrefix(projectVersion)))
-					.forEach(release -> helm.uninstall(release.getName(), namespace));
+					.forEach(release -> helm.uninstall(release.getName(), release.getNamespace()));
 		} catch (CommandException e) {
 			throw new HelmRegistryException(e.getMessage());
 		}
@@ -87,8 +101,7 @@ public class HelmCommandUtils {
 
 	public static List<Status> status(ProjectVersion<?, ?> projectVersion) throws HelmRegistryException {
 		try {
-			final String namespace = projectVersion.getNamespaceOrElseFromProject();
-			return helm.list(namespace, null)
+			return helm.listInAllNamespaces()
 					.stream()
 					.filter(release -> release.getName().startsWith(getReleaseNamePrefix(projectVersion)))
 					.map(release -> helm.status(release.getName(), release.getNamespace()))
@@ -108,13 +121,13 @@ public class HelmCommandUtils {
 				}).collect(Collectors.toList());
 	}
 
-	private static String getReleaseName(ProjectVersion<?, ?> projectVersion, ConfigurationTemplate template) {
-		final String fullReleaseName = getReleaseNamePrefix(projectVersion) + "-" + maxLength(template.getName().replace(".yaml", "").replace(".yml", ""), 10) + "-" + maxLength(Long.toString(System.currentTimeMillis()), 10);
-		return sanitizeReleaseName(fullReleaseName.substring(0, Math.min(fullReleaseName.length(), 53)));
+	private static String getReleaseName(ProjectVersion<?, ?> projectVersion, int templateIndex) {
+		final String fullReleaseName = getReleaseNamePrefix(projectVersion) + "-" + templateIndex + "-" + maxLength(Long.toString(System.currentTimeMillis()), 10);
+		return sanitizeReleaseName(maxLength(fullReleaseName, 53));
 	}
 
 	private static String getReleaseNamePrefix(ProjectVersion<?, ?> projectVersion) {
-		return sanitizeReleaseName("on-" + maxLength(projectVersion.getProject().getName(), 12) + "-" + maxLength(projectVersion.getName(), 15));
+		return sanitizeReleaseName(maxLength(projectVersion.getProject().getName(), 6) + "-" + maxLength(projectVersion.getName(), 32));
 	}
 
 	private static String sanitizeReleaseName(String in) {

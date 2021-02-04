@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -18,6 +19,7 @@ public class ReadableDeployment extends Identifiable implements Deployment {
     private final UUID projectVersionId;
     private final DeployableStatus status;
     private final Instant timestamp;
+    private final List<String> releaseNames;
 
     public WritableDeployment writable() {
         return WritableDeployment.builder()
@@ -25,6 +27,7 @@ public class ReadableDeployment extends Identifiable implements Deployment {
                 .projectVersionId(projectVersionId)
                 .status(status)
                 .timestamp(timestamp)
+                .releaseNames(releaseNames)
                 .build();
     }
 
