@@ -16,11 +16,13 @@ import io.oneko.kubernetes.deployments.WritableDeployment;
 public class HelmStatusToDeploymentMapper {
 
 	public WritableDeployment updateDeploymentFromHelmReleaseStatus(WritableDeployment deployment, List<Status> statuses) {
-		var deployableStatuses = statuses.stream().map(status -> status.getInfo().getStatus())
-				.map(status -> DeployableStatus.fromReleaseStatus(status)).collect(Collectors.toSet());
+		final var deployableStatuses = statuses.stream().map(status -> status.getInfo().getStatus())
+				.map(DeployableStatus::fromReleaseStatus).collect(Collectors.toSet());
+		final var releaseNames = statuses.stream().map(Status::getName).collect(Collectors.toList());
 
 		setTimestamp(deployment, statuses);
 		setStatus(deployment, deployableStatuses);
+		deployment.setReleaseNames(releaseNames);
 		return deployment;
 	}
 

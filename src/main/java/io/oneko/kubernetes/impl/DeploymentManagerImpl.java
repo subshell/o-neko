@@ -19,8 +19,13 @@ import io.oneko.docker.v2.DockerRegistryClientFactory;
 import io.oneko.docker.v2.model.manifest.Manifest;
 import io.oneko.helm.HelmRegistryException;
 import io.oneko.helm.util.HelmCommandUtils;
+import io.oneko.helmapi.model.InstallStatus;
+import io.oneko.helmapi.model.Status;
 import io.oneko.kubernetes.DeploymentManager;
+import io.oneko.kubernetes.deployments.DeploymentRepository;
 import io.oneko.kubernetes.deployments.DesiredState;
+import io.oneko.kubernetes.deployments.ReadableDeployment;
+import io.oneko.kubernetes.deployments.WritableDeployment;
 import io.oneko.project.ProjectRepository;
 import io.oneko.project.ProjectVersion;
 import io.oneko.project.ReadableProject;
@@ -35,13 +40,16 @@ class DeploymentManagerImpl implements DeploymentManager {
 	private final KubernetesAccess kubernetesAccess;
 	private final DockerRegistryClientFactory dockerRegistryClientFactory;
 	private final ProjectRepository projectRepository;
+	private final DeploymentRepository deploymentRepository;
 
 	DeploymentManagerImpl(KubernetesAccess kubernetesAccess,
 												DockerRegistryClientFactory dockerRegistryClientFactory,
-												ProjectRepository projectRepository) {
+												ProjectRepository projectRepository,
+												DeploymentRepository deploymentRepository) {
 		this.kubernetesAccess = kubernetesAccess;
 		this.dockerRegistryClientFactory = dockerRegistryClientFactory;
 		this.projectRepository = projectRepository;
+		this.deploymentRepository = deploymentRepository;
 	}
 
 	@Override
@@ -51,10 +59,20 @@ class DeploymentManagerImpl implements DeploymentManager {
 		}
 		try {
 			final UUID versionId = version.getId();
-			HelmCommandUtils.install(version);
+			final WritableDeployment deployment = getOrCreateDeploymentForVersion(version);
+
+			if (!deployment.getReleaseNames().isEmpty()) {
+				HelmCommandUtils.uninstall(deployment.getReleaseNames());
+			}
+
+			final List<InstallStatus> installStatuses = HelmCommandUtils.install(version);
+			final List<String> releaseNames = installStatuses.stream().map(Status::getName).collect(Collectors.toList());
+			deployment.setReleaseNames(releaseNames);
+			deploymentRepository.save(deployment);
+
 			final Set<HasMetadata> createdKubernetesResources = getTemplateAsResources(version);
 			version = updateDeployableWithCreatedResources(version, createdKubernetesResources);
-			version = updateDesiredStateOfDeployable(version, Deployed);
+			version.setDesiredState(Deployed);
 			final ReadableProject project = projectRepository.add(version.getProject());
 			return project.getVersions().stream()
 					.filter(projectVersion -> projectVersion.getUuid().equals(versionId))
@@ -64,6 +82,12 @@ class DeploymentManagerImpl implements DeploymentManager {
 			log.error("Failed to deploy version {}", version, e);
 			throw new RuntimeException(e);
 		}
+	}
+
+	private WritableDeployment getOrCreateDeploymentForVersion(ProjectVersion<?, ?> projectVersion) {
+		return deploymentRepository.findByProjectVersionId(projectVersion.getId())
+				.map(ReadableDeployment::writable)
+				.orElseGet(() -> WritableDeployment.getDefaultDeployment(projectVersion.getId()));
 	}
 
 	private WritableProjectVersion updateDeployableWithCreatedResources(WritableProjectVersion deployable, Set<HasMetadata> createdResources) {
@@ -79,11 +103,6 @@ class DeploymentManagerImpl implements DeploymentManager {
 					deployable.setDockerContentDigest(manifest.getDockerContentDigest());
 					return deployable;
 				}).orElse(null);
-	}
-
-	private WritableProjectVersion updateDesiredStateOfDeployable(WritableProjectVersion deployable, DesiredState desiredState) {
-		deployable.setDesiredState(desiredState);
-		return deployable;
 	}
 
 	private Set<HasMetadata> getTemplateAsResources(ProjectVersion<?, ?> deployable) {

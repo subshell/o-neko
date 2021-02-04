@@ -72,6 +72,7 @@ public class DeploymentMongoRepository implements DeploymentRepository {
 				.projectVersionId(mongo.getProjectVersionId())
 				.status(mongo.getStatus())
 				.timestamp(mongo.getTimestamp())
+				.releaseNames(mongo.getReleaseNames())
 				.build();
 	}
 
@@ -81,6 +82,7 @@ public class DeploymentMongoRepository implements DeploymentRepository {
 				.projectVersionId(deployment.getProjectVersionId())
 				.status(deployment.getStatus())
 				.timestamp(deployment.getTimestamp().orElse(null))
+				.releaseNames(deployment.getReleaseNames())
 				.build();
 	}
 }
