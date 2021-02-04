@@ -45,7 +45,7 @@ chart version. Then you can write your Helm values .yaml file in the editor.
 In order to deploy everything correctly, you need to replace some fixed entries in your files with a template variable syntax.
 The most important is the docker image tag in your deployment.
 
-First and most importantly: You need to set your docker image tag to `${VERSION_NAME}`.
+First and most importantly: You need to set your docker image tag to `{{VERSION_NAME}}`.
 
 `VERSION_NAME` will be replaced with the docker tag you want to deploy, which might be `latest`, `1.0.0`, `bugfix_user_auth`
 or basically every docker tag that exists in your project.
@@ -56,10 +56,10 @@ the cluster to pull your image every time. If your Helm chart does not allow to 
 extend your Helm chart.
 
 In order to get dynamic URLs to your app you'll have to configure the host name (e.g. in an ingress).
-In this template you should replace the host string with a string that contains the variable `${SAFE_VERSION_NAME}`, like this:
+In this template you should replace the host string with a string that contains the variable `{{SAFE_VERSION_NAME}}`, like this:
 
 ```yaml
-- host: my_app-${SAFE_VERSION_NAME}.my-k8s-cluster.my-company.com
+- host: my_app-{{SAFE_VERSION_NAME}}.my-k8s-cluster.my-company.com
 ```
 
 `SAFE_VERSION_NAME` should be used, because this will make sure that the string replaced there will result in a valid URL.

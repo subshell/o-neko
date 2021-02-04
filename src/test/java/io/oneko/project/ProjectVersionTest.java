@@ -27,8 +27,8 @@ class ProjectVersionTest {
 		List<WritableConfigurationTemplate> templates = Collections.singletonList(
 				WritableConfigurationTemplate.builder()
 						.content(
-								"This is a template with implicit variables (${PROJECT_NAME}, ${VERSION_NAME}), " +
-										"default variables (${TEST1}), overwritten default variables (${TEST2}) and child variables (${TEST3})"
+								"This is a template with implicit variables ({{PROJECT_NAME}}, {{VERSION_NAME}}), " +
+										"default variables ({{TEST1}}), overwritten default variables ({{TEST2}}) and child variables ({{TEST3}})"
 						)
 						.id(UUID.randomUUID())
 						.name("name")

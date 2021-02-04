@@ -8,9 +8,12 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringSubstitutor;
 
+import io.marioslab.basis.template.Template;
+import io.marioslab.basis.template.TemplateContext;
+import io.marioslab.basis.template.TemplateLoader;
 import io.oneko.automations.LifetimeBehaviour;
 import io.oneko.deployable.DeploymentBehaviour;
 import io.oneko.kubernetes.deployments.DesiredState;
@@ -113,13 +116,22 @@ public interface ProjectVersion<P extends Project<P, V>, V extends ProjectVersio
 	 * template or a modified version template and the effective template variables.
 	 */
 	default List<WritableConfigurationTemplate> getCalculatedConfigurationTemplates() {
-		StringSubstitutor sub = new StringSubstitutor(this.calculateEffectiveTemplateVariables());
-
+		final Map<String, String> variables = this.calculateEffectiveTemplateVariables();
 		//somehow java does not properly figure out the list type here
 		final List<ConfigurationTemplate> unifiedTemplates = ConfigurationTemplates.unifyTemplateSets(getProject().getDefaultConfigurationTemplates(), getConfigurationTemplates());
+
+		TemplateContext context = new TemplateContext();
+		variables.forEach(context::set);
+		context.set("fn", TemplateFunctions.class);
+
 		return unifiedTemplates.stream()
 				.map(WritableConfigurationTemplate::clone)
-				.peek(template -> template.setContent(sub.replace(template.getContent())))
+				.peek(template -> {
+					TemplateLoader.MapTemplateLoader loader = new TemplateLoader.MapTemplateLoader();
+					loader.set("tpl", template.getContent());
+					final Template tpl = loader.load("tpl");
+					template.setContent(tpl.render(context));
+				})
 				.collect(Collectors.toList());
 	}
 

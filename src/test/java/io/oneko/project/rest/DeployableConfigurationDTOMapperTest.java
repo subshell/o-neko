@@ -35,7 +35,7 @@ class DeployableConfigurationDTOMapperTest {
 				.build();
 		final WritableProjectVersion version = project1.createVersion("Name");
 		version.setConfigurationTemplates(Collections.singletonList(
-				WritableConfigurationTemplate.builder().content("${VAR_1} ${VAR_2}").build()
+				WritableConfigurationTemplate.builder().content("{{VAR_1}} {{VAR_2}}").build()
 		));
 		version.setTemplateVariables(templateVariables);
 

@@ -187,6 +187,11 @@
 			<version>3.18.1</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>io.marioslab.basis</groupId>
+			<artifactId>template</artifactId>
+			<version>1.7</version>
+		</dependency>
 	</dependencies>
 
 	<build>

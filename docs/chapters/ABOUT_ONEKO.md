@@ -53,7 +53,7 @@ feature/my-new-feature").
 ### Configuration template
 
 A configuration template is a native Helm values .yaml file (e.g. a service definition).
-Variable placeholders like `${MY_VARIABLE_NAME}` can be used to insert O-Neko specific variables into these templates.
+Variable placeholders like `{{MY_VARIABLE_NAME}}` can be used to insert O-Neko specific variables into these templates.
 The variables can be overridden in project versions to e.g. achieve slightly different configurations of versions without
 having to modify the templates per version.
 
