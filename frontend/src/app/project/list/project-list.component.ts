@@ -61,15 +61,20 @@ export class ProjectListComponent {
               private projectService: ProjectService,
               private dialog: MatDialog,
               private router: Router) {
-    this.userService.currentUser().subscribe(currentUser => this.editingUser = currentUser);
+    this.userService.currentUser().subscribe(currentUser => {
+      this.editingUser = currentUser;
+      this.userMayEditProjects = this.projectService.isUserAllowedToEditProjects(this.editingUser);
+    });
     this.rest.project().getAllProjects().subscribe(projects => {
       this.projects = projects;
       this.sortProjects();
     });
-    this.userMayEditProjects = this.projectService.isUserAllowedToEditProjects(this.editingUser)
   }
 
   public createProject(allowImport: boolean = false) {
+    if (!this.userMayEditProjects) {
+      return;
+    }
     this.dialog.open<CreateProjectDialogComponent, CreateProjectDialogComponentData>(CreateProjectDialogComponent, {
       width: '80%',
       data: {
