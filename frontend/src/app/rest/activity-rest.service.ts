@@ -1,6 +1,7 @@
 import {HttpClient} from "@angular/common/http";
-import {Observable} from "rxjs/index";
 import {map} from "rxjs/operators";
+import {Page} from "./page";
+import {Observable} from "rxjs";
 import {Activity, ActivityDTO} from "../activity/activity";
 
 export class ActivityRestService {
@@ -11,12 +12,16 @@ export class ActivityRestService {
     this.root_path = parentRootPath + '/activity';
   }
 
-  public getAllActivities(pageIndex: number = 0, pageSize: number = 10): Observable<Array<Activity>> {
-    return this.http.get<Array<ActivityDTO>>(this.root_path, {
+  public getAllActivities(pageIndex: number = 0, pageSize: number = 10, sort='date,desc'): Observable<Page<Activity>> {
+    return this.http.get<Page<ActivityDTO>>(this.root_path, {
       params: {
-        pageIndex: String(pageIndex),
-        pageSize: String(pageSize)
+        page: pageIndex + '',
+        size: pageSize + '',
+        sort
       }
-    }).pipe(map(dtos => dtos.map(dto => new Activity(dto))));
+    }).pipe(map(page => ({
+      ...page,
+      content: page.content.map(content => new Activity(content))
+    })));
   }
 }

@@ -32,7 +32,7 @@ public class RestLogoutSuccessHandler implements LogoutSuccessHandler {
 
 		authentication.setAuthenticated(false);
 		HttpSession session = request.getSession();
-		sessionWebSocketHandler.invalidateSession(session.getId());
+		sessionWebSocketHandler.invalidateUserSession(session.getId());
 		session.invalidate();
 		response.setStatus(HttpStatus.OK.value());
 	}

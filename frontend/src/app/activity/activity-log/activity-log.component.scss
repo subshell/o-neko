@@ -3,6 +3,10 @@
 .activity-log {
   max-width: 100%;
 
+  .mat-paginator {
+    background: inherit;
+  }
+
   .activity-log-results {
     padding-top: 0;
     width: 100%;

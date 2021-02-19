@@ -28,7 +28,7 @@
       "dockerRegistries": "Docker Registries",
       "helmRegistries": "Helm Registries",
       "users": "Benutzer",
-      "eventLog": "!alias:views.logs.eventLog"
+      "activityLog": "!alias:views.logs.activityLog"
     }
   },
   "views": {
@@ -36,7 +36,7 @@
       "doLogin": "Einloggen"
     },
     "logs": {
-      "eventLog": "Ereignisse"
+      "activityLog": "Ereignisse"
     },
     "deploymentsDashboard": {
       "activeDeployments": "Aktive Deployments"
@@ -51,13 +51,13 @@
       "light": "Hell",
       "dark": "Dunkel"
     },
-    "eventLog": {
+    "activityLog": {
       "openEntity": "{entity} öffnen",
       "openUsersPage": "Benutzerliste öffnen",
       "openDockerRegistryPage": "Docker-Registry-Liste öffnen",
       "openNamespacesPage": "Namespace-Liste öffnen",
       "changedProperty": "Geänderter Wert",
-      "newEvents": "{count} neue {count, plural, one{Event} other{Events}}"
+      "newActivities": "{count} neue {count, plural, one{Event} other{Events}}"
     },
     "deployableActions": {
       "deploy": "Starten",

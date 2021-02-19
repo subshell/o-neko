@@ -5,6 +5,9 @@ import io.oneko.Profiles;
 import io.oneko.activity.Activity;
 import io.oneko.activity.internal.WritableActivityLog;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -46,11 +49,13 @@ public class ActivityLogInMemory implements WritableActivityLog {
     }
 
     @Override
-    public List<Activity> getPaged(int pageIndex, int pageSize) {
-        return activities.stream()
+    public Page<Activity> findAll(Pageable pageable) {
+        List<Activity> activitiesInPage =  activities.stream()
                 .sorted(Comparator.comparing(Activity::getDate).reversed())
-                .skip((long) pageIndex * pageSize)
-                .limit(pageSize)
+                .skip(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .collect(Collectors.toList());
+
+        return new PageImpl<>(activitiesInPage, pageable, activities.size());
     }
 }

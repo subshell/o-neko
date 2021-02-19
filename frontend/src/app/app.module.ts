@@ -11,7 +11,7 @@ import {MatRippleModule} from "@angular/material/core";
 import {MatDialogModule} from "@angular/material/dialog";
 import {MatDividerModule} from "@angular/material/divider";
 import {MatExpansionModule} from "@angular/material/expansion";
-import {MatFormFieldModule, MatPrefix} from "@angular/material/form-field";
+import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatIconModule, MatIconRegistry} from "@angular/material/icon";
 import {MatInputModule} from "@angular/material/input";
 import {MatListModule} from "@angular/material/list";
@@ -30,7 +30,6 @@ import {MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipDefaultOptions, MatTooltipModule}
 import {BrowserModule, DomSanitizer} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 
-import {InfiniteScrollModule} from "ngx-infinite-scroll";
 import {NgxMatSelectSearchModule} from "ngx-mat-select-search";
 import {ActivityLogComponent} from "./activity/activity-log/activity-log.component";
 import {AppRoutingModule} from "./app-routes.module";
@@ -210,7 +209,6 @@ import {FilterDeepPipe} from "./util/filter-deep.pipe";
     MatSidenavModule,
     MatChipsModule,
     MatStepperModule,
-    InfiniteScrollModule,
     MatCheckboxModule,
     MatRadioModule,
     NgxMatSelectSearchModule,

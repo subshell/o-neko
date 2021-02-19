@@ -15,7 +15,10 @@ import lombok.extern.slf4j.Slf4j;
 @Builder
 @Slf4j
 public class WebSocketSessionContext {
-	private final String id;
+	/** Unique id for all websocket sessions. One user has different ids in multiple tabs */
+	private final String wsSessionId;
+	/** Unique id per user session */
+	private final String userSessionId;
 	private final WebSocketSession session;
 
 	public static WebSocketSessionContext of(WebSocketSession wsSession) {
@@ -29,7 +32,7 @@ public class WebSocketSessionContext {
 
 		// The session id "SESSION" is send via a cookie. We have to extract that id in order to connect
 		// it to our HTTP Session.
-		String sessionId = Arrays.stream(cookies)
+		String sessionCookieId = Arrays.stream(cookies)
 				.map(String::trim)
 				.filter(cookie -> cookie.startsWith("SESSION"))
 				.map(cookie -> cookie.split("=")[1].trim())
@@ -38,12 +41,13 @@ public class WebSocketSessionContext {
 
 		return WebSocketSessionContext.builder()
 				.session(wsSession)
-				.id(sessionId)
+				.wsSessionId(wsSession.getId())
+				.userSessionId(sessionCookieId)
 				.build();
 	}
 
 	public void close() {
-		log.debug("Closing WebSocket session {}", id);
+		log.debug("Closing WebSocket session {}", wsSessionId);
 
 		try {
 			session.close();
