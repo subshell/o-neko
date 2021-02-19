@@ -4,10 +4,6 @@ spring:
     name: O-Neko
   codec:
     max-in-memory-size: 10MB
-  task:
-    scheduling:
-      pool:
-        size: 5
 logging:
   file:
     path: logs

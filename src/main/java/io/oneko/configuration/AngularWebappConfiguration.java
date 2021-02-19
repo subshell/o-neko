@@ -1,32 +1,17 @@
 package io.oneko.configuration;
 
-import org.springframework.context.annotation.Bean;
+import java.io.IOException;
+
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.task.SimpleAsyncTaskExecutor;
-import org.springframework.scheduling.TaskScheduler;
-import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.resource.EncodedResourceResolver;
 import org.springframework.web.servlet.resource.PathResourceResolver;
 
-import java.io.IOException;
-import java.util.concurrent.Executor;
-
 @Configuration
 public class AngularWebappConfiguration implements WebMvcConfigurer {
-
-	@Bean
-	public TaskScheduler taskScheduler() {
-		return new ConcurrentTaskScheduler();
-	}
-
-	@Bean
-	public Executor taskExecutor() {
-		return new SimpleAsyncTaskExecutor();
-	}
 
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
