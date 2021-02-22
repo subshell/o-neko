@@ -47,7 +47,7 @@ public class WebSocketSessionContext {
 	}
 
 	public void close() {
-		log.debug("Closing WebSocket session {}", wsSessionId);
+		log.trace("Closing WebSocket session {}", wsSessionId);
 
 		try {
 			session.close();

@@ -102,7 +102,7 @@ public class SessionWebSocketHandler extends TextWebSocketHandler {
 		for (WebSocketSessionContext ctx : sessionContextMap.values()) {
 			WebSocketSession session = ctx.getSession();
 			if (!session.isOpen()) {
-				log.debug("Ws session with id {} is already closed, we skip this one.", ctx.getWsSessionId());
+				log.trace("Ws session with id {} is already closed, we skip this one.", ctx.getWsSessionId());
 				invalidateWsSession(ctx.getWsSessionId());
 				continue;
 			}
