@@ -1,13 +1,19 @@
-<div class="activity-log" #activityLogContainer>
-  <mat-list class="activity-log-results"
-            infiniteScroll
-            [infiniteScrollDistance]="2"
-            [infiniteScrollThrottle]="100"
-            (scrolled)="loadMore()"
-            [infiniteScrollDisabled]="infiniteScrollDisabled"
-            [scrollWindow]="false"
-            [style.height.px]="panelHeight">
-    <mat-list-item [@slideInOut] *ngFor="let activity of results" class="activity-item">
+<div class="activity-log">
+  <div fxLayout="row" fxLayoutAlign="space-between center">
+    <button mat-button (click)="refresh()" [disabled]="!hasPendingActivities">
+      <mat-icon svgIcon="refresh"></mat-icon>
+      {{'components.activityLog.newActivities' | translate:{count:pendingActivities.length} }}
+    </button>
+
+    <mat-paginator [length]="total"
+                   [pageSize]="pageSettings.pageSize"
+                   [pageSizeOptions]="pageSettings.pageSizeOptions"
+                   [pageIndex]="pageSettings.pageIndex"
+                   (page)="paginationEvent($event)"></mat-paginator>
+  </div>
+
+  <mat-list class="activity-log-results">
+    <mat-list-item *ngFor="let activity of activities" class="activity-item">
       <mat-icon class="trigger-icon" mat-list-icon [svgIcon]="'mdi:' + getIcon(activity)" [matTooltip]="activity.triggerName" matTooltipShowDelay="500"></mat-icon>
       <a mat-icon-button *ngIf="activity.entityType === 'Project'" [href]="'/projects/' + activity.entityId" target="_blank" [matTooltip]="'components.activityLog.openEntity' | translate: {entity: activity.entityName}" matTooltipShowDelay="500"><mat-icon mat-list-icon svgIcon="mdi:open-in-new"></mat-icon></a>
       <a mat-icon-button *ngIf="activity.entityType === 'User'" href="/users" target="_blank" [matTooltip]="'components.activityLog.openUsersPage' | translate" matTooltipShowDelay="500"><mat-icon mat-list-icon svgIcon="mdi:open-in-new"></mat-icon></a>

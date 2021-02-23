@@ -1,11 +1,11 @@
 package io.oneko.websocket;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -26,7 +26,6 @@ public class SessionWebSocketHandler extends TextWebSocketHandler {
 	private final Map<String, WebSocketSessionContext> sessionContextMap = new HashMap<>();
 	private final ObjectMapper objectMapper;
 
-
 	public SessionWebSocketHandler(ObjectMapper objectMapper) {
 		this.objectMapper = objectMapper;
 	}
@@ -34,8 +33,8 @@ public class SessionWebSocketHandler extends TextWebSocketHandler {
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) {
 		WebSocketSessionContext sessionContext = WebSocketSessionContext.of(session);
-		sessionContextMap.put(sessionContext.getId(), sessionContext);
-		log.trace("New client ws connection {} established", sessionContext.getId());
+		sessionContextMap.put(sessionContext.getWsSessionId(), sessionContext);
+		log.trace("New client ws connection {} established. Total ws connections: {}", sessionContext.getWsSessionId(), sessionContextMap.size());
 	}
 
 	@Override
@@ -45,7 +44,7 @@ public class SessionWebSocketHandler extends TextWebSocketHandler {
 
 	@Override
 	public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) {
-		invalidateSession(session.getId());
+		invalidateWsSession(session.getId());
 	}
 
 	@Override
@@ -64,13 +63,20 @@ public class SessionWebSocketHandler extends TextWebSocketHandler {
 		log.trace("Received WebSocket message:\n{}", msgObj.toString());
 	}
 
-	public void invalidateSession(String sessionId) {
-		if (!sessionContextMap.containsKey(sessionId)) {
+	public void invalidateWsSession(String wsSessionId) {
+		if (!sessionContextMap.containsKey(wsSessionId)) {
 			return;
 		}
 
-		sessionContextMap.get(sessionId).close();
-		sessionContextMap.remove(sessionId);
+		sessionContextMap.get(wsSessionId).close();
+		sessionContextMap.remove(wsSessionId);
+		log.trace("Removing client ws connection {}. Total ws connections: {}", wsSessionId, sessionContextMap.size());
+	}
+
+	public void invalidateUserSession(String userSessionId) {
+		sessionContextMap.values().stream()
+				.filter(sessionsContext -> StringUtils.equals(sessionsContext.getUserSessionId(), userSessionId))
+				.forEach((wsSessionContext) -> invalidateUserSession(wsSessionContext.getWsSessionId()));
 	}
 
 	public void send(WebSocketSession session, ONekoWebSocketMessage message) {
@@ -81,7 +87,6 @@ public class SessionWebSocketHandler extends TextWebSocketHandler {
 			log.error("Error while sending the message {}", message);
 		}
 	}
-
 
 	public void send(String sessionId, ONekoWebSocketMessage message) {
 		if (!sessionContextMap.containsKey(sessionId)) {
@@ -94,11 +99,11 @@ public class SessionWebSocketHandler extends TextWebSocketHandler {
 	}
 
 	public void broadcast(ONekoWebSocketMessage message) {
-		for (WebSocketSessionContext ctx : new ArrayList<>(sessionContextMap.values())) {
+		for (WebSocketSessionContext ctx : sessionContextMap.values()) {
 			WebSocketSession session = ctx.getSession();
 			if (!session.isOpen()) {
-				log.debug("Ws session with id {} is already closed, we skip this one.", ctx.getId());
-				invalidateSession(ctx.getId());
+				log.trace("Ws session with id {} is already closed, we skip this one.", ctx.getWsSessionId());
+				invalidateWsSession(ctx.getWsSessionId());
 				continue;
 			}
 

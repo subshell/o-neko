@@ -36,7 +36,7 @@
       "doLogin": "Login"
     },
     "logs": {
-      "activityLog": "Activity Log"
+      "activityLog": "Event Log"
     },
     "deploymentsDashboard": {
       "activeDeployments": "Active Deployments"
@@ -56,7 +56,8 @@
       "openUsersPage": "Open user list",
       "openDockerRegistryPage": "Open docker registry list",
       "openNamespacesPage": "Open namespaces list",
-      "changedProperty": "Changed property"
+      "changedProperty": "Changed property",
+      "newActivities": "{count} new {count, plural, one{event} other{events}}"
     },
     "deployableActions": {
       "deploy": "Deploy",

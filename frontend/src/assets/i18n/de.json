@@ -56,7 +56,8 @@
       "openUsersPage": "Benutzerliste öffnen",
       "openDockerRegistryPage": "Docker-Registry-Liste öffnen",
       "openNamespacesPage": "Namespace-Liste öffnen",
-      "changedProperty": "Geänderter Wert"
+      "changedProperty": "Geänderter Wert",
+      "newActivities": "{count} neue {count, plural, one{Event} other{Events}}"
     },
     "deployableActions": {
       "deploy": "Starten",
