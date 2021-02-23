@@ -31,7 +31,6 @@ export class ActivityLogComponent implements OnInit, OnDestroy {
 
   public total = 0;
 
-  private lastPageEvent: PageEvent | undefined;
   public pageSettings = {
     pageSize: 10,
     pageSizeOptions: [10, 25, 50, 100],
@@ -68,7 +67,7 @@ export class ActivityLogComponent implements OnInit, OnDestroy {
   }
 
   public paginationEvent(page: PageEvent) {
-    this.lastPageEvent = page;
+    this.pageSettings.pageSize = page.pageSize;
     this.loadPage(page);
     if (page.pageIndex === 0) {
       this.pendingActivities = [];
@@ -88,10 +87,6 @@ export class ActivityLogComponent implements OnInit, OnDestroy {
   }
 
   public refresh() {
-    if (this.lastPageEvent) {
-      this.pageSettings.pageSize = this.lastPageEvent.pageSize;
-    }
-
     this.loadStartPage();
     this.pendingActivities = [];
   }
