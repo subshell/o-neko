@@ -1,6 +1,6 @@
 package io.oneko.docker.v2.model.manifest;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
