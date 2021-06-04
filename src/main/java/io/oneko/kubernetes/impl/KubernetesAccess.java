@@ -1,5 +1,7 @@
 package io.oneko.kubernetes.impl;
 
+import static net.logstash.logback.argument.StructuredArguments.*;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -80,7 +82,7 @@ public class KubernetesAccess {
 			return existingNamespace;
 		}
 
-		log.info("Creating namespace with name {}", namespace);
+		log.info("creating namespace ({})", kv("namespace", namespace));
 		Namespace newNameSpace = new Namespace();
 		ObjectMeta meta = new ObjectMeta();
 		meta.setName(namespace);
@@ -98,7 +100,7 @@ public class KubernetesAccess {
 				.withName(secretName).get();
 
 		if (existingSecret != null) {
-			log.info("Updating imagePullSecret {} in namespace {}", secretName, namespace);
+			log.info("updating image pull secret ({}, {})", kv("image_pull_secret", secretName), kv("namespace", namespace));
 		}
 
 		Map<String, Object> dockerConfigMap = new HashMap<>();
@@ -109,7 +111,7 @@ public class KubernetesAccess {
 		authsMap.put(url, authMap);
 		dockerConfigMap.put("auths", authsMap);
 		try {
-			log.info("Creating secret for with name {} to namespace with name {}", secretName, namespace);
+			log.info("creating image pull secret ({}, {})", kv("image_pull_secret", secretName), kv("namespace", namespace));
 			final String dockerConfigJson = new ObjectMapper().writeValueAsString(dockerConfigMap);
 			final HashMap<String, String> dataMap = new HashMap<>();
 			dataMap.put(".dockerconfigjson", new String(Base64.getEncoder().encode(dockerConfigJson.getBytes())));
@@ -122,7 +124,7 @@ public class KubernetesAccess {
 					.withType("kubernetes.io/dockerconfigjson")
 					.build());
 		} catch (JsonProcessingException e) {
-			log.error("Failed to create docker registry secret due to a JsonProcessingException.", e);
+			log.error("failed to create image pull secret due to a JsonProcessingException.", e);
 			throw e;
 		}
 	}
@@ -149,7 +151,7 @@ public class KubernetesAccess {
 			return defaultServiceAccount;
 		}
 
-		log.info("Adding ImagePullSecret with name {} to default service account in namespace {}", imagePullSecretName, namespace);
+		log.info("adding image pull secret to default service account ({}, {})", kv("image_pull_secret", imagePullSecretName), kv("namespace", namespace));
 		imagePullSecrets.add(new LocalObjectReference(imagePullSecretName));
 		defaultServiceAccount.setImagePullSecrets(imagePullSecrets);
 		return kubernetesClient.serviceAccounts()
@@ -174,7 +176,7 @@ public class KubernetesAccess {
 
 		imagePullSecrets.removeIf(ips -> ips.getName().equals(imagePullSecretName));
 
-		log.info("Removed ImagePullSecret with name {} from default service account in namespace {}", imagePullSecretName, namespace);
+		log.info("removed image pull secret from default service account ({}, {})", kv("image_pull_secret", imagePullSecretName), kv("namespace", namespace));
 		imagePullSecrets.add(new LocalObjectReference(imagePullSecretName));
 		defaultServiceAccount.setImagePullSecrets(imagePullSecrets);
 		return kubernetesClient.serviceAccounts()

@@ -1,5 +1,8 @@
 package io.oneko.docker.v2;
 
+import static io.oneko.util.MoreStructuredArguments.*;
+import static net.logstash.logback.argument.StructuredArguments.*;
+
 import java.io.IOException;
 
 import org.apache.commons.lang3.StringUtils;
@@ -34,7 +37,7 @@ public class DockerRegistryVersionChecker {
 		try (CloseableHttpResponse response = client.execute(request)) {
 			return mapResponseToCheckResult(response);
 		} catch (IOException e) {
-			log.error("Failed to check the docker V2 API of the registry {}", registry, e);
+			log.error("failed to check the docker V2 API ({})", containerRegistryKv(registry), e);
 			throw new IllegalStateException(e);
 		}
 	}
@@ -58,7 +61,7 @@ public class DockerRegistryVersionChecker {
 			if (StringUtils.equalsIgnoreCase(type, "Bearer")) {
 				return new BearerAuthRequired(realm, service);
 			} else {
-				log.warn("Docker registry returned unsupported authentication type '{}'", type);
+				log.warn("container registry returned unsupported authentication type ({})", v("authentication_type", type));
 				return DockerRegistryCheckResult.UnsupportedAuthenticationType;
 			}
 		} else {

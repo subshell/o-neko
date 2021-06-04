@@ -48,7 +48,7 @@ public class HelmCommandUtils {
 	public static synchronized void updateReposNotTooOften() {
 		final Instant now = Instant.now();
 		if (now.isBefore(lastRepoUpdate.plusSeconds(30))) {
-			log.debug("Not updating helm repos because the last update was less than 30 seconds ago");
+			log.debug("not updating helm repos because the last update was less than 30 seconds ago");
 			return;
 		}
 		lastRepoUpdate = now;
@@ -137,7 +137,7 @@ public class HelmCommandUtils {
 		candidate = candidate.replaceAll("^[\\-]*", StringUtils.EMPTY);//remove invalid start (remove dot, dash and underscore from start)
 		candidate = candidate.replaceAll("[\\-]*$", StringUtils.EMPTY);//remove invalid end (remove dot, dash and underscore from end)
 		if (StringUtils.isBlank(candidate)) {
-			throw new IllegalArgumentException("Can not create a legal namespace from " + in);
+			throw new IllegalArgumentException("can not create a legal namespace name from " + in);
 		}
 		return candidate;
 	}

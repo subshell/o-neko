@@ -3,7 +3,8 @@ package io.oneko.docker;
 import static io.oneko.deployable.DeploymentBehaviour.*;
 import static io.oneko.kubernetes.deployments.DesiredState.*;
 import static io.oneko.util.DurationUtils.*;
-import static org.apache.commons.lang3.time.DurationFormatUtils.*;
+import static io.oneko.util.MoreStructuredArguments.*;
+import static net.logstash.logback.argument.StructuredArguments.*;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -77,7 +78,7 @@ class DockerRegistryPolling {
 	protected void checkDockerForNewImages() {
 		try (var ignored = currentEventTrigger.forTryBlock(this.asTrigger)) {
 			final Instant start = Instant.now();
-			log.trace("Starting polling job");
+			log.trace("starting polling job");
 
 			final List<WritableProject> projects = projectRepository.getAll().stream()
 					.map(ReadableProject::writable)
@@ -89,17 +90,17 @@ class DockerRegistryPolling {
 			final Duration duration = Duration.between(start, stop);
 			final Duration warnIfLongerThanThis = Duration.ofMinutes(5);
 			if (isLongerThan(duration, warnIfLongerThanThis)) {
-				log.warn("Checking for new images took longer than {} (took {}) [HH:mm:ss.SSS]", formatDurationHMS(warnIfLongerThanThis.toMillis()), formatDurationHMS(duration.toMillis()));
+				log.warn("checking for new images took longer than expected ({}, {})", kv("threshold_millis", warnIfLongerThanThis.toMillis()), kv("duration_millis", duration.toMillis()));
 			}
 
-			log.trace("Finished polling job (took {} [HH:mm:ss.SSS])", formatDurationHMS(duration.toMillis()));
+			log.trace("finished polling job ({})", kv("duration_millis", duration.toMillis()));
 		}
 	}
 
 	@Scheduled(fixedDelay = 1000 * 60 * 60 * 2, initialDelay = 60000) // Every 2 hours
 	protected void updateDatesForAllImagesAndAllTags() {
 		final Instant start = Instant.now();
-		log.trace("Updating dates for all projects and all versions");
+		log.trace("updating dates for all projects and all versions");
 		projectRepository.getAll()
 				.stream()
 				.map(ReadableProject::writable)
@@ -109,10 +110,10 @@ class DockerRegistryPolling {
 		final Duration duration = Duration.between(start, stop);
 		final Duration warnIfLongerThanThis = Duration.ofMinutes(10);
 		if (isLongerThan(duration, warnIfLongerThanThis)) {
-			log.warn("Updating dates for all projects and all versions took longer than {} (took {}) [HH:mm:ss.SSS]", formatDurationHMS(warnIfLongerThanThis.toMillis()), formatDurationHMS(duration.toMillis()));
+			log.warn("updating dates for all projects and all versions took longer than expected ({}, {})", kv("threshold_millis", warnIfLongerThanThis.toMillis()), kv("duration_millis", duration.toMillis()));
 		}
 
-		log.trace("Finished updating dates for all projects (took {} [HH:mm:ss.SSS])", formatDurationHMS(duration.toMillis()));
+		log.trace("finished updating dates for all projects ({})", kv("duration_millis", duration.toMillis()));
 	}
 
 	/**
@@ -123,19 +124,19 @@ class DockerRegistryPolling {
 			try {
 				project = this.updateProjectVersions(project);
 			} catch (Exception e) {
-				log.error("Encountered an exception while checking new project versions of {}", project.getName(), e);
+				log.error("encountered an exception while checking new project versions ({})", kv("project", project.getName()), e);
 			}
 
 			try {
 				project = this.fetchAndUpdateMissingDatesForImages(project);
 			} catch (Exception e) {
-				log.error("Encountered an exception while fetching the dates of the images {} {}", project.getName(), e);
+				log.error("encountered an exception while fetching the docker image dates ({})", kv("project", project.getName()), e);
 			}
 
 			try {
 				checkForNewImages(project);
 			} catch (Exception e) {
-				log.error("Error on checking for new images for projects.", e);
+				log.error("error on checking for new images for projects", e);
 			}
 		}
 	}
@@ -155,7 +156,7 @@ class DockerRegistryPolling {
 			return project;
 		}
 
-		log.trace("Updating dates for {} versions of project {}", versions.size(), project.getName());
+		log.trace("updating dates for project versions ({}, {})", kv("project", project.getName()), kv("version_count", versions.size()));
 		final var versionWithDockerManifestList = versions.parallelStream()
 				.map(version -> getManifestWithContext(project, version))
 				.collect(Collectors.toList());
@@ -165,13 +166,13 @@ class DockerRegistryPolling {
 			final var version = versionWithDockerManifest.getVersion();
 
 			if (manifest == null || manifest.getImageUpdatedDate().isEmpty()) {
-				log.trace("Failed to get Manifest for version {} of project {}.", version.getName(), project.getName());
+				log.trace("failed to get manifest for project version ({}, {})", kv("project", project.getName()), kv("version", version.getName()));
 				failedManifestRequests.add(version.getUuid());
 				continue;
 			}
 
 			version.setImageUpdatedDate(manifest.getImageUpdatedDate().orElse(null));
-			log.trace("Setting date for version {} of project {} to {}.", version.getName(), project.getName(), version.getImageUpdatedDate());
+			log.trace("setting date for project version ({}, {}, {})", projectKv(project), versionKv(version), kv(IMAGE_UPDATED_DATE_KEY, version.getImageUpdatedDate()));
 		}
 
 		return projectRepository.add(project).writable();
@@ -183,18 +184,18 @@ class DockerRegistryPolling {
 					.map(client -> new VersionWithDockerManifest(version, client.getManifest(version)))
 					.orElseGet(() -> new VersionWithDockerManifest(version, null));
 		} catch (Exception e) {
-			log.error("Failed to retrieve manifest", e);
+			log.error("failed to retrieve manifest", e);
 			return new VersionWithDockerManifest(version, null);
 		}
 	}
 
 	private WritableProject updateProjectVersions(WritableProject project) {
-		log.trace("Checking for new versions of project {}", project.getName());
+		log.trace("checking for new versions ({})", kv("project", project.getName()));
 		final var dockerClient = dockerRegistryClientFactory.getDockerRegistryClient(project)
 				.orElseThrow(() -> new RuntimeException(String.format("Project %s has no docker registry or an error occurred instantiating the docker registry client", project.getName())));
 
 		final var tags = Objects.requireNonNullElse(dockerClient.getAllTags(project), Collections.<String>emptyList());
-		log.trace("Found {} tags for project {}", tags.size(), project.getName());
+		log.trace("docker tags found ({}, {})", projectKv(project), kv("tags_count", tags.size()));
 
 		return manageAvailableVersions(project, tags);
 	}
@@ -210,9 +211,9 @@ class DockerRegistryPolling {
 
 		if (!newVersions.isEmpty()) {
 			if (newVersions.size() == 1) {
-				log.info("Found new version {} for project {}", newVersions.toArray()[0], project.getName());
+				log.info("found new project version ({}, {})", versionKv((String) newVersions.toArray()[0]), projectKv(project));
 			} else {
-				log.info("Found {} new versions for project {}, {}", newVersions.size(), project.getName(), newVersions);
+				log.info("found new project versions ({}, {}, {})", kv("version_count", newVersions.size()), projectKv(project), kv("versions", newVersions));
 			}
 		}
 
@@ -223,7 +224,7 @@ class DockerRegistryPolling {
 
 		removedVersions.forEach(version -> {
 			WritableProjectVersion projectVersion = project.removeVersion(version);
-			log.info("Found an obsolete version {} [{}] for project {}", version, projectVersion.getId(), project.getName());
+			log.info("found an obsolete project version ({}, {}, {})", versionKv(version), kv("version_id", projectVersion.getId()), projectKv(project));
 			resultingEvents.add(new ObsoleteProjectVersionRemovedEvent(projectVersion));
 		});
 
@@ -250,7 +251,7 @@ class DockerRegistryPolling {
 
 			final var manifestWithContext = getManifestWithContext(project, version);
 			if (manifestWithContext.getManifest() == null) {
-				log.trace("Failed to get Manifest for version {} of project {}.", version.getName(), project.getName());
+				log.trace("failed to get manifest for project version ({}, {})", projectKv(project), versionKv(version));
 				failedManifestRequests.add(version.getUuid());
 				return;
 			}
@@ -269,7 +270,7 @@ class DockerRegistryPolling {
 
 		String digest = manifest.getDockerContentDigest();
 		if (!StringUtils.equals(version.getDockerContentDigest(), digest)) {
-			log.info("Found a new image '{}' for project '{}' version '{}'", digest, version.getProject().getName(), version.getName());
+			log.info("found a new container image for project version ({}, {}, {})", kv("digest", digest), projectKv(version.getProject()), versionKv(version));
 			version.setDockerContentDigest(digest);
 			version.setImageUpdatedDate(manifest.getImageUpdatedDate().orElse(null));
 			this.redeployAndSaveVersion(version).ifPresent(depending::add);

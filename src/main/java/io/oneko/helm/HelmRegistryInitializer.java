@@ -1,5 +1,8 @@
 package io.oneko.helm;
 
+import static io.oneko.util.MoreStructuredArguments.*;
+import static net.logstash.logback.argument.StructuredArguments.*;
+
 import javax.annotation.PostConstruct;
 
 import org.springframework.stereotype.Service;
@@ -21,9 +24,9 @@ public class HelmRegistryInitializer {
 		helmRegistryRepository.getAll().forEach(registry -> {
 			try {
 				HelmCommandUtils.addRegistry(registry);
-				log.info("Helm registry {} successfully added.", registry.getName());
+				log.info("helm registry successfully added ({})", helmRegistryKv(registry));
 			} catch (HelmRegistryException e) {
-				log.error("Error while adding helm registry {} during initialization.", registry.getName(), e);
+				log.error("error while adding helm registry during initialization ({})", helmRegistryKv(registry), e);
 			}
 		});
 	}

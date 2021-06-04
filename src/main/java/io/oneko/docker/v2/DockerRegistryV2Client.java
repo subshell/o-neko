@@ -1,5 +1,8 @@
 package io.oneko.docker.v2;
 
+import static io.oneko.util.MoreStructuredArguments.*;
+import static net.logstash.logback.argument.StructuredArguments.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,7 +65,7 @@ public class DockerRegistryV2Client {
 		try {
 			return feignClient.versionCheck();
 		} catch (FeignException e) {
-			log.warn("Failed to check docker registry version", e);
+			log.warn("failed to check docker registry version", e);
 			throw e;
 		}
 	}
@@ -71,7 +74,7 @@ public class DockerRegistryV2Client {
 		try {
 			return feignClient.getAllTags(project.getImageName()).getTags();
 		} catch (FeignException e) {
-			log.warn("Failed to list all tags for image {}", project.getImageName(), e);
+			log.warn("failed to list all container image tags ({})", kv("image_name", project.getImageName()), e);
 			throw e;
 		}
 	}
@@ -84,7 +87,7 @@ public class DockerRegistryV2Client {
 			final DockerRegistryBlob blob = feignClient.getBlob(imageName, digest.getAlgorithm(), digest.getDigest());
 			return new Manifest(digest.getFullDigest(), blob.getCreated());
 		} catch (FeignException e) {
-			log.warn("Failed to get manifest for project version {} of project {}", version.getName(), version.getProject().getName(), e);
+			log.warn("failed to get manifest for project version ({}, {})", versionKv(version), projectKv(version.getProject()), e);
 			throw e;
 		}
 	}

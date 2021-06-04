@@ -1,5 +1,7 @@
 package io.oneko.websocket;
 
+import static net.logstash.logback.argument.StructuredArguments.*;
+
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -47,7 +49,7 @@ public class WebSocketSessionContext {
 	}
 
 	public void close() {
-		log.trace("Closing WebSocket session {}", wsSessionId);
+		log.trace("closing websocket session ({})", kv("session_id", wsSessionId));
 
 		try {
 			session.close();
