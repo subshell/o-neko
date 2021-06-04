@@ -122,7 +122,8 @@ public interface ProjectVersion<P extends Project<P, V>, V extends ProjectVersio
 
 		TemplateContext context = new TemplateContext();
 		variables.forEach(context::set);
-		context.set("fn", TemplateFunctions.class);
+		context.set("fn", StringUtils.class);
+		context.set("su", StringUtils.class);
 
 		return unifiedTemplates.stream()
 				.map(WritableConfigurationTemplate::clone)
