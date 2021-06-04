@@ -5,7 +5,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve --open --proxy-config proxy.conf.json",
-    "build": "ng build --prod && gzipper compress --level 9 --memory-level 9 ./dist",
+    "build": "ng build --configuration production && gzipper compress --level 9 --memory-level 9 ./dist",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
