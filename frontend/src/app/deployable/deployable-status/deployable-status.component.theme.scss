@@ -1,3 +1,4 @@
+@use '~@angular/material' as mat;
 @import "src/styles/mixins";
 
 @mixin deployable-status-component-theme($theme) {
@@ -34,17 +35,17 @@
           }
 
           &.red {
-            color: mat-color($red-palette, 500);
+            color: mat.get-color-from-palette($red-palette, 500);
           }
 
           &.green {
-            color: mat-color($green-palette, 500);
+            color: mat.get-color-from-palette($green-palette, 500);
           }
         }
 
         .outdated-icon {
           background-color: rgba(white, 0.8);
-          color: mat-color($mat-orange, 400);
+          color: mat.get-color-from-palette(mat.$orange-palette, 400);
         }
       }
 

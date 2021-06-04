@@ -1,3 +1,4 @@
+@use '~@angular/material' as mat;
 @import "../mixins";
 
 @mixin table-page-theme($theme) {
@@ -11,22 +12,22 @@
               color: rgb(249, 208, 48);
             }
             &.red {
-              color: mat-color($red-palette, 500);
+              color: mat.get-color-from-palette($red-palette, 500);
             }
             &.green {
-              color: mat-color($green-palette, 500);
+              color: mat.get-color-from-palette($green-palette, 500);
             }
             &.blue {
-              color: mat-color($blue-palette, 500);
+              color: mat.get-color-from-palette($blue-palette, 500);
             }
           }
         }
         &:not(:last-of-type) {
           th {
-            border-bottom: 1px solid rgba(mat-color($foreground, text), .12);
+            border-bottom: 1px solid rgba(mat.get-color-from-palette($foreground, text), .12);
           }
           td {
-            border-bottom: 1px solid rgba(mat-color($foreground, text), .12);
+            border-bottom: 1px solid rgba(mat.get-color-from-palette($foreground, text), .12);
           }
         }
       }

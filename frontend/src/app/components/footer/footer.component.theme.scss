@@ -1,3 +1,4 @@
+@use '~@angular/material' as mat;
 @import '../../../styles/mixins';
 
 @mixin footer-theme($theme) {
@@ -7,11 +8,11 @@
 
   on-footer {
     footer {
-      background-color: mat-color($background, card);
+      background-color: mat.get-color-from-palette($background, card);
       .powered-by {
         span {
-          $c1: mat-color($primary, 700);
-          $c2: mat-color($accent, 900);
+          $c1: mat.get-color-from-palette($primary, 700);
+          $c2: mat.get-color-from-palette($accent, 900);
           @include text-gradient($c1, $c2);
         }
       }

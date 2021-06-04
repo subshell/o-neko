@@ -1,8 +1,9 @@
+@use '~@angular/material' as mat;
 @import 'src/styles/mixins';
 
 @mixin active-mat-list-item($primary) {
   mat-icon:not(.expansion-indicator) {
-    color: mat-color($primary, 500);
+    color: mat.get-color-from-palette($primary, 500);
   }
   mat-icon.expansion-indicator {
     color: rgba(white, 0.98);
@@ -16,11 +17,11 @@
 
   on-main {
     .mat-sidenav {
-      background-color: desaturate(darken(mat-color($primary, 900), 26%), 60%);
+      background-color: desaturate(darken(mat.get-color-from-palette($primary, 900), 26%), 60%);
 
       on-expandable-menu, mat-nav-list.menu-nav-list {
         mat-icon {
-          color: rgba(mat-color($primary, 500), 0.6);
+          color: rgba(mat.get-color-from-palette($primary, 500), 0.6);
         }
 
         .mat-line {
@@ -46,7 +47,7 @@
       }
 
       mat-toolbar {
-        background: gradient(mat-color($primary, 900), mat-color($primary, 500));
+        background: gradient(mat.get-color-from-palette($primary, 900), mat.get-color-from-palette($primary, 500));
         color: rgba(white, 0.94);
         cursor: pointer;
       }
@@ -55,7 +56,7 @@
     main {
       h2, h3 {
         mat-icon {
-          color: mat-color($accent, 700);
+          color: mat.get-color-from-palette($accent, 700);
         }
       }
     }

@@ -1,3 +1,4 @@
+@use '~@angular/material' as mat;
 @import "src/styles/mixins";
 
 @mixin deployable-actions-component-theme($theme) {
@@ -6,15 +7,15 @@
     .deployable-actions {
       button {
         &:not([disabled]) {
-          color: mat-color($foreground, text, 0.4);
+          color: mat.get-color-from-palette($foreground, text, 0.4);
           &.deploy-button {
             &:hover {
-              color: mat-color($mat-blue, 600);
+              color: mat.get-color-from-palette(mat.$blue-palette, 600);
             }
           }
           &.stop-button {
             &:hover {
-              color: mat-color($mat-red, 600);
+              color: mat.get-color-from-palette(mat.$red-palette, 600);
             }
           }
         }

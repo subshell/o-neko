@@ -1,3 +1,4 @@
+@use '~@angular/material' as mat;
 @import "src/styles/mixins";
 
 @mixin timeout-with-ui-component-theme($theme) {
@@ -5,7 +6,7 @@
   timeout-with-ui {
     .progress-container {
       mat-icon {
-        color: mat-color($primary, 500);
+        color: mat.get-color-from-palette($primary, 500);
       }
     }
   }
