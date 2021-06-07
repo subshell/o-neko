@@ -39,4 +39,8 @@ public class TemplateFunctions {
 		return StringUtils.removeStart(str, remove);
 	}
 
+	public static String suffixWithMaxLength(String str, String suffix, int maxlength) {
+		return StringUtils.overlay(str, suffix, maxlength - suffix.length(), str.length());
+	}
+
 }
