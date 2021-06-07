@@ -2,14 +2,15 @@ package io.oneko.activity.internal;
 
 import static net.logstash.logback.argument.StructuredArguments.*;
 
-import lombok.extern.slf4j.Slf4j;
+import java.time.LocalDateTime;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
@@ -30,6 +31,6 @@ public class ActivityCleanUpWorker {
 	private void cleanUpActivities() {
 		LocalDateTime expirationDate = LocalDateTime.now().minusHours(maxActivityAgeHours);
 		activityRepo.deleteAllOlderThan(expirationDate);
-		log.info("deleted old activities ({})", v("max_activity_age_hours", maxActivityAgeHours));
+		log.info("deleted old activities ({})", kv("max_activity_age_hours", maxActivityAgeHours));
 	}
 }
