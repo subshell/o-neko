@@ -1,10 +1,10 @@
-@import "~@angular/material/theming";
+@use '~@angular/material' as mat;
 @import "src/styles/mixins";
 @import "src/styles/component-themes";
 
-$o-neko-primary: mat-palette($red-palette);
-$o-neko-accent: mat-palette($old-yellow);
-$o-neko-warn: mat-palette($pink-palette);
+$o-neko-primary: mat.define-palette($red-palette);
+$o-neko-accent: mat.define-palette($old-yellow);
+$o-neko-warn: mat.define-palette($pink-palette);
 
 $o-neko-dark-theme: (
   primary: $o-neko-primary,
@@ -13,14 +13,14 @@ $o-neko-dark-theme: (
   is-dark: true, // default from mat-dark-theme
   foreground: (
     base:              white, // default from mat-dark-theme
-    divider:           $light-dividers, // default from mat-dark-theme
-    dividers:          $light-dividers, // default from mat-dark-theme
-    disabled:          $light-disabled-text, // default from mat-dark-theme
+    divider:           rgba(white, 0.12), // default from mat-dark-theme
+    dividers:          rgba(white, 0.12), // default from mat-dark-theme
+    disabled:          rgba(white, 0.5), // default from mat-dark-theme
     disabled-button:   rgba(white, 0.3), // default from mat-dark-theme
-    disabled-text:     $light-disabled-text, // default from mat-dark-theme
+    disabled-text:     rgba(white, 0.5), // default from mat-dark-theme
     elevation:         black, // default from mat-dark-theme
-    hint-text:         $light-disabled-text, // default from mat-dark-theme
-    secondary-text:    $light-secondary-text, // default from mat-dark-theme
+    hint-text:         rgba(white, 0.5), // default from mat-dark-theme
+    secondary-text:    rgba(white, 0.7), // default from mat-dark-theme
     icon:              white, // default from mat-dark-theme
     icons:             white, // default from mat-dark-theme
     text:              white, // default from mat-dark-theme
@@ -30,24 +30,24 @@ $o-neko-dark-theme: (
   ),
   background: (
     status-bar: black, // default from mat-dark-theme
-    app-bar:    mix(map_get($mat-grey, 900), mat-color($o-neko-primary, 900), 96%),
-    background: mix(#303030, mat-color($o-neko-primary, 900), 96%),
+    app-bar:    mix(map_get(mat.$grey-palette, 900), mat.get-color-from-palette($o-neko-primary, 900), 96%),
+    background: mix(#303030, mat.get-color-from-palette($o-neko-primary, 900), 96%),
     hover:      rgba(white, 0.04), // default from mat-dark-theme
-    card:       mix(map_get($mat-grey, 800), mat-color($o-neko-primary, 900), 96%),
-    dialog:     mix(map_get($mat-grey, 800), mat-color($o-neko-primary, 900), 96%),
+    card:       mix(map_get(mat.$grey-palette, 800), mat.get-color-from-palette($o-neko-primary, 900), 96%),
+    dialog:     mix(map_get(mat.$grey-palette, 800), mat.get-color-from-palette($o-neko-primary, 900), 96%),
     disabled-button: rgba(white, 0.12), // default from mat-dark-theme
-    raised-button: mix(map-get($mat-grey, 800), mat-color($o-neko-primary, 900), 96%),
-    focused-button: $light-focused, // default from mat-dark-theme
-    selected-button: mix(map_get($mat-grey, 900), mat-color($o-neko-primary, 900), 96%),
-    selected-disabled-button: mix(map_get($mat-grey, 800), mat-color($o-neko-primary, 900), 96%),
-    disabled-button-toggle: mix(black, mat-color($o-neko-primary, 900), 96%),
-    unselected-chip: mix(map_get($mat-grey, 700), mat-color($o-neko-primary, 900), 96%),
-    disabled-list-option: mix(black, mat-color($o-neko-primary, 900), 96%),
-    tooltip: mix(map_get($mat-grey, 700), mat-color($o-neko-primary, 900), 96%),
+    raised-button: mix(map-get(mat.$grey-palette, 800), mat.get-color-from-palette($o-neko-primary, 900), 96%),
+    focused-button: rgba(white, 0.12), // default from mat-dark-theme
+    selected-button: mix(map_get(mat.$grey-palette, 900), mat.get-color-from-palette($o-neko-primary, 900), 96%),
+    selected-disabled-button: mix(map_get(mat.$grey-palette, 800), mat.get-color-from-palette($o-neko-primary, 900), 96%),
+    disabled-button-toggle: mix(black, mat.get-color-from-palette($o-neko-primary, 900), 96%),
+    unselected-chip: mix(map_get(mat.$grey-palette, 700), mat.get-color-from-palette($o-neko-primary, 900), 96%),
+    disabled-list-option: mix(black, mat.get-color-from-palette($o-neko-primary, 900), 96%),
+    tooltip: mix(map_get(mat.$grey-palette, 700), mat.get-color-from-palette($o-neko-primary, 900), 96%),
   ),
 );
 
 .dark-theme {
-  @include angular-material-theme($o-neko-dark-theme);
+  @include mat.all-component-themes($o-neko-dark-theme);
   @include component-themes($o-neko-dark-theme);
 }

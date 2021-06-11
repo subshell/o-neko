@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output, ViewChild, ViewEncapsulation} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation} from '@angular/core';
 import {FormControl, NG_VALUE_ACCESSOR} from '@angular/forms';
 import {MatDialog} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
@@ -6,7 +6,6 @@ import {FileReaderService} from '../../form/upload/file-reader.service';
 import {ConfirmDialog} from '../../util/confirm-dialog/confirm-dialog.component';
 import {ConfigurationTemplate} from '../configuration-template';
 import {EditConfigurationTemplateDialogComponent} from './edit-configuration-template-dialog/edit-configuration-template-dialog.component';
-import IStandaloneEditorConstructionOptions = monaco.editor.IStandaloneEditorConstructionOptions;
 import {Select, Store} from "@ngxs/store";
 import {ThemingState} from "../../store/theming/theming.state";
 import {Observable} from "rxjs";
@@ -15,6 +14,7 @@ import {TranslateService} from "@ngx-translate/core";
 import {RestService} from "../../rest/rest.service";
 import {HelmRegistry} from "../../registries/helm/helm-registry";
 import {HelmCharts, HelmChartVersion} from "../../registries/helm-charts";
+import IStandaloneEditorConstructionOptions = monaco.editor.IStandaloneEditorConstructionOptions;
 
 export class ConfigurationTemplateEditorModel {
   constructor(public template?: ConfigurationTemplate, public defaultTemplate?: ConfigurationTemplate) {

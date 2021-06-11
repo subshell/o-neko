@@ -1,3 +1,4 @@
+@use '~@angular/material' as mat;
 @import "../mixins";
 
 @mixin internal-link-theme($theme) {
@@ -5,9 +6,9 @@
   $accent: map-get($theme, accent);
   .o-neko-internal-link {
     @if (map-get($theme, is-dark)) {
-     color: mat-color($accent);
+     color: mat.get-color-from-palette($accent);
     } @else {
-      color: mat-color($primary);
+      color: mat.get-color-from-palette($primary);
     }
   }
 }

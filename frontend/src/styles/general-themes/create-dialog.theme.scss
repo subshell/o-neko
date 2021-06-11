@@ -1,3 +1,4 @@
+@use '~@angular/material' as mat;
 @import "../mixins";
 
 @mixin create-dialog-theme($theme) {
@@ -6,12 +7,12 @@
   .create-dialog {
     form {
       figure.warning {
-        border-left: mat-color($warn, 600) 2px solid;
+        border-left: mat.get-color-from-palette($warn, 600) 2px solid;
         border-top-right-radius: $mat-radius;
         border-bottom-right-radius: $mat-radius;
-        background-color: mat-color($background, background, .5);
+        background-color: mat.get-color-from-palette($background, background, .5);
         figcaption {
-          color: mat-color($warn, 600);
+          color: mat.get-color-from-palette($warn, 600);
         }
       }
     }

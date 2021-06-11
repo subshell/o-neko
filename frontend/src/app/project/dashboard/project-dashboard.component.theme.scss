@@ -1,3 +1,4 @@
+@use '~@angular/material' as mat;
 @import "src/styles/mixins";
 
 @mixin project-dashboard-component-theme($theme) {
@@ -7,31 +8,31 @@
   project-dashboard {
     .projects-selected {
       .project-header {
-        background: gradient(rgba(mat-color($primary, 800), 0.3), rgba(mat-color($primary, 400), 0.3));
-        border-bottom: 1px solid rgba(mat-color($primary, 600), 0.4);
+        background: gradient(rgba(mat.get-color-from-palette($primary, 800), 0.3), rgba(mat.get-color-from-palette($primary, 400), 0.3));
+        border-bottom: 1px solid rgba(mat.get-color-from-palette($primary, 600), 0.4);
         .versions-link {
-          color: mat-color($foreground, text, 0.8);
+          color: mat.get-color-from-palette($foreground, text, 0.8);
           mat-icon {
            margin-right: 4px;
           }
         }
 
         .tool-container {
-          background: gradient(mat-color($primary, 700), mat-color($primary, 300));
+          background: gradient(mat.get-color-from-palette($primary, 700), mat.get-color-from-palette($primary, 300));
         }
         .settings-link {
-          color: mat-contrast($primary, 700);
+          color: mat.get-contrast-color-from-palette($primary, 700);
         }
       }
       div[mat-list-item] {
         > div {
           &:hover {
-            background: mat-color($foreground, text, 0.06);
+            background: mat.get-color-from-palette($foreground, text, 0.06);
           }
           a {
             color: currentColor;
             p {
-              color: mat-color($foreground, text, 0.4);
+              color: mat.get-color-from-palette($foreground, text, 0.4);
             }
           }
         }

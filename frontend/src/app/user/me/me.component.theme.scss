@@ -1,10 +1,11 @@
+@use '~@angular/material' as mat;
 @import "src/styles/mixins";
 
 @mixin me-component-theme($theme) {
   $primary: map-get($theme, primary);
   me {
     .portrait-container {
-      background-color: mat-color($primary, 100);
+      background-color: mat.get-color-from-palette($primary, 100);
       mat-icon {
         @include mat-icon-size(96px);
         color: white;
