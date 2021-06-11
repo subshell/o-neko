@@ -1,11 +1,12 @@
+@use '~@angular/material' as mat;
 @import "../mixins";
 
 @mixin full-page-form-theme($theme) {
   $background: map-get($theme, background);
   .full-page-form {
-    background-color: mat-color($background, card, 0.6);
+    background-color: mat.get-color-from-palette($background, card, 0.6);
     .form-field-group {
-      background-color: mat-color($background, card);
+      background-color: mat.get-color-from-palette($background, card);
     }
   }
 }

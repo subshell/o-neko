@@ -1,11 +1,12 @@
+@use '~@angular/material' as mat;
 @import "../mixins";
 
 @mixin custom-mat-tooltip-theme($theme) {
   $background: map-get($theme, background);
   $foreground: map-get($theme, foreground);
   .mat-tooltip {
-    color: mat-color($foreground, tooltip) !important;
-    background-color: rgba(mat-color($background, tooltip), 0.9) !important;
+    color: mat.get-color-from-palette($foreground, tooltip) !important;
+    background-color: rgba(mat.get-color-from-palette($background, tooltip), 0.9) !important;
     backdrop-filter: blur(2px);
   }
 }

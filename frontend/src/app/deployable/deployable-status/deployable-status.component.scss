@@ -1,3 +1,4 @@
+@use '~@angular/material' as mat;
 @import "src/styles/mixins";
 
 .deployment-status {
@@ -13,13 +14,13 @@
     width: 24px;
     height: 24px;
     margin: 2px;
-    @include mat-elevation(2);
+    @include mat.elevation(2);
     padding: 3px;
 
     .outdated-icon {
       border-radius: 50%;
       padding: 2px;
-      @include mat-elevation(1);
+      @include mat.elevation(1);
       @include mat-icon-size(16px);
       position: absolute;
       bottom: -8px;

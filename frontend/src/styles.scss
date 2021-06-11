@@ -1,3 +1,4 @@
+@use '~@angular/material' as mat;
 @import "src/styles/general-theming";
 @import "styles/mixins";
 
@@ -59,12 +60,12 @@ $full-page-form-slim-padding: 1em;
   margin: $full-page-form-slim-padding 0;
   max-width: 1500px;
   box-sizing: border-box;
-  @include mat-elevation(3);
+  @include mat.elevation(3);
 
   .form-field-group {
     padding: $full-page-form-slim-padding;
     border-radius: $mat-radius;
-    @include mat-elevation(2);
+    @include mat.elevation(2);
   }
   .bottom-toolbar {
     margin-top: 1em;

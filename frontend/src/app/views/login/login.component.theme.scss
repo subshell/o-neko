@@ -1,3 +1,4 @@
+@use '~@angular/material' as mat;
 @import "src/styles/mixins";
 
 @mixin login-component-theme($theme) {
@@ -17,13 +18,13 @@
           color: white;
         }
 
-        background: linear-gradient(225deg, mat-color($primary, 700) 0%, mat-color($accent, 900) 100%);
+        background: linear-gradient(225deg, mat.get-color-from-palette($primary, 700) 0%, mat.get-color-from-palette($accent, 900) 100%);
 
         button {
           @if ($isDark) {
             color: white;
           } @else {
-            color: mat-color($primary);
+            color: mat.get-color-from-palette($primary);
           }
         }
 
