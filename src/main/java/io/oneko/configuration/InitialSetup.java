@@ -35,7 +35,7 @@ public class InitialSetup extends EventTrigger {
 
 	@PostConstruct
 	public void setupSystem() {
-		log.info("Checking existence of user with admin rights.");
+		log.info("checking existence of user with admin rights");
 		try (var ignored = currentEventTrigger.forTryBlock(this)) {
 			this.ensureAdminExists();
 		}

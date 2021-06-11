@@ -1,5 +1,7 @@
 package io.oneko.event;
 
+import static net.logstash.logback.argument.StructuredArguments.*;
+
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
@@ -17,7 +19,7 @@ public class CurrentEventTrigger {
 	}
 
 	public void setCurrentTrigger(EventTrigger trigger) {
-		currentTrigger().ifPresent(t -> log.warn("There is already a thread local event trigger {}", t));
+		currentTrigger().ifPresent(t -> log.warn("there is already a thread local event trigger ({})", kv("current_trigger", t)));
 		this.triggerPerThread.set(trigger);
 	}
 
@@ -45,7 +47,7 @@ public class CurrentEventTrigger {
 
 	public void unset() {
 		if (currentTrigger().isEmpty()) {
-			log.info("Trying to unset the current event trigger, but none is set.");
+			log.info("trying to unset the current event trigger, but none is set");
 		}
 		this.triggerPerThread.remove();
 	}

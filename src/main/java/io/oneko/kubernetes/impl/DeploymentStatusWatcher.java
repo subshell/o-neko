@@ -1,5 +1,8 @@
 package io.oneko.kubernetes.impl;
 
+import static io.oneko.util.MoreStructuredArguments.*;
+import static net.logstash.logback.argument.StructuredArguments.*;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -83,7 +86,7 @@ class DeploymentStatusWatcher {
 			ensureDeploymentIsUpToDate(deployment, statuses, projectVersion);
 
 		} catch (HelmRegistryException e) {
-			log.error("Failed to get helm status for {}", projectVersion.getNameWithProjectName());
+			log.error("failed to get helm status ({}, {})", versionKv(projectVersion), projectKv(projectVersion.getProject()));
 		}
 	}
 
@@ -96,7 +99,7 @@ class DeploymentStatusWatcher {
 	private void cleanUpOnDeploymentRemoved(ProjectVersion<?, ?> projectVersion) {
 		deploymentRepository.findByProjectVersionId(projectVersion.getId())
 				.ifPresent(deployment -> {
-					log.debug("Updating status of {} from {} to deleted", projectVersion.getName(), deployment.getStatus());
+					log.debug("updating status {} => {} ({}, {})", v("from", deployment.getStatus()), v("to", "Deleted"), versionKv(projectVersion), projectKv(projectVersion.getProject()));
 					deploymentRepository.deleteById(deployment.getId());
 					this.dispatchWebsocketEventFor(projectVersion, null);
 				});
@@ -113,7 +116,7 @@ class DeploymentStatusWatcher {
 		final ReadableDeployment savedDeployment = deploymentRepository.save(deployment);
 
 		if (previousStatus != savedDeployment.getStatus()) {
-			log.debug("Updating status of {} from {} to {}", projectVersion.getNameWithProjectName(), previousStatus, deployment.getStatus());
+			log.debug("updating status {} => {} ({}, {})", v("from", previousStatus), v("to", deployment.getStatus()), versionKv(projectVersion), projectKv(projectVersion.getProject()));
 		}
 		this.dispatchWebsocketEventFor(projectVersion, savedDeployment);
 	}
@@ -121,7 +124,7 @@ class DeploymentStatusWatcher {
 	private void dispatchWebsocketEventFor(ProjectVersion<?, ?> deployable, Deployment deployment) {
 		DeployableStatus newStatus = deployment != null ? deployment.getStatus() : DeployableStatus.NotScheduled;
 		Instant mysteriousRefDate = deployment != null ? deployment.getTimestamp().orElse(null) : null;
-		log.trace("Dispatching Websocket event for deployable {} with new status {}", deployable.getName(), newStatus);
+		log.trace("dispatching websocket event with new status ({}, {})", versionKv(deployable), kv("new_status", newStatus));
 		webSocketHandler.broadcast(new DeploymentStatusChangedMessage(deployable.getId(), deployable.getProject().getId(), newStatus, deployable.getDesiredState(), mysteriousRefDate, deployable.isOutdated(), deployable.getImageUpdatedDate()));
 	}
 }

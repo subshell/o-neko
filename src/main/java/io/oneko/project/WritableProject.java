@@ -1,5 +1,7 @@
 package io.oneko.project;
 
+import static io.oneko.util.MoreStructuredArguments.*;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -176,7 +178,7 @@ public class WritableProject extends ModificationAwareIdentifiable implements Pr
 		}
 
 		WritableProjectVersion version = new WritableProjectVersion(this, name);
-		log.info("create version {} for project {}", name, getName());
+		log.info("create project version ({}, {})", versionKv(version), projectKv(this));
 		this.versions.add(version);
 		return version;
 	}

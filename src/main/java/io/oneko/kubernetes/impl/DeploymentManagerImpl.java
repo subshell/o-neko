@@ -1,6 +1,8 @@
 package io.oneko.kubernetes.impl;
 
 import static io.oneko.kubernetes.deployments.DesiredState.*;
+import static io.oneko.util.MoreStructuredArguments.*;
+import static net.logstash.logback.argument.StructuredArguments.*;
 
 import java.util.HashSet;
 import java.util.List;
@@ -79,7 +81,7 @@ class DeploymentManagerImpl implements DeploymentManager {
 					.findFirst()
 					.orElse(null);
 		} catch (HelmRegistryException e) {
-			log.error("Failed to deploy version {}", version, e);
+			log.error("failed to deploy ({})", versionKv(version), e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -111,7 +113,7 @@ class DeploymentManagerImpl implements DeploymentManager {
 		return resources;
 	}
 
-	private void updateDeploymentUrls(WritableProjectVersion deployable, Set<HasMetadata> createdResources) {
+	private void updateDeploymentUrls(WritableProjectVersion projectVersion, Set<HasMetadata> createdResources) {
 		List<String> urls = createdResources.stream()
 				.flatMap(hasMetadata -> {
 					if (hasMetadata instanceof Ingress) {
@@ -139,8 +141,8 @@ class DeploymentManagerImpl implements DeploymentManager {
 					return Stream.empty();
 				}).collect(Collectors.toList());
 
-		log.trace("Found urls {} of {} {}", urls, deployable.getClass().getSimpleName(), deployable.getName());
-		deployable.setUrls(urls);
+		log.trace("found deployment urls ({}, {})", versionKv(projectVersion), kv("urls", urls));
+		projectVersion.setUrls(urls);
 	}
 
 	@Override
@@ -154,7 +156,7 @@ class DeploymentManagerImpl implements DeploymentManager {
 					.filter(projectVersion -> projectVersion.getUuid().equals(version.getId()))
 					.findFirst().orElse(null);
 		} catch (HelmRegistryException e) {
-			log.error("Failed to stop deployment of version {}", version, e);
+			log.error("failed to stop deployment ({})", versionKv(version), e);
 			throw new RuntimeException(e);
 		}
 	}

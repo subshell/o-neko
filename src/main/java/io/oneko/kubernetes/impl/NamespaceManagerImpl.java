@@ -1,5 +1,8 @@
 package io.oneko.kubernetes.impl;
 
+import static io.oneko.util.MoreStructuredArguments.*;
+import static net.logstash.logback.argument.StructuredArguments.*;
+
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -41,7 +44,7 @@ public class NamespaceManagerImpl implements NamespaceManager {
 			kubernetesAccess.createOrUpdateImagePullSecretInNamespace(namespace, secretName, registry.getUserName(), registry.getPassword(), registry.getRegistryUrl());
 			kubernetesAccess.addImagePullSecretToServiceAccountIfNecessary(namespace, secretName);
 		} catch (JsonProcessingException e) {
-			log.error("Failed to add image pull secret for registry {}", registry, e);
+			log.error("failed to add image pull secret ({}, {})", containerRegistryKv(registry), kv("namespace", namespace), e);
 		}
 	}
 

@@ -31,7 +31,7 @@ public class History {
 		try {
 			this.v1Compatibility = helperMapper.readValue(v1Compatibility, V1Compatibility.class);
 		} catch (IOException e) {
-			log.debug("Failed to deserialize History/v1Compatibility from Docker Image Manifest.", e);
+			log.debug("failed to deserialize History/v1Compatibility from Docker Image Manifest.", e);
 		}
 	}
 

@@ -1,5 +1,7 @@
 package io.oneko.websocket;
 
+import static net.logstash.logback.argument.StructuredArguments.*;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,12 +36,12 @@ public class SessionWebSocketHandler extends TextWebSocketHandler {
 	public void afterConnectionEstablished(WebSocketSession session) {
 		WebSocketSessionContext sessionContext = WebSocketSessionContext.of(session);
 		sessionContextMap.put(sessionContext.getWsSessionId(), sessionContext);
-		log.trace("New client ws connection {} established. Total ws connections: {}", sessionContext.getWsSessionId(), sessionContextMap.size());
+		log.trace("new client websocket connection established ({}, {})", kv("session_id", sessionContext.getWsSessionId()), kv("total_websocket_session_count", sessionContextMap.size()));
 	}
 
 	@Override
 	public void handleTransportError(WebSocketSession session, Throwable exception) {
-		log.trace("Error while transporting websocket message for {}", session.getId(), exception);
+		log.trace("error while transporting websocket message ({})", kv("session_id", session.getId()), exception);
 	}
 
 	@Override
@@ -60,7 +62,7 @@ public class SessionWebSocketHandler extends TextWebSocketHandler {
 			return;
 		}
 		// Currently, we do not handle incoming webSocket messages, so we just log them
-		log.trace("Received WebSocket message:\n{}", msgObj.toString());
+		log.trace("received websocket message ({})", kv("message", msgObj.toString()));
 	}
 
 	public void invalidateWsSession(String wsSessionId) {
@@ -70,7 +72,7 @@ public class SessionWebSocketHandler extends TextWebSocketHandler {
 
 		sessionContextMap.get(wsSessionId).close();
 		sessionContextMap.remove(wsSessionId);
-		log.trace("Removing client ws connection {}. Total ws connections: {}", wsSessionId, sessionContextMap.size());
+		log.trace("removing websocket connection ({}, {})", kv("session_id", wsSessionId), kv("total_websocket_session_count", sessionContextMap.size()));
 	}
 
 	public void invalidateUserSession(String userSessionId) {
@@ -84,13 +86,13 @@ public class SessionWebSocketHandler extends TextWebSocketHandler {
 			var textMessage = new TextMessage(Objects.requireNonNull(this.messageToPayload(message)));
 			session.sendMessage(textMessage);
 		} catch (IOException e) {
-			log.error("Error while sending the message {}", message);
+			log.error("error while sending websocket message ({})", kv("message", message));
 		}
 	}
 
 	public void send(String sessionId, ONekoWebSocketMessage message) {
 		if (!sessionContextMap.containsKey(sessionId)) {
-			log.trace("User with session id {} does not exist.", sessionId);
+			log.trace("no matching user found for session id ({})", kv("session_id", sessionId));
 			return;
 		}
 
@@ -102,7 +104,7 @@ public class SessionWebSocketHandler extends TextWebSocketHandler {
 		for (WebSocketSessionContext ctx : sessionContextMap.values()) {
 			WebSocketSession session = ctx.getSession();
 			if (!session.isOpen()) {
-				log.trace("Ws session with id {} is already closed, we skip this one.", ctx.getWsSessionId());
+				log.trace("websocket session is already closed ({})", kv("session_id", ctx.getWsSessionId()));
 				invalidateWsSession(ctx.getWsSessionId());
 				continue;
 			}
@@ -125,7 +127,7 @@ public class SessionWebSocketHandler extends TextWebSocketHandler {
 		try {
 			return objectMapper.readValue(payload, ONekoWebSocketMessage.class);
 		} catch (IOException e) {
-			log.error("Error parsing the websocket message payload", e);
+			log.error("error parsing websocket message payload", e);
 		}
 
 		return null;

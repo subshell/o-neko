@@ -1,5 +1,7 @@
 package io.oneko.namespace.rest;
 
+import static net.logstash.logback.argument.StructuredArguments.*;
+
 import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.oneko.configuration.Controllers;
 import io.oneko.kubernetes.NamespaceManager;
@@ -54,7 +56,7 @@ public class NamespaceController {
 			namespaceManager.createNamespaceAndAddImagePullSecrets(definedNamespace);
 			return dtoMapper.namespaceToDTO(definedNamespace);
 		} catch (KubernetesClientException e) {
-			log.error("Failed to create namespace in kubernetes");
+			log.error("failed to create namespace in kubernetes ({})", kv("namespace", dto.getName()));
 			namespaceRepository.remove(definedNamespace); // rollback
 			throw e;
 		}

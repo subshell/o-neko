@@ -1,5 +1,8 @@
 package io.oneko.helm;
 
+import static io.oneko.util.MoreStructuredArguments.*;
+import static net.logstash.logback.argument.StructuredArguments.*;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,14 +37,14 @@ public class HelmCharts {
 							.flatMap(helmRegistry -> {
 								try {
 									List<Chart> charts = HelmCommandUtils.getCharts(helmRegistry);
-									log.debug("Found {} helm charts in helm registry {}", charts.size(), helmRegistry.getName());
+									log.debug("found helm charts ({}, {})", kv("chart_count", charts.size()), helmRegistryKv(helmRegistry));
 
 									return toHelmChartDTO(helmRegistry, charts);
 								} catch (HelmRegistryException e) {
 									return Optional.empty();
 								}
 							})
-							.orElseThrow(() -> new IllegalArgumentException("Registry not found"));
+							.orElseThrow(() -> new IllegalArgumentException("registry not found"));
 				}
 			});
 

@@ -1,5 +1,8 @@
 package io.oneko.automations;
 
+import static io.oneko.util.MoreStructuredArguments.*;
+import static net.logstash.logback.argument.StructuredArguments.*;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -44,7 +47,7 @@ public class ScheduledLifetimeController {
 				.collect(Collectors.toList());
 
 		stopExpiredDeployments(versions,
-				deployable -> log.info("Deployment of project version {} of project {} expired.", deployable.getName(), deployable.getProject().getName()));
+				projectVersion -> log.info("deployment expired ({}, {})", versionKv(projectVersion), projectKv(projectVersion.getProject())));
 	}
 
 	private void stopExpiredDeployments(List<ProjectVersion<?,?>> deployables, Consumer<ProjectVersion<?,?>> beforeStopDeployment) {
@@ -52,12 +55,12 @@ public class ScheduledLifetimeController {
 		final var expiredPairsOfDeployableAndDeployment = getExpiredPairsOfDeployableAndDeployment(deployables, deployments);
 
 		expiredPairsOfDeployableAndDeployment.forEach(expiredVersionDeploymentPair -> {
-			final var deployable = expiredVersionDeploymentPair.getLeft();
-			beforeStopDeployment.accept(deployable);
-			if (deployable instanceof WritableProjectVersion) {
-				deploymentManager.stopDeployment((WritableProjectVersion) deployable);
+			final var projectVersion = expiredVersionDeploymentPair.getLeft();
+			beforeStopDeployment.accept(projectVersion);
+			if (projectVersion instanceof WritableProjectVersion) {
+				deploymentManager.stopDeployment((WritableProjectVersion) projectVersion);
 			} else {
-				log.error("Stopping {} is not supported.", deployable.getClass());
+				log.error("stopping is not supported ({})", kv("class_name", projectVersion.getClass()));
 			}
 		});
 	}
