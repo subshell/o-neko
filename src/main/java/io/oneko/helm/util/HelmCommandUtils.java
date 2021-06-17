@@ -127,7 +127,7 @@ public class HelmCommandUtils {
 	}
 
 	private static String getReleaseNamePrefix(ProjectVersion<?, ?> projectVersion) {
-		return sanitizeReleaseName(maxLength(projectVersion.getProject().getName(), 6) + "-" + maxLength(projectVersion.getName(), 32));
+		return sanitizeReleaseName(maxLength(projectVersion.getProject().getName(), 6) + "-" + maxLength(projectVersion.getName(), 20));
 	}
 
 	private static String sanitizeReleaseName(String in) {
