@@ -100,13 +100,14 @@ public class Helm implements Helm3API {
 	}
 
 	@Override
-	public void addRepo(String name, String url, String username, String password, boolean forceUpdate) {
+	public void addRepo(String name, String url, String username, String password, boolean forceUpdate, boolean passCredentials) {
 		final String[] command = initCommand("helm", "repo", "add")
 				.withArgument(name)
 				.withArgument(url)
 				.withFlag("--username", username)
 				.withFlag("--password", password)
 				.withFlag("--force-update", forceUpdate)
+				.withFlag("--pass-credentials", passCredentials)
 				.build();
 		var out = executor.execute(command);
 		log.info(out);
