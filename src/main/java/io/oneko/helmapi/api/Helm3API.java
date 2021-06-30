@@ -42,7 +42,7 @@ public interface Helm3API {
 
 	// repo
 	default void addRepo(String name, String url, String username, String password) {
-		addRepo(name, url, username, password, false, true);
+		addRepo(name, url, username, password, false, false);
 	}
 
 	void addRepo(String name, String url, String username, String password, boolean forceUpdate, boolean passCredentials);
