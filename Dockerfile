@@ -8,14 +8,14 @@ RUN java -Djarmode=layertools -jar app.jar extract
 FROM azul/zulu-openjdk-alpine:11.0.11-11.48.21-jre
 LABEL maintainer="team-weasel@subshell.com"
 
-ARG HELM_VERSION="v3.6.1"
-ARG HELM_GCS_VERSION="0.3.11"
+ARG HELM_VERSION="v3.6.2"
+ARG HELM_GCS_VERSION="0.3.12"
 
 RUN java -Xshare:dump
 
 # Install Helm + Helm GCS
 RUN apk add --update --no-cache curl ca-certificates git && \
-    curl -L "https://get.helm.sh/helm-$HELM_VERSION-linux-amd64.tar.gz" |tar xvz && \
+    curl -L "https://get.helm.sh/helm-$HELM_VERSION-linux-amd64.tar.gz" | tar xvz && \
     mv linux-amd64/helm /usr/bin/helm && \
     chmod +x /usr/bin/helm && \
     helm plugin install https://github.com/hayorov/helm-gcs --version $HELM_GCS_VERSION && \
