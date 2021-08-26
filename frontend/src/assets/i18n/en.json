@@ -209,6 +209,23 @@
       "projectDashboard": {
         "projects": "Projects",
         "projectHasNoDeployedVersions": "<strong>{name}</strong> has no deployed versions."
+      },
+      "editProject": {
+        "editProject": "Edit project",
+        "showVersions": "Show versions",
+        "projectName": "Project name",
+        "projectNameIsRequired": "A project name is required",
+        "imageName": "Image name",
+        "imageNameIsRequired": "An image name is required",
+        "dockerRegistry": "!alias:components.project.createProjectDialog.dockerRegistry",
+        "dockerRegistryIsRequired": "Each project must have a docker registry assigned.",
+        "namespaceInKubernetes": "Namespace in Kubernetes",
+        "configurationTemplates": "Configuration templates",
+        "templateVariables": "Template Variables",
+        "defaultLifetimeBehaviour": "Default lifetime behaviour",
+        "saveProject": "Save project",
+        "exportProject": "Export project",
+        "deleteProject": "Delete project"
       }
     }
   },
