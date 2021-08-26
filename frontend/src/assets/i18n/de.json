@@ -205,6 +205,10 @@
         "enterProjectImageNameDescription": "Der Name muss dem Namen entsprechen, den das Docker Image in der Docker Registry hat.",
         "couldNotUploadFile": "Die Datei {name} konnte nicht hochgeladen werden",
         "errorParsingConfiguration": "Ein Fehler ist beim Lesen der Konfiguration aufgetreten"
+      },
+      "projectDashboard": {
+        "projects": "Projekte",
+        "projectHasNoDeployedVersions": "<strong>{name}</strong> hat keine deployten Versionen."
       }
     }
   },

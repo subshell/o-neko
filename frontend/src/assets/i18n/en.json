@@ -205,6 +205,10 @@
         "enterProjectImageNameDescription": "Type in the name of the docker image. This must match the image name as present in the docker registry.",
         "couldNotUploadFile": "Could not upload file {name}",
         "errorParsingConfiguration": "Error while parsing the configuration file"
+      },
+      "projectDashboard": {
+        "projects": "Projects",
+        "projectHasNoDeployedVersions": "<strong>{name}</strong> has no deployed versions."
       }
     }
   },
