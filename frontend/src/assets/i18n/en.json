@@ -14,7 +14,8 @@
     "close": "Close",
     "url": "URL",
     "edit": "Edit",
-    "viewDetails": "View details"
+    "viewDetails": "View details",
+    "done": "Done"
   },
   "menu": {
     "home": "Home",
@@ -181,6 +182,30 @@
         "description": "<p>You are about to delete the defined namespace <b>{namespace}</b>. All project versions currently using this namespace will fall back to their default namespace.</p><p>This will not remove these namespace from Kubernetes.</p><p>Please confirm this deletion by entering the namespace below. This action cannot be undone.</p>"
       },
       "createNamespace": "Create namespace"
+    },
+    "project": {
+      "createProjectDialog": {
+        "createNewProject": "Create a new project",
+        "importProject": "Import a project",
+        "importProjectConfigurationFile": "Import a project configuration file",
+        "importProjectDescription": "Import a project from a <i>.json</i> configuration file. You can configure the import in the next steps.",
+        "fileUploadLabel": "Upload project configuration",
+        "uploadSuccessful": "Upload successful!",
+        "importCompleteDescription": "The imported project contains <b>{count}</b> configuration templates.",
+        "next": "Next",
+        "back": "Back",
+        "enterProjectNameLabel": "Enter the new project's name",
+        "enterProjectNameDescription": "<p>Enter a meaningful name for your new project.</p><p>The name can be chosen arbitrarily but should be distinguishable from the names of yet existing projects.</p>",
+        "projectName": "Project name",
+        "collidingProjectNameMessage": "There is already a project with the name {name}.",
+        "selectDockerRegistry": "Select a docker registry",
+        "selectDockerRegistryDescription": "All docker images for this project will be picked from the docker registry you select here.",
+        "dockerRegistry": "Docker registry",
+        "enterProjectImageName": "Enter the new project's image name",
+        "enterProjectImageNameDescription": "Type in the name of the docker image. This must match the image name as present in the docker registry.",
+        "couldNotUploadFile": "Could not upload file {name}",
+        "errorParsingConfiguration": "Error while parsing the configuration file"
+      }
     }
   },
   "material": {

@@ -14,7 +14,8 @@
     "close": "Schließen",
     "url": "URL",
     "edit": "Bearbeiten",
-    "viewDetails": "Details öffnen"
+    "viewDetails": "Details öffnen",
+    "done": "Fertig"
   },
   "menu": {
     "home": "Home",
@@ -181,6 +182,30 @@
         "description": "<p>Sie sind dabei den definierten Namespace <b>{namespace}</b> zu löschen. Alle Projektversionen, die diesen Namespace aktuell verwenden, werden auf ihren Default-Namespace zurückgreifen.</p><p>Der Namespace in Kubernetes wird nicht gelöscht.</p><p>Bitte bestätigen Sie die Löschung. Diese Aktion kann nicht rückgängig gemacht werden.</p>"
       },
       "createNamespace": "Namespace erstellen"
+    },
+    "project": {
+      "createProjectDialog": {
+        "createNewProject": "Neues Projekt anlegen",
+        "importProject": "Project importieren",
+        "importProjectConfigurationFile": "Ein Projekt aus einer Konfigurationsdatei importieren",
+        "importProjectDescription": "Ein Projekt aus einer <i>.json</i> Datei importieren. Der Import kann in den nächsten Schritten konfiguriert werden.",
+        "fileUploadLabel": "Projektkonfiguration hochladen",
+        "uploadSuccessful": "Hochladen erfolgreich!",
+        "importCompleteDescription": "The importierte Konfiguration enthält <b>{count}</b> Templates.",
+        "next": "Weiter",
+        "back": "Zurück",
+        "enterProjectNameLabel": "Name des neuen Projekts",
+        "enterProjectNameDescription": "<p>Wählen Sie einen sinnvollen Namen für das Projekt.</p><p>Der Name kann beliebig gewählt werden aber darf nicht mit bestehenden Namen kollidieren.</p>",
+        "projectName": "Projektname",
+        "collidingProjectNameMessage": "Es gibt bereits ein Projekt mit dem Namen {name}.",
+        "selectDockerRegistry": "Wählen Sie eine Docker Registry",
+        "selectDockerRegistryDescription": "Alle Docker Images des Projekts werden aus der angegebenen Docker Registry geladen.",
+        "dockerRegistry": "Docker Registry",
+        "enterProjectImageName": "Geben Sie den Image Namen des Projekts ein",
+        "enterProjectImageNameDescription": "Der Name muss dem Namen entsprechen, den das Docker Image in der Docker Registry hat.",
+        "couldNotUploadFile": "Die Datei {name} konnte nicht hochgeladen werden",
+        "errorParsingConfiguration": "Ein Fehler ist beim Lesen der Konfiguration aufgetreten"
+      }
     }
   },
   "material": {
