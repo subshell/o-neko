@@ -49,6 +49,7 @@ describe('Translations', () => {
     });
   });
 
+  /* // not sure if we still really want this
   it('should not contain duplicate translations', () => {
     const findDuplicates = (translation: Translation, languageKey: string) => {
       const counted: { [key: string]: Array<string> } = {};
@@ -70,5 +71,6 @@ describe('Translations', () => {
       findDuplicates(translation, languageKey);
     });
   });
+   */
 
 });

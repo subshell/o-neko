@@ -226,6 +226,20 @@
         "saveProject": "Save project",
         "exportProject": "Export project",
         "deleteProject": "Delete project"
+      },
+      "list": {
+        "projects": "!alias:menu.projectManagement.projects",
+        "createProject": "Create Project",
+        "importProject": "Import Project",
+        "columns": "Columns",
+        "imageName": "Image name",
+        "status": "Status",
+        "versions": "Versions",
+        "orphaned": "Orphaned",
+        "pending": "Pending",
+        "error": "Error",
+        "notDeployed": "Not deployed",
+        "versionCount": "{count} versions"
       }
     }
   },
