@@ -240,6 +240,15 @@
         "error": "Fehler",
         "notDeployed": "Nicht deployed",
         "versionCount": "{count} Versionen"
+      },
+      "templateVariables": {
+        "addTemplateVariable": "Template-Variable hinzufügen",
+        "newTemplateVariableName": "Neu_{index}",
+        "newTemplateVariableLabel": "Neu {index}",
+        "deleteDialog": {
+          "title": "Template-Variable löschen?",
+          "confirm": "Löschen"
+        }
       }
     }
   },
