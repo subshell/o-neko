@@ -248,6 +248,17 @@
         "deleteDialog": {
           "title": "Template-Variable löschen?",
           "confirm": "Löschen"
+        },
+        "editor": {
+          "technicalName": "Technischer Name",
+          "label": "Label",
+          "showOnDashboard": "Auf dem Dashboard anzeigen",
+          "useValues": "Vordefinierte Werte verwenden",
+          "isDefaultValue": "Zum Standardwert machen",
+          "removeValue": "Wert entfernen",
+          "addValue": "Wert hinzufügen",
+          "defaultValue": "Standardwert",
+          "selectTemplateVariable": "Bitte wählen Sie eine Template-Variable aus"
         }
       }
     }
