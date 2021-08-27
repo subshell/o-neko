@@ -7,6 +7,8 @@ import {
 } from '@angular/animations/browser';
 import {TranslateService} from "@ngx-translate/core";
 import {MatPaginatorIntl} from "@angular/material/paginator";
+import {Store} from "@ngxs/store";
+import {I18nState} from "../store/i18n/i18n.state";
 
 export const configureSvgIcons = (iconRegistry: MatIconRegistry, domSanitizer: DomSanitizer) => {
   iconRegistry.addSvgIconResolver((name, namespace) => {
@@ -27,11 +29,11 @@ export const provideAnimationDriverBasedOnUserPreferences = (): AnimationDriver 
   return prefersReducedMotion ? noop : driver;
 };
 
-export const configureTranslations = (translate: TranslateService) => {
+export const configureTranslations = (translate: TranslateService, store: Store) => {
   translate.setDefaultLang('en');
-  translate.use(translate.getBrowserLang()); // todo: use once translation is finished
-  //translate.use('en'); // todo: remove once translation is finished
-  // TODO: implement language-picker and store in a store
+  store.select(I18nState.locale).subscribe(locale => {
+    translate.use(locale);
+  });
 };
 
 export const configureMatPaginatorI18n = (translate: TranslateService): MatPaginatorIntl => {
