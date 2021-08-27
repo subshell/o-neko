@@ -227,6 +227,19 @@
         "exportProject": "Projekt exportieren",
         "deleteProject": "Projekt löschen"
       },
+      "editVersion": {
+        "versions": "Versionen",
+        "editProjectVersion": "Version bearbeiten",
+        "deploymentUrls": "Deployment URLs",
+        "projectVersionName": "Name der Version",
+        "belongingToProject": "Zugehöriges Projekt",
+        "namespaceInKubernetes": "Namespace in Kubernetes",
+        "inheritFromProject": "Vom Projekt erben",
+        "configurationTemplate": "Konfigurations-Template",
+        "inheritedVariables": "Geerbte Variablen",
+        "versionSpecificVariables": "Versionsspezifische Variablen",
+        "showEffectiveConfiguration": "Effektive Konfiguration anzeigen"
+      },
       "list": {
         "projects": "!alias:menu.projectManagement.projects",
         "createProject": "Projekt erstellen",
