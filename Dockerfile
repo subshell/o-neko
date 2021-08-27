@@ -8,8 +8,8 @@ RUN java -Djarmode=layertools -jar app.jar extract
 FROM azul/zulu-openjdk-alpine:11.0.11-11.48.21-jre
 LABEL maintainer="team-weasel@subshell.com"
 
-ARG HELM_VERSION="v3.6.2"
-ARG HELM_GCS_VERSION="0.3.12"
+ARG HELM_VERSION="v3.6.3"
+ARG HELM_GCS_VERSION="0.3.13"
 
 RUN java -Xshare:dump
 
