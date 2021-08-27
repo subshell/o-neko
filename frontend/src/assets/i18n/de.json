@@ -294,6 +294,28 @@
         "versionSnackbarMessage": "Version {version} des Projekts {name} wurde {action, select, deployed{deployed} stopped{gestoppt} other{bearbeitet}}.",
         "errorMessage": "Fehler: {message}"
       }
+    },
+    "user": {
+      "editDialog": {
+        "title": "Benutzer {action, select, create{erstellen} edit{bearbeiten} other{bearbeiten}}",
+        "username": "Benutzername",
+        "changeUsernameWarning": "Das Ändern des Benutzernamens macht ein erneutes Einloggen erforderlich.",
+        "usernameRequired": "Ein Benutzername ist erforderlich.",
+        "usernameUnavailable": "Dieser Benutzername ist nicht verfügbar.",
+        "role": "Rolle",
+        "roleRequired": "Jedem Benutzer muss eine Rolle zugewiesen werden.",
+        "email": "E-Mail",
+        "emailRequired": "Eine E-Mail Adresse ist erforderlich.",
+        "enterValidMail": "Bitte geben Sie eine gültige E-Mail Adresse an.",
+        "emailUnavailable": "Diese E-Mail Adresse ist nicht verfügbar.",
+        "firstName": "Vorname",
+        "lastName": "Nachname",
+        "password": "Passwort",
+        "passwordIsRequired": "Ein Passwort ist erforderlich.",
+        "verifyPassword": "Verifizieren Sie ihr Passwort über eine erneute Eingabe.",
+        "passwordsMustMatch": "Die Passwörter müssen übereinstimmen.",
+        "changePassword": "Passwort ändern"
+      }
     }
   },
   "material": {

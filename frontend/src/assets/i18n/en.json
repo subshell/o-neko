@@ -294,6 +294,28 @@
         "versionSnackbarMessage": "Project {name} version {version} has been {action, select, deployed{deployed} stopped{stopped} other{modified}}.",
         "errorMessage": "Error: {message}"
       }
+    },
+    "user": {
+      "editDialog": {
+        "title": "{action, select, create{Create} edit{Edit} other{Edit}} User",
+        "username": "Username",
+        "changeUsernameWarning": "Changing your username will require you to sign in again.",
+        "usernameRequired": "A username is required.",
+        "usernameUnavailable": "This username is not available.",
+        "role": "Role",
+        "roleRequired": "A role is required for every user.",
+        "email": "E-Mail",
+        "emailRequired": "An email address is required.",
+        "enterValidMail": "Please enter a valid email address.",
+        "emailUnavailable": "This email is not available.",
+        "firstName": "First name",
+        "lastName": "Last name",
+        "password": "Password",
+        "passwordIsRequired": "A password is required.",
+        "verifyPassword": "Verify your password by entering it again.",
+        "passwordsMustMatch": "The passwords must match.",
+        "changePassword": "Change password"
+      }
     }
   },
   "material": {
