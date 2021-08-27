@@ -15,6 +15,7 @@ import {TimeoutSnackbarComponent} from "../util/timout-snackbar/timeout.snackbar
 import {Project} from "./project";
 import {ProjectVersion} from "./project-version";
 import {ProjectExportDTO} from './project-export';
+import {TranslateService} from "@ngx-translate/core";
 
 @Injectable()
 export class ProjectService {
@@ -24,7 +25,8 @@ export class ProjectService {
 
   constructor(private rest: RestService,
               private dialog: MatDialog,
-              private snackBar: MatSnackBar) {
+              private snackBar: MatSnackBar,
+              private readonly translate: TranslateService) {
   }
 
   public isUserAllowedToCreateProjects(user: User): boolean {
@@ -65,11 +67,11 @@ export class ProjectService {
     }
     let deletionObservable = this.dialog.open(ConfirmWithTextDialog, {
       data: <ConfirmWithTextDialogData>{
-        title: `Delete ${project.name}?`,
-        message: 'Please confirm the deletion of this project by entering the project name below. This action cannot be undone.',
-        confirmationTextPlaceholder: 'Confirm project name',
+        title: this.translate.instant('components.project.service.deleteDialog.title', {name: project.name}),
+        message: this.translate.instant('components.project.service.deleteDialog.message'),
+        confirmationTextPlaceholder: this.translate.instant('components.project.service.deleteDialog.confirmPlaceholder'),
         confirmationText: project.name,
-        okButtonText: 'Delete'
+        okButtonText: this.translate.instant('components.project.service.deleteDialog.okButtonText')
       },
       width: "50%"
     }).afterClosed()
@@ -97,7 +99,7 @@ export class ProjectService {
     projectObservable.subscribe(savedProject => {
       this.snackBar.openFromComponent(TimeoutSnackbarComponent, {
         data: {
-          text: `Project ${savedProject.name} has been ${isNewProject ? 'created' : 'saved'}.`
+          text: this.translate.instant('components.project.service.projectSnackbarMessage', {name: savedProject.name, action: isNewProject ? 'created' : 'saved'})
         },
         duration: ProjectService.SNACKBAR_DEFAULT_DURATION
       });
@@ -114,7 +116,7 @@ export class ProjectService {
     projectObservable.subscribe(savedProject => {
       this.snackBar.openFromComponent(TimeoutSnackbarComponent, {
         data: {
-          text: `Project ${savedProject.name} has been saved.`
+          text: this.translate.instant('components.project.service.projectSnackbarMessage', {name: savedProject.name, action: 'saved'})
         },
         duration: ProjectService.SNACKBAR_DEFAULT_DURATION
       });
@@ -138,7 +140,7 @@ export class ProjectService {
     deletionObservable.subscribe(() => {
       this.snackBar.openFromComponent(TimeoutSnackbarComponent, {
         data: {
-          text: `Project ${project.name} has been deleted.`
+          text: this.translate.instant('components.project.service.projectSnackbarMessage', {name: project.name, action: 'deleted'})
         },
         duration: ProjectService.SNACKBAR_DEFAULT_DURATION
       });
@@ -156,7 +158,7 @@ export class ProjectService {
     triggerObservable.subscribe(() => {
       this.snackBar.openFromComponent(TimeoutSnackbarComponent, {
         data: {
-          text: `Project ${project.name} version ${projectVersion.name} has been deployed.`
+          text: this.translate.instant('components.project.service.versionSnackbarMessage', {name: project.name, version: projectVersion.name, action: 'deployed'})
         },
         duration: ProjectService.SNACKBAR_DEFAULT_DURATION
       });
@@ -164,7 +166,7 @@ export class ProjectService {
       projectVersion.deployment.status = DeployableStatus.Unknown;
       this.snackBar.openFromComponent(TimeoutSnackbarComponent, {
         data: {
-          text: `Error: ${response.error.message}`
+          text: this.translate.instant('components.project.service.errorMessage', {message: response.error.message})
         },
         duration: ProjectService.SNACKBAR_ERROR_DURATION
       });
@@ -181,7 +183,7 @@ export class ProjectService {
     this.rest.project().stopDeployment(projectVersion, project).subscribe(() => {
       this.snackBar.openFromComponent(TimeoutSnackbarComponent, {
         data: {
-          text: `Project ${project.name} version ${projectVersion.name} is stopped.`
+          text: this.translate.instant('components.project.service.versionSnackbarMessage', {name: project.name, version: projectVersion.name, action: 'stopped'})
         },
         duration: ProjectService.SNACKBAR_DEFAULT_DURATION
       });
@@ -189,7 +191,7 @@ export class ProjectService {
       projectVersion.deployment.status = DeployableStatus.Unknown;
       this.snackBar.openFromComponent(TimeoutSnackbarComponent, {
         data: {
-          text: `Error: ${response.error.message}`
+          text: this.translate.instant('components.project.service.errorMessage', {message: response.error.message})
         },
         duration: ProjectService.SNACKBAR_ERROR_DURATION
       });

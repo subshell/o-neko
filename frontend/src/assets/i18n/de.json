@@ -282,6 +282,17 @@
         "deploymentStatus": "Deployment Status",
         "filterVersionsByName": "Nach Namen filtern",
         "columns": "Spalten"
+      },
+      "service": {
+        "deleteDialog": {
+          "title": "{name} löschen?",
+          "message": "Bitte bestätigen Sie das Löschen des Projekts, indem Sie den Namen eingeben. Diese Aktion kann nicht rückgängig gemacht werden.",
+          "confirmPlaceholder": "Projektnamen bestätigen",
+          "okButtonText": "Löschen"
+        },
+        "projectSnackbarMessage": "Projekt {name} wurde {action, select, created{erstellt} saved{gespeichert} deleted{gelöscht} other{bearbeitet}}.",
+        "versionSnackbarMessage": "Version {version} des Projekts {name} wurde {action, select, deployed{deployed} stopped{gestoppt} other{bearbeitet}}.",
+        "errorMessage": "Fehler: {message}"
       }
     }
   },

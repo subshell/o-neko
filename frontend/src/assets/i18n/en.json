@@ -282,6 +282,17 @@
         "deploymentStatus": "Deployment Status",
         "filterVersionsByName": "Filter by name",
         "columns": "Columns"
+      },
+      "service": {
+        "deleteDialog": {
+          "title": "Delete {name}?",
+          "message": "Please confirm the deletion of this project by entering the project name below. This action cannot be undone.",
+          "confirmPlaceholder": "Confirm project name",
+          "okButtonText": "Delete"
+        },
+        "projectSnackbarMessage": "Project {name} has been {action, select, created{created} saved{saved} deleted{deleted} other{modified}}.",
+        "versionSnackbarMessage": "Project {name} version {version} has been {action, select, deployed{deployed} stopped{stopped} other{modified}}.",
+        "errorMessage": "Error: {message}"
       }
     }
   },
