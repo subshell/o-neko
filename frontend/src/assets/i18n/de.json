@@ -315,6 +315,22 @@
         "verifyPassword": "Verifizieren Sie ihr Passwort über eine erneute Eingabe.",
         "passwordsMustMatch": "Die Passwörter müssen übereinstimmen.",
         "changePassword": "Passwort ändern"
+      },
+      "list": {
+        "userManagement": "Benutzerverwaltung",
+        "createUser": "Benutzer erstellen",
+        "columns": "Spalten",
+        "username": "Benutzername",
+        "email": "E-Mail",
+        "firstName": "Vorname",
+        "lastName": "Nachname",
+        "role": "Rolle",
+        "deleteDialog": {
+          "title": "{username} löschen?",
+          "message": "Bitte bestätigen Sie das Löschen des Benutzers durch Eingabe des Benutzernamens. Diese Aktion kann nicht rückgängig gemacht werden.",
+          "confirmationPlaceholder": "Benutzernamen bestätigen",
+          "okButtonText": "Löschen"
+        }
       }
     }
   },

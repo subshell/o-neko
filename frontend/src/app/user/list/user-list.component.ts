@@ -11,6 +11,7 @@ import {LogService} from "../../util/log.service";
 import {UserEditDialog} from "../edit-dialog/user-edit-dialog.component";
 import {User} from "../user";
 import {UserService} from "../user.service";
+import {TranslateService} from "@ngx-translate/core";
 
 
 @Component({
@@ -24,22 +25,7 @@ export class UserListComponent {
   public users: Array<User> = [];
   public selectedColumns = ['username', 'email', 'role'];
 
-  public readonly columns = [{
-    label: 'Username',
-    value: 'username'
-  }, {
-    label: 'Email',
-    value: 'email'
-  }, {
-    label: 'First name',
-    value: 'firstName'
-  }, {
-    label: 'Last name',
-    value: 'lastName'
-  }, {
-    label: 'Role',
-    value: 'role'
-  }];
+  public readonly columns: Array<{ label: string, value: string }>;
   public pageSettings = {
     pageSize: 10,
     pageSizeOptions: [10, 25, 50, 100]
@@ -48,7 +34,27 @@ export class UserListComponent {
   private sort: Sort;
   private log = LogService.getLogger(UserListComponent);
 
-  constructor(private rest: RestService, private userService: UserService, private dialog: MatDialog) {
+  constructor(private rest: RestService,
+              private userService: UserService,
+              private dialog: MatDialog,
+              private readonly translate: TranslateService) {
+    this.columns = [{
+      label: this.translate.instant('components.user.list.username'),
+      value: 'username'
+    }, {
+      label: this.translate.instant('components.user.list.email'),
+      value: 'email'
+    }, {
+      label: this.translate.instant('components.user.list.firstName'),
+      value: 'firstName'
+    }, {
+      label: this.translate.instant('components.user.list.lastName'),
+      value: 'lastName'
+    }, {
+      label: this.translate.instant('components.user.list.role'),
+      value: 'role'
+    }];
+
     this.rest.allUsers().subscribe(users => {
       this.users = users;
       this.sortUsers();
@@ -81,11 +87,11 @@ export class UserListComponent {
   public deleteUser(user: User) {
     this.dialog.open(ConfirmWithTextDialog, {
       data: <ConfirmWithTextDialogData>{
-        title: `Delete ${user.username}?`,
-        message: 'Please confirm the deletion of this user by entering the username below. This action cannot be undone.',
-        confirmationTextPlaceholder: 'Confirm username',
+        title: this.translate.instant('components.user.list.deleteDialog.title', {username: user.username}),
+        message: this.translate.instant('components.user.list.deleteDialog.message'),
+        confirmationTextPlaceholder: this.translate.instant('components.user.list.deleteDialog.confirmationPlaceholder'),
         confirmationText: user.username,
-        okButtonText: 'Delete'
+        okButtonText: this.translate.instant('components.user.list.deleteDialog.okButtonText')
       },
       width: "50%"
     }).afterClosed().subscribe(result => {

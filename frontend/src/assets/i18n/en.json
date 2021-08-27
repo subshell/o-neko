@@ -315,6 +315,22 @@
         "verifyPassword": "Verify your password by entering it again.",
         "passwordsMustMatch": "The passwords must match.",
         "changePassword": "Change password"
+      },
+      "list": {
+        "userManagement": "User Management",
+        "createUser": "Create User",
+        "columns": "Columns",
+        "username": "Username",
+        "email": "E-Mail",
+        "firstName": "First name",
+        "lastName": "Last name",
+        "role": "Role",
+        "deleteDialog": {
+          "title": "Delete {username}?",
+          "message": "Please confirm the deletion of this user by entering the username below. This action cannot be undone.",
+          "confirmationPlaceholder": "Confirm username",
+          "okButtonText": "Delete"
+        }
       }
     }
   },
