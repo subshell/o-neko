@@ -331,6 +331,19 @@
           "confirmationPlaceholder": "Confirm username",
           "okButtonText": "Delete"
         }
+      },
+      "me": {
+        "username": "Username",
+        "email": "E-Mail",
+        "firstName": "First name",
+        "lastName": "Last name",
+        "role": "Role",
+        "deleteAccount": "Delete account",
+        "deleteDialog": {
+          "title": "Delete your account?",
+          "message": "Please confirm the deletion of your account. This action cannot be undone.",
+          "okButtonText": "Delete"
+        }
       }
     }
   },

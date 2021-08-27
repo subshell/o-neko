@@ -12,27 +12,27 @@
   </div>
   <div fxLayout="column" fxLayoutGap="1em">
     <div fxLayout="row" fxLayoutGap="1em">
-      <strong>Username:</strong>
+      <strong>{{'components.user.me.username' | translate }}:</strong>
       <span>{{me.username}}</span>
     </div>
     <div fxLayout="row" fxLayoutGap="1em">
-      <strong>Email:</strong>
+      <strong>{{'components.user.me.email' | translate }}:</strong>
       <span>{{me.email}}</span>
     </div>
     <div fxLayout="row" fxLayoutGap="1em">
-      <strong>First name:</strong>
+      <strong>{{'components.user.me.firstName' | translate }}:</strong>
       <span>{{me.firstName}}</span>
     </div>
     <div fxLayout="row" fxLayoutGap="1em">
-      <strong>Last name:</strong>
+      <strong>{{'components.user.me.lastName' | translate }}:</strong>
       <span>{{me.lastName}}</span>
     </div>
     <div fxLayout="row" fxLayoutGap="1em">
-      <strong>Role:</strong>
+      <strong>{{'components.user.me.role' | translate }}:</strong>
       <span>{{me.role}}</span>
     </div>
   </div>
   <div>
-    <button mat-button color="warn" (click)="deleteAccount()">Delete account</button>
+    <button mat-button color="warn" (click)="deleteAccount()">{{ 'components.user.me.deleteAccount' | translate }}</button>
   </div>
 </div>

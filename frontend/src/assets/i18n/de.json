@@ -331,6 +331,19 @@
           "confirmationPlaceholder": "Benutzernamen bestätigen",
           "okButtonText": "Löschen"
         }
+      },
+      "me": {
+        "username": "Benutzername",
+        "email": "E-Mail",
+        "firstName": "Vorname",
+        "lastName": "Nachname",
+        "role": "Rolle",
+        "deleteAccount": "Account löschen",
+        "deleteDialog": {
+          "title": "Soll Ihr Account gelöscht werden?",
+          "message": "Bitte bestätigen Sie das Löschen Ihres Accounts. Diese Aktion kann nicht rückgängig gemacht werden.",
+          "okButtonText": "Löschen"
+        }
       }
     }
   },
