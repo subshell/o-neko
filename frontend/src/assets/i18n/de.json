@@ -273,6 +273,15 @@
           "defaultValue": "Standardwert",
           "selectTemplateVariable": "Bitte wählen Sie eine Template-Variable aus"
         }
+      },
+      "versionList": {
+        "name": "Name",
+        "imageUpdatedDate": "Image-Aktualisierungsdatum",
+        "deploymentUrl": "Deployment URL",
+        "deploymentDate": "Deployment-Datum",
+        "deploymentStatus": "Deployment Status",
+        "filterVersionsByName": "Nach Namen filtern",
+        "columns": "Spalten"
       }
     }
   },

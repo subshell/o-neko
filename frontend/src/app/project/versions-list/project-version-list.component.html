@@ -1,13 +1,13 @@
-<breadcrumbs *ngIf="project" [breadcrumbs]="[{label: 'home', link: ''}, {label: 'projects', link: '/projects'}, {label: project.name, link: '/projects/' + project.uuid}, {label: 'versions'}]"></breadcrumbs>
+<breadcrumbs *ngIf="project" [breadcrumbs]="[{label: ('menu.home' | translate), link: ''}, {label: ('menu.projectManagement.projects' | translate), link: '/projects'}, {label: project.name, link: '/projects/' + project.uuid}, {label: ('components.project.editVersion.versions' | translate )}]"></breadcrumbs>
 <div class="project-version-list table-page main-content-padding" fxLayout="column">
   <div fxLayout="row" fxLayoutAlign="space-between center">
     <span fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="1em">
       <mat-form-field>
-        <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Filter versions by name">
+        <input matInput (keyup)="applyFilter($event.target.value)" [placeholder]="'components.project.versionList.filterVersionsByName' | translate">
       </mat-form-field>
     </span>
     <mat-form-field>
-      <mat-select placeholder="Columns" multiple [(ngModel)]="activeColumnKeys">
+      <mat-select [placeholder]="'components.project.versionList.columns' | translate" multiple [(ngModel)]="activeColumnKeys">
         <mat-option *ngFor="let col of allColumns" [value]="col.key">{{col.label}}</mat-option>
       </mat-select>
     </mat-form-field>
@@ -24,7 +24,7 @@
       <th *ngIf="isColumnActive(urlColumn.key)">{{urlColumn.label}}</th>
       <th mat-sort-header="deployment_status" *ngIf="isColumnActive(deploymentStatusColumn.key)">{{deploymentStatusColumn.label}}</th>
       <th mat-sort-header="deployment_date" *ngIf="isColumnActive(deploymentDateColumn.key)">{{deploymentDateColumn.label}}</th>
-      <th></th><!-- This is the header for the actions column - it does not support sorting since that would be none sense-->
+      <th></th><!-- This is the header for the actions column - it does not support sorting since that would be nonsense-->
     </tr>
     <tr *ngFor="let projectVersion of sortedProjectVersions">
       <td *ngIf="isColumnActive(nameColumn.key)">
