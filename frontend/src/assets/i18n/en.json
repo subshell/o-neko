@@ -15,7 +15,8 @@
     "url": "URL",
     "edit": "Edit",
     "viewDetails": "View details",
-    "done": "Done"
+    "done": "Done",
+    "confirm": "Confirm"
   },
   "menu": {
     "home": "Home",
