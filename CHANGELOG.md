@@ -1,3 +1,11 @@
+## 1.3.0 (2021-08-30)
+
+* feat(helm): Update Helm and base Docker image (#55) ([bee922c](https://github.com/subshell/o-neko/commit/bee922c)), closes [#55](https://github.com/subshell/o-neko/issues/55)
+* feat(i18n): Finalize translations (#57) ([f8c1a92](https://github.com/subshell/o-neko/commit/f8c1a92)), closes [#57](https://github.com/subshell/o-neko/issues/57)
+* change(helm): shorten length of project version in Helm release name to 20 characters (#56) ([214c9f6](https://github.com/subshell/o-neko/commit/214c9f6)), closes [#56](https://github.com/subshell/o-neko/issues/56)
+
+
+
 ## 1.2.0 (2021-06-11)
 
 * Bump lodash from 4.17.20 to 4.17.21 in /frontend (#49) ([13a319c](https://github.com/subshell/o-neko/commit/13a319c)), closes [#49](https://github.com/subshell/o-neko/issues/49)
