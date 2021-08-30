@@ -2,6 +2,7 @@ import {Component, EventEmitter, Input, Output} from '@angular/core';
 import { MatDialog } from "@angular/material/dialog";
 import {ConfirmDialog, ConfirmDialogData} from "../../util/confirm-dialog/confirm-dialog.component";
 import {TemplateVariable} from "../project";
+import {TranslateService} from "@ngx-translate/core";
 
 @Component({
   selector: 'template-variables',
@@ -24,15 +25,16 @@ export class TemplateVariablesComponent {
 
   public selectedTemplateVariable: TemplateVariable = null;
 
-  constructor(private dialog: MatDialog) {
+  constructor(private dialog: MatDialog,
+              private readonly translate: TranslateService) {
   }
 
   public addTemplateVariable() {
     const templateNumber = this.customTemplateVariables.length + 1;
     const templateVariable: TemplateVariable = {
       id: null,
-      name: `New_${templateNumber}`,
-      label: `New ${templateNumber}`,
+      name: this.translate.instant('components.project.templateVariables.newTemplateVariableName', {index: templateNumber}),
+      label: this.translate.instant('components.project.templateVariables.newTemplateVariableLabel', {index: templateNumber}),
       useValues: true,
       showOnDashboard: false,
       values: [
@@ -48,8 +50,8 @@ export class TemplateVariablesComponent {
   deleteTemplateVariable(templateVariable: TemplateVariable) {
     this.dialog.open(ConfirmDialog, {
       data: <ConfirmDialogData>{
-        title: `Delete Template Variable?`,
-        okButtonText: 'Delete'
+        title: this.translate.instant('components.project.templateVariables.deleteDialog.title'),
+        okButtonText: this.translate.instant('components.project.templateVariables.deleteDialog.confirm')
       }
     }).afterClosed().subscribe(result => {
       if (result) {

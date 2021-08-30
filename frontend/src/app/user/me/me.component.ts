@@ -8,6 +8,7 @@ import {ConfirmDialog, ConfirmDialogData} from "../../util/confirm-dialog/confir
 import {UserEditDialog} from "../edit-dialog/user-edit-dialog.component";
 import {User} from "../user";
 import {zip} from "rxjs";
+import {TranslateService} from "@ngx-translate/core";
 
 @Component({
   selector: 'me',
@@ -18,7 +19,11 @@ export class MeComponent {
 
   public me: User;
 
-  constructor(private rest: RestService, private dialog: MatDialog, private auth: AuthService, private router: Router) {
+  constructor(private rest: RestService,
+              private dialog: MatDialog,
+              private auth: AuthService,
+              private router: Router,
+              private readonly translate: TranslateService) {
     this.rest.currentUser().subscribe(user => this.me = user);
   }
 
@@ -40,9 +45,9 @@ export class MeComponent {
   public deleteAccount() {
     this.dialog.open(ConfirmDialog, {
       data: <ConfirmDialogData>{
-        title: `Delete your account?`,
-        message: 'Please confirm the deletion of your account. This action cannot be undone.',
-        okButtonText: 'Delete'
+        title: this.translate.instant('components.user.me.deleteDialog.title'),
+        message: this.translate.instant('components.user.me.deleteDialog.message'),
+        okButtonText: this.translate.instant('components.user.me.deleteDialog.okButtonText')
       },
       width: "50%"
     }).afterClosed().subscribe(result => {

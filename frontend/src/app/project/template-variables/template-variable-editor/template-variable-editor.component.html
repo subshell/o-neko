@@ -1,40 +1,40 @@
 <div class="template-variable-editor" *ngIf="templateVariable" fxLayout="column" fxLayoutAlign="space-between stretch">
   <mat-form-field>
-    <input matInput placeholder="Technical Name" [readonly]="readonly" [(ngModel)]="templateVariable.name" name="name" required />
+    <input matInput [placeholder]="'components.project.templateVariables.editor.technicalName' | translate" [readonly]="readonly" [(ngModel)]="templateVariable.name" name="name" required />
   </mat-form-field>
   <mat-form-field>
-    <input matInput placeholder="Label" [readonly]="readonly" [(ngModel)]="templateVariable.label" name="label" required />
+    <input matInput [placeholder]="'components.project.templateVariables.editor.label' | translate" [readonly]="readonly" [(ngModel)]="templateVariable.label" name="label" required />
   </mat-form-field>
 
-  <mat-checkbox [checked]="templateVariable.showOnDashboard" (change)="templateVariable.showOnDashboard = !templateVariable.showOnDashboard">Show on dashboard</mat-checkbox>
-  <mat-checkbox [checked]="templateVariable.useValues" (change)="templateVariable.useValues = !templateVariable.useValues">Use predefined values</mat-checkbox>
+  <mat-checkbox [checked]="templateVariable.showOnDashboard" (change)="templateVariable.showOnDashboard = !templateVariable.showOnDashboard">{{ 'components.project.templateVariables.editor.showOnDashboard' | translate }}</mat-checkbox>
+  <mat-checkbox [checked]="templateVariable.useValues" (change)="templateVariable.useValues = !templateVariable.useValues">{{ 'components.project.templateVariables.editor.useValues' | translate }}</mat-checkbox>
 
   <div *ngIf="templateVariable.useValues">
     <mat-list class="value-list">
       <mat-radio-group [(ngModel)]="defaultValueIndex" (change)="markAsDefault(templateVariable.values[defaultValueIndex])">
         <mat-list-item *ngFor="let value of templateVariable.values; index as i;" fxLayout="row" fxLayoutGap="5px">
-          <mat-radio-button matTooltip="is default value" [value]="i" [disabled]="readonly"></mat-radio-button>
+          <mat-radio-button [matTooltip]="'components.project.templateVariables.editor.isDefaultValue' | translate" [value]="i" [disabled]="readonly"></mat-radio-button>
           <mat-form-field>
             <input matInput #valueInput [readonly]="readonly" [value]="value" (change)="templateVariable.values[i] = valueInput.value" />
           </mat-form-field>
-          <button mat-icon-button (click)="deleteValue(i)" matTooltip="Remove value"><mat-icon svgIcon="mdi:delete-outline"></mat-icon></button>
+          <button mat-icon-button (click)="deleteValue(i)" [matTooltip]="'components.project.templateVariables.editor.removeValue' | translate"><mat-icon svgIcon="mdi:delete-outline"></mat-icon></button>
         </mat-list-item>
       </mat-radio-group>
 
       <!-- new item -->
       <mat-list-item *ngIf="!readonly">
-        <button mat-stroked-button class="add-button" color="primary" [disabled]="readonly" (click)="addNewValue('')">Add Value</button>
+        <button mat-stroked-button class="add-button" color="primary" [disabled]="readonly" (click)="addNewValue('')">{{ 'components.project.templateVariables.editor.addValue' | translate }}</button>
       </mat-list-item>
     </mat-list>
   </div>
 
   <div *ngIf="!templateVariable.useValues && !readonly" class="single-default-value">
     <mat-form-field>
-      <input matInput [(ngModel)]="templateVariable.values[0]" placeholder="Default value" (change)="markAsDefault(templateVariable.values[0])" />
+      <input matInput [(ngModel)]="templateVariable.values[0]" [placeholder]="'components.project.templateVariables.editor.defaultValue' | translate" (change)="markAsDefault(templateVariable.values[0])" />
     </mat-form-field>
   </div>
 </div>
 
 <div *ngIf="!templateVariable">
-  <h3>Please select a template variable</h3>
+  <h3>{{ 'components.project.templateVariables.editor.selectTemplateVariable' | translate }}</h3>
 </div>

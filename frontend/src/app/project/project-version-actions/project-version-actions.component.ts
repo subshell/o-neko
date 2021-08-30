@@ -53,7 +53,7 @@ export class ProjectVersionActionsComponent {
   }
 
   public saveVersion($event: ProjectVersionVariableActionChangeEvent) {
-    this.log.debug(`Version of ${$event.version.name} changed`);
+    this.log.debug(`Variable of ${$event.version.name} changed`);
     this.projectService.saveProjectVersionVariables(this.project, $event.version);
   }
 }

@@ -14,7 +14,9 @@
     "close": "Close",
     "url": "URL",
     "edit": "Edit",
-    "viewDetails": "View details"
+    "viewDetails": "View details",
+    "done": "Done",
+    "confirm": "Confirm"
   },
   "menu": {
     "home": "Home",
@@ -181,6 +183,169 @@
         "description": "<p>You are about to delete the defined namespace <b>{namespace}</b>. All project versions currently using this namespace will fall back to their default namespace.</p><p>This will not remove these namespace from Kubernetes.</p><p>Please confirm this deletion by entering the namespace below. This action cannot be undone.</p>"
       },
       "createNamespace": "Create namespace"
+    },
+    "project": {
+      "createProjectDialog": {
+        "createNewProject": "Create a new project",
+        "importProject": "Import a project",
+        "importProjectConfigurationFile": "Import a project configuration file",
+        "importProjectDescription": "Import a project from a <i>.json</i> configuration file. You can configure the import in the next steps.",
+        "fileUploadLabel": "Upload project configuration",
+        "uploadSuccessful": "Upload successful!",
+        "importCompleteDescription": "The imported project contains <b>{count}</b> configuration templates.",
+        "next": "Next",
+        "back": "Back",
+        "enterProjectNameLabel": "Enter the new project's name",
+        "enterProjectNameDescription": "<p>Enter a meaningful name for your new project.</p><p>The name can be chosen arbitrarily but should be distinguishable from the names of yet existing projects.</p>",
+        "projectName": "Project name",
+        "collidingProjectNameMessage": "There is already a project with the name {name}.",
+        "selectDockerRegistry": "Select a docker registry",
+        "selectDockerRegistryDescription": "All docker images for this project will be picked from the docker registry you select here.",
+        "dockerRegistry": "Docker registry",
+        "enterProjectImageName": "Enter the new project's image name",
+        "enterProjectImageNameDescription": "Type in the name of the docker image. This must match the image name as present in the docker registry.",
+        "couldNotUploadFile": "Could not upload file {name}",
+        "errorParsingConfiguration": "Error while parsing the configuration file"
+      },
+      "projectDashboard": {
+        "projects": "Projects",
+        "projectHasNoDeployedVersions": "<strong>{name}</strong> has no deployed versions."
+      },
+      "editProject": {
+        "editProject": "Edit project",
+        "showVersions": "Show versions",
+        "projectName": "Project name",
+        "projectNameIsRequired": "A project name is required",
+        "imageName": "Image name",
+        "imageNameIsRequired": "An image name is required",
+        "dockerRegistry": "!alias:components.project.createProjectDialog.dockerRegistry",
+        "dockerRegistryIsRequired": "Each project must have a docker registry assigned.",
+        "namespaceInKubernetes": "Namespace in Kubernetes",
+        "configurationTemplates": "Configuration templates",
+        "templateVariables": "Template Variables",
+        "defaultLifetimeBehaviour": "Default lifetime behaviour",
+        "saveProject": "Save project",
+        "exportProject": "Export project",
+        "deleteProject": "Delete project"
+      },
+      "editVersion": {
+        "versions": "Versions",
+        "editProjectVersion": "Edit Project Version",
+        "deploymentUrls": "Deployment URLs",
+        "projectVersionName": "Project version name",
+        "belongingToProject": "Belonging to project",
+        "namespaceInKubernetes": "Namespace in Kubernetes",
+        "inheritFromProject": "Inherit from project",
+        "configurationTemplate": "Configuration Template",
+        "inheritedVariables": "Inherited variables",
+        "versionSpecificVariables": "Version specific variables",
+        "showEffectiveConfiguration": "Show effective configuration"
+      },
+      "list": {
+        "projects": "!alias:menu.projectManagement.projects",
+        "createProject": "Create Project",
+        "importProject": "Import Project",
+        "columns": "Columns",
+        "imageName": "Image name",
+        "status": "Status",
+        "versions": "Versions",
+        "orphaned": "Orphaned",
+        "pending": "Pending",
+        "error": "Error",
+        "notDeployed": "Not deployed",
+        "versionCount": "{count} versions"
+      },
+      "templateVariables": {
+        "addTemplateVariable": "Add template variable",
+        "newTemplateVariableName": "New_{index}",
+        "newTemplateVariableLabel": "New {index}",
+        "deleteDialog": {
+          "title": "Delete Template Variable?",
+          "confirm": "Delete"
+        },
+        "editor": {
+          "technicalName": "Technical Name",
+          "label": "Label",
+          "showOnDashboard": "Show on dashboard",
+          "useValues": "Use pre-defined values",
+          "isDefaultValue": "make default value",
+          "removeValue": "Remove value",
+          "addValue": "Add value",
+          "defaultValue": "Default value",
+          "selectTemplateVariable": "Please select a template variable"
+        }
+      },
+      "versionList": {
+        "name": "Name",
+        "imageUpdatedDate": "Image Updated Date",
+        "deploymentUrl": "Deployment URL",
+        "deploymentDate": "Deployment Date",
+        "deploymentStatus": "Deployment Status",
+        "filterVersionsByName": "Filter by name",
+        "columns": "Columns"
+      },
+      "service": {
+        "deleteDialog": {
+          "title": "Delete {name}?",
+          "message": "Please confirm the deletion of this project by entering the project name below. This action cannot be undone.",
+          "confirmPlaceholder": "Confirm project name",
+          "okButtonText": "Delete"
+        },
+        "projectSnackbarMessage": "Project {name} has been {action, select, created{created} saved{saved} deleted{deleted} other{modified}}.",
+        "versionSnackbarMessage": "Project {name} version {version} has been {action, select, deployed{deployed} stopped{stopped} other{modified}}.",
+        "errorMessage": "Error: {message}"
+      }
+    },
+    "user": {
+      "editDialog": {
+        "title": "{action, select, create{Create} edit{Edit} other{Edit}} User",
+        "username": "Username",
+        "changeUsernameWarning": "Changing your username will require you to sign in again.",
+        "usernameRequired": "A username is required.",
+        "usernameUnavailable": "This username is not available.",
+        "role": "Role",
+        "roleRequired": "A role is required for every user.",
+        "email": "E-Mail",
+        "emailRequired": "An email address is required.",
+        "enterValidMail": "Please enter a valid email address.",
+        "emailUnavailable": "This email is not available.",
+        "firstName": "First name",
+        "lastName": "Last name",
+        "password": "Password",
+        "passwordIsRequired": "A password is required.",
+        "verifyPassword": "Verify your password by entering it again.",
+        "passwordsMustMatch": "The passwords must match.",
+        "changePassword": "Change password"
+      },
+      "list": {
+        "userManagement": "User Management",
+        "createUser": "Create User",
+        "columns": "Columns",
+        "username": "Username",
+        "email": "E-Mail",
+        "firstName": "First name",
+        "lastName": "Last name",
+        "role": "Role",
+        "deleteDialog": {
+          "title": "Delete {username}?",
+          "message": "Please confirm the deletion of this user by entering the username below. This action cannot be undone.",
+          "confirmationPlaceholder": "Confirm username",
+          "okButtonText": "Delete"
+        }
+      },
+      "me": {
+        "username": "Username",
+        "email": "E-Mail",
+        "firstName": "First name",
+        "lastName": "Last name",
+        "role": "Role",
+        "deleteAccount": "Delete account",
+        "deleteDialog": {
+          "title": "Delete your account?",
+          "message": "Please confirm the deletion of your account. This action cannot be undone.",
+          "okButtonText": "Delete"
+        }
+      }
     }
   },
   "material": {

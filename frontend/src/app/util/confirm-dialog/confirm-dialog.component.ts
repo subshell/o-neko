@@ -1,5 +1,6 @@
 import {Component, Inject} from "@angular/core";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
+import {TranslateService} from "@ngx-translate/core";
 
 export interface ConfirmDialogData {
   title: string
@@ -18,10 +19,12 @@ export class ConfirmDialog {
   public okButtonText: string;
   public cancelButtonText: string;
 
-  constructor(public dialogRef: MatDialogRef<ConfirmDialog>, @Inject(MAT_DIALOG_DATA) data: ConfirmDialogData) {
+  constructor(public dialogRef: MatDialogRef<ConfirmDialog>,
+              @Inject(MAT_DIALOG_DATA) data: ConfirmDialogData,
+              readonly translate: TranslateService) {
     this.title = data.title;
     this.message = data.message;
-    this.okButtonText = data.okButtonText || "OK";
-    this.cancelButtonText = data.cancelButtonText || "Cancel";
+    this.okButtonText = data.okButtonText || translate.instant('general.ok');
+    this.cancelButtonText = data.cancelButtonText || translate.instant('general.cancel');
   }
 }

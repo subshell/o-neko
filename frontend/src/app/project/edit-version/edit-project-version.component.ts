@@ -24,6 +24,7 @@ import {WebSocketServiceWrapper} from "../../websocket/web-socket-service-wrappe
 import {Project} from "../project";
 import {ProjectVersion} from "../project-version";
 import {ProjectService} from "../project.service";
+import {TranslateService} from "@ngx-translate/core";
 
 @Component({
   selector: 'edit-project-version',
@@ -37,10 +38,7 @@ export class EditProjectVersionComponent implements OnInit, OnDestroy {
   public dockerRegistries: Array<DockerRegistry> = [];
   public namespaces: Array<Namespace> = [];
   public templatesValid = true;
-  public lifetimeBehaviourOptions: Array<LabeledLifetimeBehaviour> = [{
-    label: 'Inherit from project',
-    value: -1
-  }];
+  public lifetimeBehaviourOptions: Array<LabeledLifetimeBehaviour>;
   public projectVariables: ValueInfoMap = {};
   public projectVersionVariables: Map<string, string> = new Map();
   private editingUser: User;
@@ -51,7 +49,12 @@ export class EditProjectVersionComponent implements OnInit, OnDestroy {
               private userService: UserService,
               private route: ActivatedRoute,
               private dialog: MatDialog,
-              private wsService: WebSocketServiceWrapper) {
+              private wsService: WebSocketServiceWrapper,
+              private readonly translate: TranslateService) {
+    this.lifetimeBehaviourOptions = [{
+      label: this.translate.instant('components.project.editVersion.inheritFromProject'),
+      value: -1
+    }];
     this.userService.currentUser().subscribe(currentUser => this.editingUser = currentUser);
     this.rest.docker().getAllDockerRegistries().subscribe(regs => this.dockerRegistries = regs);
     this.rest.namespace().getAllDefinedNamespaces().subscribe(namespaces => this.namespaces = namespaces);

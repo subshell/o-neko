@@ -14,7 +14,9 @@
     "close": "Schließen",
     "url": "URL",
     "edit": "Bearbeiten",
-    "viewDetails": "Details öffnen"
+    "viewDetails": "Details öffnen",
+    "done": "Fertig",
+    "confirm": "Bestätigen"
   },
   "menu": {
     "home": "Home",
@@ -181,6 +183,169 @@
         "description": "<p>Sie sind dabei den definierten Namespace <b>{namespace}</b> zu löschen. Alle Projektversionen, die diesen Namespace aktuell verwenden, werden auf ihren Default-Namespace zurückgreifen.</p><p>Der Namespace in Kubernetes wird nicht gelöscht.</p><p>Bitte bestätigen Sie die Löschung. Diese Aktion kann nicht rückgängig gemacht werden.</p>"
       },
       "createNamespace": "Namespace erstellen"
+    },
+    "project": {
+      "createProjectDialog": {
+        "createNewProject": "Neues Projekt anlegen",
+        "importProject": "Projekt importieren",
+        "importProjectConfigurationFile": "Ein Projekt aus einer Konfigurationsdatei importieren",
+        "importProjectDescription": "Ein Projekt aus einer <i>.json</i> Datei importieren. Der Import kann in den nächsten Schritten konfiguriert werden.",
+        "fileUploadLabel": "Projektkonfiguration hochladen",
+        "uploadSuccessful": "Hochladen erfolgreich!",
+        "importCompleteDescription": "Die importierte Konfiguration enthält <b>{count}</b> Templates.",
+        "next": "Weiter",
+        "back": "Zurück",
+        "enterProjectNameLabel": "Name des neuen Projekts",
+        "enterProjectNameDescription": "<p>Wählen Sie einen sinnvollen Namen für das Projekt.</p><p>Der Name kann beliebig gewählt werden, aber darf nicht mit bestehenden Namen kollidieren.</p>",
+        "projectName": "Projektname",
+        "collidingProjectNameMessage": "Es gibt bereits ein Projekt mit dem Namen {name}.",
+        "selectDockerRegistry": "Wählen Sie eine Docker Registry",
+        "selectDockerRegistryDescription": "Alle Docker Images des Projekts werden aus der angegebenen Docker Registry geladen.",
+        "dockerRegistry": "Docker Registry",
+        "enterProjectImageName": "Geben Sie den Image-Namen des Projekts ein",
+        "enterProjectImageNameDescription": "Der Name muss dem Namen entsprechen, den das Docker Image in der Docker Registry hat.",
+        "couldNotUploadFile": "Die Datei {name} konnte nicht hochgeladen werden",
+        "errorParsingConfiguration": "Ein Fehler ist beim Lesen der Konfiguration aufgetreten"
+      },
+      "projectDashboard": {
+        "projects": "Projekte",
+        "projectHasNoDeployedVersions": "<strong>{name}</strong> hat keine deployten Versionen."
+      },
+      "editProject": {
+        "editProject": "Projekt bearbeiten",
+        "showVersions": "Versionen anzeigen",
+        "projectName": "Projektname",
+        "projectNameIsRequired": "Ein Projektname ist erforderlich",
+        "imageName": "Image-Name",
+        "imageNameIsRequired": "Ein Image-Name ist erforderlich",
+        "dockerRegistry": "!alias:components.project.createProjectDialog.dockerRegistry",
+        "dockerRegistryIsRequired": "Jedem Projekt muss eine Docker Registry zugewiesen sein",
+        "namespaceInKubernetes": "Namespace in Kubernetes",
+        "configurationTemplates": "Konfigurationstemplates",
+        "templateVariables": "Template-Variablen",
+        "defaultLifetimeBehaviour": "Standard Lebensdauerverhalten",
+        "saveProject": "Projekt speichern",
+        "exportProject": "Projekt exportieren",
+        "deleteProject": "Projekt löschen"
+      },
+      "editVersion": {
+        "versions": "Versionen",
+        "editProjectVersion": "Version bearbeiten",
+        "deploymentUrls": "Deployment URLs",
+        "projectVersionName": "Name der Version",
+        "belongingToProject": "Zugehöriges Projekt",
+        "namespaceInKubernetes": "Namespace in Kubernetes",
+        "inheritFromProject": "Vom Projekt erben",
+        "configurationTemplate": "Konfigurations-Template",
+        "inheritedVariables": "Geerbte Variablen",
+        "versionSpecificVariables": "Versionsspezifische Variablen",
+        "showEffectiveConfiguration": "Effektive Konfiguration anzeigen"
+      },
+      "list": {
+        "projects": "!alias:menu.projectManagement.projects",
+        "createProject": "Projekt erstellen",
+        "importProject": "Projekt importieren",
+        "columns": "Spalten",
+        "imageName": "Image-Name",
+        "status": "Status",
+        "versions": "Versionen",
+        "orphaned": "Verwaist",
+        "pending": "Startend",
+        "error": "Fehler",
+        "notDeployed": "Nicht deployed",
+        "versionCount": "{count} Versionen"
+      },
+      "templateVariables": {
+        "addTemplateVariable": "Template-Variable hinzufügen",
+        "newTemplateVariableName": "Neu_{index}",
+        "newTemplateVariableLabel": "Neu {index}",
+        "deleteDialog": {
+          "title": "Template-Variable löschen?",
+          "confirm": "Löschen"
+        },
+        "editor": {
+          "technicalName": "Technischer Name",
+          "label": "Label",
+          "showOnDashboard": "Auf dem Dashboard anzeigen",
+          "useValues": "Vordefinierte Werte verwenden",
+          "isDefaultValue": "Zum Standardwert machen",
+          "removeValue": "Wert entfernen",
+          "addValue": "Wert hinzufügen",
+          "defaultValue": "Standardwert",
+          "selectTemplateVariable": "Bitte wählen Sie eine Template-Variable aus"
+        }
+      },
+      "versionList": {
+        "name": "Name",
+        "imageUpdatedDate": "Image-Aktualisierungsdatum",
+        "deploymentUrl": "Deployment URL",
+        "deploymentDate": "Deployment-Datum",
+        "deploymentStatus": "Deployment-Status",
+        "filterVersionsByName": "Nach Namen filtern",
+        "columns": "Spalten"
+      },
+      "service": {
+        "deleteDialog": {
+          "title": "{name} löschen?",
+          "message": "Bitte bestätigen Sie das Löschen des Projekts, indem Sie den Namen eingeben. Diese Aktion kann nicht rückgängig gemacht werden.",
+          "confirmPlaceholder": "Projektnamen bestätigen",
+          "okButtonText": "Löschen"
+        },
+        "projectSnackbarMessage": "Projekt {name} wurde {action, select, created{erstellt} saved{gespeichert} deleted{gelöscht} other{bearbeitet}}.",
+        "versionSnackbarMessage": "Version {version} des Projekts {name} wurde {action, select, deployed{deployed} stopped{gestoppt} other{bearbeitet}}.",
+        "errorMessage": "Fehler: {message}"
+      }
+    },
+    "user": {
+      "editDialog": {
+        "title": "Benutzer {action, select, create{erstellen} edit{bearbeiten} other{bearbeiten}}",
+        "username": "Benutzername",
+        "changeUsernameWarning": "Das Ändern des Benutzernamens macht ein erneutes Einloggen erforderlich.",
+        "usernameRequired": "Ein Benutzername ist erforderlich.",
+        "usernameUnavailable": "Dieser Benutzername ist nicht verfügbar.",
+        "role": "Rolle",
+        "roleRequired": "Jedem Benutzer muss eine Rolle zugewiesen werden.",
+        "email": "E-Mail",
+        "emailRequired": "Eine E-Mail Adresse ist erforderlich.",
+        "enterValidMail": "Bitte geben Sie eine gültige E-Mail Adresse an.",
+        "emailUnavailable": "Diese E-Mail Adresse ist nicht verfügbar.",
+        "firstName": "Vorname",
+        "lastName": "Nachname",
+        "password": "Passwort",
+        "passwordIsRequired": "Ein Passwort ist erforderlich.",
+        "verifyPassword": "Verifizieren Sie ihr Passwort über eine erneute Eingabe.",
+        "passwordsMustMatch": "Die Passwörter müssen übereinstimmen.",
+        "changePassword": "Passwort ändern"
+      },
+      "list": {
+        "userManagement": "Benutzerverwaltung",
+        "createUser": "Benutzer erstellen",
+        "columns": "Spalten",
+        "username": "Benutzername",
+        "email": "E-Mail",
+        "firstName": "Vorname",
+        "lastName": "Nachname",
+        "role": "Rolle",
+        "deleteDialog": {
+          "title": "{username} löschen?",
+          "message": "Bitte bestätigen Sie das Löschen des Benutzers durch Eingabe des Benutzernamens. Diese Aktion kann nicht rückgängig gemacht werden.",
+          "confirmationPlaceholder": "Benutzernamen bestätigen",
+          "okButtonText": "Löschen"
+        }
+      },
+      "me": {
+        "username": "Benutzername",
+        "email": "E-Mail",
+        "firstName": "Vorname",
+        "lastName": "Nachname",
+        "role": "Rolle",
+        "deleteAccount": "Account löschen",
+        "deleteDialog": {
+          "title": "Soll Ihr Account gelöscht werden?",
+          "message": "Bitte bestätigen Sie das Löschen Ihres Accounts. Diese Aktion kann nicht rückgängig gemacht werden.",
+          "okButtonText": "Löschen"
+        }
+      }
     }
   },
   "material": {

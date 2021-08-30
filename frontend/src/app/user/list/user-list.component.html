@@ -1,17 +1,17 @@
 <div class="user-list table-page main-content-padding" fxLayout="column">
   <h2 fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="12px">
     <mat-icon svgIcon="supervised-user-circle"></mat-icon>
-    <span>User Management</span>
+    <span>{{ 'components.user.list.userManagement' | translate }}</span>
   </h2>
   <div fxLayout="row" fxLayoutAlign="space-between center">
     <button mat-button (click)="createUser()">
       <span fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="1em">
         <mat-icon svgIcon="mdi:account-plus"></mat-icon>
-        <span>Create User</span>
+        <span>{{ 'components.user.list.createUser' | translate }}</span>
       </span>
     </button>
     <mat-form-field>
-      <mat-select placeholder="Columns" multiple [(ngModel)]="selectedColumns">
+      <mat-select [placeholder]="'components.user.list.columns' | translate" multiple [(ngModel)]="selectedColumns">
         <mat-option *ngFor="let col of columns" [value]="col.value">{{col.label}}</mat-option>
       </mat-select>
     </mat-form-field>
@@ -23,11 +23,11 @@
 
   <table matSort (matSortChange)="sortUsers($event)">
     <tr>
-      <th mat-sort-header="username" *ngIf="columnActive('username')">Username</th>
-      <th mat-sort-header="email" *ngIf="columnActive('email')">Email</th>
-      <th mat-sort-header="firstName" *ngIf="columnActive('firstName')">First name</th>
-      <th mat-sort-header="lastName" *ngIf="columnActive('lastName')">Last name</th>
-      <th mat-sort-header="role" *ngIf="columnActive('role')">Role</th>
+      <th mat-sort-header="username" *ngIf="columnActive('username')">{{ 'components.user.list.username' | translate }}</th>
+      <th mat-sort-header="email" *ngIf="columnActive('email')">{{ 'components.user.list.email' | translate }}</th>
+      <th mat-sort-header="firstName" *ngIf="columnActive('firstName')">{{ 'components.user.list.firstName' | translate }}</th>
+      <th mat-sort-header="lastName" *ngIf="columnActive('lastName')">{{ 'components.user.list.lastName' | translate }}</th>
+      <th mat-sort-header="role" *ngIf="columnActive('role')">{{ 'components.user.list.role' | translate }}</th>
       <th></th>
     </tr>
     <tr *ngFor="let user of sortedUsers">
@@ -38,10 +38,10 @@
       <td *ngIf="columnActive('role')">{{user.role}}</td>
       <td>
         <div fxLayout="row" fxLayoutAlign="end center">
-          <button mat-icon-button (click)="editUser(user)" matTooltip="Edit">
+          <button mat-icon-button (click)="editUser(user)" [matTooltip]="'general.edit' | translate">
             <mat-icon svgIcon="mdi:pencil"></mat-icon>
           </button>
-          <button mat-icon-button (click)="deleteUser(user)" matTooltip="Delete">
+          <button mat-icon-button (click)="deleteUser(user)" [matTooltip]="'general.delete' | translate">
             <mat-icon svgIcon="mdi:delete"></mat-icon>
           </button>
         </div>

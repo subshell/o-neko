@@ -9,11 +9,11 @@ import {UserService} from '../../user/user.service';
 import {CreateProjectDialogComponent, CreateProjectDialogComponentData} from '../create-project-dialog/create-project-dialog.component';
 import {Project} from '../project';
 import {ProjectService} from '../project.service';
+import {TranslateService} from "@ngx-translate/core";
 
 class ColumnDefinition {
 
   constructor(private _key: string, private _label: string, private _getValue: (Project) => any) {
-
   }
 
   get key(): string {
@@ -40,12 +40,12 @@ export class ProjectListComponent {
   public sortedProjects: Array<Project>;
   public projects: Array<Project> = [];
 
-  public nameColumn = new ColumnDefinition('name', 'Name', (project: Project) => project.name);
-  public statusColumn = new ColumnDefinition('status', 'Status', (project: Project) => project.isOrphan() ? 'orphaned' : project.status);
-  public imageNameColumn = new ColumnDefinition('imagename', 'Image name', (project: Project) => project.imageName);
-  public versionsColumn = new ColumnDefinition('versions', 'Versions', (project: Project) => project.versions.length);
-  public allColumns = [this.nameColumn, this.statusColumn, this.imageNameColumn, this.versionsColumn];
-  public activeColumnKeys = [this.nameColumn.key, this.statusColumn.key, this.versionsColumn.key];
+  public nameColumn: ColumnDefinition;
+  public statusColumn: ColumnDefinition;
+  public imageNameColumn: ColumnDefinition;
+  public versionsColumn: ColumnDefinition;
+  public allColumns: Array<ColumnDefinition>;
+  public activeColumnKeys: Array<string>;
   public pageSettings = {
     pageSize: 10,
     pageSizeOptions: [10, 25, 50, 100]
@@ -60,7 +60,15 @@ export class ProjectListComponent {
               private userService: UserService,
               private projectService: ProjectService,
               private dialog: MatDialog,
-              private router: Router) {
+              private router: Router,
+              private readonly translate: TranslateService) {
+    this.nameColumn = new ColumnDefinition('name', translate.instant('general.name'), (project: Project) => project.name);
+    this.statusColumn = new ColumnDefinition('status', translate.instant('components.project.list.status'), (project: Project) => project.isOrphan() ? translate.instant('components.project.list.orphaned') : project.status);
+    this.imageNameColumn = new ColumnDefinition('imagename', translate.instant('components.project.list.imageName'), (project: Project) => project.imageName);
+    this.versionsColumn = new ColumnDefinition('versions', translate.instant('components.project.list.versions'), (project: Project) => project.versions.length);
+    this.allColumns = [this.nameColumn, this.statusColumn, this.imageNameColumn, this.versionsColumn];
+    this.activeColumnKeys = [this.nameColumn.key, this.statusColumn.key, this.versionsColumn.key];
+
     this.userService.currentUser().subscribe(currentUser => {
       this.editingUser = currentUser;
       this.userMayEditProjects = this.projectService.isUserAllowedToEditProjects(this.editingUser);

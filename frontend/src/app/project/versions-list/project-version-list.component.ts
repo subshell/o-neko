@@ -11,6 +11,7 @@ import {WebSocketServiceWrapper} from "../../websocket/web-socket-service-wrappe
 import {Project} from "../project";
 import {ProjectVersion} from "../project-version";
 import {ProjectService} from "../project.service";
+import {TranslateService} from "@ngx-translate/core";
 
 class ColumnDefinition {
 
@@ -44,13 +45,13 @@ export class ProjectVersionListComponent implements OnInit, OnDestroy {
 
   public filteredProjectVersions: Array<ProjectVersion> = [];
   public sortedProjectVersions: Array<ProjectVersion>;
-  public nameColumn = new ColumnDefinition('name', 'Name', (projectVersion: ProjectVersion) => projectVersion.name);
-  public imageDateColumn = new ColumnDefinition('image_updated_date', 'Image Updated Date', (projectVersion: ProjectVersion) => projectVersion.formattedImageUpdatedDate, (projectVersion: ProjectVersion) => projectVersion.imageUpdatedDate);
-  public urlColumn = new ColumnDefinition('url', 'Deployment URL', (projectVersion: ProjectVersion) => projectVersion.urls.length > 0 ? projectVersion.urls[0] : '');
-  public deploymentStatusColumn = new ColumnDefinition('deployment_status', 'Deployment Status', (projectVersion: ProjectVersion) => projectVersion.deployment.status);
-  public deploymentDateColumn = new ColumnDefinition('deployment_date', 'Deployment Date', (projectVersion: ProjectVersion) => projectVersion.deployment.formattedTimestamp, (projectVersion: ProjectVersion) => projectVersion.deployment.timestamp);
-  public allColumns = [this.nameColumn, this.imageDateColumn, this.urlColumn, this.deploymentStatusColumn, this.deploymentDateColumn];
-  public activeColumnKeys = [this.nameColumn.key, this.imageDateColumn.key, this.deploymentDateColumn.key, this.deploymentStatusColumn.key];
+  public nameColumn: ColumnDefinition;
+  public imageDateColumn: ColumnDefinition;
+  public urlColumn: ColumnDefinition;
+  public deploymentStatusColumn: ColumnDefinition;
+  public deploymentDateColumn: ColumnDefinition;
+  public allColumns: Array<ColumnDefinition>;
+  public activeColumnKeys: Array<string>;
   public project: Project;
   public pageSettings = {
     pageSize: 10,
@@ -60,13 +61,24 @@ export class ProjectVersionListComponent implements OnInit, OnDestroy {
   private editingUser: User;
   private updateSubscription?: Subscription;
   private pageEvent: PageEvent;
-  private sort: Sort = {active: this.imageDateColumn.key, direction: 'desc'};
+  private sort: Sort;
 
   constructor(private rest: RestService,
               private userService: UserService,
               private projectService: ProjectService,
               private route: ActivatedRoute,
-              private wsService: WebSocketServiceWrapper) {
+              private wsService: WebSocketServiceWrapper,
+              private readonly translate: TranslateService) {
+    this.nameColumn = new ColumnDefinition('name', this.translate.instant('components.project.versionList.name'), (projectVersion: ProjectVersion) => projectVersion.name);
+    this.imageDateColumn = new ColumnDefinition('image_updated_date', this.translate.instant('components.project.versionList.imageUpdatedDate'), (projectVersion: ProjectVersion) => projectVersion.formattedImageUpdatedDate, (projectVersion: ProjectVersion) => projectVersion.imageUpdatedDate);
+    this.urlColumn = new ColumnDefinition('url', this.translate.instant('components.project.versionList.deploymentUrl'), (projectVersion: ProjectVersion) => projectVersion.urls.length > 0 ? projectVersion.urls[0] : '');
+    this.deploymentStatusColumn = new ColumnDefinition('deployment_status', this.translate.instant('components.project.versionList.deploymentStatus'), (projectVersion: ProjectVersion) => projectVersion.deployment.status);
+    this.deploymentDateColumn = new ColumnDefinition('deployment_date', this.translate.instant('components.project.versionList.deploymentDate'), (projectVersion: ProjectVersion) => projectVersion.deployment.formattedTimestamp, (projectVersion: ProjectVersion) => projectVersion.deployment.timestamp);
+
+    this.allColumns = [this.nameColumn, this.imageDateColumn, this.urlColumn, this.deploymentStatusColumn, this.deploymentDateColumn];
+    this.activeColumnKeys = [this.nameColumn.key, this.imageDateColumn.key, this.deploymentDateColumn.key, this.deploymentStatusColumn.key];
+
+    this.sort = {active: this.imageDateColumn.key, direction: 'desc'};
     this.userService.currentUser().subscribe(currentUser => this.editingUser = currentUser);
   }
 

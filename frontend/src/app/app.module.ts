@@ -96,7 +96,7 @@ import {
 } from "./configuration/configuration";
 import {MainComponent} from "./views/main/main.component";
 import {ExpandableMenuComponent} from "./components/expandable-menu/expandable-menu.component";
-import {NgxsModule} from "@ngxs/store";
+import {NgxsModule, Store} from "@ngxs/store";
 import {environment} from "../environments/environment.prod";
 import {NgxsStoragePluginModule} from "@ngxs/storage-plugin";
 import {NgxsReduxDevtoolsPluginModule} from "@ngxs/devtools-plugin";
@@ -115,6 +115,8 @@ import {HelmRegistryListComponent} from "./registries/helm/list/helm-registry-li
 import {HelmRegistryEditDialogComponent} from "./registries/helm/edit-dialog/helm-registry-edit-dialog.component";
 import {DistinctObjectArrayPipe} from "./util/distinct-object-array.pipe";
 import {FilterDeepPipe} from "./util/filter-deep.pipe";
+import {I18nSwitcherComponent} from "./components/i18n-switcher/i18n-switcher.component";
+import {I18nState} from "./store/i18n/i18n.state";
 
 @NgModule({
     declarations: [
@@ -172,7 +174,8 @@ import {FilterDeepPipe} from "./util/filter-deep.pipe";
         HelmRegistryListComponent,
         HelmRegistryEditDialogComponent,
         DistinctObjectArrayPipe,
-        FilterDeepPipe
+        FilterDeepPipe,
+        I18nSwitcherComponent
     ],
   imports: [
     BrowserModule,
@@ -213,7 +216,7 @@ import {FilterDeepPipe} from "./util/filter-deep.pipe";
     MatRadioModule,
     NgxMatSelectSearchModule,
     NgxsModule.forRoot(appStates, {developmentMode: !environment.production}),
-    NgxsStoragePluginModule.forRoot({key: [ThemingState]}),
+    NgxsStoragePluginModule.forRoot({key: [ThemingState, I18nState]}),
     NgxsReduxDevtoolsPluginModule.forRoot(),
     NgxsLoggerPluginModule.forRoot(),
     TranslateModule.forRoot({
@@ -262,9 +265,15 @@ import {FilterDeepPipe} from "./util/filter-deep.pipe";
   bootstrap: [AppComponent]
 })
 export class AppModule {
-  constructor(translateService: TranslateService, matIconRegistry: MatIconRegistry, domSanitizer: DomSanitizer, rest: RestService, auth: AuthService, ws: WebSocketService) {
+  constructor(translateService: TranslateService,
+              matIconRegistry: MatIconRegistry,
+              domSanitizer: DomSanitizer,
+              rest: RestService,
+              auth: AuthService,
+              ws: WebSocketService,
+              store: Store) {
     configureSvgIcons(matIconRegistry, domSanitizer);
-    configureTranslations(translateService);
+    configureTranslations(translateService, store);
 
     auth.isAuthenticated().subscribe(authenticated => {
       if (authenticated) {

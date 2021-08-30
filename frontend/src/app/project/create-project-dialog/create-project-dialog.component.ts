@@ -7,6 +7,7 @@ import {Project} from '../project';
 import {FileReaderService} from '../../form/upload/file-reader.service';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {ProjectExportDTO} from '../project-export';
+import {TranslateService} from "@ngx-translate/core";
 
 export interface CreateProjectDialogComponentData {
   projects: Array<Project>;
@@ -36,7 +37,8 @@ export class CreateProjectDialogComponent implements OnInit {
               @Inject(MAT_DIALOG_DATA) readonly data: CreateProjectDialogComponentData,
               private readonly rest: RestService,
               private readonly formBuilder: FormBuilder,
-              private readonly snackBar: MatSnackBar) {
+              private readonly snackBar: MatSnackBar,
+              private readonly translate: TranslateService) {
     this.rest.docker().getAllDockerRegistries().subscribe(regs => this.dockerRegistries = regs);
     this.yetExistingProjects = data.projects;
     this.showImport = data.showImport;
@@ -88,7 +90,7 @@ export class CreateProjectDialogComponent implements OnInit {
     const [file] = await new FileReaderService().readAll($event);
 
     if (typeof file.content !== 'string') {
-      this.snackBar.open(`Could not upload file ${file.name}`, null, {
+      this.snackBar.open(this.translate.instant('components.project.createProjectDialog.couldNotUploadFile', {name: file.name}), null, {
         duration: 1000
       });
       return;
@@ -100,7 +102,7 @@ export class CreateProjectDialogComponent implements OnInit {
       this.projectExport = projectExport;
     } catch (e) {
       console.error('Error while parsing exported project', e);
-      this.snackBar.open(`Error while parsing exported project configuration`, null, {
+      this.snackBar.open(this.translate.instant('components.project.createProjectDialog.errorParsingConfiguration'), null, {
         duration: 1000
       });
       return;

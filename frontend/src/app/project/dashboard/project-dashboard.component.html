@@ -1,8 +1,8 @@
 <div class="project-dashboard" fxLayout="column">
   <div class="project-selection" fxLayout="row" fxLayoutAlign="space-between center">
-    <h4>Projects</h4>
+    <h4>{{ 'components.project.projectDashboard.projects' | translate }}</h4>
     <mat-form-field *ngIf="projects.length > 1">
-      <mat-select placeholder="Projects" multiple [(ngModel)]="currentlyShownProjects">
+      <mat-select [placeholder]="'components.project.projectDashboard.projects' | translate" multiple [(ngModel)]="currentlyShownProjects">
         <mat-option *ngFor="let project of projects" [value]="project.uuid">{{project.name}}</mat-option>
       </mat-select>
     </mat-form-field>
@@ -50,9 +50,7 @@
           </div>
           <mat-divider *ngIf="!lastVersion"></mat-divider>
         </div>
-        <span mat-list-item *ngIf="getDeployedVersionsOfProject(project).length === 0">
-          <strong>{{project.name}}</strong> has no deployed versions.
-        </span>
+        <span mat-list-item *ngIf="getDeployedVersionsOfProject(project).length === 0" [innerHTML]="'components.project.projectDashboard.projectHasNoDeployedVersions' | translate: {name: project.name}"></span>
       </ng-container>
     </mat-list>
   </div>

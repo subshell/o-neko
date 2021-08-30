@@ -7,7 +7,7 @@
         <span mat-line>{{templateVariable.label}}</span>
       </mat-list-item>
       <div class="custom-variables-header" fxLayout="row" fxLayoutAlign="space-between center">
-        <button mat-stroked-button class="add-button" color="primary" [disabled]="readonly" (click)="addTemplateVariable()">Add Template Variable</button>
+        <button mat-stroked-button class="add-button" color="primary" [disabled]="readonly" (click)="addTemplateVariable()">{{ 'components.project.templateVariables.addTemplateVariable' | translate }}</button>
       </div>
     </mat-action-list>
   </div>

@@ -1,16 +1,16 @@
-<breadcrumbs *ngIf="project" [breadcrumbs]="[{label: 'home', link: ''}, {label: 'projects', link: '/projects'}, {label: project.name}]"></breadcrumbs>
+<breadcrumbs *ngIf="project" [breadcrumbs]="[{label: ('menu.home' | translate), link: ''}, {label: ('menu.projectManagement.projects' | translate), link: '/projects'}, {label: project.name}]"></breadcrumbs>
 <div class="main-content-padding" *ngIf="project">
   <div class="title full-page-width" fxLayout="row" fxLayoutAlign="space-between center">
     <h2 fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="12px">
       <mat-icon svgIcon="edit"></mat-icon>
-      <span>Edit Project</span>
+      <span>{{ 'components.project.editProject.editProject' | translate }}</span>
     </h2>
     <button mat-button
             routerLinkActive="active"
             [routerLink]="'/projects/' + project?.uuid + '/versions'"
             color="primary">
       <mat-icon svgIcon="view-list"></mat-icon>
-      Show Versions
+      {{ 'components.project.editProject.showVersions' | translate }}
     </button>
   </div>
   <div class="edit-project full-page-form" fxLayout="column">
@@ -19,24 +19,24 @@
         <form fxLayout="column" #projectForm="ngForm" fxLayoutGap="1em">
           <mat-form-field>
             <input type="text" matInput [(ngModel)]="project.name" autocomplete="off" required name="projectname" id="projectname"
-                   placeholder="Project name" #projectname="ngModel" [disabled]="!mayEditProjects()">
-            <mat-error *ngIf="projectname.invalid && projectname.errors.required">A project name is required.</mat-error>
+                   [placeholder]="'components.project.editProject.projectName' | translate" #projectname="ngModel" [disabled]="!mayEditProjects()">
+            <mat-error *ngIf="projectname.invalid && projectname.errors.required">{{ 'components.project.editProject.projectNameIsRequired' | translate }}</mat-error>
           </mat-form-field>
           <mat-form-field>
             <input type="text" matInput [(ngModel)]="project.imageName" autocomplete="off" required name="imagename" id="imagename"
-                   placeholder="Image name" #imagename="ngModel" [disabled]="!project.isOrphan() || !mayEditProjects()">
-            <mat-error *ngIf="imagename.invalid && imagename.errors.required">An image name is required.</mat-error>
+                   [placeholder]="'components.project.editProject.imageName' | translate" #imagename="ngModel" [disabled]="!project.isOrphan() || !mayEditProjects()">
+            <mat-error *ngIf="imagename.invalid && imagename.errors.required">{{ 'components.project.editProject.imageNameIsRequired' | translate }}</mat-error>
           </mat-form-field>
           <mat-form-field>
-            <mat-select #dockerregistry="ngModel" required placeholder="Docker registry" [(ngModel)]="project.dockerRegistryUUID" name="dockerregistry" id="dockerregistry" [disabled]="!project.isOrphan() || !mayEditProjects()">
+            <mat-select #dockerregistry="ngModel" required [placeholder]="'components.project.editProject.dockerRegistry' | translate" [(ngModel)]="project.dockerRegistryUUID" name="dockerregistry" id="dockerregistry" [disabled]="!project.isOrphan() || !mayEditProjects()">
               <mat-option *ngFor="let dockerRegistry of dockerRegistries" [value]="dockerRegistry.uuid">
                 {{ dockerRegistry.name }}
               </mat-option>
             </mat-select>
-            <mat-error *ngIf="dockerregistry.invalid && dockerregistry.errors.required">Each project must have a docker registry assigned.</mat-error>
+            <mat-error *ngIf="dockerregistry.invalid && dockerregistry.errors.required">{{ 'components.project.editProject.dockerRegistryIsRequired' | translate }}</mat-error>
           </mat-form-field>
           <mat-form-field>
-            <mat-select required placeholder="Namespace in Kubernetes" name="namespace" id="namespace" [(ngModel)]="project.namespace">
+            <mat-select required [placeholder]="'components.project.editProject.namespaceInKubernetes' | translate" name="namespace" id="namespace" [(ngModel)]="project.namespace">
               <mat-option *ngFor="let namespace of namespaces" [value]="namespace.name">{{namespace.name}}</mat-option>
             </mat-select>
           </mat-form-field>
@@ -45,14 +45,14 @@
             <template-editor [templates]="project.defaultConfigurationTemplates"
                              (templatesChange)="onDefaultConfigurationTemplateChange($event)"
                              (templatesValid)="onTemplatesValidationChange($event)"
-                             label="Configuration Templates"
+                             [label]="'components.project.editProject.configurationTemplates' | translate"
                              [readonly]="!mayEditProjects()">
             </template-editor>
           </div>
 
           <div class="form-field-group">
             <div class="template-defaults-wrapper" fxLayout="column">
-              <h4>Template Variables</h4>
+              <h4>{{ 'components.project.editProject.templateVariables' | translate }}</h4>
               <template-variables [readonly]="!mayEditProjects()"
                                   [customTemplateVariables]="project.templateVariables"
                                   (onAddTemplateVariable)="onAddTemplateVariable($event)"
@@ -62,7 +62,7 @@
 
           <deployment-behaviour-input [model]="newVersionsDeploymentBehaviourAccess"[required]="true" [readonly]="!mayEditProjects()"></deployment-behaviour-input>
 
-          <lifetime-behaviour-input [model]="project.defaultLifetimeBehaviour" name="Default lifetime behaviour"></lifetime-behaviour-input>
+          <lifetime-behaviour-input [model]="project.defaultLifetimeBehaviour" [name]="'components.project.editProject.defaultLifetimeBehaviour' | translate"></lifetime-behaviour-input>
 
         </form>
       </div>
@@ -73,19 +73,19 @@
               [disabled]="projectForm.form.invalid || !templatesValid || !mayEditProjects()"
               color="primary"
               (click)="save()">
-        Save Project
+        {{ 'components.project.editProject.saveProject' | translate }}
       </button>
       <button mat-button
               [disabled]="projectForm.form.invalid || !templatesValid"
               color="primary"
         (click)="exportProject()">
-      Export Project
+        {{ 'components.project.editProject.exportProject' | translate }}
       </button>
       <button mat-button
               [disabled]="!mayEditProjects()"
               color="primary"
               (click)="delete()">
-        Delete Project
+        {{ 'components.project.editProject.deleteProject' | translate }}
       </button>
     </div>
   </div>

@@ -19,6 +19,7 @@
 @import "../app/deployable/deployable-status/deployable-status.component.theme";
 @import "../app/form/upload/file-upload.component.theme";
 @import "../app/components/footer/footer.component.theme";
+@import "../app/components/i18n-switcher/i18n-switcher.component.theme";
 
 @mixin component-themes($theme) {
   @include main-component-theme($theme);
@@ -29,6 +30,7 @@
   @include project-list-theme($theme);
   @include docker-registry-list-component-theme($theme);
   @include theme-switcher-component-theme($theme);
+  @include i18n-switcher-component-theme($theme);
   @include activity-log-component-theme($theme);
   @include breadcrumb-component-theme($theme);
   @include internal-link-theme($theme);
