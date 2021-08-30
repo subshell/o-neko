@@ -1,6 +1,7 @@
 # O-Neko ![O-Neko Logo](oneko.svg)
 
 [![CircleCI](https://circleci.com/gh/subshell/o-neko/tree/master.svg?style=svg)](https://circleci.com/gh/subshell/o-neko/tree/master)
+[![Docker Image Version (latest semver)](https://img.shields.io/docker/v/subshellgmbh/o-neko?color=2496ED&label=subshellgmbh%2Fo-neko&logo=docker&logoColor=white&sort=semver)](https://hub.docker.com/r/subshellgmbh/o-neko/tags)
 
 O-Neko is a Kubernetes-native application that allows to cross a bridge between developers and other stakeholders by deploying 
 development versions of your software into Kubernetes via Helm to allow everybody to try and test them.
