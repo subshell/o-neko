@@ -49,28 +49,4 @@ describe('Translations', () => {
     });
   });
 
-  /* // not sure if we still really want this
-  it('should not contain duplicate translations', () => {
-    const findDuplicates = (translation: Translation, languageKey: string) => {
-      const counted: { [key: string]: Array<string> } = {};
-      Object.entries(translation.flattened).forEach(([key, value]: [string, string]) => {
-        if (counted[value] === undefined) {
-          counted[value] = [];
-        }
-        if (!DUPLICATE_IGNORE_KEYS.includes(key) && !value.startsWith(AliasingTranslateCompiler.ALIAS_MARKER)) {
-          counted[value].push(key);
-        }
-        expect(counted[value].length).toBeLessThanOrEqual(1,
-          `
-          The word or term "${value}" has been translated more than once in the language "${languageKey}".
-          The JSON key-paths are: [${counted[value].join(', ')}]
-          Consider using an alias: '${AliasingTranslateCompiler.ALIAS_MARKER}the.path.to.the.key'`);
-      });
-    };
-    translations.forEach((translation, languageKey) => {
-      findDuplicates(translation, languageKey);
-    });
-  });
-   */
-
 });

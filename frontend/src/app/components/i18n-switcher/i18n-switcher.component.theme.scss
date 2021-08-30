@@ -1,9 +1,9 @@
 @use '~@angular/material' as mat;
 @import "src/styles/mixins";
 
-@mixin theme-switcher-component-theme($theme) {
+@mixin i18n-switcher-component-theme($theme) {
   $primary: map-get($theme, primary);
-  .theme-switcher-menu {
+  .i18n-switcher-menu {
     .active {
       font-weight: 600;
       color: mat.get-color-from-palette($primary, 600);

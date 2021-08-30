@@ -79,7 +79,7 @@
           </mat-form-field>
           <div>
             <button mat-button matStepperPrevious>{{'components.project.createProjectDialog.back' | translate}}</button>
-            <button mat-button [disabled]="!imageNameFormGroup.valid" (click)="finish()">Done</button>
+            <button mat-button [disabled]="!imageNameFormGroup.valid" (click)="finish()">{{ 'general.done' | translate }}</button>
           </div>
         </form>
       </mat-step>

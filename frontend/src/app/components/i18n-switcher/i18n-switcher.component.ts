@@ -10,7 +10,7 @@ import {I18nState, OnekoLocale, SetLocale} from "../../store/i18n/i18n.state";
 })
 export class I18nSwitcherComponent {
 
-  locales: Array<{ label: string, locale: OnekoLocale, icon: string }>;
+  locales: Array<{ label: string, locale: OnekoLocale }>;
 
   @Select(I18nState.locale) currentLocale$: Observable<OnekoLocale>;
 
@@ -18,12 +18,10 @@ export class I18nSwitcherComponent {
     this.locales = [
       {
         label: 'English',
-        locale: 'en',
-        icon: 'settings-brightness'
+        locale: 'en'
       }, {
         label: 'Deutsch',
-        locale: 'de',
-        icon: 'wb-sunny'
+        locale: 'de'
       }
     ];
   }

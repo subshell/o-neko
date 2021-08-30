@@ -1,7 +1,7 @@
 <button mat-icon-button [matMenuTriggerFor]="modeMenu">
   <mat-icon svgIcon="language"></mat-icon>
 </button>
-<mat-menu #modeMenu class="theme-switcher-menu">
+<mat-menu #modeMenu class="i18n-switcher-menu">
   <button mat-menu-item *ngFor="let locale of locales" (click)="setLocale(locale.locale)" [class.active]="(currentLocale$ | async) === locale.locale">
     <mat-icon [svgIcon]="((currentLocale$ | async) === locale.locale) ? 'mdi:radiobox-marked' : 'mdi:radiobox-blank'"></mat-icon>
     <span>{{locale.label}}</span>
