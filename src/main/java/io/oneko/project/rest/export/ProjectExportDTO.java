@@ -17,6 +17,7 @@ public class ProjectExportDTO {
 	private String name;
 	private String imageName;
 	private DeploymentBehaviour newVersionsDeploymentBehaviour;
+	private List<String> urlTemplates;
 	private List<ConfigurationTemplateDTO> defaultConfigurationTemplates;
 	private List<TemplateVariableDTO> templateVariables;
 	private UUID dockerRegistryUUID;

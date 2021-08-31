@@ -26,6 +26,7 @@ class ProjectMongo {
 	private String name;
 	private String imageName;
 	private DeploymentBehaviour newVersionsDeploymentBehaviour;
+	private List<String> urlTemplates;
 	private List<ConfigurationTemplateMongo> defaultConfigurationTemplates;
 	@Indexed
 	private UUID dockerRegistryUUID;

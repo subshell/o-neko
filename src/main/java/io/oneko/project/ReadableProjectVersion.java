@@ -18,7 +18,6 @@ import io.oneko.automations.LifetimeBehaviour;
 import io.oneko.deployable.DeploymentBehaviour;
 import io.oneko.domain.Identifiable;
 import io.oneko.kubernetes.deployments.DesiredState;
-import io.oneko.namespace.Namespace;
 import io.oneko.templates.ReadableConfigurationTemplate;
 import lombok.Builder;
 import lombok.Getter;
@@ -32,6 +31,7 @@ public class ReadableProjectVersion extends Identifiable implements ProjectVersi
 	private final DeploymentBehaviour deploymentBehaviour;
 	private final ImmutableMap<String, String> templateVariables;
 	private final String dockerContentDigest;
+	private final ImmutableList<String> urlTemplates;
 	private final ImmutableList<String> urls;
 	private final ImmutableList<ReadableConfigurationTemplate> configurationTemplates;
 	private final boolean outdated;
@@ -42,9 +42,10 @@ public class ReadableProjectVersion extends Identifiable implements ProjectVersi
 
 	@Builder
 	public ReadableProjectVersion(UUID uuid, String name, DeploymentBehaviour deploymentBehaviour,
-								  Map<String, String> templateVariables, String dockerContentDigest, List<String> urls,
-								  List<ReadableConfigurationTemplate> configurationTemplates, boolean outdated, LifetimeBehaviour lifetimeBehaviour,
-								  String namespace, DesiredState desiredState, Instant imageUpdatedDate) {
+																Map<String, String> templateVariables, String dockerContentDigest, List<String> urls,
+																List<String> urlTemplates, List<ReadableConfigurationTemplate> configurationTemplates,
+																boolean outdated, LifetimeBehaviour lifetimeBehaviour, String namespace,
+																DesiredState desiredState, Instant imageUpdatedDate) {
 		this.uuid = uuid;
 		this.name = name;
 		this.deploymentBehaviour = deploymentBehaviour;
@@ -52,6 +53,7 @@ public class ReadableProjectVersion extends Identifiable implements ProjectVersi
 		this.templateVariables = templateVariables == null ? ImmutableMap.of() : ImmutableMap.copyOf(templateVariables);
 		this.urls = ImmutableList.copyOf(urls);
 		this.outdated = outdated;
+		this.urlTemplates = urlTemplates == null ? ImmutableList.of() : ImmutableList.copyOf(urlTemplates);
 		this.configurationTemplates = configurationTemplates == null ? ImmutableList.of() : ImmutableList.copyOf(configurationTemplates);
 		this.lifetimeBehaviour = lifetimeBehaviour;
 		this.namespace = namespace;
@@ -86,9 +88,10 @@ public class ReadableProjectVersion extends Identifiable implements ProjectVersi
 				.templateVariables(getTemplateVariables())
 				.dockerContentDigest(getDockerContentDigest())
 				.urls(getUrls())
+				.urlTemplates(getUrlTemplates())
 				.configurationTemplates(getConfigurationTemplates().stream()
-					.map(ReadableConfigurationTemplate::writable)
-					.collect(Collectors.toList()))
+						.map(ReadableConfigurationTemplate::writable)
+						.collect(Collectors.toList()))
 				.outdated(isOutdated())
 				.lifetimeBehaviour(lifetimeBehaviour)
 				.namespace(getNamespace())

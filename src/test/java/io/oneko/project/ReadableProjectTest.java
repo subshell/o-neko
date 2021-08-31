@@ -23,6 +23,7 @@ class ReadableProjectTest {
                 "sample content digest",
                 Collections.emptyList(),
                 Collections.emptyList(),
+                Collections.emptyList(),
                 false,
                 LifetimeBehaviour.infinite(),
                 null,

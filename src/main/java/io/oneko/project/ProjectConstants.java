@@ -13,6 +13,7 @@ public class ProjectConstants {
 		public static final String ONEKO_PROJECT = "ONEKO_PROJECT";
 		public static final String ONEKO_VERSION = "ONEKO_VERSION";
 		public static final String SAFE_VERSION_NAME = "SAFE_VERSION_NAME";
+		public static final String URLS = "URLS";
 	}
 
 	public static final class LabelNames {

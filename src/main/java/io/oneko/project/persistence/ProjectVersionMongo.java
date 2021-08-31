@@ -28,6 +28,7 @@ public class ProjectVersionMongo {
 	private DeploymentBehaviour deploymentBehaviour;
 	private String dockerContentDigest;
 	private List<String> urls;
+	private List<String> urlTemplates;
 	private List<ConfigurationTemplateMongo> configurationTemplates;
 	private boolean outdated;
 	private LifetimeBehaviour lifetimeBehaviour;

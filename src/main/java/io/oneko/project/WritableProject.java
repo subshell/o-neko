@@ -37,6 +37,7 @@ public class WritableProject extends ModificationAwareIdentifiable implements Pr
 	private final ModificationAwareProperty<String> name = new ModificationAwareProperty<>(this, "name");
 	private final ModificationAwareProperty<String> imageName = new ModificationAwareProperty<>(this, "imageName");
 	private final ModificationAwareProperty<DeploymentBehaviour> newVersionsDeploymentBehaviour = new ModificationAwareProperty<>(this, "newVersionsDeploymentBehaviour");
+	private final ModificationAwareProperty<List<String>> urlTemplates = new ModificationAwareListProperty<>(this, "urlTemplates");
 	/**
 	 * Default configuration template to be used for versions. Should be a multi line yaml-string.
 	 */
@@ -66,12 +67,13 @@ public class WritableProject extends ModificationAwareIdentifiable implements Pr
 	 */
 	@Builder
 	public WritableProject(UUID id, String name, String imageName, DeploymentBehaviour newVersionsDeploymentBehaviour,
-						   List<WritableConfigurationTemplate> defaultConfigurationTemplates, List<WritableTemplateVariable> templateVariables,
-						   UUID dockerRegistryId, List<WritableProjectVersion> versions, LifetimeBehaviour defaultLifetimeBehaviour, String namespace) {
+												 List<String> urlTemplates, List<WritableConfigurationTemplate> defaultConfigurationTemplates, List<WritableTemplateVariable> templateVariables,
+												 UUID dockerRegistryId, List<WritableProjectVersion> versions, LifetimeBehaviour defaultLifetimeBehaviour, String namespace) {
 		this.id.init(id);
 		this.name.init(name);
 		this.imageName.init(imageName);
 		this.newVersionsDeploymentBehaviour.init(newVersionsDeploymentBehaviour);
+		this.urlTemplates.init(urlTemplates);
 		this.defaultConfigurationTemplates.init(defaultConfigurationTemplates);
 		this.dockerRegistryId.init(dockerRegistryId);
 		this.defaultLifetimeBehaviour.init(defaultLifetimeBehaviour);
@@ -125,6 +127,14 @@ public class WritableProject extends ModificationAwareIdentifiable implements Pr
 
 	public void setNewVersionsDeploymentBehaviour(DeploymentBehaviour newVersionsDeploymentBehaviour) {
 		this.newVersionsDeploymentBehaviour.set(newVersionsDeploymentBehaviour);
+	}
+
+	public List<String> getUrlTemplates() {
+		return urlTemplates.get();
+	}
+
+	public void setUrlTemplates(List<String> urlTemplates) {
+		this.urlTemplates.set(urlTemplates);
 	}
 
 	public List<WritableConfigurationTemplate> getDefaultConfigurationTemplates() {
@@ -226,6 +236,7 @@ public class WritableProject extends ModificationAwareIdentifiable implements Pr
 				.name(getName())
 				.imageName(getImageName())
 				.newVersionsDeploymentBehaviour(getNewVersionsDeploymentBehaviour())
+				.urlTemplates(getUrlTemplates())
 				.defaultConfigurationTemplates(getDefaultConfigurationTemplates().stream()
 						.map(WritableConfigurationTemplate::readable)
 						.collect(Collectors.toList()))
