@@ -91,7 +91,9 @@ public interface ProjectVersion<P extends Project<P, V>, V extends ProjectVersio
 		implicitTemplateVariables.forEach(context::set);
 		context.set("fn", TemplateFunctions.class);
 		List<String> urlTemplates = new ArrayList<>();
-		urlTemplates.addAll(getProject().getUrlTemplates());
+		if (getProject() != null) {
+			urlTemplates.addAll(getProject().getUrlTemplates());
+		}
 		urlTemplates.addAll(getUrlTemplates());
 		return urlTemplates.stream()
 				.map(url -> {

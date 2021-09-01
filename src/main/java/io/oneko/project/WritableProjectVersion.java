@@ -3,6 +3,7 @@ package io.oneko.project;
 import static io.oneko.kubernetes.deployments.DesiredState.*;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +58,7 @@ public class WritableProjectVersion extends ModificationAwareIdentifiable implem
 		this.urls.init(urls);
 		this.outdated.init(outdated);
 		this.urlTemplates.init(urlTemplates);
+		initUrlsFromUrlTemplates();
 		this.configurationTemplates.init(configurationTemplates);
 		this.lifetimeBehaviour.init(lifetimeBehaviour);
 		this.namespace.init(namespace);
@@ -69,6 +71,7 @@ public class WritableProjectVersion extends ModificationAwareIdentifiable implem
 	 */
 	void setProject(WritableProject project) {
 		this.project = project;
+		initUrlsFromUrlTemplates();
 	}
 
 	/**
@@ -133,10 +136,6 @@ public class WritableProjectVersion extends ModificationAwareIdentifiable implem
 		return urls.get();
 	}
 
-	public void setUrls(List<String> urls) {
-		this.urls.set(urls);
-	}
-
 	@Override
 	public List<String> getUrlTemplates() {
 		return urlTemplates.get();
@@ -144,6 +143,15 @@ public class WritableProjectVersion extends ModificationAwareIdentifiable implem
 
 	public void setUrlTemplates(List<String> urlTemplates) {
 		this.urlTemplates.set(urlTemplates);
+		setUrlsFromUrlTemplates();
+	}
+
+	public void initUrlsFromUrlTemplates() {
+		this.urls.init(Arrays.asList(getCalculatedUrls()));
+	}
+
+	void setUrlsFromUrlTemplates() {
+		this.urls.set(Arrays.asList(getCalculatedUrls()));
 	}
 
 	public List<WritableConfigurationTemplate> getConfigurationTemplates() {

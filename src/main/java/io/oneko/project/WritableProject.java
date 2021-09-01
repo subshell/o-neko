@@ -135,6 +135,11 @@ public class WritableProject extends ModificationAwareIdentifiable implements Pr
 
 	public void setUrlTemplates(List<String> urlTemplates) {
 		this.urlTemplates.set(urlTemplates);
+		updateUrlsOfAllVersions();
+	}
+
+	private void updateUrlsOfAllVersions() {
+		this.versions.forEach(WritableProjectVersion::setUrlsFromUrlTemplates);
 	}
 
 	public List<WritableConfigurationTemplate> getDefaultConfigurationTemplates() {
