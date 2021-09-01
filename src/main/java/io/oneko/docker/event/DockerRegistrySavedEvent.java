@@ -20,7 +20,7 @@ public class DockerRegistrySavedEvent extends EntityChangedEvent {
 		super(DescribingEntityChange.builder()
 				.id(dockerRegistry.getUuid())
 				.name(dockerRegistry.getName())
-				.entityType(DescribingEntityChange.EntityType.HelmRegistry)
+				.entityType(DescribingEntityChange.EntityType.DockerRegistry)
 				.changeType(DescribingEntityChange.ChangeType.Saved)
 				.changedProperties(changedProperties)
 				.build());
