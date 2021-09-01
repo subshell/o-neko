@@ -1,6 +1,7 @@
 package io.oneko.project.persistence;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +19,7 @@ import io.oneko.Profiles;
 import io.oneko.event.EventDispatcher;
 import io.oneko.project.Project;
 import io.oneko.project.ReadableProject;
+import io.oneko.project.ReadableProjectVersion;
 import io.oneko.project.WritableProject;
 import io.oneko.project.event.EventAwareProjectRepository;
 
@@ -73,6 +76,17 @@ public class ProjectInMemoryRepository extends EventAwareProjectRepository {
 								// does any of the versions reference this helm registry?
 								project.getVersions().stream().flatMap(version -> version.getConfigurationTemplates().stream()).anyMatch(template -> helmRegistryId.equals(template.getHelmRegistryId())))
 				.collect(Collectors.toList());
+	}
+
+	@Override
+	public Optional<Pair<ReadableProject, ReadableProjectVersion>> getByDeploymentUrl(String deploymentUrl) {
+		return this.projects.values()
+				.stream()
+				.map(Project::getVersions)
+				.flatMap(Collection::stream)
+				.filter(version -> version.hasMatchingUrl(deploymentUrl))
+				.findFirst()
+				.map(version -> Pair.of(version.getProject(), version));
 	}
 
 	@Override

@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import io.marioslab.basis.template.Template;
@@ -102,6 +103,10 @@ public interface ProjectVersion<P extends Project<P, V>, V extends ProjectVersio
 					final Template tpl = loader.load("tpl");
 					return tpl.render(context);
 				}).toArray(String[]::new);
+	}
+
+	default boolean hasMatchingUrl(String candidateUrl) {
+		return ProjectUtils.anyUrlMatches(getUrls(), candidateUrl);
 	}
 
 	/**
