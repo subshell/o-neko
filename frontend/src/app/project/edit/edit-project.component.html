@@ -40,6 +40,8 @@
               <mat-option *ngFor="let namespace of namespaces" [value]="namespace.name">{{namespace.name}}</mat-option>
             </mat-select>
           </mat-form-field>
+          <on-url-templates-input [urlTemplates]="project.urlTemplates"
+                                  (templatesChange)="onUrlTemplatesChanged($event)"></on-url-templates-input>
 
           <div class="form-field-group">
             <template-editor [templates]="project.defaultConfigurationTemplates"

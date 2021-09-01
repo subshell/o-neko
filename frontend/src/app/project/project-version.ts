@@ -12,6 +12,7 @@ export interface ProjectVersionDTO {
   availableTemplateVariables: TemplateVariable[];
   deployment: DeploymentDTO;
   urls: Array<string>;
+  urlTemplates: Array<string>;
   configurationTemplates: Array<ConfigurationTemplate>;
   outdated: boolean
   lifetimeBehaviour?: LifetimeBehaviour;
@@ -25,6 +26,7 @@ export class ProjectVersion implements ProjectVersionDTO {
   name: string;
   deploymentBehaviour: DeploymentBehaviour;
   templateVariables?: { [key: string]: string };
+  urlTemplates: Array<string>;
   availableTemplateVariables: TemplateVariable[];
   deployment: Deployment;
   urls: Array<string>;
@@ -49,6 +51,7 @@ export class ProjectVersion implements ProjectVersionDTO {
     version.name = from.name;
     version.deploymentBehaviour = from.deploymentBehaviour;
     version.templateVariables = cloneDeep(from.templateVariables);
+    version.urlTemplates = from.urlTemplates;
     version.availableTemplateVariables = cloneDeep(from.availableTemplateVariables);
     version.deployment = Deployment.from(from.deployment);
     version.urls = from.urls;
@@ -69,6 +72,7 @@ export class ProjectVersion implements ProjectVersionDTO {
     this.availableTemplateVariables = cloneDeep(from.availableTemplateVariables);
     this.deployment = Deployment.from(from.deployment);
     this.urls = from.urls;
+    this.urlTemplates = from.urlTemplates;
     this.configurationTemplates = from.configurationTemplates;
     this.outdated = from.outdated;
     this.lifetimeBehaviour = from.lifetimeBehaviour;

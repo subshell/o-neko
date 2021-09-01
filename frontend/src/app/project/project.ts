@@ -17,6 +17,7 @@ export interface ProjectDTO {
   name?: string;
   imageName: string;
   newVersionsDeploymentBehaviour: DeploymentBehaviour;
+  urlTemplates: Array<string>;
   defaultConfigurationTemplates: Array<ConfigurationTemplate>;
   templateVariables: TemplateVariable[];
   dockerRegistryUUID?: string;
@@ -40,6 +41,7 @@ export class Project implements ProjectDTO {
   name?: string;
   imageName: string;
   newVersionsDeploymentBehaviour: DeploymentBehaviour;
+  urlTemplates: Array<string>;
   defaultConfigurationTemplates: Array<ConfigurationTemplate>;
   templateVariables: Array<TemplateVariable> = [];
   dockerRegistryUUID?: string;
@@ -57,6 +59,7 @@ export class Project implements ProjectDTO {
 
     project.imageName = from.imageName;
     project.newVersionsDeploymentBehaviour = from.newVersionsDeploymentBehaviour;
+    project.urlTemplates = from.urlTemplates || [];
     project.defaultConfigurationTemplates = from.defaultConfigurationTemplates.map(tpl => ConfigurationTemplate.from(tpl)) || [];
     project.templateVariables = from.templateVariables || [];
     project.dockerRegistryUUID = from.dockerRegistryUUID;
@@ -86,6 +89,7 @@ export class Project implements ProjectDTO {
     project.status = from.status;
     project.defaultLifetimeBehaviour = from.defaultLifetimeBehaviour;
 
+    project.urlTemplates = from.urlTemplates;
     // remove potentially existing ids
     project.defaultConfigurationTemplates = (from.defaultConfigurationTemplates as Array<ConfigurationTemplateDTO> ?? [])
       .map(({id, ...configurationTemplate}) => ConfigurationTemplate.from(configurationTemplate as ConfigurationTemplateDTO));

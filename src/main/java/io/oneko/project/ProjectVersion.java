@@ -1,6 +1,7 @@
 package io.oneko.project;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -89,12 +90,9 @@ public interface ProjectVersion<P extends Project<P, V>, V extends ProjectVersio
 		TemplateContext context = new TemplateContext();
 		implicitTemplateVariables.forEach(context::set);
 		context.set("fn", TemplateFunctions.class);
-		List<String> urlTemplates;
-		if (!getUrlTemplates().isEmpty()) {
-			urlTemplates = getUrlTemplates();
-		} else {
-			urlTemplates = getProject().getUrlTemplates();
-		}
+		List<String> urlTemplates = new ArrayList<>();
+		urlTemplates.addAll(getProject().getUrlTemplates());
+		urlTemplates.addAll(getUrlTemplates());
 		return urlTemplates.stream()
 				.map(url -> {
 					TemplateLoader.MapTemplateLoader loader = new TemplateLoader.MapTemplateLoader();

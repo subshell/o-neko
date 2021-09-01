@@ -24,6 +24,7 @@ export interface ProjectExportDTO {
   name: string;
   imageName: string;
   newVersionsDeploymentBehaviour: DeploymentBehaviour;
+  urlTemplates: Array<string>;
   defaultConfigurationTemplates: Array<ProjectExportConfigurationTemplate>;
   templateVariables: ProjectExportTemplateVariable[];
   dockerRegistryUUID?: string;
