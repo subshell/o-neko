@@ -2,29 +2,38 @@
   <h4>{{ 'components.forms.urlTemplatesInput.urlTemplates' | translate }}</h4>
 
   <div fxLayout="column">
-    <div fxLayout="row">
+    <div *ngIf="!urlTemplates.length && inheritedUrlTemplates.length">
+      <h5>{{ 'components.forms.urlTemplatesInput.inheritedTemplatesFromProject' | translate }}</h5>
+      <div *ngFor="let template of inheritedUrlTemplates; let index = index" fxLayout="row">
         <mat-form-field fxFlex>
-          <input matInput #input="matInput" #inputModel="ngModel" [(ngModel)]="textInput" [placeholder]="'components.forms.urlTemplatesInput.addNewPlaceholder' | translate" [forbiddenValues]="urlTemplates" />
+          <input matInput disabled type="text" [name]="'ro_url_template_' + index" [value]="template"/>
+        </mat-form-field>
+        <button mat-icon-button disabled>
+          <mat-icon svgIcon="mdi:delete"></mat-icon>
+        </button>
+      </div>
+    </div>
+    <div>
+      <h5 *ngIf="urlTemplates.length > 0 && inheritedUrlTemplates.length > 0">{{ 'components.forms.urlTemplatesInput.overwritingInheritedTemplates' | translate }}</h5>
+      <div *ngFor="let template of urlTemplates; let index = index; trackBy: trackByIndex" fxLayout="row">
+        <mat-form-field fxFlex>
+          <input matInput type="text" [name]="'url_template_' + index" [(ngModel)]="urlTemplates[index]" (ngModelChange)="emitChanges()"/>
+        </mat-form-field>
+        <button mat-icon-button (click)="deleteUrl(template)" [matTooltip]="'general.delete' | translate">
+          <mat-icon svgIcon="mdi:delete"></mat-icon>
+        </button>
+      </div>
+    </div>
+    <form (submit)="addUrl()">
+      <div fxLayout="row">
+        <mat-form-field fxFlex floatLabel="always">
+          <mat-label>{{ 'components.forms.urlTemplatesInput.addNewLabel' | translate }}</mat-label>
+          <input name="newUrlTemplate" matInput #input="matInput" #inputModel="ngModel" [(ngModel)]="textInput" [placeholder]="'components.forms.urlTemplatesInput.addNewPlaceholder' | translate" [forbiddenValues]="urlTemplates" />
         </mat-form-field>
         <button mat-icon-button (click)="addUrl()" [disabled]="input.empty || inputModel.invalid && inputModel.errors.forbiddenValues" [matTooltip]="'general.add' | translate">
           <mat-icon svgIcon="mdi:plus"></mat-icon>
         </button>
-    </div>
-    <div *ngFor="let template of readOnlyTemplates; let index = index" fxLayout="row">
-      <mat-form-field fxFlex>
-        <input matInput disabled type="text" [name]="'ro_url_template_' + index" [value]="template"/>
-      </mat-form-field>
-      <button mat-icon-button disabled>
-        <mat-icon svgIcon="mdi:delete"></mat-icon>
-      </button>
-    </div>
-    <div *ngFor="let template of urlTemplates; let index = index" fxLayout="row">
-      <mat-form-field fxFlex>
-        <input matInput disabled type="text" [name]="'url_template_' + index" [value]="template"/>
-      </mat-form-field>
-      <button mat-icon-button (click)="deleteUrl(template)" [matTooltip]="'general.delete' | translate">
-        <mat-icon svgIcon="mdi:delete"></mat-icon>
-      </button>
-    </div>
+      </div>
+    </form>
   </div>
 </div>

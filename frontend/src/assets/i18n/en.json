@@ -163,7 +163,10 @@
       },
       "urlTemplatesInput": {
         "urlTemplates": "URL Templates",
-        "addNewPlaceholder": "Enter new URL template"
+        "addNewLabel": "Add a new URL template",
+        "addNewPlaceholder": "Enter template",
+        "inheritedTemplatesFromProject": "Inherited URL templates from project:",
+        "overwritingInheritedTemplates": "You are overwriting the URL templates inherited from the project:"
       },
       "fileUpload": {
         "dndFiles": "Drag and drop files here",

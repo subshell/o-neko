@@ -31,7 +31,7 @@
             </mat-select>
           </mat-form-field>
           <on-url-templates-input [urlTemplates]="projectVersion.urlTemplates"
-                                  [readOnlyUrlTemplates]="project.urlTemplates"
+                                  [inheritedUrlTemplates]="project.urlTemplates"
                                   (templatesChange)="onUrlTemplatesChanged($event)"></on-url-templates-input>
 
           <div class="form-field-group">

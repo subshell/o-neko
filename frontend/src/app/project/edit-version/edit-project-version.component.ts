@@ -68,16 +68,7 @@ export class EditProjectVersionComponent implements OnInit, OnDestroy {
         this.project = project;
         this.projectVersion = project.versions.find(v => v.uuid === projectVersionId);
 
-        if (!this.projectVersion.lifetimeBehaviour) {
-          this.projectVersion.lifetimeBehaviour = {daysToLive: -1};
-        }
-
-        this.projectVersionVariables = new Map(Object.entries(this.projectVersion.templateVariables));
-
-        this.projectVersion.availableTemplateVariables.forEach(variable => {
-          this.projectVersionVariables.delete(variable.name);
-          this.projectVariables[variable.id] = createValueInfoFromTemplateVariable(variable, this.projectVersion.templateVariables[variable.name]);
-        });
+        this.initProjectAndVersion();
 
         this.updateSubscription = this.wsService.getProjectVersionChanges(this.project.uuid)
           .pipe(
@@ -90,6 +81,19 @@ export class EditProjectVersionComponent implements OnInit, OnDestroy {
             //don't overwrite the rest, just in case the form is dirty.
           });
       });
+    });
+  }
+
+  private initProjectAndVersion() {
+    if (!this.projectVersion.lifetimeBehaviour) {
+      this.projectVersion.lifetimeBehaviour = {daysToLive: -1};
+    }
+
+    this.projectVersionVariables = new Map(Object.entries(this.projectVersion.templateVariables));
+
+    this.projectVersion.availableTemplateVariables.forEach(variable => {
+      this.projectVersionVariables.delete(variable.name);
+      this.projectVariables[variable.id] = createValueInfoFromTemplateVariable(variable, this.projectVersion.templateVariables[variable.name]);
     });
   }
 
@@ -112,7 +116,11 @@ export class EditProjectVersionComponent implements OnInit, OnDestroy {
   }
 
   public save() {
-    this.projectService.saveProject(this.project, this.editingUser).subscribe(p => this.project = p);
+    this.projectService.saveProject(this.project, this.editingUser).subscribe(p => {
+      this.project = p
+      this.projectVersion = p.versions.find(v => v.uuid === this.projectVersion.uuid);
+      this.initProjectAndVersion();
+    });
   }
 
   public showEffectiveConfiguration() {

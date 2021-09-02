@@ -44,7 +44,7 @@ chart version. Then you can write your Helm values .yaml file in the editor.
 
 Your projects probably host one or more web frontends which should be hosted under one or more URLs. You will want every
 version to get its own domain. You can add URL templates to a project, which will be available in the following configuration.
-Versions can extend the list of URL templates but always inherit the URLs of their project.
+Versions can overwrite the list of URL templates.
 
 In most cases a simple URL template consisting of a string that contains the variable `{{ SAFE_VERSION_NAME }}` 
 will be sufficient to cover your needs. The URL template may look like this and will be available in the following configuration
