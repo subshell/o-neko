@@ -12,9 +12,9 @@ export class UrlTemplatesComponent implements OnInit {
   public _urlTemplates: Array<string> = [];
   public urlTemplates: Array<string> = [];
 
-  @Input("readOnlyUrlTemplates")
-  public _readOnlyTemplates: Array<string> = [];
-  public readOnlyTemplates: Array<string> = [];
+  @Input("inheritedUrlTemplates")
+  public _inheritedUrlTemplates: Array<string> = [];
+  public inheritedUrlTemplates: Array<string> = [];
 
   @Output()
   public templatesChange = new EventEmitter<Array<string>>();
@@ -25,7 +25,7 @@ export class UrlTemplatesComponent implements OnInit {
 
   ngOnInit(): void {
     this.urlTemplates = Array.of(...this._urlTemplates);
-    this.readOnlyTemplates = Array.of(...this._readOnlyTemplates);
+    this.inheritedUrlTemplates = Array.of(...this._inheritedUrlTemplates);
   }
 
   emitChanges(): void {
@@ -41,6 +41,10 @@ export class UrlTemplatesComponent implements OnInit {
     this.urlTemplates.push(this.textInput);
     this.input.value = "";
     this.emitChanges();
+  }
+
+  trackByIndex(index: number, el: any): number {
+    return index;
   }
 
 }

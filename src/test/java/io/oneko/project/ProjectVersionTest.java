@@ -167,5 +167,26 @@ class ProjectVersionTest {
 		deployableConfigurationTemplates = version.getCalculatedConfigurationTemplates();
 		assertThat(deployableConfigurationTemplates).hasSize(2);
 	}
+
+	@Test
+	void testGetsCorrectUrlTemplatesFromProject() {
+		WritableProject project = new WritableProject(UUID.randomUUID());
+		project.setName("project1");
+		project.setUrlTemplates(List.of("project.foo.bar"));
+		final var version = project.createVersion("foo");
+
+		assertThat(version.getCalculatedUrls()).containsExactly("project.foo.bar");
+	}
+
+	@Test
+	void testGetsCorrectUrlTemplatesFromProjectVersion() {
+		WritableProject project = new WritableProject(UUID.randomUUID());
+		project.setName("project1");
+		project.setUrlTemplates(List.of("project.foo.bar"));
+		final var version = project.createVersion("foo");
+		version.setUrlTemplates(List.of("version.foo.bar"));
+
+		assertThat(version.getCalculatedUrls()).containsExactly("version.foo.bar");
+	}
 	
 }
