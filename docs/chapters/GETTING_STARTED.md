@@ -40,7 +40,25 @@ It's easiest to configure a project if you already have a working values .yaml f
 configuration template via the "..." menu to the right. Then select your Helm registry, the chart and (optionally) the
 chart version. Then you can write your Helm values .yaml file in the editor.
 
-### 6.1 Make the Helm values O-Neko compatible
+### 6.1 Configuring URLs via URL Templates
+
+Your projects probably host one or more web frontends which should be hosted under one or more URLs. You will want every
+version to get its own domain. You can add URL templates to a project, which will be available in the following configuration.
+Versions can extend the list of URL templates but always inherit the URLs of their project.
+
+In most cases a simple URL template consisting of a string that contains the variable `{{ SAFE_VERSION_NAME }}` 
+will be sufficient to cover your needs. The URL template may look like this and will be available in the following configuration
+as the array-variable `URLS`:
+
+```yaml
+my_app-{{ SAFE_VERSION_NAME }}.my-k8s-cluster.my-company.com
+```
+
+This URL will be available in the following templates as `URLS[0]`. If you add more URLs you'll reference them with a
+different index. After defining the URLs here you will have to reference them in the following configuration, for example
+to configure an ingress etc.
+
+### 6.2 Make the Helm values O-Neko compatible
 
 In order to deploy everything correctly, you need to replace some fixed entries in your files with a template variable syntax.
 The most important is the docker image tag in your deployment.
@@ -55,11 +73,11 @@ your cluster to re-deploy a version but the cluster will not pull an updated ima
 the cluster to pull your image every time. If your Helm chart does not allow to change the `imagePullPolicy` you need to
 extend your Helm chart.
 
-In order to get dynamic URLs to your app you'll have to configure the host name (e.g. in an ingress).
-In this template you should replace the host string with a string that contains the variable `{{SAFE_VERSION_NAME}}`, like this:
+In order to get dynamic URLs to your app you'll have to configure the host name (e.g. in an ingress). In this template 
+you should replace the host string with one of your configured URLs (as explained above), e.g.:
 
 ```yaml
-- host: my_app-{{SAFE_VERSION_NAME}}.my-k8s-cluster.my-company.com
+- host: {{ URLS[0] }}
 ```
 
 `SAFE_VERSION_NAME` should be used, because this will make sure that the string replaced there will result in a valid URL.
@@ -71,10 +89,11 @@ There are some other default template variables you can use:
 * `VERSION_NAME` (the name of a version; the docker image tag)
 * `SAFE_VERSION_NAME` (the URL compatible version name)
 * `ONEKO_VERSION` (the version's ID)
+* `URLS` (the URL(s) of your deployment - this is always an array, see the section about URLs)
 
 You can also create your own template variables and override them in specific versions as you like.
 
-### 6.2 Control the lifetime of a deployed version
+### 6.3 Control the lifetime of a deployed version
 
 You can control when new versions should be updated or stopped. In most cases the defaults should be fine. Choose something that
 fits for most of your versions. You can still override these settings for specific long-running versions (e.g. your `latest`) version.
