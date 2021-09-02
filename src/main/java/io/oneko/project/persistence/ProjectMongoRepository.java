@@ -1,17 +1,18 @@
 package io.oneko.project.persistence;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import io.oneko.Profiles;
 import io.oneko.event.EventDispatcher;
-import io.oneko.namespace.NamespaceRepository;
 import io.oneko.project.Project;
 import io.oneko.project.ReadableProject;
 import io.oneko.project.ReadableProjectVersion;
@@ -28,13 +29,11 @@ import lombok.extern.slf4j.Slf4j;
 class ProjectMongoRepository extends EventAwareProjectRepository {
 
 	private final ProjectMongoSpringRepository innerProjectRepo;
-	private final NamespaceRepository namespaceRepository;
 
 	@Autowired
-	ProjectMongoRepository(ProjectMongoSpringRepository innerProjectRepo, NamespaceRepository namespaceRepository, EventDispatcher eventDispatcher) {
+	ProjectMongoRepository(ProjectMongoSpringRepository innerProjectRepo, EventDispatcher eventDispatcher) {
 		super(eventDispatcher);
 		this.innerProjectRepo = innerProjectRepo;
-		this.namespaceRepository = namespaceRepository;
 	}
 
 	@Override
@@ -61,6 +60,17 @@ class ProjectMongoRepository extends EventAwareProjectRepository {
 								// does any of the versions reference this helm registry?
 								project.getVersions().stream().flatMap(version -> version.getConfigurationTemplates().stream()).anyMatch(template -> templateReferencesHelmRegistry(template, helmRegistryId)))
 				.map(this::fromProjectMongo).collect(Collectors.toList());
+	}
+
+	@Override
+	public Optional<Pair<ReadableProject, ReadableProjectVersion>> getByDeploymentUrl(String deploymentUrl) {
+		return this.innerProjectRepo.findAll().stream()
+				.map(this::fromProjectMongo)
+				.map(Project::getVersions)
+				.flatMap(Collection::stream)
+				.filter(version -> version.hasMatchingUrl(deploymentUrl))
+				.findFirst()
+				.map(version -> Pair.of(version.getProject(), version));
 	}
 
 

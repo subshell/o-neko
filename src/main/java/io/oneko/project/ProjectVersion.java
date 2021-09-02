@@ -104,6 +104,10 @@ public interface ProjectVersion<P extends Project<P, V>, V extends ProjectVersio
 				}).toArray(String[]::new);
 	}
 
+	default boolean hasMatchingUrl(String candidateUrl) {
+		return ProjectUtils.anyUrlMatches(getUrls(), candidateUrl);
+	}
+
 	/**
 	 * Provides a mutable copy of all template variables retrieved by merging the ones from this version's
 	 * {@link #getProject()} and this version's own {@link #getTemplateVariables()}.

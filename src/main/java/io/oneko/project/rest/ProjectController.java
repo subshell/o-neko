@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -143,6 +144,18 @@ public class ProjectController {
 		WritableProjectVersion projectVersion = project.getVersionById(versionId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project version with id " + versionId + " not found"));
 		final ReadableProjectVersion deployedVersion = deploymentManager.deploy(projectVersion);
+		return dtoMapper.projectToDTO(deployedVersion.getProject());
+	}
+
+	@PreAuthorize("hasAnyRole('ADMIN', 'DOER', 'VIEWER')")
+	@PostMapping("/deploy/url")
+	ProjectDTO triggerDeploymentOfVersionWithUrl(@RequestBody String url) {
+		final var projectAndVersion = projectRepository.getByDeploymentUrl(url)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No version with url " + url + " found."));
+
+		final UUID versionId = projectAndVersion.getRight().getUuid();
+		final WritableProjectVersion version = projectAndVersion.getLeft().writable().getVersionById(versionId).orElseThrow();
+		final ReadableProjectVersion deployedVersion = deploymentManager.deploy(version);
 		return dtoMapper.projectToDTO(deployedVersion.getProject());
 	}
 
