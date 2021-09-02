@@ -10,8 +10,6 @@ import com.google.common.collect.ImmutableList;
 import io.oneko.automations.LifetimeBehaviour;
 import io.oneko.deployable.DeploymentBehaviour;
 import io.oneko.domain.Identifiable;
-import io.oneko.namespace.Namespace;
-import io.oneko.namespace.ReadableNamespace;
 import io.oneko.templates.ReadableConfigurationTemplate;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,19 +24,22 @@ public class ReadableProject extends Identifiable implements Project<ReadablePro
 	private final ImmutableList<ReadableConfigurationTemplate> defaultConfigurationTemplates;
 	private final UUID dockerRegistryId;
 	private final LifetimeBehaviour defaultLifetimeBehaviour;
+	private final ImmutableList<String> urlTemplates;
 	private final ImmutableList<ReadableTemplateVariable> templateVariables;
 	private final ImmutableList<ReadableProjectVersion> versions;
 	private final String namespace;
 
 	@Builder
 	public ReadableProject(UUID id, String name, String imageName, DeploymentBehaviour newVersionsDeploymentBehaviour,
-						   List<ReadableConfigurationTemplate> defaultConfigurationTemplates,
-						   UUID dockerRegistryId, LifetimeBehaviour defaultLifetimeBehaviour,
-						   List<ReadableTemplateVariable> templateVariables, List<ReadableProjectVersion> versions, String namespace) {
+												 List<ReadableConfigurationTemplate> defaultConfigurationTemplates,
+												 UUID dockerRegistryId, LifetimeBehaviour defaultLifetimeBehaviour,
+												 List<String> urlTemplates,
+												 List<ReadableTemplateVariable> templateVariables, List<ReadableProjectVersion> versions, String namespace) {
 		this.id = id;
 		this.name = name;
 		this.imageName = imageName;
 		this.newVersionsDeploymentBehaviour = newVersionsDeploymentBehaviour;
+		this.urlTemplates = urlTemplates == null ? ImmutableList.of() : ImmutableList.copyOf(urlTemplates);
 		this.defaultConfigurationTemplates = defaultConfigurationTemplates == null ? ImmutableList.of() : ImmutableList.copyOf(defaultConfigurationTemplates);
 		this.dockerRegistryId = dockerRegistryId;
 		this.defaultLifetimeBehaviour = defaultLifetimeBehaviour;
@@ -71,14 +72,15 @@ public class ReadableProject extends Identifiable implements Project<ReadablePro
 				.name(getName())
 				.imageName(getImageName())
 				.newVersionsDeploymentBehaviour(getNewVersionsDeploymentBehaviour())
+				.urlTemplates(getUrlTemplates())
 				.defaultConfigurationTemplates(getDefaultConfigurationTemplates().stream()
-					.map(ReadableConfigurationTemplate::writable)
-					.collect(Collectors.toList()))
+						.map(ReadableConfigurationTemplate::writable)
+						.collect(Collectors.toList()))
 				.dockerRegistryId(getDockerRegistryId())
 				.defaultLifetimeBehaviour(defaultLifetimeBehaviour)
 				.templateVariables(getTemplateVariables().stream()
-					.map(ReadableTemplateVariable::writable)
-					.collect(Collectors.toList()))
+						.map(ReadableTemplateVariable::writable)
+						.collect(Collectors.toList()))
 				.versions(versions)
 				.namespace(getNamespace())
 				.build();

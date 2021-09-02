@@ -16,7 +16,8 @@
     "edit": "Bearbeiten",
     "viewDetails": "Details öffnen",
     "done": "Fertig",
-    "confirm": "Bestätigen"
+    "confirm": "Bestätigen",
+    "add": "Hinzufügen"
   },
   "menu": {
     "home": "Home",
@@ -159,6 +160,10 @@
         "weeks": "{count} {count, plural, one{Woche} other{Wochen}}",
         "infinite": "Unendlich",
         "hint": "Wählen Sie wie lang deployte Ressourcen nach ihrem letzten Deployment am Leben erhalten bleiben sollen."
+      },
+      "urlTemplatesInput": {
+        "urlTemplates": "URL Templates",
+        "addNewPlaceholder": "Geben Sie ein neues URL Template ein"
       },
       "fileUpload": {
         "dndFiles": "Ziehen Sie Dateien hier hin",

@@ -137,4 +137,8 @@ export class EditProjectVersionComponent implements OnInit, OnDestroy {
       this.projectVersion.templateVariables[event.key] = event.value;
     }
   }
+
+  onUrlTemplatesChanged(templates: Array<string>) {
+    this.projectVersion.urlTemplates = templates;
+  }
 }

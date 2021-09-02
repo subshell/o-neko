@@ -64,6 +64,7 @@ public class ProjectDTOMapper {
 		dto.setImageName(project.getImageName());
 		dto.setNewVersionsDeploymentBehaviour(project.getNewVersionsDeploymentBehaviour());
 		dto.setDefaultLifetimeBehaviour(project.getDefaultLifetimeBehaviour().map(lifetimeBehaviourDTOMapper::toLifetimeBehaviourDTO).orElse(null));
+		dto.setUrlTemplates(project.getUrlTemplates());
 		dto.setDefaultConfigurationTemplates(project.getDefaultConfigurationTemplates().stream()
 				.map(templateDTOMapper::toDTO)
 				.collect(Collectors.toList()));
@@ -137,6 +138,7 @@ public class ProjectDTOMapper {
 		dto.setDeployment(DeploymentDTO.create(version.getId(), deployment));
 		dto.setUrls(version.getUrls());
 		dto.setOutdated(version.isOutdated());
+		dto.setUrlTemplates(version.getUrlTemplates());
 		dto.setConfigurationTemplates(version.getConfigurationTemplates().stream()
 				.map(templateDTOMapper::toDTO)
 				.collect(Collectors.toList()));
@@ -153,6 +155,7 @@ public class ProjectDTOMapper {
 		project.setImageName(projectDTO.getImageName());
 		project.assignToNewRegistry(registryId);
 		ofNullable(projectDTO.getNewVersionsDeploymentBehaviour()).ifPresent(project::setNewVersionsDeploymentBehaviour);
+		project.setUrlTemplates(projectDTO.getUrlTemplates());
 		project.setDefaultConfigurationTemplates(templateDTOMapper.updateFromDTOs(project.getDefaultConfigurationTemplates(), projectDTO.getDefaultConfigurationTemplates()));
 		project.setDefaultLifetimeBehaviour(ofNullable(projectDTO.getDefaultLifetimeBehaviour()).map(lifetimeBehaviourDTOMapper::toLifetimeBehaviour).orElse(null));
 		project.setTemplateVariables(fromTemplateVariableDTOs(projectDTO.getTemplateVariables()));
@@ -181,6 +184,7 @@ public class ProjectDTOMapper {
 		}
 		version.setTemplateVariables(templateVariables);
 
+		version.setUrlTemplates(projectVersionDTO.getUrlTemplates());
 		version.setConfigurationTemplates(templateDTOMapper.updateFromDTOs(version.getConfigurationTemplates(), projectVersionDTO.getConfigurationTemplates()));
 		version.setLifetimeBehaviour(ofNullable(projectVersionDTO.getLifetimeBehaviour()).filter(dto -> dto.getDaysToLive() != -1).map(lifetimeBehaviourDTOMapper::toLifetimeBehaviour).orElse(null));
 		version.setNamespace(projectVersionDTO.getNamespace());
@@ -199,9 +203,9 @@ public class ProjectDTOMapper {
 		if (deployment == null || deployment.getStatus() == DeployableStatus.NotScheduled) {
 			return false;
 		}
-		if (CollectionUtils.containsAny(version.getProject().getDirtyProperties(), Arrays.asList("defaultConfigurationTemplates", "imageName", "defaultTemplateVariables", "dockerRegistry"))) {
+		if (CollectionUtils.containsAny(version.getProject().getDirtyProperties(), Arrays.asList("defaultConfigurationTemplates", "imageName", "defaultTemplateVariables", "dockerRegistry", "urlTemplates"))) {
 			return true;
 		}
-		return CollectionUtils.containsAny(version.getDirtyProperties(), Arrays.asList("configurationTemplates", "templateVariables"));
+		return CollectionUtils.containsAny(version.getDirtyProperties(), Arrays.asList("configurationTemplates", "templateVariables", "urlTemplates"));
 	}
 }

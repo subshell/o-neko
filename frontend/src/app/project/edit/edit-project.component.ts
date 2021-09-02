@@ -95,4 +95,8 @@ export class EditProjectComponent implements OnInit {
       FileDownloadService.downloadJSON(projectExport, `${projectExport.name}.json`);
     });
   }
+
+  onUrlTemplatesChanged(templates: Array<string>) {
+    this.project.urlTemplates = templates;
+  }
 }

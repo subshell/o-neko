@@ -24,6 +24,7 @@ public class ProjectVersionDTO {
 	private Map<String, String> templateVariables;
 	private DeploymentDTO deployment;
 	private List<String> urls;
+	private List<String> urlTemplates;
 	private List<ConfigurationTemplateDTO> configurationTemplates;
 	private boolean outdated;
 	private LifetimeBehaviourDTO lifetimeBehaviour;

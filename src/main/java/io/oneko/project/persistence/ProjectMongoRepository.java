@@ -94,6 +94,7 @@ class ProjectMongoRepository extends EventAwareProjectRepository {
 		projectMongo.setName(project.getName());
 		projectMongo.setImageName(project.getImageName());
 		projectMongo.setNewVersionsDeploymentBehaviour(project.getNewVersionsDeploymentBehaviour());
+		projectMongo.setUrlTemplates(project.getUrlTemplates());
 		projectMongo.setDefaultConfigurationTemplates(ConfigurationTemplateMongoMapper.toConfigurationTemplateMongos(project.getDefaultConfigurationTemplates()));
 		projectMongo.setTemplateVariables(this.toTemplateVariablesMongo(project.getTemplateVariables()));
 		projectMongo.setNamespace(project.getNamespace());
@@ -156,6 +157,7 @@ class ProjectMongoRepository extends EventAwareProjectRepository {
 		versionMongo.setDockerContentDigest(version.getDockerContentDigest());
 		versionMongo.setUrls(version.getUrls());
 		versionMongo.setOutdated(version.isOutdated());
+		versionMongo.setUrlTemplates(version.getUrlTemplates());
 		versionMongo.setConfigurationTemplates(ConfigurationTemplateMongoMapper.toConfigurationTemplateMongos(version.getConfigurationTemplates()));
 		versionMongo.setLifetimeBehaviour(version.getLifetimeBehaviour().orElse(null));
 		versionMongo.setNamespace(version.getNamespace());
@@ -177,6 +179,7 @@ class ProjectMongoRepository extends EventAwareProjectRepository {
 				.name(projectMongo.getName())
 				.imageName(projectMongo.getImageName())
 				.newVersionsDeploymentBehaviour(projectMongo.getNewVersionsDeploymentBehaviour())
+				.urlTemplates(projectMongo.getUrlTemplates())
 				.defaultConfigurationTemplates(ConfigurationTemplateMongoMapper.fromConfigurationTemplateMongos(projectMongo.getDefaultConfigurationTemplates()))
 				.templateVariables(fromTemplateVariablesMongo(projectMongo.getTemplateVariables()))
 				.dockerRegistryId(projectMongo.getDockerRegistryUUID())
@@ -195,6 +198,7 @@ class ProjectMongoRepository extends EventAwareProjectRepository {
 				.dockerContentDigest(versionMongo.getDockerContentDigest())
 				.urls(versionMongo.getUrls())
 				.outdated(versionMongo.isOutdated())
+				.urlTemplates(versionMongo.getUrlTemplates())
 				.configurationTemplates(ConfigurationTemplateMongoMapper.fromConfigurationTemplateMongos(versionMongo.getConfigurationTemplates()))
 				.lifetimeBehaviour(versionMongo.getLifetimeBehaviour())
 				.desiredState(versionMongo.getDesiredState())
