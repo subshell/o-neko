@@ -30,7 +30,7 @@
           <mat-label>{{ 'components.forms.urlTemplatesInput.addNewLabel' | translate }}</mat-label>
           <input name="newUrlTemplate" matInput #input="matInput" #inputModel="ngModel" [(ngModel)]="textInput" [placeholder]="'components.forms.urlTemplatesInput.addNewPlaceholder' | translate" [forbiddenValues]="urlTemplates" />
         </mat-form-field>
-        <button mat-icon-button (click)="addUrl()" [disabled]="input.empty || inputModel.invalid && inputModel.errors.forbiddenValues" [matTooltip]="'general.add' | translate">
+        <button type="button" mat-icon-button (click)="addUrl()" [disabled]="input.empty || inputModel.invalid && inputModel.errors.forbiddenValues" [matTooltip]="'general.add' | translate">
           <mat-icon svgIcon="mdi:plus"></mat-icon>
         </button>
       </div>
