@@ -52,7 +52,7 @@ Versions can overwrite the list of URL templates.
 
 Using the URL templates helps O-Neko be aware of the URLs that belong to a specific version of a project. It will be used to display
 clickable links to your frontends in the O-Neko UI. It will also be possible to start O-Neko deployments by their
-URL using an O-Neko API call. This is useful in combination with the O-Neko extension [O-Neko URL Trigger](https://github.com/subshell/o-neko-url-trigger),
+URL using an O-Neko API call. This is useful in combination with the O-Neko extension [O-Neko Catnip](https://github.com/subshell/o-neko-catnip),
 which can be used as a default backend for all stopped deployments.
 
 #### Example
