@@ -53,7 +53,9 @@ export class EditProjectVersionComponent implements OnInit, OnDestroy {
               private readonly translate: TranslateService) {
     this.lifetimeBehaviourOptions = [{
       label: this.translate.instant('components.project.editVersion.inheritFromProject'),
-      value: -1
+      lifetime: {
+        type: 'inherit',
+      }
     }];
     this.userService.currentUser().subscribe(currentUser => this.editingUser = currentUser);
     this.rest.docker().getAllDockerRegistries().subscribe(regs => this.dockerRegistries = regs);
@@ -86,7 +88,9 @@ export class EditProjectVersionComponent implements OnInit, OnDestroy {
 
   private initProjectAndVersion() {
     if (!this.projectVersion.lifetimeBehaviour) {
-      this.projectVersion.lifetimeBehaviour = {daysToLive: -1};
+      this.projectVersion.lifetimeBehaviour = {
+        type: 'inherit'
+      };
     }
 
     this.projectVersionVariables = new Map(Object.entries(this.projectVersion.templateVariables));

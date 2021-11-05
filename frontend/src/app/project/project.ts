@@ -8,8 +8,11 @@ export enum AggregatedDeploymentStatus {
   Ok = "Ok", Pending = "Pending", Error = "Error", NotDeployed = "NotDeployed"
 }
 
+export type LifetimeType = 'until_tonight' | 'until_weekend' | 'days' | 'infinite' | 'inherit';
+
 export interface LifetimeBehaviour {
-  daysToLive: number;
+  type: LifetimeType
+  value?: number
 }
 
 export interface ProjectDTO {
@@ -105,7 +108,7 @@ export class Project implements ProjectDTO {
    * @returns {boolean}
    */
   public isNew(): boolean {
-    return !!!this.uuid;
+    return !this.uuid;
   }
 
   public isOrphan(): boolean {

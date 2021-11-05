@@ -56,7 +56,7 @@ export class EditProjectComponent implements OnInit {
         this.project.defaultConfigurationTemplates = [];
       }
       if (!project.defaultLifetimeBehaviour) {
-        project.defaultLifetimeBehaviour = {daysToLive: undefined};
+        project.defaultLifetimeBehaviour = undefined;
       }
     });
   }

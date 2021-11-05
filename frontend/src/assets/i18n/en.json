@@ -159,6 +159,8 @@
         "days": "{count} {count, plural, one{Day} other{Days}}",
         "weeks": "{count} {count, plural, one{Week} other{Weeks}}",
         "infinite": "Infinite",
+        "untilTonight": "Until tonight",
+        "untilWeekend": "Until next weekend",
         "hint": "Choose how long deployed resources should be kept alive after their last deployment"
       },
       "urlTemplatesInput": {
