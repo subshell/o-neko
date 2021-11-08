@@ -10,7 +10,7 @@ The most important features of O-Neko are:
 * Deploy development versions (e.g. every branch) to Kubernetes with one click
 * Configure projects via Helm charts
 * Automatically re-deploy running versions when the corresponding Docker image has changed (configurable per project and version)
-* Automatically stop running versions after a specific time (configurable per project and version)
+* Automatically stop running versions after or at a specific time (configurable per project and version)
 * Select variables that allow fast changes to frequently used configuration settings (e.g. server URLs)
 
 ## Pre-requisites

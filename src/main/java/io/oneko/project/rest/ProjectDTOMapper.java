@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import com.google.common.base.MoreObjects;
 
 import io.oneko.automations.LifetimeBehaviourDTOMapper;
+import io.oneko.automations.LifetimeBehaviourType;
 import io.oneko.deployable.AggregatedDeploymentStatus;
 import io.oneko.kubernetes.deployments.DeployableStatus;
 import io.oneko.kubernetes.deployments.Deployment;
@@ -186,7 +187,7 @@ public class ProjectDTOMapper {
 
 		version.setUrlTemplates(projectVersionDTO.getUrlTemplates());
 		version.setConfigurationTemplates(templateDTOMapper.updateFromDTOs(version.getConfigurationTemplates(), projectVersionDTO.getConfigurationTemplates()));
-		version.setLifetimeBehaviour(ofNullable(projectVersionDTO.getLifetimeBehaviour()).filter(dto -> dto.getDaysToLive() != -1).map(lifetimeBehaviourDTOMapper::toLifetimeBehaviour).orElse(null));
+		version.setLifetimeBehaviour(ofNullable(projectVersionDTO.getLifetimeBehaviour()).filter(dto -> dto.getType() != LifetimeBehaviourType.INHERIT).map(lifetimeBehaviourDTOMapper::toLifetimeBehaviour).orElse(null));
 		version.setNamespace(projectVersionDTO.getNamespace());
 		updateDeploymentStatusOfVersion(version);
 	}

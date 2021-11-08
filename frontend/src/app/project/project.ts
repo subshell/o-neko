@@ -8,7 +8,7 @@ export enum AggregatedDeploymentStatus {
   Ok = "Ok", Pending = "Pending", Error = "Error", NotDeployed = "NotDeployed"
 }
 
-export type LifetimeType = 'until_tonight' | 'until_weekend' | 'days' | 'infinite' | 'inherit';
+export type LifetimeType = 'UNTIL_TONIGHT' | 'UNTIL_WEEKEND' | 'DAYS' | 'INFINITE' | 'INHERIT';
 
 export interface LifetimeBehaviour {
   type: LifetimeType

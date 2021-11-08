@@ -1,34 +1,38 @@
 package io.oneko.automations;
 
-import static java.time.temporal.ChronoUnit.*;
-import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.MatcherAssert.*;
 
-import java.time.Instant;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
 class LifetimeBehaviourTest {
 
+	@Test
+	void days() {
+		LifetimeBehaviour lb = LifetimeBehaviour.ofDays(7);
+		assertThat(lb.getType()).isEqualTo(LifetimeBehaviourType.DAYS);
+		assertThat(lb.getValue()).isEqualTo(7);
+	}
+
 
 	@Test
-	void testInfiniteLifetime() {
+	void infinite() {
 		LifetimeBehaviour lb = LifetimeBehaviour.infinite();
-
-		assertThat(lb.isInfinite(), is(true));
-		assertThat(lb.isExpired(Instant.now().minus(5, MINUTES)), is(false));
-		assertThat(lb.isExpired(Instant.now().plus(5, MINUTES)), is(false));
+		assertThat(lb.isInfinite()).isTrue();
+		assertThat(lb.getType()).isEqualTo(LifetimeBehaviourType.INFINITE);
 	}
 
 	@Test
-	void testFiniteLifetime() {
-		LifetimeBehaviour lb = LifetimeBehaviour.ofDays(5);
-
-		assertThat(lb.isInfinite(), is(false));
-		assertThat(lb.isExpired(Instant.now()), is(false));
-		assertThat(lb.isExpired(Instant.now().minus(4, DAYS)), is(false));
-		assertThat(lb.isExpired(Instant.now().minus(5, DAYS)), is(true));
-		assertThat(lb.isExpired(Instant.now().minus(6, DAYS)), is(true));
+	void untilWeekend() {
+		LifetimeBehaviour lb = LifetimeBehaviour.untilWeekend();
+		assertThat(lb.isUntilWeekend()).isTrue();
+		assertThat(lb.getType()).isEqualTo(LifetimeBehaviourType.UNTIL_WEEKEND);
 	}
 
+	@Test
+	void UntilTonight() {
+		LifetimeBehaviour lb = LifetimeBehaviour.untilTonight();
+		assertThat(lb.isUntilTonight()).isTrue();
+		assertThat(lb.getType()).isEqualTo(LifetimeBehaviourType.UNTIL_TONIGHT);
+	}
 }

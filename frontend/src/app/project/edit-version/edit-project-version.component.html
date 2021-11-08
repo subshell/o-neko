@@ -59,7 +59,7 @@
 
           <deployment-behaviour-input [model]="projectVersion" [required]="true"></deployment-behaviour-input>
 
-          <lifetime-behaviour-input [model]="projectVersion.lifetimeBehaviour" [required]="true" [additionalLifetimeBehaviourOptions]="lifetimeBehaviourOptions"></lifetime-behaviour-input>
+          <lifetime-behaviour-input [model]="projectVersion.lifetimeBehaviour" (modelChange)="onLifetimeBehaviourChange($event)" [required]="true" [additionalLifetimeBehaviourOptions]="lifetimeBehaviourOptions"></lifetime-behaviour-input>
 
         </form>
       </div>

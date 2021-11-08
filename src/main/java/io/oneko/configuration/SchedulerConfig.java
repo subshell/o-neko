@@ -1,5 +1,6 @@
 package io.oneko.configuration;
 
+import java.time.Clock;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -20,5 +21,10 @@ public class SchedulerConfig {
 	@Bean()
 	public Executor taskExecutor() {
 		return Executors.newScheduledThreadPool(10);
+	}
+
+	@Bean()
+	public Clock clock() {
+		return Clock.systemUTC();
 	}
 }
