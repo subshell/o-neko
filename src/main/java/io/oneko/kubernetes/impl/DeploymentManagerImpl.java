@@ -17,8 +17,11 @@ import org.springframework.stereotype.Service;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.extensions.Ingress;
 import io.fabric8.kubernetes.api.model.extensions.IngressRule;
+import io.oneko.docker.event.ObsoleteProjectVersionRemovedEvent;
 import io.oneko.docker.v2.DockerRegistryClientFactory;
 import io.oneko.docker.v2.model.manifest.Manifest;
+import io.oneko.event.Event;
+import io.oneko.event.EventDispatcher;
 import io.oneko.helm.HelmRegistryException;
 import io.oneko.helm.util.HelmCommandUtils;
 import io.oneko.helmapi.model.InstallStatus;
@@ -47,11 +50,13 @@ class DeploymentManagerImpl implements DeploymentManager {
 	DeploymentManagerImpl(KubernetesAccess kubernetesAccess,
 												DockerRegistryClientFactory dockerRegistryClientFactory,
 												ProjectRepository projectRepository,
-												DeploymentRepository deploymentRepository) {
+												DeploymentRepository deploymentRepository,
+												EventDispatcher eventDispatcher) {
 		this.kubernetesAccess = kubernetesAccess;
 		this.dockerRegistryClientFactory = dockerRegistryClientFactory;
 		this.projectRepository = projectRepository;
 		this.deploymentRepository = deploymentRepository;
+		eventDispatcher.registerListener(this::consumeDeletedVersionEvent);
 	}
 
 	@Override
@@ -148,7 +153,9 @@ class DeploymentManagerImpl implements DeploymentManager {
 	@Override
 	public ReadableProjectVersion stopDeployment(WritableProjectVersion version) {
 		try {
+			final WritableDeployment deployment = getOrCreateDeploymentForVersion(version);
 			HelmCommandUtils.uninstall(version);
+			deploymentRepository.deleteById(deployment.getId());
 			version.setUrls(List.of());
 			version.setDesiredState(NotDeployed);
 			final ReadableProject readableProject = projectRepository.add(version.getProject());
@@ -158,6 +165,26 @@ class DeploymentManagerImpl implements DeploymentManager {
 		} catch (HelmRegistryException e) {
 			log.error("failed to stop deployment ({})", versionKv(version), e);
 			throw new RuntimeException(e);
+		}
+	}
+
+	private void stopDeploymentOfRemovedVersion(ProjectVersion version) {
+		try {
+			final WritableDeployment deployment = getOrCreateDeploymentForVersion(version);
+			HelmCommandUtils.uninstall(version);
+			deploymentRepository.deleteById(deployment.getId());
+		} catch (HelmRegistryException e) {
+			log.error("failed to stop deployment of removed version ({})", versionKv(version), e);
+			throw new RuntimeException(e);
+		}
+	}
+
+	private void consumeDeletedVersionEvent(Event event) {
+		if (event instanceof ObsoleteProjectVersionRemovedEvent) {
+			var e = (ObsoleteProjectVersionRemovedEvent) event;
+			if (deploymentRepository.findByProjectVersionId(e.getVersionId()).isPresent()) {
+				stopDeploymentOfRemovedVersion(e.getVersion());
+			}
 		}
 	}
 }
