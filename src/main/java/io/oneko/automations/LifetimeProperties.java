@@ -16,10 +16,11 @@ public class LifetimeProperties {
 
 	@Data
 	@AllArgsConstructor
+	@NoArgsConstructor
 	public static class EndOfDay {
-		private final Integer hour;
-		private final Integer minute;
-		private final Integer dayOffset;
+		private Integer hour;
+		private Integer minute;
+		private Integer dayOffset;
 	}
 
 	private EndOfDay endOfDay;

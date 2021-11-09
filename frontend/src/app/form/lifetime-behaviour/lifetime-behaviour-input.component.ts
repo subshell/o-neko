@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
-import {LifetimeBehaviour, LifetimeType} from "../../project/project";
+import {LifetimeBehaviour} from "../../project/project";
 import {TranslateService} from "@ngx-translate/core";
 
 export interface LabeledLifetimeBehaviour {
@@ -91,6 +91,9 @@ export class LifetimeBehaviourInputComponent implements OnInit {
   }
 
   public compareLifetimeBehaviour(option: LifetimeBehaviour, value: LifetimeBehaviour): boolean {
-    return option?.type === value?.type && option?.value === value?.value;
+    const sameType = option.type === value.type;
+    const sameValue = option.type !== 'DAYS' || option.value === value.value;
+
+    return sameType && sameValue;
   }
 }

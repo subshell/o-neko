@@ -7,7 +7,6 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.Locale;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -80,13 +79,18 @@ public class LifetimeBehaviourService {
 		date.set(Calendar.SECOND, 0);
 		date.set(Calendar.MILLISECOND, 0);
 
+		// if the deployment was started after the expiration date, use the next day
+		if (timestamp.isAfter(date.toInstant())) {
+			date.add(Calendar.DATE, 1);
+		}
+
 		return date;
 	}
 
 	private Calendar getCalendarAtNextWeekend(Instant timestamp) {
 		Calendar date = getCalendarAtEndOfDay(timestamp);
 
-		// next friday
+		// last day before the weekend
 		int dayOfWeek = date.get(Calendar.DAY_OF_WEEK);
 		int daysUntilNextWeekOfDay = DAY_OF_THE_WEEK.get(lifetimeProperties.getLastDayOfTheWeek().toUpperCase()) - dayOfWeek;
 		if (daysUntilNextWeekOfDay == 0) {
