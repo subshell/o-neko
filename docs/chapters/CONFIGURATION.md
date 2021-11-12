@@ -22,7 +22,7 @@ o-neko:
       endOfDay:
         hour: 23
         minute: 59
-        dayOffset: 0
+        onNextDay: false
       lastDayOfTheWeek: friday
 ```
 
@@ -35,11 +35,11 @@ By default, it points to:
 * `until tonight`: same day, 23:59
 * `until weekend`: next friday, 23:59
 
-By setting `o-neko.deployments.lifetime.endOfDay.dayOffset` to `1`, `o-neko.deployments.lifetime.endOfDay.hour` to `3`, and `o-neko.deployments.lifetime.lastDayOfTheWeek` to `saturday` it will point to:
+By setting `o-neko.deployments.lifetime.endOfDay.onNextDay` to `true`, `o-neko.deployments.lifetime.endOfDay.hour` to `3`, and `o-neko.deployments.lifetime.lastDayOfTheWeek` to `saturday` it will point to:
 
 * `until tonight`: next day, 03:59
 * `until weekend`: next sunday, 03:59
 
-As you can see, `until tonight` always points to the current day + `dayOffset`, while `until weekend` points to the configurable last day of the week + `dayOffset`. 
+As you can see, `until tonight` always points to the current day (+1 if `onNextDay` is set to true) , while `until weekend` points to the configurable last day of the week (+1 if `onNextDay` is set to true). 
 
 **Note:** Deployments will stop on the next *possible* expiration date. So if you start a deployment shortly after the `until tonight` expiration date, it will be stopped on the next day.

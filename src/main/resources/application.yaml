@@ -20,7 +20,7 @@ o-neko:
       endOfDay:
         hour: 23
         minute: 59
-        dayOffset: 0
+        onNextDay: false
       lastDayOfTheWeek: friday
 
 springdoc:

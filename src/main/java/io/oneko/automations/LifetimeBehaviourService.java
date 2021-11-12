@@ -9,15 +9,11 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import io.oneko.kubernetes.deployments.Deployment;
-import lombok.AllArgsConstructor;
 
-@AllArgsConstructor
 @Service
 public class LifetimeBehaviourService {
 	public static final Map<String, Integer> DAY_OF_THE_WEEK = Map.ofEntries(
@@ -33,11 +29,17 @@ public class LifetimeBehaviourService {
 	private final LifetimeProperties lifetimeProperties;
 	private final Clock clock;
 
-	@PostConstruct
-	void checkDayOfTheWeek() {
-		if (!DAY_OF_THE_WEEK.containsKey(lifetimeProperties.getLastDayOfTheWeek().toUpperCase())) {
+	public LifetimeBehaviourService(LifetimeProperties lifetimeProperties, Clock clock) {
+		validateDayOfTheWeek(lifetimeProperties.getLastDayOfTheWeek());
+
+		this.lifetimeProperties = lifetimeProperties;
+		this.clock = clock;
+	}
+
+	void validateDayOfTheWeek(String lastDayOfTheWeek) {
+		if (!DAY_OF_THE_WEEK.containsKey(lastDayOfTheWeek.toUpperCase())) {
 			throw new IllegalArgumentException("Lifetime configuration invalid. Last day of the week is unknown: "
-					+ lifetimeProperties.getLastDayOfTheWeek()
+					+ lastDayOfTheWeek
 					+ ". Possible values are " + StringUtils.join(DAY_OF_THE_WEEK.keySet()));
 		}
 	}
@@ -73,7 +75,9 @@ public class LifetimeBehaviourService {
 		LifetimeProperties.EndOfDay endOfDay = lifetimeProperties.getEndOfDay();
 
 		Calendar date = GregorianCalendar.from(ZonedDateTime.ofInstant(timestamp, ZoneId.systemDefault()));
-		date.add(Calendar.DATE, endOfDay.getDayOffset());
+		if (endOfDay.getOnNextDay()) {
+			date.add(Calendar.DATE, 1);
+		}
 		date.set(Calendar.HOUR_OF_DAY, endOfDay.getHour());
 		date.set(Calendar.MINUTE, endOfDay.getMinute());
 		date.set(Calendar.SECOND, 0);

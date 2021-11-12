@@ -22,7 +22,7 @@ class LifetimeBehaviourServiceTest {
 
 	@Test
 	void testInfiniteLifetime() {
-		LifetimeBehaviourService uut = createLifetimeBehaviourService(23, 59, 0);
+		LifetimeBehaviourService uut = createLifetimeBehaviourService(23, 59, false);
 		LifetimeBehaviour lb = LifetimeBehaviour.infinite();
 
 		assertThat(uut.isExpired(lb, clock.instant().minus(5, ChronoUnit.MINUTES))).isFalse();
@@ -31,7 +31,7 @@ class LifetimeBehaviourServiceTest {
 
 	@Test
 	void testFiniteLifetime() {
-		LifetimeBehaviourService uut = createLifetimeBehaviourService(23, 59, 0);
+		LifetimeBehaviourService uut = createLifetimeBehaviourService(23, 59, false);
 		LifetimeBehaviour lb = LifetimeBehaviour.ofDays(5);
 
 		assertThat(uut.isExpired(lb, clock.instant())).isFalse();
@@ -42,21 +42,21 @@ class LifetimeBehaviourServiceTest {
 
 	@Test
 	void testUntilTonightNotExpired() {
-		LifetimeBehaviourService uut = createLifetimeBehaviourService(23, 59, 0);
+		LifetimeBehaviourService uut = createLifetimeBehaviourService(23, 59, false);
 		LifetimeBehaviour lb = LifetimeBehaviour.untilTonight();
 		assertThat(uut.isExpired(lb, clock.instant())).isFalse();
 	}
 
 	@Test
 	void testUntilTonightExpired() {
-		LifetimeBehaviourService uut = createLifetimeBehaviourService(23, 59, 0);
+		LifetimeBehaviourService uut = createLifetimeBehaviourService(23, 59, false);
 		LifetimeBehaviour lb = LifetimeBehaviour.untilTonight();
 		assertThat(uut.isExpired(lb, clock.instant().minus(1, ChronoUnit.DAYS))).isTrue();
 	}
 
 	@Test
 	void testUntilTonightExpiredNextDay() {
-		LifetimeBehaviourService uut = createLifetimeBehaviourService(5, 0, 1);
+		LifetimeBehaviourService uut = createLifetimeBehaviourService(5, 0, true);
 		LifetimeBehaviour lb = LifetimeBehaviour.untilTonight();
 		assertThat(uut.isExpired(lb, clock.instant().minus(1, ChronoUnit.DAYS))).isFalse();
 		assertThat(uut.isExpired(lb, clock.instant().minus(2, ChronoUnit.DAYS))).isTrue();
@@ -64,7 +64,7 @@ class LifetimeBehaviourServiceTest {
 
 	@Test
 	void untilTonightOnSameDay() {
-		LifetimeBehaviourService uut = createLifetimeBehaviourService(3, 0, 0);
+		LifetimeBehaviourService uut = createLifetimeBehaviourService(3, 0, false);
 		LifetimeBehaviour lb = LifetimeBehaviour.untilTonight();
 
 		clock.timeTravelTo(Instant.EPOCH.plus(4, ChronoUnit.HOURS));
@@ -75,7 +75,7 @@ class LifetimeBehaviourServiceTest {
 
 	@Test
 	void testUntilWeekendNotExpired() {
-		LifetimeBehaviourService uut = createLifetimeBehaviourService(23, 59, 0);
+		LifetimeBehaviourService uut = createLifetimeBehaviourService(23, 59, false);
 		LifetimeBehaviour lb = LifetimeBehaviour.untilWeekend();
 		assertThat(uut.isExpired(lb, clock.instant())).isFalse();
 	}
@@ -83,7 +83,7 @@ class LifetimeBehaviourServiceTest {
 	@Test
 	void testUntilWeekendExpired() {
 		// Current day is Jan 1st, 1970 is on Thursday
-		LifetimeBehaviourService uut = createLifetimeBehaviourService(23, 59, 0);
+		LifetimeBehaviourService uut = createLifetimeBehaviourService(23, 59, false);
 		LifetimeBehaviour lb = LifetimeBehaviour.untilWeekend();
 
 		assertThat(uut.isExpired(lb, clock.instant().minus(6, ChronoUnit.DAYS))).isFalse();
@@ -95,7 +95,7 @@ class LifetimeBehaviourServiceTest {
 	@Test
 	void testUntilWeekendExpiredCustomEndOfWeek() {
 		// Current day is Jan 1st, 1970 is on Thursday
-		LifetimeProperties.EndOfDay endOfDay = new LifetimeProperties.EndOfDay(23, 59, 0);
+		LifetimeProperties.EndOfDay endOfDay = new LifetimeProperties.EndOfDay(23, 59, false);
 		LifetimeProperties properties = new LifetimeProperties(endOfDay, "saturday");
 		LifetimeBehaviourService uut = new LifetimeBehaviourService(properties, clock);
 		LifetimeBehaviour lb = LifetimeBehaviour.untilWeekend();
@@ -108,14 +108,13 @@ class LifetimeBehaviourServiceTest {
 
 	@Test
 	void rejectInvalidWeekdays() {
-		LifetimeProperties.EndOfDay endOfDay = new LifetimeProperties.EndOfDay(23, 59, 0);
+		LifetimeProperties.EndOfDay endOfDay = new LifetimeProperties.EndOfDay(23, 59, false);
 		LifetimeProperties properties = new LifetimeProperties(endOfDay, "someday");
-		LifetimeBehaviourService uut = new LifetimeBehaviourService(properties, clock);
-		assertThatThrownBy(uut::checkDayOfTheWeek).isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> new LifetimeBehaviourService(properties, clock)).isInstanceOf(IllegalArgumentException.class);
 	}
 
-	private LifetimeBehaviourService createLifetimeBehaviourService(int hour, int minute, int dayOffset) {
-		LifetimeProperties.EndOfDay endOfDay = new LifetimeProperties.EndOfDay(hour, minute, dayOffset);
+	private LifetimeBehaviourService createLifetimeBehaviourService(int hour, int minute, boolean onNextDay) {
+		LifetimeProperties.EndOfDay endOfDay = new LifetimeProperties.EndOfDay(hour, minute, onNextDay);
 		LifetimeProperties properties = new LifetimeProperties(endOfDay, "friday");
 		return new LifetimeBehaviourService(properties, clock);
 	}

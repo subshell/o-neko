@@ -20,7 +20,7 @@ public class LifetimeProperties {
 	public static class EndOfDay {
 		private Integer hour;
 		private Integer minute;
-		private Integer dayOffset;
+		private Boolean onNextDay;
 	}
 
 	private EndOfDay endOfDay;
