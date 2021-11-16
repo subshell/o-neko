@@ -1,3 +1,10 @@
+## 1.4.0 (2021-11-16)
+
+* feat(wakeup): add advanced sleep and wakeup features (#60) ([345e8c6](https://github.com/subshell/o-neko/commit/345e8c6)), closes [#60](https://github.com/subshell/o-neko/issues/60) [#58](https://github.com/subshell/o-neko/issues/58) [#59](https://github.com/subshell/o-neko/issues/59) [#61](https://github.com/subshell/o-neko/issues/61) [#62](https://github.com/subshell/o-neko/issues/62) [#65](https://github.com/subshell/o-neko/issues/65)
+* fix(deployment): stop deleted versions and delete stopped deployments (#64) ([cba3d49](https://github.com/subshell/o-neko/commit/cba3d49)), closes [#64](https://github.com/subshell/o-neko/issues/64)
+* Add docker version badge ([b4e5274](https://github.com/subshell/o-neko/commit/b4e5274))
+
+
 ## 1.3.0 (2021-08-30)
 
 * feat(helm): Update Helm and base Docker image (#55) ([bee922c](https://github.com/subshell/o-neko/commit/bee922c)), closes [#55](https://github.com/subshell/o-neko/issues/55)
