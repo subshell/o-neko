@@ -6,7 +6,7 @@ import {DockerRegistry} from '../../registries/docker/docker-registry';
 import {RestService} from '../../rest/rest.service';
 import {User} from '../../user/user';
 import {UserService} from '../../user/user.service';
-import {DeploymentBehaviour, Project, TemplateVariable} from '../project';
+import {DeploymentBehaviour, LifetimeBehaviour, Project, TemplateVariable} from '../project';
 import {ProjectService} from '../project.service';
 import {FileDownloadService} from '../../util/file-download.service';
 import {Namespace} from "../../namespace/namespace";
@@ -56,7 +56,7 @@ export class EditProjectComponent implements OnInit {
         this.project.defaultConfigurationTemplates = [];
       }
       if (!project.defaultLifetimeBehaviour) {
-        project.defaultLifetimeBehaviour = {daysToLive: undefined};
+        project.defaultLifetimeBehaviour = undefined;
       }
     });
   }
@@ -67,6 +67,10 @@ export class EditProjectComponent implements OnInit {
 
   public onDefaultConfigurationTemplateChange(templates: Array<ConfigurationTemplate>) {
     this.project.defaultConfigurationTemplates = templates;
+  }
+
+  public onDefaultLifetimeBehaviourChange(lifetimeBehaviour: LifetimeBehaviour) {
+    this.project.defaultLifetimeBehaviour = lifetimeBehaviour;
   }
 
   public onTemplatesValidationChange(stillValid: boolean) {

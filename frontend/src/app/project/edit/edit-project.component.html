@@ -64,7 +64,7 @@
 
           <deployment-behaviour-input [model]="newVersionsDeploymentBehaviourAccess"[required]="true" [readonly]="!mayEditProjects()"></deployment-behaviour-input>
 
-          <lifetime-behaviour-input [model]="project.defaultLifetimeBehaviour" [name]="'components.project.editProject.defaultLifetimeBehaviour' | translate"></lifetime-behaviour-input>
+          <lifetime-behaviour-input [model]="project.defaultLifetimeBehaviour" (modelChange)="onDefaultLifetimeBehaviourChange($event)" [name]="'components.project.editProject.defaultLifetimeBehaviour' | translate"></lifetime-behaviour-input>
 
         </form>
       </div>

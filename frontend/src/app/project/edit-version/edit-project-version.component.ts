@@ -21,7 +21,7 @@ import {RestService} from "../../rest/rest.service";
 import {User} from "../../user/user";
 import {UserService} from "../../user/user.service";
 import {WebSocketServiceWrapper} from "../../websocket/web-socket-service-wrapper.service";
-import {Project} from "../project";
+import {LifetimeBehaviour, Project} from "../project";
 import {ProjectVersion} from "../project-version";
 import {ProjectService} from "../project.service";
 import {TranslateService} from "@ngx-translate/core";
@@ -53,7 +53,9 @@ export class EditProjectVersionComponent implements OnInit, OnDestroy {
               private readonly translate: TranslateService) {
     this.lifetimeBehaviourOptions = [{
       label: this.translate.instant('components.project.editVersion.inheritFromProject'),
-      value: -1
+      lifetime: {
+        type: 'INHERIT',
+      }
     }];
     this.userService.currentUser().subscribe(currentUser => this.editingUser = currentUser);
     this.rest.docker().getAllDockerRegistries().subscribe(regs => this.dockerRegistries = regs);
@@ -86,7 +88,9 @@ export class EditProjectVersionComponent implements OnInit, OnDestroy {
 
   private initProjectAndVersion() {
     if (!this.projectVersion.lifetimeBehaviour) {
-      this.projectVersion.lifetimeBehaviour = {daysToLive: -1};
+      this.projectVersion.lifetimeBehaviour = {
+        type: 'INHERIT'
+      };
     }
 
     this.projectVersionVariables = new Map(Object.entries(this.projectVersion.templateVariables));
@@ -113,6 +117,10 @@ export class EditProjectVersionComponent implements OnInit, OnDestroy {
 
   public onTemplatesValidationChange(stillValid: boolean) {
     this.templatesValid = stillValid;
+  }
+
+  public onLifetimeBehaviourChange(lifetimeBehaviour: LifetimeBehaviour) {
+    this.projectVersion.lifetimeBehaviour = lifetimeBehaviour;
   }
 
   public save() {

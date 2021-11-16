@@ -1,7 +1,9 @@
 <div class="lifetime-behaviour-input" fxLayout="column">
   <mat-form-field>
-    <mat-select [placeholder]="name" [required]="required" [(ngModel)]="model.daysToLive" name="lifetimeBehaviour" id="lifetimeBehaviour" [disabled]="readonly">
-      <mat-option *ngFor="let option of lifetimeBehaviourOptions" [value]="option.value">{{option.label}}</mat-option>
+    <mat-select [placeholder]="name" [required]="required" [(ngModel)]="model" (valueChange)="onModelChange($event)"
+                [compareWith]="compareLifetimeBehaviour"
+                name="lifetimeBehaviour" id="lifetimeBehaviour" [disabled]="readonly">
+      <mat-option *ngFor="let option of lifetimeBehaviourOptions" [value]="option.lifetime">{{option.label}}</mat-option>
     </mat-select>
     <mat-hint>{{'components.forms.lifetimeBehaviourInput.hint' | translate}}</mat-hint>
   </mat-form-field>

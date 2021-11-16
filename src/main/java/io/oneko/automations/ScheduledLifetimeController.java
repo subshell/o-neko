@@ -1,7 +1,8 @@
 package io.oneko.automations;
 
-import static io.oneko.util.MoreStructuredArguments.*;
-import static net.logstash.logback.argument.StructuredArguments.*;
+import static io.oneko.util.MoreStructuredArguments.projectKv;
+import static io.oneko.util.MoreStructuredArguments.versionKv;
+import static net.logstash.logback.argument.StructuredArguments.kv;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,21 +23,18 @@ import io.oneko.project.ProjectRepository;
 import io.oneko.project.ProjectVersion;
 import io.oneko.project.ReadableProject;
 import io.oneko.project.WritableProjectVersion;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
+@AllArgsConstructor
 public class ScheduledLifetimeController {
 
+	private final LifetimeBehaviourService lifetimeBehaviourService;
 	private final ProjectRepository projectRepository;
 	private final DeploymentRepository deploymentRepository;
 	private final DeploymentManager deploymentManager;
-
-	public ScheduledLifetimeController(ProjectRepository projectRepository, DeploymentRepository deploymentRepository, DeploymentManager deploymentManager) {
-		this.projectRepository = projectRepository;
-		this.deploymentRepository = deploymentRepository;
-		this.deploymentManager = deploymentManager;
-	}
 
 	@Scheduled(fixedRate = 5 * 60000)
 	public void checkProjects() {
@@ -102,7 +100,7 @@ public class ScheduledLifetimeController {
 				final var matchingDeployable = matchingDeployableOptional.get();
 				final Optional<LifetimeBehaviour> effectiveLifetimeBehaviour = matchingDeployable.getEffectiveLifetimeBehaviour();
 				if (effectiveLifetimeBehaviour.isPresent()) {
-					if (effectiveLifetimeBehaviour.get().isExpired(deployment)) {
+					if (lifetimeBehaviourService.isExpired(effectiveLifetimeBehaviour.get(), deployment)) {
 						return Optional.of(Pair.of(matchingDeployable, deployment));
 					}
 				}
