@@ -18,6 +18,7 @@ public class ProjectDTO {
 	private String name;
 	private String imageName;
 	private DeploymentBehaviour newVersionsDeploymentBehaviour;
+	private List<String> urlTemplates = new ArrayList<>();
 	private List<ConfigurationTemplateDTO> defaultConfigurationTemplates = new ArrayList<>();
 	private List<TemplateVariableDTO> templateVariables;
 	private UUID dockerRegistryUUID;

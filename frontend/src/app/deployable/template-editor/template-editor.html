@@ -3,7 +3,7 @@
   <div>
     <div fxLayout="row" fxLayoutAlign="space-between center">
       <div *ngIf="!currentTemplateModel" fxLayout="row" fxLayoutAlign="space-between center">
-        <mat-icon svgIcon="mdi:information-outline" color="primary"></mat-icon>
+        <mat-icon svgIcon="mdi:information" color="primary"></mat-icon>
         <span class="create-template-info">{{'components.templateEditor.createTemplateHelpInfo' | translate}}</span>
       </div>
       <button mat-icon-button [matMenuTriggerFor]="menu" [matTooltip]="'general.options' | translate">
@@ -12,17 +12,17 @@
     </div>
     <mat-menu #menu="matMenu">
       <button mat-menu-item [disabled]="readonly" (click)="openEditConfigurationTemplateDialog(currentTemplateModel)">
-        <mat-icon svgIcon="mdi:pencil-outline"></mat-icon>
+        <mat-icon svgIcon="mdi:pencil"></mat-icon>
         <span>{{'general.rename' | translate}}</span>
       </button>
       <hr />
       <button mat-menu-item [disabled]="readonly" (click)="onAddNewTemplate()">
-        <mat-icon svgIcon="mdi:plus-outline"></mat-icon>
+        <mat-icon svgIcon="mdi:plus"></mat-icon>
         <span>{{'components.templateEditor.createNewTemplate' | translate}}</span>
       </button>
       <file-upload [multiple]="true" (filesCallback)="onConfigUpload($event)" displayType="menu-item" [label]="'components.templateEditor.uploadYaml' | translate" [disabled]="readonly"></file-upload>
       <button mat-menu-item (click)="onDownloadCurrentFile(currentTemplateModel)">
-        <mat-icon svgIcon="mdi:download-outline"></mat-icon>
+        <mat-icon svgIcon="mdi:download"></mat-icon>
         <span>{{'components.templateEditor.downloadCurrentFile' | translate}}</span>
       </button>
     </mat-menu>
@@ -44,7 +44,7 @@
     <!-- Default Templates -->
     <mat-tab [label]="template.name" *ngFor="let template of configurationTemplatesModels; let i = index">
       <ng-template mat-tab-label>
-        <mat-icon [svgIcon]="template.isOriginal() ? 'mdi:file-outline' : 'mdi:file-document-outline'"></mat-icon>
+        <mat-icon [svgIcon]="template.isOriginal() ? 'mdi:file' : 'mdi:file-document'"></mat-icon>
         <span>{{template.name}}</span>
         <button *ngIf="template.isOriginal() && !readonly" mat-icon-button (click)="removeTemplateWithConfirmation(template)"><mat-icon svgIcon="mdi:close"></mat-icon></button>
         <button *ngIf="template.isOverwriting() && !readonly" mat-icon-button (click)="useDefaultProjectConfigurationTemplate(template)"><mat-icon svgIcon="mdi:undo-variant"></mat-icon></button>

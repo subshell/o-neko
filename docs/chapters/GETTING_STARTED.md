@@ -7,7 +7,7 @@ This document will guide you through the first steps after you've successfully i
 The first step is fairly easy. You need to open O-Neko in your browser. Open the URL you chose in the
 O-Neko ingress you deployed in your cluster during installation.
 
-After the login page shows up you can initially login with `admin/admin`. Please change the admin password as soon as possible.
+After the login page shows up you can initially log in with `admin/admin`. Please change the admin password as soon as possible.
 
 ## 2. Show O-Neko your Docker Registry
 
@@ -40,14 +40,51 @@ It's easiest to configure a project if you already have a working values .yaml f
 configuration template via the "..." menu to the right. Then select your Helm registry, the chart and (optionally) the
 chart version. Then you can write your Helm values .yaml file in the editor.
 
-### 6.1 Make the Helm values O-Neko compatible
+### 6.1 Configuring URLs via URL Templates
 
-In order to deploy everything correctly, you need to replace some fixed entries in your files with a template variable syntax.
-The most important is the docker image tag in your deployment.
+Your projects probably host one or more web frontends which should be hosted under one or more URLs. You will want every
+version to get its own domain. You can add URL templates to a project, which will be available in the following configuration.
+Versions can overwrite the list of URL templates.
 
-First and most importantly: You need to set your docker image tag to `{{VERSION_NAME}}`.
+#### Background
 
-`VERSION_NAME` will be replaced with the docker tag you want to deploy, which might be `latest`, `1.0.0`, `bugfix_user_auth`
+> Why should I use URL templates instead of directly writing the URLs into the Helm values? It makes O-Neko even more complicated!
+
+Using the URL templates helps O-Neko be aware of the URLs that belong to a specific version of a project. It will be used to display
+clickable links to your frontends in the O-Neko UI. It will also be possible to start O-Neko deployments by their
+URL using an O-Neko API call. This is useful in combination with the O-Neko extension [O-Neko Catnip](https://github.com/subshell/o-neko-catnip),
+which can be used as a default backend for all stopped deployments.
+
+#### Example
+
+In most cases a simple URL template consisting of a string that contains the variable `{{ SAFE_VERSION_NAME }}` 
+will be sufficient to cover your needs. `SAFE_VERSION_NAME` resolves to a URL compatible string of the version (Docker tag).
+The URL template may look like this:
+
+```yaml
+my_app-{{ SAFE_VERSION_NAME }}.my-k8s-cluster.my-company.com
+```
+
+All URL templates will be available in the following configuration templates via the array-variable `URLS` and their corresponding
+index in the list, starting with 0.
+The URL from this example will be available in the Helm values templates as `URLS[0]`. If you add more URLs you'll reference them with a
+higher index. After defining the URLs here you will have to reference them in the following configuration, for example
+to configure an ingress etc. Depending on how your Helm chart is designed it may look similar to this:
+
+```yaml
+ingress:
+  hosts:
+    - host: "{{ URLS[0] }}"
+```
+
+### 6.2 Define O-Neko compatible Helm values files
+
+You need to create at least one configuration template, which is a templated abstraction of a Helm values file in which you can make use of
+some pre-defined and custom variables. In order to deploy everything correctly, you need to replace some fixed entries 
+in your files with a template variable syntax. The most important line is the docker image tag in your deployment.
+You will need to set your docker image tag to `{{VERSION_NAME}}`.
+
+`VERSION_NAME` will be replaced with the docker tag you want to deploy, which might resolve to `latest`, `1.0.0`, `bugfix_user_auth`
 or basically every docker tag that exists in your project.
 
 **⚠️ Important: ⚠️** Please also make sure to set the `imagePullPolicy` to `Always` via your values. Otherwise O-Neko might instruct
@@ -55,14 +92,8 @@ your cluster to re-deploy a version but the cluster will not pull an updated ima
 the cluster to pull your image every time. If your Helm chart does not allow to change the `imagePullPolicy` you need to
 extend your Helm chart.
 
-In order to get dynamic URLs to your app you'll have to configure the host name (e.g. in an ingress).
-In this template you should replace the host string with a string that contains the variable `{{SAFE_VERSION_NAME}}`, like this:
-
-```yaml
-- host: my_app-{{SAFE_VERSION_NAME}}.my-k8s-cluster.my-company.com
-```
-
-`SAFE_VERSION_NAME` should be used, because this will make sure that the string replaced there will result in a valid URL.
+In order to get dynamic URLs to your app you'll have to configure the host name (e.g. in an ingress). In this template 
+you should replace the host string with one of your configured URLs (as explained above).
 
 There are some other default template variables you can use:
 
@@ -71,10 +102,11 @@ There are some other default template variables you can use:
 * `VERSION_NAME` (the name of a version; the docker image tag)
 * `SAFE_VERSION_NAME` (the URL compatible version name)
 * `ONEKO_VERSION` (the version's ID)
+* `URLS[i]` (the URL(s) of your deployment - this is always an array, see the section about URLs)
 
 You can also create your own template variables and override them in specific versions as you like.
 
-### 6.2 Control the lifetime of a deployed version
+### 6.3 Control the lifetime of a deployed version
 
 You can control when new versions should be updated or stopped. In most cases the defaults should be fine. Choose something that
 fits for most of your versions. You can still override these settings for specific long-running versions (e.g. your `latest`) version.
@@ -91,9 +123,9 @@ icon of your app should start to flash and turn green as soon as your cluster ha
 
 ## 8. Accessing the version
 
-Head over to the "Home" page of O-Neko. This is the dashboard and you can see all deployed versions here. 
-You should see the version you deployed in step 5 there. Click on the link icon to open the frontend of your app.
-If your app has multiple URLs configured in the ingress clicking on that icon will open a drop down menu so you can choose
+Head over to the "Home" page of O-Neko. This is the dashboard, and you can see all deployed versions here. 
+You should see the version you deployed there. Click on the link icon to open the frontend of your app.
+If your app has multiple URLs configured in the ingress clicking on that icon will open a drop-down menu, so you can choose
 which page to open.
 
 Con-😸-ulations, you just deployed your first project with O-Neko.

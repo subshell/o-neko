@@ -1,6 +1,8 @@
 package io.oneko.project.rest;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +30,18 @@ public class DeployableConfigurationDTOMapper {
 		DeployableConfigurationDTO dto = new DeployableConfigurationDTO();
 		dto.setName(version.getName());
 		dto.setConfigurationTemplates(templateDTOs);
-		dto.setAvailableTemplateVariables(version.calculateEffectiveTemplateVariables());
+		Map<String, String> effectiveTemplateVariables = new HashMap<>();
+		for (Map.Entry<String, Object> entry : version.calculateEffectiveTemplateVariables().entrySet()) {
+			if (entry.getValue() instanceof String) {
+				effectiveTemplateVariables.put(entry.getKey(), (String) entry.getValue());
+			} else if (entry.getValue() instanceof String[]) {
+				String[] arr = (String[]) entry.getValue();
+				for (int i = 0; i < arr.length; i++) {
+					effectiveTemplateVariables.put(entry.getKey() + "[" + i + "]", arr[i]);
+				}
+			}
+		}
+		dto.setAvailableTemplateVariables(effectiveTemplateVariables);
 		return dto;
 	}
 }

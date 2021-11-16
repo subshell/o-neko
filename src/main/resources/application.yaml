@@ -15,6 +15,20 @@ o-neko:
     cleanup:
       maxAgeHours: 720
       schedulerIntervalMillis: 3600000
+  deployments:
+    lifetime:
+      endOfDay:
+        hour: 23
+        minute: 59
+        onNextDay: false
+      lastDayOfTheWeek: friday
+
+springdoc:
+  swagger-ui:
+    path: "/documentation/swagger-ui.html"
+    doc-expansion: none
+    tags-sorter: alpha
+    operations-sorter: alpha
 ---
 # Development profile
 spring:

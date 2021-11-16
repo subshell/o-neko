@@ -30,6 +30,9 @@
               <mat-option *ngFor="let namespace of namespaces" [value]="namespace.name">{{namespace.name}}</mat-option>
             </mat-select>
           </mat-form-field>
+          <on-url-templates-input [urlTemplates]="projectVersion.urlTemplates"
+                                  [inheritedUrlTemplates]="project.urlTemplates"
+                                  (templatesChange)="onUrlTemplatesChanged($event)"></on-url-templates-input>
 
           <div class="form-field-group">
             <template-editor [templates]="projectVersion.configurationTemplates"
@@ -56,7 +59,7 @@
 
           <deployment-behaviour-input [model]="projectVersion" [required]="true"></deployment-behaviour-input>
 
-          <lifetime-behaviour-input [model]="projectVersion.lifetimeBehaviour" [required]="true" [additionalLifetimeBehaviourOptions]="lifetimeBehaviourOptions"></lifetime-behaviour-input>
+          <lifetime-behaviour-input [model]="projectVersion.lifetimeBehaviour" (modelChange)="onLifetimeBehaviourChange($event)" [required]="true" [additionalLifetimeBehaviourOptions]="lifetimeBehaviourOptions"></lifetime-behaviour-input>
 
         </form>
       </div>

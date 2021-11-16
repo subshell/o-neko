@@ -117,6 +117,7 @@ import {DistinctObjectArrayPipe} from "./util/distinct-object-array.pipe";
 import {FilterDeepPipe} from "./util/filter-deep.pipe";
 import {I18nSwitcherComponent} from "./components/i18n-switcher/i18n-switcher.component";
 import {I18nState} from "./store/i18n/i18n.state";
+import {UrlTemplatesComponent} from "./form/url-templates-input/url-templates.component";
 
 @NgModule({
     declarations: [
@@ -175,7 +176,8 @@ import {I18nState} from "./store/i18n/i18n.state";
         HelmRegistryEditDialogComponent,
         DistinctObjectArrayPipe,
         FilterDeepPipe,
-        I18nSwitcherComponent
+        I18nSwitcherComponent,
+        UrlTemplatesComponent
     ],
   imports: [
     BrowserModule,

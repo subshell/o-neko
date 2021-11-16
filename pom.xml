@@ -27,6 +27,7 @@
 		<feign.version>10.11</feign.version>
 		<org.mapstruct.version>1.4.1.Final</org.mapstruct.version>
 		<org.projectlombok.lombok.version>1.18.16</org.projectlombok.lombok.version>
+		<springdoc.version>1.5.10</springdoc.version>
 		<branchName></branchName>
 		<buildNumber></buildNumber>
 	</properties>
@@ -168,7 +169,7 @@
 		<dependency>
 			<groupId>io.fabric8</groupId>
 			<artifactId>kubernetes-client</artifactId>
-			<version>5.3.1</version>
+			<version>5.8.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mapstruct</groupId>
@@ -190,6 +191,16 @@
 			<groupId>net.logstash.logback</groupId>
 			<artifactId>logstash-logback-encoder</artifactId>
 			<version>6.6</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-ui</artifactId>
+			<version>${springdoc.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-security</artifactId>
+			<version>${springdoc.version}</version>
 		</dependency>
 	</dependencies>
 

@@ -1,6 +1,7 @@
 package io.oneko.project;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +10,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.StringSubstitutor;
 
 import io.marioslab.basis.template.Template;
 import io.marioslab.basis.template.TemplateContext;
@@ -49,6 +49,8 @@ public interface ProjectVersion<P extends Project<P, V>, V extends ProjectVersio
 
 	List<String> getUrls();
 
+	List<String> getUrlTemplates();
+
 	List<? extends ConfigurationTemplate> getConfigurationTemplates();
 
 	boolean isOutdated();
@@ -83,20 +85,45 @@ public interface ProjectVersion<P extends Project<P, V>, V extends ProjectVersio
 		return safeName.substring(0, Math.min(safeName.length(), 63));
 	}
 
+	default String[] getCalculatedUrls() {
+		final Map<String, String> implicitTemplateVariables = getImplicitTemplateVariables();
+		TemplateContext context = new TemplateContext();
+		implicitTemplateVariables.forEach(context::set);
+		context.set("fn", TemplateFunctions.class);
+		List<String> urlTemplates = new ArrayList<>();
+		if (getUrlTemplates().isEmpty() && getProject() != null) {
+			urlTemplates.addAll(getProject().getUrlTemplates());
+		} else {
+			urlTemplates.addAll(getUrlTemplates());
+		}
+		return urlTemplates.stream()
+				.map(url -> {
+					TemplateLoader.MapTemplateLoader loader = new TemplateLoader.MapTemplateLoader();
+					loader.set("tpl", url);
+					final Template tpl = loader.load("tpl");
+					return tpl.render(context);
+				}).toArray(String[]::new);
+	}
+
+	default boolean hasMatchingUrl(String candidateUrl) {
+		return ProjectUtils.anyUrlMatches(getUrls(), candidateUrl);
+	}
+
 	/**
 	 * Provides a mutable copy of all template variables retrieved by merging the ones from this version's
 	 * {@link #getProject()} and this version's own {@link #getTemplateVariables()}.
 	 *
 	 * @return Never <code>null</code>
 	 */
-	default Map<String, String> calculateEffectiveTemplateVariables() {
-		Map<String, String> mergedTemplateVariables = new HashMap<>();
+	default Map<String, Object> calculateEffectiveTemplateVariables() {
+		Map<String, Object> mergedTemplateVariables = new HashMap<>();
 
 		getProject().getTemplateVariables().
 				forEach(var -> mergedTemplateVariables.put(var.getName(), var.getDefaultValue()));
 		mergedTemplateVariables.putAll(getProject().getImplicitTemplateVariables());
 		mergedTemplateVariables.putAll(getImplicitTemplateVariables());
 		mergedTemplateVariables.putAll(getTemplateVariables());
+		mergedTemplateVariables.put(ProjectConstants.TemplateVariablesNames.URLS, getCalculatedUrls());
 
 		return mergedTemplateVariables;
 	}
@@ -116,7 +143,7 @@ public interface ProjectVersion<P extends Project<P, V>, V extends ProjectVersio
 	 * template or a modified version template and the effective template variables.
 	 */
 	default List<WritableConfigurationTemplate> getCalculatedConfigurationTemplates() {
-		final Map<String, String> variables = this.calculateEffectiveTemplateVariables();
+		final Map<String, Object> variables = this.calculateEffectiveTemplateVariables();
 		//somehow java does not properly figure out the list type here
 		final List<ConfigurationTemplate> unifiedTemplates = ConfigurationTemplates.unifyTemplateSets(getProject().getDefaultConfigurationTemplates(), getConfigurationTemplates());
 

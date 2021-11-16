@@ -1,60 +1,53 @@
 package io.oneko.automations;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.oneko.kubernetes.deployments.Deployment;
-import io.oneko.kubernetes.deployments.WritableDeployment;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Objects;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 
 @Getter
-@AllArgsConstructor
+@ToString
+@EqualsAndHashCode
 public class LifetimeBehaviour {
 
-	/**
-	 * 0 == Infinite
-	 */
-	private final int daysToLive;
+	private final LifetimeBehaviourType type;
+	private final Integer value;
+
+	public LifetimeBehaviour(LifetimeBehaviourType type, Integer value) {
+		this.type = type == null ? LifetimeBehaviourType.DAYS : type;
+		this.value = value == null ? 0 : value;
+	}
 
 	public static LifetimeBehaviour infinite() {
-		return new LifetimeBehaviour(0);
+		return new LifetimeBehaviour(LifetimeBehaviourType.INFINITE, 0);
 	}
 
 	public static LifetimeBehaviour ofDays(int daysToLive) {
-		return new LifetimeBehaviour(daysToLive);
+		return new LifetimeBehaviour(LifetimeBehaviourType.DAYS, daysToLive);
+	}
+
+	public static LifetimeBehaviour untilTonight() {
+		return new LifetimeBehaviour(LifetimeBehaviourType.UNTIL_TONIGHT, 0);
+	}
+
+	public static LifetimeBehaviour untilWeekend() {
+		return new LifetimeBehaviour(LifetimeBehaviourType.UNTIL_WEEKEND, 0);
 	}
 
 	@JsonIgnore
 	public boolean isInfinite() {
-		return daysToLive == 0;
+		return type == LifetimeBehaviourType.INFINITE;
 	}
 
 	@JsonIgnore
-	public boolean isExpired(Instant timestamp) {
-		if (timestamp == null) {
-			return isInfinite();
-		}
-		return !isInfinite() && !Instant.now().minus(daysToLive, ChronoUnit.DAYS).isBefore(timestamp);
+	public boolean isUntilTonight() {
+		return type == LifetimeBehaviourType.UNTIL_TONIGHT;
 	}
 
 	@JsonIgnore
-	public boolean isExpired(Deployment deployment) {
-		return isExpired(deployment.getTimestamp().orElse(null));
+	public boolean isUntilWeekend() {
+		return type == LifetimeBehaviourType.UNTIL_WEEKEND;
 	}
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (!(o instanceof LifetimeBehaviour)) return false;
-		LifetimeBehaviour that = (LifetimeBehaviour) o;
-		return getDaysToLive() == that.getDaysToLive();
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(getDaysToLive());
-	}
 }

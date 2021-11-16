@@ -21,7 +21,7 @@ import {RestService} from "../../rest/rest.service";
 import {User} from "../../user/user";
 import {UserService} from "../../user/user.service";
 import {WebSocketServiceWrapper} from "../../websocket/web-socket-service-wrapper.service";
-import {Project} from "../project";
+import {LifetimeBehaviour, Project} from "../project";
 import {ProjectVersion} from "../project-version";
 import {ProjectService} from "../project.service";
 import {TranslateService} from "@ngx-translate/core";
@@ -53,7 +53,9 @@ export class EditProjectVersionComponent implements OnInit, OnDestroy {
               private readonly translate: TranslateService) {
     this.lifetimeBehaviourOptions = [{
       label: this.translate.instant('components.project.editVersion.inheritFromProject'),
-      value: -1
+      lifetime: {
+        type: 'INHERIT',
+      }
     }];
     this.userService.currentUser().subscribe(currentUser => this.editingUser = currentUser);
     this.rest.docker().getAllDockerRegistries().subscribe(regs => this.dockerRegistries = regs);
@@ -68,16 +70,7 @@ export class EditProjectVersionComponent implements OnInit, OnDestroy {
         this.project = project;
         this.projectVersion = project.versions.find(v => v.uuid === projectVersionId);
 
-        if (!this.projectVersion.lifetimeBehaviour) {
-          this.projectVersion.lifetimeBehaviour = {daysToLive: -1};
-        }
-
-        this.projectVersionVariables = new Map(Object.entries(this.projectVersion.templateVariables));
-
-        this.projectVersion.availableTemplateVariables.forEach(variable => {
-          this.projectVersionVariables.delete(variable.name);
-          this.projectVariables[variable.id] = createValueInfoFromTemplateVariable(variable, this.projectVersion.templateVariables[variable.name]);
-        });
+        this.initProjectAndVersion();
 
         this.updateSubscription = this.wsService.getProjectVersionChanges(this.project.uuid)
           .pipe(
@@ -90,6 +83,21 @@ export class EditProjectVersionComponent implements OnInit, OnDestroy {
             //don't overwrite the rest, just in case the form is dirty.
           });
       });
+    });
+  }
+
+  private initProjectAndVersion() {
+    if (!this.projectVersion.lifetimeBehaviour) {
+      this.projectVersion.lifetimeBehaviour = {
+        type: 'INHERIT'
+      };
+    }
+
+    this.projectVersionVariables = new Map(Object.entries(this.projectVersion.templateVariables));
+
+    this.projectVersion.availableTemplateVariables.forEach(variable => {
+      this.projectVersionVariables.delete(variable.name);
+      this.projectVariables[variable.id] = createValueInfoFromTemplateVariable(variable, this.projectVersion.templateVariables[variable.name]);
     });
   }
 
@@ -111,8 +119,16 @@ export class EditProjectVersionComponent implements OnInit, OnDestroy {
     this.templatesValid = stillValid;
   }
 
+  public onLifetimeBehaviourChange(lifetimeBehaviour: LifetimeBehaviour) {
+    this.projectVersion.lifetimeBehaviour = lifetimeBehaviour;
+  }
+
   public save() {
-    this.projectService.saveProject(this.project, this.editingUser).subscribe(p => this.project = p);
+    this.projectService.saveProject(this.project, this.editingUser).subscribe(p => {
+      this.project = p
+      this.projectVersion = p.versions.find(v => v.uuid === this.projectVersion.uuid);
+      this.initProjectAndVersion();
+    });
   }
 
   public showEffectiveConfiguration() {
@@ -136,5 +152,9 @@ export class EditProjectVersionComponent implements OnInit, OnDestroy {
     } else {
       this.projectVersion.templateVariables[event.key] = event.value;
     }
+  }
+
+  onUrlTemplatesChanged(templates: Array<string>) {
+    this.projectVersion.urlTemplates = templates;
   }
 }

@@ -3,6 +3,7 @@ package io.oneko.project;
 import static io.oneko.kubernetes.deployments.DesiredState.*;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,7 @@ public class WritableProjectVersion extends ModificationAwareIdentifiable implem
 	private final ModificationAwareProperty<Map<String, String>> templateVariables = new ModificationAwareMapProperty<>(this, "templateVariables");
 	private final ModificationAwareProperty<String> dockerContentDigest = new ModificationAwareProperty<>(this, "dockerContentDigest");
 	private final ModificationAwareProperty<List<String>> urls = new ModificationAwareListProperty<>(this, "urls");
+	private final ModificationAwareProperty<List<String>> urlTemplates = new ModificationAwareListProperty<>(this, "urlTemplates");
 	private final ModificationAwareProperty<List<WritableConfigurationTemplate>> configurationTemplates = new ModificationAwareListProperty<>(this, "configurationTemplates");
 	private final ModificationAwareProperty<Boolean> outdated = new ModificationAwareProperty<>(this, "outdated");
 	private final ModificationAwareProperty<LifetimeBehaviour> lifetimeBehaviour = new ModificationAwareProperty<>(this, "lifetimeBehaviour");
@@ -44,9 +46,10 @@ public class WritableProjectVersion extends ModificationAwareIdentifiable implem
 
 	@Builder
 	public WritableProjectVersion(UUID uuid, String name, DeploymentBehaviour deploymentBehaviour,
-	                              Map<String, String> templateVariables, String dockerContentDigest, List<String> urls,
-	                              List<WritableConfigurationTemplate> configurationTemplates, boolean outdated, LifetimeBehaviour lifetimeBehaviour,
-																String namespace, DesiredState desiredState, Instant imageUpdatedDate) {
+																Map<String, String> templateVariables, String dockerContentDigest, List<String> urls,
+																List<String> urlTemplates, List<WritableConfigurationTemplate> configurationTemplates,
+																boolean outdated, LifetimeBehaviour lifetimeBehaviour, String namespace,
+																DesiredState desiredState, Instant imageUpdatedDate) {
 		this.uuid.init(uuid);
 		this.name.init(name);
 		this.deploymentBehaviour.init(deploymentBehaviour);
@@ -54,6 +57,8 @@ public class WritableProjectVersion extends ModificationAwareIdentifiable implem
 		this.templateVariables.init(templateVariables);
 		this.urls.init(urls);
 		this.outdated.init(outdated);
+		this.urlTemplates.init(urlTemplates);
+		initUrlsFromUrlTemplates();
 		this.configurationTemplates.init(configurationTemplates);
 		this.lifetimeBehaviour.init(lifetimeBehaviour);
 		this.namespace.init(namespace);
@@ -66,6 +71,7 @@ public class WritableProjectVersion extends ModificationAwareIdentifiable implem
 	 */
 	void setProject(WritableProject project) {
 		this.project = project;
+		initUrlsFromUrlTemplates();
 	}
 
 	/**
@@ -130,8 +136,22 @@ public class WritableProjectVersion extends ModificationAwareIdentifiable implem
 		return urls.get();
 	}
 
-	public void setUrls(List<String> urls) {
-		this.urls.set(urls);
+	@Override
+	public List<String> getUrlTemplates() {
+		return urlTemplates.get();
+	}
+
+	public void setUrlTemplates(List<String> urlTemplates) {
+		this.urlTemplates.set(urlTemplates);
+		setUrlsFromUrlTemplates();
+	}
+
+	public void initUrlsFromUrlTemplates() {
+		this.urls.init(Arrays.asList(getCalculatedUrls()));
+	}
+
+	void setUrlsFromUrlTemplates() {
+		this.urls.set(Arrays.asList(getCalculatedUrls()));
 	}
 
 	public List<WritableConfigurationTemplate> getConfigurationTemplates() {
@@ -207,6 +227,7 @@ public class WritableProjectVersion extends ModificationAwareIdentifiable implem
 				.templateVariables(getTemplateVariables())
 				.dockerContentDigest(getDockerContentDigest())
 				.urls(getUrls())
+				.urlTemplates(getUrlTemplates())
 				.configurationTemplates(getConfigurationTemplates().stream()
 						.map(WritableConfigurationTemplate::readable)
 						.collect(Collectors.toList()))

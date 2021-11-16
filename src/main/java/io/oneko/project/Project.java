@@ -24,6 +24,8 @@ public interface Project<P extends Project<P, V>, V extends ProjectVersion<P, V>
 
 	DeploymentBehaviour getNewVersionsDeploymentBehaviour();
 
+	List<String> getUrlTemplates();
+
 	List<? extends ConfigurationTemplate> getDefaultConfigurationTemplates();
 
 	List<? extends TemplateVariable> getTemplateVariables();

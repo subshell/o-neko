@@ -16,7 +16,8 @@
     "edit": "Bearbeiten",
     "viewDetails": "Details öffnen",
     "done": "Fertig",
-    "confirm": "Bestätigen"
+    "confirm": "Bestätigen",
+    "add": "Hinzufügen"
   },
   "menu": {
     "home": "Home",
@@ -158,7 +159,16 @@
         "days": "{count} {count, plural, one{Tag} other{Tage}}",
         "weeks": "{count} {count, plural, one{Woche} other{Wochen}}",
         "infinite": "Unendlich",
+        "untilTonight": "Bis heute Nacht",
+        "untilWeekend": "Bis zum Wochenende",
         "hint": "Wählen Sie wie lang deployte Ressourcen nach ihrem letzten Deployment am Leben erhalten bleiben sollen."
+      },
+      "urlTemplatesInput": {
+        "urlTemplates": "URL Templates",
+        "addNewLabel": "Fügen Sie ein neues URL Template hinzu",
+        "addNewPlaceholder": "Template eingeben",
+        "inheritedTemplatesFromProject": "Aus dem Projekt geerbte URL Templates:",
+        "overwritingInheritedTemplates": "Sie überschreiben aus dem Projekt geerbte URL Templates:"
       },
       "fileUpload": {
         "dndFiles": "Ziehen Sie Dateien hier hin",

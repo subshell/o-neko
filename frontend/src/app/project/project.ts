@@ -8,8 +8,11 @@ export enum AggregatedDeploymentStatus {
   Ok = "Ok", Pending = "Pending", Error = "Error", NotDeployed = "NotDeployed"
 }
 
+export type LifetimeType = 'UNTIL_TONIGHT' | 'UNTIL_WEEKEND' | 'DAYS' | 'INFINITE' | 'INHERIT';
+
 export interface LifetimeBehaviour {
-  daysToLive: number;
+  type: LifetimeType
+  value?: number
 }
 
 export interface ProjectDTO {
@@ -17,6 +20,7 @@ export interface ProjectDTO {
   name?: string;
   imageName: string;
   newVersionsDeploymentBehaviour: DeploymentBehaviour;
+  urlTemplates: Array<string>;
   defaultConfigurationTemplates: Array<ConfigurationTemplate>;
   templateVariables: TemplateVariable[];
   dockerRegistryUUID?: string;
@@ -40,6 +44,7 @@ export class Project implements ProjectDTO {
   name?: string;
   imageName: string;
   newVersionsDeploymentBehaviour: DeploymentBehaviour;
+  urlTemplates: Array<string>;
   defaultConfigurationTemplates: Array<ConfigurationTemplate>;
   templateVariables: Array<TemplateVariable> = [];
   dockerRegistryUUID?: string;
@@ -57,6 +62,7 @@ export class Project implements ProjectDTO {
 
     project.imageName = from.imageName;
     project.newVersionsDeploymentBehaviour = from.newVersionsDeploymentBehaviour;
+    project.urlTemplates = from.urlTemplates || [];
     project.defaultConfigurationTemplates = from.defaultConfigurationTemplates.map(tpl => ConfigurationTemplate.from(tpl)) || [];
     project.templateVariables = from.templateVariables || [];
     project.dockerRegistryUUID = from.dockerRegistryUUID;
@@ -86,6 +92,7 @@ export class Project implements ProjectDTO {
     project.status = from.status;
     project.defaultLifetimeBehaviour = from.defaultLifetimeBehaviour;
 
+    project.urlTemplates = from.urlTemplates;
     // remove potentially existing ids
     project.defaultConfigurationTemplates = (from.defaultConfigurationTemplates as Array<ConfigurationTemplateDTO> ?? [])
       .map(({id, ...configurationTemplate}) => ConfigurationTemplate.from(configurationTemplate as ConfigurationTemplateDTO));
@@ -101,7 +108,7 @@ export class Project implements ProjectDTO {
    * @returns {boolean}
    */
   public isNew(): boolean {
-    return !!!this.uuid;
+    return !this.uuid;
   }
 
   public isOrphan(): boolean {
