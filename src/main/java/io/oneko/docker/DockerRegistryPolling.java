@@ -226,7 +226,6 @@ class DockerRegistryPolling {
 		});
 
 		removedVersions.forEach(version -> {
-			// here: only the version is deleted, but not the deployment
 			WritableProjectVersion projectVersion = project.removeVersion(version);
 			log.info("found an obsolete project version ({}, {}, {})", versionKv(version), kv("version_id", projectVersion.getId()), projectKv(project));
 			resultingEvents.add(new ObsoleteProjectVersionRemovedEvent(projectVersion));
