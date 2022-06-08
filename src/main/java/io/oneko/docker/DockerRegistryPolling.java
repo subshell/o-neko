@@ -1,10 +1,13 @@
 package io.oneko.docker;
 
-import static io.oneko.deployable.DeploymentBehaviour.*;
-import static io.oneko.kubernetes.deployments.DesiredState.*;
-import static io.oneko.util.DurationUtils.*;
-import static io.oneko.util.MoreStructuredArguments.*;
-import static net.logstash.logback.argument.StructuredArguments.*;
+import static io.oneko.deployable.DeploymentBehaviour.automatically;
+import static io.oneko.kubernetes.deployments.DesiredState.Deployed;
+import static io.oneko.kubernetes.deployments.DesiredState.NotDeployed;
+import static io.oneko.util.DurationUtils.isLongerThan;
+import static io.oneko.util.MoreStructuredArguments.IMAGE_UPDATED_DATE_KEY;
+import static io.oneko.util.MoreStructuredArguments.projectKv;
+import static io.oneko.util.MoreStructuredArguments.versionKv;
+import static net.logstash.logback.argument.StructuredArguments.kv;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -223,6 +226,7 @@ class DockerRegistryPolling {
 		});
 
 		removedVersions.forEach(version -> {
+			// here: only the version is deleted, but not the deployment
 			WritableProjectVersion projectVersion = project.removeVersion(version);
 			log.info("found an obsolete project version ({}, {}, {})", versionKv(version), kv("version_id", projectVersion.getId()), projectKv(project));
 			resultingEvents.add(new ObsoleteProjectVersionRemovedEvent(projectVersion));
@@ -265,23 +269,28 @@ class DockerRegistryPolling {
 	/**
 	 * Tries to redeploy a project version
 	 */
-	private List<Identifiable> redeployAllByManifest(Manifest manifest, WritableProjectVersion version) {
-		List<Identifiable> depending = new ArrayList<>();
-
+	private List<? extends Identifiable> redeployAllByManifest(Manifest manifest, WritableProjectVersion version) {
 		String digest = manifest.getDockerContentDigest();
 		if (!StringUtils.equals(version.getDockerContentDigest(), digest)) {
 			log.info("found a new container image for project version ({}, {}, {})", kv("digest", digest), projectKv(version.getProject()), versionKv(version));
 			version.setDockerContentDigest(digest);
 			version.setImageUpdatedDate(manifest.getImageUpdatedDate().orElse(null));
-			this.redeployAndSaveVersion(version).ifPresent(depending::add);
+
+			return this.redeployAndSaveVersion(version)
+					.map(List::of)
+					.orElseGet(ArrayList::new);
 		}
 
-		return depending;
+		return new ArrayList<>();
 	}
 
 	private Optional<ReadableProjectVersion> redeployAndSaveVersion(WritableProjectVersion version) {
 		if (version.getDesiredState() == Deployed && version.getDeploymentBehaviour() == automatically) {
-			return Optional.of(deploymentManager.deploy(version));
+			try {
+				return Optional.of(deploymentManager.deploy(version));
+			} catch (Exception e) {
+				deploymentManager.rollback(version);
+			}
 		}
 
 		return Optional.empty();

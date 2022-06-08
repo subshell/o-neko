@@ -12,4 +12,6 @@ public interface DeploymentManager {
 
 	ReadableProjectVersion stopDeployment(WritableProjectVersion version);
 
+	void rollback(WritableProjectVersion version);
+
 }

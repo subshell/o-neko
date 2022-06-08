@@ -1,10 +1,14 @@
 package io.oneko.kubernetes.impl;
 
-import static io.oneko.kubernetes.deployments.DesiredState.*;
-import static io.oneko.util.MoreStructuredArguments.*;
+import static io.oneko.kubernetes.deployments.DesiredState.Deployed;
+import static io.oneko.kubernetes.deployments.DesiredState.NotDeployed;
+import static io.oneko.util.MoreStructuredArguments.versionKv;
+import static net.logstash.logback.argument.StructuredArguments.kv;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -38,6 +42,11 @@ class DeploymentManagerImpl implements DeploymentManager {
 	private final ProjectRepository projectRepository;
 	private final DeploymentRepository deploymentRepository;
 
+	/**
+	 * version id -> number of errors
+	 */
+	private final Map<UUID, Integer> deploymentErrors = new ConcurrentHashMap<>();
+
 	DeploymentManagerImpl(DockerRegistryClientFactory dockerRegistryClientFactory,
 												ProjectRepository projectRepository,
 												DeploymentRepository deploymentRepository,
@@ -53,8 +62,14 @@ class DeploymentManagerImpl implements DeploymentManager {
 		if (StringUtils.isBlank(version.getNamespaceOrElseFromProject())) {
 			throw new RuntimeException("A namespace must be configured in the project.");
 		}
+
+		final UUID versionId = version.getId();
+		if (deploymentErrors.containsKey(versionId)) {
+			log.warn("Deployment of version {} already failed {} times.",
+					versionKv(version), kv("error_count", deploymentErrors.get(versionId)));
+		}
+
 		try {
-			final UUID versionId = version.getId();
 			final WritableDeployment deployment = getOrCreateDeploymentForVersion(version);
 
 			if (!deployment.getReleaseNames().isEmpty()) {
@@ -70,14 +85,34 @@ class DeploymentManagerImpl implements DeploymentManager {
 			version.setDesiredState(Deployed);
 
 			final ReadableProject project = projectRepository.add(version.getProject());
+			deploymentErrors.remove(versionId);
 			return project.getVersions().stream()
 					.filter(projectVersion -> projectVersion.getUuid().equals(versionId))
 					.findFirst()
 					.orElse(null);
 		} catch (HelmRegistryException e) {
 			log.error("failed to deploy ({})", versionKv(version), e);
+			countDeploymentError(version.getId());
 			throw new RuntimeException(e);
 		}
+	}
+
+	@Override
+	public void rollback(WritableProjectVersion version) {
+		final WritableDeployment deployment = getOrCreateDeploymentForVersion(version);
+		if (!deployment.getReleaseNames().isEmpty()) {
+			try {
+				HelmCommandUtils.uninstall(deployment.getReleaseNames());
+			} catch (HelmRegistryException ex) {
+				log.error("rollback deployment of {} failed", versionKv(version) , ex);
+				countDeploymentError(version.getId());
+				throw new RuntimeException(ex);
+			}
+		}
+	}
+
+	private int countDeploymentError(UUID versionId) {
+		return deploymentErrors.compute(versionId, (key, value) -> value == null ? 1 : value + 1);
 	}
 
 	private WritableDeployment getOrCreateDeploymentForVersion(ProjectVersion<?, ?> projectVersion) {
@@ -113,11 +148,12 @@ class DeploymentManagerImpl implements DeploymentManager {
 					.findFirst().orElse(null);
 		} catch (HelmRegistryException e) {
 			log.error("failed to stop deployment ({})", versionKv(version), e);
+			countDeploymentError(version.getId());
 			throw new RuntimeException(e);
 		}
 	}
 
-	private void stopDeploymentOfRemovedVersion(ProjectVersion version) {
+	private void stopDeploymentOfRemovedVersion(ProjectVersion<?, ?> version) {
 		try {
 			final WritableDeployment deployment = getOrCreateDeploymentForVersion(version);
 			HelmCommandUtils.uninstall(version);
@@ -132,6 +168,7 @@ class DeploymentManagerImpl implements DeploymentManager {
 		if (event instanceof ObsoleteProjectVersionRemovedEvent) {
 			var e = (ObsoleteProjectVersionRemovedEvent) event;
 			if (deploymentRepository.findByProjectVersionId(e.getVersionId()).isPresent()) {
+				log.info("stopping obsolete deployment {}", versionKv(e.getVersion()));
 				stopDeploymentOfRemovedVersion(e.getVersion());
 			}
 		}
