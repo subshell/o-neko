@@ -35,7 +35,7 @@ class ProjectVersionLockTest {
 	}
 
 	@Test
-	void a() {
+	void threadOwnsLock() {
 		ProjectVersionLock uut = new ProjectVersionLock();
 		UUID uuid = UUID.randomUUID();
 		ProjectVersion<?, ?> projectVersion = mock(ProjectVersion.class);
