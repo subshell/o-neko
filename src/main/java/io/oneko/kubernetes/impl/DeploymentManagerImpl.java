@@ -4,6 +4,7 @@ import static io.oneko.kubernetes.deployments.DesiredState.Deployed;
 import static io.oneko.kubernetes.deployments.DesiredState.NotDeployed;
 import static io.oneko.util.MoreStructuredArguments.versionKv;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -107,6 +108,8 @@ class DeploymentManagerImpl implements DeploymentManager {
 					log.warn("Orphaned helm release for project version {} detected. It will be removed.", versionKv(version));
 				}
 				HelmCommandUtils.uninstall(referencedHelmReleases);
+				deployment.setReleaseNames(new ArrayList<>());
+				deploymentRepository.save(deployment);
 			}
 		} catch (HelmRegistryException e) {
 			log.error("rollback deployment of {} failed", versionKv(version) , e);
