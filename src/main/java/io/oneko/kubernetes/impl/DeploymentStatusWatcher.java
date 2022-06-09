@@ -1,7 +1,9 @@
 package io.oneko.kubernetes.impl;
 
-import static io.oneko.util.MoreStructuredArguments.*;
-import static net.logstash.logback.argument.StructuredArguments.*;
+import static io.oneko.util.MoreStructuredArguments.projectKv;
+import static io.oneko.util.MoreStructuredArguments.versionKv;
+import static net.logstash.logback.argument.StructuredArguments.kv;
+import static net.logstash.logback.argument.StructuredArguments.v;
 
 import java.time.Instant;
 import java.util.List;
@@ -24,14 +26,17 @@ import io.oneko.kubernetes.deployments.ReadableDeployment;
 import io.oneko.kubernetes.deployments.WritableDeployment;
 import io.oneko.project.ProjectRepository;
 import io.oneko.project.ProjectVersion;
+import io.oneko.project.ProjectVersionLock;
 import io.oneko.project.ReadableProject;
 import io.oneko.project.WritableProjectVersion;
 import io.oneko.websocket.SessionWebSocketHandler;
 import io.oneko.websocket.message.DeploymentStatusChangedMessage;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
+@AllArgsConstructor
 class DeploymentStatusWatcher {
 
 	private final ProjectRepository projectRepository;
@@ -40,16 +45,7 @@ class DeploymentStatusWatcher {
 	private final HelmStatusToDeploymentMapper helmStatusToDeploymentMapper;
 	private final CurrentEventTrigger currentEventTrigger;
 
-	DeploymentStatusWatcher(ProjectRepository projectRepository,
-													DeploymentRepository deploymentRepository,
-													SessionWebSocketHandler webSocketHandler,
-													HelmStatusToDeploymentMapper helmStatusToDeploymentMapper, CurrentEventTrigger currentEventTrigger) {
-		this.projectRepository = projectRepository;
-		this.deploymentRepository = deploymentRepository;
-		this.webSocketHandler = webSocketHandler;
-		this.helmStatusToDeploymentMapper = helmStatusToDeploymentMapper;
-		this.currentEventTrigger = currentEventTrigger;
-	}
+	private final ProjectVersionLock projectVersionLock;
 
 	private EventTrigger asTrigger() {
 		return new ScheduledTask("Kubernetes Deployment Status Watcher");
@@ -74,20 +70,22 @@ class DeploymentStatusWatcher {
 	}
 
 	private void scanResourcesForDeployable(ProjectVersion<?, ?> projectVersion) {
-		try {
-			final List<Status> statuses = HelmCommandUtils.status(projectVersion);
+		projectVersionLock.doWithProjectVersionLock(projectVersion, () -> {
+			try {
+				final List<Status> statuses = HelmCommandUtils.status(projectVersion);
 
-			if (statuses.isEmpty()) {
-				cleanUpOnDeploymentRemoved(projectVersion);
-				return;
+				if (statuses.isEmpty()) {
+					cleanUpOnDeploymentRemoved(projectVersion);
+					return;
+				}
+
+				final WritableDeployment deployment = getOrCreateDeploymentForVersion(projectVersion);
+				ensureDeploymentIsUpToDate(deployment, statuses, projectVersion);
+
+			} catch (HelmRegistryException e) {
+				log.error("failed to get helm status ({}, {})", versionKv(projectVersion), projectKv(projectVersion.getProject()));
 			}
-
-			final WritableDeployment deployment = getOrCreateDeploymentForVersion(projectVersion);
-			ensureDeploymentIsUpToDate(deployment, statuses, projectVersion);
-
-		} catch (HelmRegistryException e) {
-			log.error("failed to get helm status ({}, {})", versionKv(projectVersion), projectKv(projectVersion.getProject()));
-		}
+		});
 	}
 
 	private WritableDeployment getOrCreateDeploymentForVersion(ProjectVersion<?, ?> projectVersion) {

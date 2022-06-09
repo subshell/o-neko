@@ -17,7 +17,6 @@ import io.oneko.helmapi.model.Status;
 import io.oneko.helmapi.model.Values;
 import io.oneko.helmapi.process.CommandException;
 import io.oneko.project.ProjectVersion;
-import io.oneko.templates.ConfigurationTemplate;
 import io.oneko.templates.WritableConfigurationTemplate;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
@@ -111,14 +110,13 @@ public class HelmCommandUtils {
 		}
 	}
 
-	public List<String> getKubernetesYamlResources(ProjectVersion<?, ?> projectVersion) {
+	public List<String> getReferencedHelmReleases(ProjectVersion<?, ?> projectVersion) {
 		final String namespace = projectVersion.getNamespaceOrElseFromProject();
 		final List<Release> list = helm.list(namespace, null);
-		return list.stream().filter(release -> release.getName().startsWith(getReleaseNamePrefix(projectVersion)))
-				.map(release -> {
-					final Status status = helm.status(release.getName(), namespace);
-					return status.getManifest();
-				}).collect(Collectors.toList());
+		return list.stream()
+				.map(Release::getName)
+				.filter(name -> name.startsWith(getReleaseNamePrefix(projectVersion)))
+				.collect(Collectors.toList());
 	}
 
 	private static String getReleaseName(ProjectVersion<?, ?> projectVersion, int templateIndex) {

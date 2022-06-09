@@ -169,8 +169,10 @@ public class Helm implements Helm3API {
 	public void uninstall(String name, String namespace, boolean dryRun) {
 		final String[] command = initCommand("helm", "uninstall")
 				.withArgument(name)
+				.withArgument("--wait")
 				.withFlag("--namespace", namespace)
 				.withFlag("--dry-run", dryRun)
+				.withFlag("--timeout", "2m30s")
 				.build();
 		var out = executor.execute(command);
 		log.info(out);
