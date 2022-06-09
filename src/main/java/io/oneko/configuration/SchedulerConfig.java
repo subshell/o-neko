@@ -4,10 +4,10 @@ import java.time.Clock;
 
 import org.springframework.boot.task.TaskSchedulerBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
-import org.springframework.stereotype.Component;
 
-@Component
+@Configuration
 public class SchedulerConfig {
 
 	@Bean
