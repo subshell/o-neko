@@ -116,8 +116,8 @@ class DeploymentManagerImpl implements DeploymentManager {
 				deployment.setReleaseNames(new ArrayList<>());
 				deploymentRepository.save(deployment);
 			}
-		} catch (Exception e) {
-			log.error("rollback deployment of {} failed", versionKv(version) , e);
+		} catch (Exception e2) {
+			log.error("rollback deployment of {} failed", versionKv(version) , e2);
 			throw new RuntimeException(e);
 		}
 	}
