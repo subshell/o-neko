@@ -285,11 +285,7 @@ class DockerRegistryPolling {
 
 	private Optional<ReadableProjectVersion> redeployAndSaveVersion(WritableProjectVersion version) {
 		if (version.getDesiredState() == Deployed && version.getDeploymentBehaviour() == automatically) {
-			try {
-				return Optional.of(deploymentManager.deploy(version));
-			} catch (Exception e) {
-				deploymentManager.rollback(version);
-			}
+			return Optional.of(deploymentManager.deploy(version));
 		}
 
 		return Optional.empty();

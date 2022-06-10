@@ -87,16 +87,15 @@ class DeploymentManagerImpl implements DeploymentManager {
 							.findFirst()
 							.orElse(null);
 				}).orElseThrow(() -> new RuntimeException("failed to update deployment from new version"));
-			} catch (HelmRegistryException e) {
+			} catch (Exception e) {
 				log.error("failed to deploy ({})", versionKv(version), e);
+				rollback(version);
 				throw new RuntimeException(e);
 			}
-
 		});
 	}
 
-	@Override
-	public void rollback(WritableProjectVersion version) {
+	private void rollback(WritableProjectVersion version) {
 		// In case a deployment has not been deleted properly
 		try {
 			final WritableDeployment deployment = getOrCreateDeploymentForVersion(version);
@@ -113,7 +112,7 @@ class DeploymentManagerImpl implements DeploymentManager {
 				deployment.setReleaseNames(new ArrayList<>());
 				deploymentRepository.save(deployment);
 			}
-		} catch (HelmRegistryException e) {
+		} catch (Exception e) {
 			log.error("rollback deployment of {} failed", versionKv(version) , e);
 			throw new RuntimeException(e);
 		}
