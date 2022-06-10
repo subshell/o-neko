@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import io.oneko.docker.event.ObsoleteProjectVersionRemovedEvent;
 import io.oneko.docker.v2.DockerRegistryClientFactory;
 import io.oneko.docker.v2.model.manifest.Manifest;
+import io.oneko.event.DeploymentRollbackEvent;
 import io.oneko.event.Event;
 import io.oneko.event.EventDispatcher;
 import io.oneko.helm.HelmRegistryException;
@@ -44,6 +45,7 @@ class DeploymentManagerImpl implements DeploymentManager {
 	private final ProjectRepository projectRepository;
 	private final DeploymentRepository deploymentRepository;
 	private final ProjectVersionLock projectVersionLock;
+	private final EventDispatcher eventDispatcher;
 
 
 	DeploymentManagerImpl(DockerRegistryClientFactory dockerRegistryClientFactory,
@@ -54,6 +56,7 @@ class DeploymentManagerImpl implements DeploymentManager {
 		this.projectRepository = projectRepository;
 		this.deploymentRepository = deploymentRepository;
 		this.projectVersionLock = projectVersionLock;
+		this.eventDispatcher = eventDispatcher;
 		eventDispatcher.registerListener(this::consumeDeletedVersionEvent);
 	}
 
@@ -89,15 +92,16 @@ class DeploymentManagerImpl implements DeploymentManager {
 				}).orElseThrow(() -> new RuntimeException("failed to update deployment from new version"));
 			} catch (Exception e) {
 				log.error("failed to deploy ({})", versionKv(version), e);
-				rollback(version);
+				rollback(version, e);
 				throw new RuntimeException(e);
 			}
 		});
 	}
 
-	private void rollback(WritableProjectVersion version) {
+	private void rollback(WritableProjectVersion version, Exception e) {
 		// In case a deployment has not been deleted properly
 		try {
+			eventDispatcher.dispatch(new DeploymentRollbackEvent(version, e.getMessage()));
 			final WritableDeployment deployment = getOrCreateDeploymentForVersion(version);
 			final List<String> referencedHelmReleases = HelmCommandUtils.getReferencedHelmReleases(version);
 			log.info("Found these helm releases for rollback: {}", kv("helm_releases", referencedHelmReleases));
