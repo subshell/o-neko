@@ -3,6 +3,7 @@ package io.oneko.kubernetes.impl;
 import static io.oneko.kubernetes.deployments.DesiredState.Deployed;
 import static io.oneko.kubernetes.deployments.DesiredState.NotDeployed;
 import static io.oneko.util.MoreStructuredArguments.versionKv;
+import static net.logstash.logback.argument.StructuredArguments.kv;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -100,6 +101,7 @@ class DeploymentManagerImpl implements DeploymentManager {
 		try {
 			final WritableDeployment deployment = getOrCreateDeploymentForVersion(version);
 			final List<String> referencedHelmReleases = HelmCommandUtils.getReferencedHelmReleases(version);
+			log.info("Found these helm releases for rollback: {}", kv("helm_releases", referencedHelmReleases));
 
 			if (!referencedHelmReleases.isEmpty()) {
 				log.info("starting rollback for project version {}", versionKv(version));
