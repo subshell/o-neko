@@ -1,7 +1,8 @@
 package io.oneko.activity.rest;
 
-import io.oneko.activity.Activity;
 import org.springframework.stereotype.Component;
+
+import io.oneko.activity.Activity;
 
 @Component
 public class ActivityDTOFactory {
@@ -10,6 +11,7 @@ public class ActivityDTOFactory {
 		ActivityDTO.ActivityDTOBuilder builder = ActivityDTO.builder()
 				.id(a.getId())
 				.date(a.getDate())
+				.name(a.getName())
 				.description(a.getDescription())
 				.triggerName(a.getTriggerName())
 				.triggerType(a.getTriggerType())
