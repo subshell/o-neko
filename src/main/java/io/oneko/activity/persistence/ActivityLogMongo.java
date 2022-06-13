@@ -82,13 +82,15 @@ public class ActivityLogMongo implements WritableActivityLog {
 	}
 
 	private Activity toActivity(ActivityMongo activityMongo) {
-		String name = StringUtils.isBlank(activityMongo.getName()) ? activityMongo.getName() : activityMongo.getDescription();
 		final Activity.ActivityBuilder activityBuilder = Activity.builder()
 				.id(activityMongo.getId())
 				.date(activityMongo.getDate())
 				.priority(activityMongo.getPriority())
-				.name(activityMongo.getName())
-				.description(activityMongo.getDescription())
+
+				// for backwards compatability - previously only description was set¡
+				.name(StringUtils.isBlank(activityMongo.getName()) ? activityMongo.getDescription() : activityMongo.getName())
+				.description(StringUtils.isBlank(activityMongo.getName()) ? "" : activityMongo.getDescription())
+
 				.activityType(activityMongo.getActivityType())
 				.triggerType(activityMongo.getTypeOfTrigger())
 				.triggerName(activityMongo.getNameOfTrigger());
