@@ -13,7 +13,7 @@ public class SampleEvent extends Event {
 	}
 
 	@Override
-	public String humanReadable() {
+	public String name() {
 		return "SampleEvent " + this.name;
 	}
 }

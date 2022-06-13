@@ -24,6 +24,8 @@ public class Activity extends Identifiable {
 	@Getter
 	private final ActivityPriority priority;
 	@Getter
+	private final String name;
+	@Getter
 	private final String description;
 	/**
 	 * This typically corresponds the name of an event that caused the activity in the first place

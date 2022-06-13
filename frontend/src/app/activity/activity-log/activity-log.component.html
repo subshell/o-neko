@@ -19,7 +19,8 @@
       <a mat-icon-button *ngIf="activity.entityType === 'User'" href="/users" target="_blank" [matTooltip]="'components.activityLog.openUsersPage' | translate" matTooltipShowDelay="500"><mat-icon mat-list-icon svgIcon="mdi:open-in-new"></mat-icon></a>
       <a mat-icon-button *ngIf="activity.entityType === 'DockerRegistry'" href="/docker-registries" target="_blank" [matTooltip]="'components.activityLog.openDockerRegistryPage' | translate" matTooltipShowDelay="500"><mat-icon mat-list-icon svgIcon="mdi:open-in-new"></mat-icon></a>
       <a mat-icon-button *ngIf="activity.entityType === 'Namespace'" href="/namespaces" target="_blank" [matTooltip]="'components.activityLog.openNamespacesPage' | translate" matTooltipShowDelay="500"><mat-icon mat-list-icon svgIcon="mdi:open-in-new"></mat-icon></a>
-      <h4 mat-line [matTooltip]="activity.description" matTooltipShowDelay="500">{{activity.description}}</h4>
+      <h4 mat-line [matTooltip]="activity.name" matTooltipShowDelay="500">{{activity.name}}</h4>
+      <pre mat-line>{{activity.description}}</pre>
       <p mat-line class="item-date">{{activity.formattedDate }}</p>
       <p mat-line *ngIf="activity.changedProperties" >
         <mat-chip-list>

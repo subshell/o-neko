@@ -7,7 +7,8 @@ export type CHANGE_TYPE = 'Saved' | 'Deleted';
 export interface ActivityDTO {
   id: string;
   date: Date;
-  priority: PRIORITY
+  priority: PRIORITY;
+  name: string;
   description: string;
   activityType: string;
 
@@ -26,6 +27,7 @@ export class Activity implements ActivityDTO {
   public id: string;
   public date: Date;
   public priority: PRIORITY;
+  public name: string;
   public description: string;
   public activityType: string;
 
@@ -42,6 +44,7 @@ export class Activity implements ActivityDTO {
     this.id = dto.id;
     this.date = new Date(dto.date);
     this.priority = dto.priority;
+    this.name = dto.name;
     this.description = dto.description;
     this.activityType = dto.activityType;
     this.triggerName = dto.triggerName;

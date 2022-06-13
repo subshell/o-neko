@@ -15,7 +15,7 @@ public class EntityChangedEvent extends Event {
 	}
 
 	@Override
-	public String humanReadable() {
+	public String name() {
 		DescribingEntityChange description = describeEntityChange();
 		return description.getEntityType() + " with name " + description.getName() + " has been " + description.getChangeType().toString().toLowerCase() + ".";
 	}

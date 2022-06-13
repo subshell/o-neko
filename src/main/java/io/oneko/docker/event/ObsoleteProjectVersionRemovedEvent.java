@@ -9,9 +9,9 @@ import lombok.Getter;
 public class ObsoleteProjectVersionRemovedEvent extends Event {
 
 	@Getter
-	private final ProjectVersion version;
+	private final ProjectVersion<?, ?> version;
 
-	public ObsoleteProjectVersionRemovedEvent(ProjectVersion version) {
+	public ObsoleteProjectVersionRemovedEvent(ProjectVersion<?, ?> version) {
 		this.version = version;
 	}
 
@@ -24,7 +24,7 @@ public class ObsoleteProjectVersionRemovedEvent extends Event {
 	}
 
 	@Override
-	public String humanReadable() {
+	public String name() {
 		return "The version " + version.getName() + " of project " + version.getProject().getName() + " no longer exists in the docker registry and therefore has been removed.";
 	}
 }
