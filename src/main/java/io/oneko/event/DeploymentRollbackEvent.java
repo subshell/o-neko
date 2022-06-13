@@ -15,7 +15,7 @@ public class DeploymentRollbackEvent extends Event {
 
 	@Override
 	public String name() {
-		return "Rollback project version " + version.getName() + "(" + version.getId() + ")";
+		return "Rollback project version " + version.getName();
 	}
 
 	@Override
