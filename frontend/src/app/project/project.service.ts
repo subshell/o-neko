@@ -167,7 +167,7 @@ export class ProjectService {
       projectVersion.deployment.status = DeployableStatus.Unknown;
       this.snackBar.openFromComponent(TimeoutSnackbarComponent, {
         data: {
-          text: this.translate.instant('components.project.service.errorMessage', {message: response.message})
+          text: this.translate.instant('components.project.service.errorMessage', {message: response.error})
         },
         duration: ProjectService.SNACKBAR_ERROR_DURATION
       });
@@ -192,7 +192,7 @@ export class ProjectService {
       projectVersion.deployment.status = DeployableStatus.Unknown;
       this.snackBar.openFromComponent(TimeoutSnackbarComponent, {
         data: {
-          text: this.translate.instant('components.project.service.errorMessage', {message: response.message})
+          text: this.translate.instant('components.project.service.errorMessage', {message: response.error})
         },
         duration: ProjectService.SNACKBAR_ERROR_DURATION
       });
