@@ -9,7 +9,7 @@ import io.oneko.helm.HelmRegistryException;
 
 @ControllerAdvice
 public class ExceptionInterceptor {
-	@ExceptionHandler({HelmRegistryException.class, IllegalArgumentException.class})
+	@ExceptionHandler({HelmRegistryException.class, IllegalArgumentException.class, RuntimeException.class})
 	public ResponseEntity<?> badRequest(HelmRegistryException e) {
 		return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
 	}
