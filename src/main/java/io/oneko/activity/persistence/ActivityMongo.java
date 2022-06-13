@@ -27,6 +27,7 @@ public class ActivityMongo {
 	private UUID id;
 	private LocalDateTime date;
 	private String activityType;
+	private String name;
 	private String description;
 	private ActivityPriority priority;
 
