@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import io.oneko.helm.HelmRegistryException;
 import io.oneko.helm.ReadableHelmRegistry;
 import io.oneko.helmapi.api.Helm;
@@ -124,8 +126,12 @@ public class HelmCommandUtils {
 		return sanitizeReleaseName(maxLength(fullReleaseName, 53));
 	}
 
-	private static String getReleaseNamePrefix(ProjectVersion<?, ?> projectVersion) {
-		return sanitizeReleaseName(maxLength(projectVersion.getProject().getName(), 6) + "-" + maxLength(projectVersion.getName(), 20));
+	@VisibleForTesting
+	protected static String getReleaseNamePrefix(ProjectVersion<?, ?> projectVersion) {
+		var projectName = maxLength(projectVersion.getProject().getName(), 10);
+		var projectId = maxLength(projectVersion.getProject().getId().toString(), 8);
+		var versionName = maxLength(projectVersion.getName(), 10);
+		return sanitizeReleaseName(String.format("%s%s-%s", projectName, projectId, versionName));
 	}
 
 	private static String sanitizeReleaseName(String in) {

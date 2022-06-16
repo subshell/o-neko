@@ -21,6 +21,7 @@ import io.oneko.docker.v2.model.manifest.Manifest;
 import io.oneko.event.DeploymentRollbackEvent;
 import io.oneko.event.Event;
 import io.oneko.event.EventDispatcher;
+import io.oneko.event.HelmReleasesInstallEvent;
 import io.oneko.helm.HelmRegistryException;
 import io.oneko.helm.util.HelmCommandUtils;
 import io.oneko.helmapi.model.InstallStatus;
@@ -77,9 +78,14 @@ class DeploymentManagerImpl implements DeploymentManager {
 				}
 
 				final List<InstallStatus> installStatuses = HelmCommandUtils.install(version);
+				log.info("Installing helm releases {} for {}",
+						kv("helm_releases", deployment.getReleaseNames()), versionKv(version));
+
 				final List<String> releaseNames = installStatuses.stream().map(Status::getName).collect(Collectors.toList());
 				deployment.setReleaseNames(releaseNames);
 				deploymentRepository.save(deployment);
+
+				eventDispatcher.dispatch(new HelmReleasesInstallEvent(version, releaseNames));
 
 				return updateDeployableWithCreatedResources(version).map(newVersion -> {
 					newVersion.setDesiredState(Deployed);
