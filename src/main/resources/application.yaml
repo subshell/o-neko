@@ -9,7 +9,6 @@ logging:
     path: logs
   level:
     io.oneko: debug
-
 o-neko:
   activity:
     cleanup:
@@ -29,6 +28,12 @@ springdoc:
     doc-expansion: none
     tags-sorter: alpha
     operations-sorter: alpha
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, prometheus
 ---
 # Development profile
 spring:
