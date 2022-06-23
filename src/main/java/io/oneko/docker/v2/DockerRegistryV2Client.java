@@ -21,7 +21,9 @@ import feign.httpclient.ApacheHttpClient;
 import feign.jackson.JacksonDecoder;
 import feign.jackson.JacksonEncoder;
 import feign.slf4j.Slf4jLogger;
+import io.micrometer.core.instrument.Timer;
 import io.oneko.docker.DockerRegistry;
+import io.oneko.docker.v2.metrics.MetersPerRegistry;
 import io.oneko.docker.v2.model.manifest.DockerRegistryBlob;
 import io.oneko.docker.v2.model.manifest.DockerRegistryManifest;
 import io.oneko.docker.v2.model.manifest.Manifest;
@@ -37,8 +39,13 @@ import lombok.extern.slf4j.Slf4j;
 public class DockerRegistryV2Client {
 
 	private final DockerRegistryAPIV2 feignClient;
+	private final MetersPerRegistry meters;
 
-	public DockerRegistryV2Client(DockerRegistry registry, String token, ObjectMapper objectMapper) {
+	public DockerRegistryV2Client(DockerRegistry registry,
+																String token,
+																ObjectMapper objectMapper,
+																MetersPerRegistry meters) {
+		this.meters = meters;
 		List<Header> defaultHeaders = new ArrayList<>();
 		defaultHeaders.add(new BasicHeader("Accept", "*/*"));
 		if (token != null) {
@@ -62,31 +69,42 @@ public class DockerRegistryV2Client {
 	}
 
 	public String versionCheck() {
+		final Timer.Sample sample = Timer.start();
 		try {
-			return feignClient.versionCheck();
+			final String result = feignClient.versionCheck();
+			sample.stop(meters.getVersionCheckTimerOk());
+			return result;
 		} catch (FeignException e) {
+			sample.stop(meters.getVersionCheckTimerError());
 			log.warn("failed to check docker registry version", e);
 			throw e;
 		}
 	}
 
 	public List<String> getAllTags(Project<?, ?> project) {
+		final Timer.Sample sample = Timer.start();
 		try {
-			return feignClient.getAllTags(project.getImageName()).getTags();
+			final List<String> result = feignClient.getAllTags(project.getImageName()).getTags();
+			sample.stop(meters.getListAllTagsTimerOk());
+			return result;
 		} catch (FeignException e) {
+			sample.stop(meters.getListAllTagsTimerError());
 			log.warn("failed to list all container image tags ({})", kv("image_name", project.getImageName()), e);
 			throw e;
 		}
 	}
 
 	public Manifest getManifest(ProjectVersion<?, ?> version) {
+		final Timer.Sample sample = Timer.start();
 		try {
 			final String imageName = version.getProject().getImageName();
 			final DockerRegistryManifest dockerRegistryManifest = feignClient.getManifest(imageName, version.getName());
 			final DockerRegistryManifest.Digest digest = dockerRegistryManifest.getDigest();
 			final DockerRegistryBlob blob = feignClient.getBlob(imageName, digest.getAlgorithm(), digest.getDigest());
+			sample.stop(meters.getGetManifestTimerOk());
 			return new Manifest(digest.getFullDigest(), blob.getCreated());
 		} catch (FeignException e) {
+			sample.stop(meters.getGetManifestTimerError());
 			log.warn("failed to get manifest for project version ({}, {})", versionKv(version), projectKv(version.getProject()), e);
 			throw e;
 		}
