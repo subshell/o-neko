@@ -29,7 +29,7 @@ development versions of your software into Kubernetes via Helm to allow everybod
 * You need Helm charts for each project you want to deploy. The charts need to be hosted in a chart registry.
   * Currently we support standard Helm chart registries and Helm GCS
   * The Docker image tag and the image pull policy need to be configurable
-* O-Neko works with kubernetes versions 1.10.0 - 1.22.1 (these versions are officially supported by the Kubernetes client library we use)
+* O-Neko works with kubernetes versions 1.10.0 - 1.23.3 (these versions are *officially* supported by the Kubernetes client library we use)
 
 ## How does it work?
 
