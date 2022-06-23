@@ -9,11 +9,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+
 class EventDispatcherTest {
 
 	private final List<Event> currentEvents = new ArrayList<>();
 	private final CurrentEventTrigger currentEventTrigger = new CurrentEventTrigger();
-	private final EventDispatcher uut = new EventDispatcher(currentEventTrigger);
+	private final EventDispatcher uut = new EventDispatcher(currentEventTrigger, new SimpleMeterRegistry());
 
 
 	@BeforeEach

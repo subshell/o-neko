@@ -13,8 +13,8 @@ import org.springframework.stereotype.Component;
 import io.oneko.event.CurrentEventTrigger;
 import io.oneko.event.EventTrigger;
 import io.oneko.event.ScheduledTask;
+import io.oneko.helm.HelmCommands;
 import io.oneko.helm.HelmRegistryException;
-import io.oneko.helm.util.HelmCommandUtils;
 import io.oneko.helmapi.model.Status;
 import io.oneko.kubernetes.deployments.DeployableStatus;
 import io.oneko.kubernetes.deployments.Deployment;
@@ -39,16 +39,20 @@ class DeploymentStatusWatcher {
 	private final SessionWebSocketHandler webSocketHandler;
 	private final HelmStatusToDeploymentMapper helmStatusToDeploymentMapper;
 	private final CurrentEventTrigger currentEventTrigger;
+	private final HelmCommands helmCommands;
 
 	DeploymentStatusWatcher(ProjectRepository projectRepository,
 													DeploymentRepository deploymentRepository,
 													SessionWebSocketHandler webSocketHandler,
-													HelmStatusToDeploymentMapper helmStatusToDeploymentMapper, CurrentEventTrigger currentEventTrigger) {
+													HelmStatusToDeploymentMapper helmStatusToDeploymentMapper,
+													CurrentEventTrigger currentEventTrigger,
+													HelmCommands helmCommands) {
 		this.projectRepository = projectRepository;
 		this.deploymentRepository = deploymentRepository;
 		this.webSocketHandler = webSocketHandler;
 		this.helmStatusToDeploymentMapper = helmStatusToDeploymentMapper;
 		this.currentEventTrigger = currentEventTrigger;
+		this.helmCommands = helmCommands;
 	}
 
 	private EventTrigger asTrigger() {
@@ -75,7 +79,7 @@ class DeploymentStatusWatcher {
 
 	private void scanResourcesForDeployable(ProjectVersion<?, ?> projectVersion) {
 		try {
-			final List<Status> statuses = HelmCommandUtils.status(projectVersion);
+			final List<Status> statuses = helmCommands.status(projectVersion);
 
 			if (statuses.isEmpty()) {
 				cleanUpOnDeploymentRemoved(projectVersion);

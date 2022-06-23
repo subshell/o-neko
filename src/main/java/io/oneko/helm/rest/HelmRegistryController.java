@@ -18,12 +18,12 @@ import org.springframework.web.server.ResponseStatusException;
 import io.oneko.configuration.Controllers;
 import io.oneko.helm.HelmCharts;
 import io.oneko.helm.HelmChartsDTO;
+import io.oneko.helm.HelmCommands;
 import io.oneko.helm.HelmRegistryException;
 import io.oneko.helm.HelmRegistryMapper;
 import io.oneko.helm.HelmRegistryRepository;
 import io.oneko.helm.ReadableHelmRegistry;
 import io.oneko.helm.WritableHelmRegistry;
-import io.oneko.helm.util.HelmCommandUtils;
 import io.oneko.project.ProjectRepository;
 import io.oneko.project.ReadableProject;
 import lombok.extern.slf4j.Slf4j;
@@ -37,15 +37,18 @@ public class HelmRegistryController {
 	private final ProjectRepository projectRepository;
 	private final HelmCharts helmCharts;
 	private final HelmRegistryMapper mapper;
+	private final HelmCommands helmCommands;
 
 	public HelmRegistryController(HelmRegistryRepository helmRegistryRepository,
 																ProjectRepository projectRepository,
 																HelmCharts helmCharts,
-																HelmRegistryMapper mapper) {
+																HelmRegistryMapper mapper,
+																HelmCommands helmCommands) {
 		this.helmRegistryRepository = helmRegistryRepository;
 		this.projectRepository = projectRepository;
 		this.helmCharts = helmCharts;
 		this.mapper = mapper;
+		this.helmCommands = helmCommands;
 	}
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'DOER')")
@@ -60,7 +63,7 @@ public class HelmRegistryController {
 	@PostMapping
 	HelmRegistryDTO createRegistry(@RequestBody CreateHelmRegistryDTO dto) throws HelmRegistryException {
 		WritableHelmRegistry registry = mapper.createRegistryFromDTO(dto);
-		HelmCommandUtils.addRegistry(registry.readable());
+		helmCommands.addRegistry(registry.readable());
 
 		final ReadableHelmRegistry persistedRegistry = helmRegistryRepository.add(registry);
 		helmCharts.refreshHelmChartsInRegistry(persistedRegistry.getId());
@@ -78,7 +81,7 @@ public class HelmRegistryController {
 	@PostMapping("/{id}")
 	HelmRegistryDTO updateRegistry(@PathVariable UUID id, @RequestBody HelmRegistryDTO dto) throws HelmRegistryException {
 		ReadableHelmRegistry registry = getRegistryOr404(id);
-		HelmCommandUtils.addRegistry(registry);
+		helmCommands.addRegistry(registry);
 		WritableHelmRegistry updatedRegistry = mapper.updateRegistryFromDTO(registry.writable(), dto);
 		ReadableHelmRegistry persistedReg = helmRegistryRepository.add(updatedRegistry);
 
@@ -95,7 +98,7 @@ public class HelmRegistryController {
 			throw new HelmRegistryException("The Helm registry is still referenced in projects");
 		}
 
-		HelmCommandUtils.deleteRegistry(registry);
+		helmCommands.deleteRegistry(registry);
 
 		helmCharts.invalidateHelmChartsInRegistry(id);
 		helmRegistryRepository.remove(registry);
@@ -105,7 +108,7 @@ public class HelmRegistryController {
 	@PostMapping("/{id}/password")
 	HelmRegistryDTO changeRegistryPassword(@PathVariable UUID id, @RequestBody ChangeHelmRegistryPasswordDTO dto) throws HelmRegistryException {
 		ReadableHelmRegistry registry = getRegistryOr404(id);
-		HelmCommandUtils.addRegistry(registry);
+		helmCommands.addRegistry(registry);
 
 		WritableHelmRegistry writable = registry.writable();
 		writable.setPassword(dto.getPassword());

@@ -15,8 +15,8 @@ import io.oneko.docker.v2.DockerRegistryClientFactory;
 import io.oneko.docker.v2.model.manifest.Manifest;
 import io.oneko.event.Event;
 import io.oneko.event.EventDispatcher;
+import io.oneko.helm.HelmCommands;
 import io.oneko.helm.HelmRegistryException;
-import io.oneko.helm.util.HelmCommandUtils;
 import io.oneko.helmapi.model.InstallStatus;
 import io.oneko.helmapi.model.Status;
 import io.oneko.kubernetes.DeploymentManager;
@@ -37,14 +37,17 @@ class DeploymentManagerImpl implements DeploymentManager {
 	private final DockerRegistryClientFactory dockerRegistryClientFactory;
 	private final ProjectRepository projectRepository;
 	private final DeploymentRepository deploymentRepository;
+	private final HelmCommands helmCommands;
 
 	DeploymentManagerImpl(DockerRegistryClientFactory dockerRegistryClientFactory,
 												ProjectRepository projectRepository,
 												DeploymentRepository deploymentRepository,
-												EventDispatcher eventDispatcher) {
+												EventDispatcher eventDispatcher,
+												HelmCommands helmCommands) {
 		this.dockerRegistryClientFactory = dockerRegistryClientFactory;
 		this.projectRepository = projectRepository;
 		this.deploymentRepository = deploymentRepository;
+		this.helmCommands = helmCommands;
 		eventDispatcher.registerListener(this::consumeDeletedVersionEvent);
 	}
 
@@ -58,10 +61,10 @@ class DeploymentManagerImpl implements DeploymentManager {
 			final WritableDeployment deployment = getOrCreateDeploymentForVersion(version);
 
 			if (!deployment.getReleaseNames().isEmpty()) {
-				HelmCommandUtils.uninstall(deployment.getReleaseNames());
+				helmCommands.uninstall(deployment.getReleaseNames());
 			}
 
-			final List<InstallStatus> installStatuses = HelmCommandUtils.install(version);
+			final List<InstallStatus> installStatuses = helmCommands.install(version);
 			final List<String> releaseNames = installStatuses.stream().map(Status::getName).collect(Collectors.toList());
 			deployment.setReleaseNames(releaseNames);
 			deploymentRepository.save(deployment);
@@ -104,7 +107,7 @@ class DeploymentManagerImpl implements DeploymentManager {
 	public ReadableProjectVersion stopDeployment(WritableProjectVersion version) {
 		try {
 			final WritableDeployment deployment = getOrCreateDeploymentForVersion(version);
-			HelmCommandUtils.uninstall(version);
+			helmCommands.uninstall(version);
 			deploymentRepository.deleteById(deployment.getId());
 			version.setDesiredState(NotDeployed);
 			final ReadableProject readableProject = projectRepository.add(version.getProject());
@@ -120,7 +123,7 @@ class DeploymentManagerImpl implements DeploymentManager {
 	private void stopDeploymentOfRemovedVersion(ProjectVersion version) {
 		try {
 			final WritableDeployment deployment = getOrCreateDeploymentForVersion(version);
-			HelmCommandUtils.uninstall(version);
+			helmCommands.uninstall(version);
 			deploymentRepository.deleteById(deployment.getId());
 		} catch (HelmRegistryException e) {
 			log.error("failed to stop deployment of removed version ({})", versionKv(version), e);

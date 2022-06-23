@@ -8,54 +8,48 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 
-import io.oneko.helm.util.HelmCommandUtils;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.binder.cache.CaffeineCacheMetrics;
 import io.oneko.helmapi.model.Chart;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
 public class HelmCharts {
+	private final LoadingCache<UUID, HelmChartsDTO> chartsCache;
 
-	private final HelmRegistryRepository helmRegistryRepository;
+	public HelmCharts(HelmRegistryRepository helmRegistryRepository, HelmCommands helmCommands, MeterRegistry meterRegistry) {
+		this.chartsCache = Caffeine.newBuilder()
+				.expireAfterWrite(3, TimeUnit.MINUTES)
+				.recordStats()
+				.build(registryId -> helmRegistryRepository.getById(registryId)
+						.flatMap(helmRegistry -> {
+							try {
+								List<Chart> charts = helmCommands.getCharts(helmRegistry);
+								log.debug("found helm charts ({}, {})", kv("chart_count", charts.size()), helmRegistryKv(helmRegistry));
 
-	private final LoadingCache<UUID, HelmChartsDTO> chartsCache = CacheBuilder.newBuilder()
-			.expireAfterWrite(3, TimeUnit.MINUTES)
-			.build(new CacheLoader<>() {
-				@Override
-				public HelmChartsDTO load(UUID registryId) {
-					return helmRegistryRepository.getById(registryId)
-							.flatMap(helmRegistry -> {
-								try {
-									List<Chart> charts = HelmCommandUtils.getCharts(helmRegistry);
-									log.debug("found helm charts ({}, {})", kv("chart_count", charts.size()), helmRegistryKv(helmRegistry));
-
-									return toHelmChartDTO(helmRegistry, charts);
-								} catch (HelmRegistryException e) {
-									return Optional.empty();
-								}
-							})
-							.orElseThrow(() -> new IllegalArgumentException("registry not found"));
-				}
-			});
-
-	public HelmCharts(HelmRegistryRepository helmRegistryRepository) {
-		this.helmRegistryRepository = helmRegistryRepository;
+								return toHelmChartDTO(helmRegistry, charts);
+							} catch (HelmRegistryException e) {
+								return Optional.empty();
+							}
+						})
+						.orElseThrow(() -> new IllegalArgumentException("registry not found"))
+				);
+		CaffeineCacheMetrics.monitor(meterRegistry, chartsCache, "helmChartCache");
 	}
 
 	public Optional<HelmChartsDTO> getChartsByHelmRegistry(UUID registryId) {
 		try {
 			return Optional.of(chartsCache.get(registryId));
-		} catch (ExecutionException e) {
+		} catch (RuntimeException e) {
 			return Optional.empty();
 		}
 	}

@@ -22,6 +22,8 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
 
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import io.oneko.docker.event.NewProjectVersionFoundEvent;
 import io.oneko.docker.event.ObsoleteProjectVersionRemovedEvent;
 import io.oneko.docker.v2.DockerRegistryClientFactory;
@@ -33,6 +35,7 @@ import io.oneko.event.EventDispatcher;
 import io.oneko.event.EventTrigger;
 import io.oneko.event.ScheduledTask;
 import io.oneko.kubernetes.DeploymentManager;
+import io.oneko.metrics.MetricNameBuilder;
 import io.oneko.project.ProjectRepository;
 import io.oneko.project.ProjectVersion;
 import io.oneko.project.ReadableProject;
@@ -47,6 +50,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 class DockerRegistryPolling {
 
+
+
 	@Data
 	private static class VersionWithDockerManifest {
 		private final WritableProjectVersion version;
@@ -60,18 +65,29 @@ class DockerRegistryPolling {
 	private final EventTrigger asTrigger;
 	private final ExpiringBucket<UUID> failedManifestRequests = new ExpiringBucket<UUID>(Duration.ofMinutes(5)).concurrent();
 	private final CurrentEventTrigger currentEventTrigger;
+	private final Timer pollingJobTimer;
+	private final Timer updateDatesJobTimer;
 
 	DockerRegistryPolling(ProjectRepository projectRepository,
 												DockerRegistryClientFactory dockerRegistryClientFactory,
 												DeploymentManager deploymentManager,
 												EventDispatcher eventDispatcher,
-												CurrentEventTrigger currentEventTrigger) {
+												CurrentEventTrigger currentEventTrigger,
+												MeterRegistry meterRegistry) {
 		this.projectRepository = projectRepository;
 		this.dockerRegistryClientFactory = dockerRegistryClientFactory;
 		this.deploymentManager = deploymentManager;
 		this.eventDispatcher = eventDispatcher;
 		this.currentEventTrigger = currentEventTrigger;
 		this.asTrigger = new ScheduledTask("Docker Registry Polling");
+		this.pollingJobTimer = Timer.builder(new MetricNameBuilder().durationOf("docker.registry.polling.pollingJob").build())
+				.description("the duration of the docker polling job")
+				.publishPercentileHistogram()
+				.register(meterRegistry);
+		this.updateDatesJobTimer = Timer.builder(new MetricNameBuilder().durationOf("docker.registry.polling.updateDatesJob").build())
+				.description("the duration of the image date update job")
+				.publishPercentileHistogram()
+				.register(meterRegistry);
 	}
 
 	@Scheduled(fixedDelay = 20000, initialDelay = 10000)
@@ -94,6 +110,7 @@ class DockerRegistryPolling {
 			}
 
 			log.trace("finished polling job ({})", kv("duration_millis", duration.toMillis()));
+			pollingJobTimer.record(duration);
 		}
 	}
 
@@ -114,6 +131,7 @@ class DockerRegistryPolling {
 		}
 
 		log.trace("finished updating dates for all projects ({})", kv("duration_millis", duration.toMillis()));
+		updateDatesJobTimer.record(duration);
 	}
 
 	/**
@@ -238,7 +256,7 @@ class DockerRegistryPolling {
 	}
 
 	/**
-	 * Checks for new images in this projects that might require this image.
+	 * Checks for new images in the projects that might require this image.
 	 */
 	private void checkForNewImages(WritableProject project) {
 		project.getVersions().forEach(version -> {

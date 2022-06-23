@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import io.oneko.event.*;
 import io.oneko.project.event.EventAwareProjectRepository;
 import io.oneko.project.event.ProjectSavedEvent;
@@ -25,7 +26,7 @@ class EventAwareProjectRepositoryTest {
 	@BeforeEach
 	void setup() {
 		this.currentEvents = new ArrayList<>();
-		EventDispatcher dispatcher = new EventDispatcher(currentEventTrigger);
+		EventDispatcher dispatcher = new EventDispatcher(currentEventTrigger, new SimpleMeterRegistry());
 		dispatcher.registerListener(this.currentEvents::add);
 		this.uut = new ProjectInMemoryRepository(dispatcher);
 	}
