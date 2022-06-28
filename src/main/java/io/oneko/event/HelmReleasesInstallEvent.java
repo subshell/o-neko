@@ -14,7 +14,7 @@ public class HelmReleasesInstallEvent extends Event {
 	private final List<String> releaseNames;
 
 	@Override
-	public String name() {
+	public String title() {
 		return "Install releases for project version " + version.getName();
 	}
 

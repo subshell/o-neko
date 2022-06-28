@@ -24,7 +24,7 @@ public class ObsoleteProjectVersionRemovedEvent extends Event {
 	}
 
 	@Override
-	public String name() {
+	public String title() {
 		return "The version " + version.getName() + " of project " + version.getProject().getName() + " no longer exists in the docker registry and therefore has been removed.";
 	}
 }

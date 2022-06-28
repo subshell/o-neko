@@ -51,7 +51,7 @@ class DeploymentStatusWatcher {
 		return new ScheduledTask("Kubernetes Deployment Status Watcher");
 	}
 
-	@Scheduled(fixedRate = 5000)
+	@Scheduled(fixedRate = 10_000)
 	protected void updateProjectStatus() {
 		final List<WritableProjectVersion> writableVersions = projectRepository.getAll().stream()
 				.map(ReadableProject::writable)

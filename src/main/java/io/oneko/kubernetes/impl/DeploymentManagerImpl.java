@@ -78,7 +78,7 @@ class DeploymentManagerImpl implements DeploymentManager {
 				}
 
 				final List<InstallStatus> installStatuses = HelmCommandUtils.install(version);
-				log.info("Installing helm releases {} for {}",
+				log.info("installing helm releases {} for {}",
 						kv("helm_releases", deployment.getReleaseNames()), versionKv(version));
 
 				final List<String> releaseNames = installStatuses.stream().map(Status::getName).collect(Collectors.toList());
@@ -157,6 +157,10 @@ class DeploymentManagerImpl implements DeploymentManager {
 				deploymentRepository.deleteById(deployment.getId());
 				version.setDesiredState(NotDeployed);
 				final ReadableProject readableProject = projectRepository.add(version.getProject());
+
+				log.info("stopping helm releases {} for {}",
+						kv("helm_releases", deployment.getReleaseNames()), versionKv(version));
+
 				return readableProject.getVersions().stream()
 						.filter(projectVersion -> projectVersion.getUuid().equals(version.getId()))
 						.findFirst().orElse(null);

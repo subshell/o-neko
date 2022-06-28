@@ -11,7 +11,7 @@ public class ActivityDTOFactory {
 		ActivityDTO.ActivityDTOBuilder builder = ActivityDTO.builder()
 				.id(a.getId())
 				.date(a.getDate())
-				.name(a.getName())
+				.title(a.getTitle())
 				.description(a.getDescription())
 				.triggerName(a.getTriggerName())
 				.triggerType(a.getTriggerType())

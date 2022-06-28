@@ -13,7 +13,7 @@ public class NamespaceCreatedEvent extends Event {
 	}
 
 	@Override
-	public String name() {
+	public String title() {
 		return String.format("Namespace %s as been created in kubernetes.", namespace);
 	}
 }

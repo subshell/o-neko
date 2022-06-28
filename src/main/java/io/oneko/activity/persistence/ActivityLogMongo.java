@@ -66,7 +66,8 @@ public class ActivityLogMongo implements WritableActivityLog {
 				.id(activity.getId())
 				.date(activity.getDate())
 				.priority(activity.getPriority())
-				.name(activity.getName())
+				// ActivityMongo uses 'name' for backwards compatability
+				.name(activity.getTitle())
 				.description(activity.getDescription())
 				.activityType(activity.getActivityType())
 				.typeOfTrigger(activity.getTriggerType())
@@ -88,7 +89,7 @@ public class ActivityLogMongo implements WritableActivityLog {
 				.priority(activityMongo.getPriority())
 
 				// for backwards compatability - previously only description was set¡
-				.name(StringUtils.isBlank(activityMongo.getName()) ? activityMongo.getDescription() : activityMongo.getName())
+				.title(StringUtils.isBlank(activityMongo.getName()) ? activityMongo.getDescription() : activityMongo.getName())
 				.description(StringUtils.isBlank(activityMongo.getName()) ? "" : activityMongo.getDescription())
 
 				.activityType(activityMongo.getActivityType())

@@ -24,7 +24,7 @@ public class Activity extends Identifiable {
 	@Getter
 	private final ActivityPriority priority;
 	@Getter
-	private final String name;
+	private final String title;
 	@Getter
 	private final String description;
 	/**

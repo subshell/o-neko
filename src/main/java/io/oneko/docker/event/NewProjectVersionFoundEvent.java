@@ -22,7 +22,7 @@ public class NewProjectVersionFoundEvent extends Event {
 	}
 
 	@Override
-	public String name() {
+	public String title() {
 		return "The new version " + version.getName() + " has been found for project " + version.getProject().getName() + ".";
 	}
 }
