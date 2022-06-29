@@ -78,7 +78,7 @@ class DeploymentManagerImpl implements DeploymentManager {
 				}
 
 				final List<InstallStatus> installStatuses = HelmCommandUtils.install(version);
-				log.info("installing helm releases {} for {}",
+				log.info("installing helm releases ({}, {})",
 						kv("helm_releases", deployment.getReleaseNames()), versionKv(version));
 
 				final List<String> releaseNames = installStatuses.stream().map(Status::getName).collect(Collectors.toList());
