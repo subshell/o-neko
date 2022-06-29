@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import io.oneko.docker.event.ObsoleteProjectVersionRemovedEvent;
 import io.oneko.docker.v2.DockerRegistryClientFactory;
 import io.oneko.docker.v2.model.manifest.Manifest;
@@ -23,6 +25,7 @@ import io.oneko.kubernetes.DeploymentManager;
 import io.oneko.kubernetes.deployments.DeploymentRepository;
 import io.oneko.kubernetes.deployments.ReadableDeployment;
 import io.oneko.kubernetes.deployments.WritableDeployment;
+import io.oneko.metrics.MetricNameBuilder;
 import io.oneko.project.ProjectRepository;
 import io.oneko.project.ProjectVersion;
 import io.oneko.project.ReadableProject;
@@ -39,20 +42,35 @@ class DeploymentManagerImpl implements DeploymentManager {
 	private final DeploymentRepository deploymentRepository;
 	private final HelmCommands helmCommands;
 
+	private final Timer deployDurationTimer;
+	private final Timer stopDeploymentDurationTimer;
+
 	DeploymentManagerImpl(DockerRegistryClientFactory dockerRegistryClientFactory,
 												ProjectRepository projectRepository,
 												DeploymentRepository deploymentRepository,
 												EventDispatcher eventDispatcher,
-												HelmCommands helmCommands) {
+												HelmCommands helmCommands,
+												MeterRegistry meterRegistry) {
 		this.dockerRegistryClientFactory = dockerRegistryClientFactory;
 		this.projectRepository = projectRepository;
 		this.deploymentRepository = deploymentRepository;
 		this.helmCommands = helmCommands;
 		eventDispatcher.registerListener(this::consumeDeletedVersionEvent);
+
+		deployDurationTimer = Timer.builder(new MetricNameBuilder().durationOf("kubernetes.deployment.action").build())
+				.tag("action", "start")
+				.publishPercentileHistogram()
+				.register(meterRegistry);
+
+		stopDeploymentDurationTimer = Timer.builder(new MetricNameBuilder().durationOf("kubernetes.deployment.action").build())
+				.tag("action", "stop")
+				.publishPercentileHistogram()
+				.register(meterRegistry);
 	}
 
 	@Override
 	public ReadableProjectVersion deploy(WritableProjectVersion version) {
+		final Timer.Sample sample = Timer.start();
 		if (StringUtils.isBlank(version.getNamespaceOrElseFromProject())) {
 			throw new RuntimeException("A namespace must be configured in the project.");
 		}
@@ -73,10 +91,12 @@ class DeploymentManagerImpl implements DeploymentManager {
 			version.setDesiredState(Deployed);
 
 			final ReadableProject project = projectRepository.add(version.getProject());
-			return project.getVersions().stream()
+			final ReadableProjectVersion readableProjectVersion = project.getVersions().stream()
 					.filter(projectVersion -> projectVersion.getUuid().equals(versionId))
 					.findFirst()
 					.orElse(null);
+			sample.stop(deployDurationTimer);
+			return readableProjectVersion;
 		} catch (HelmRegistryException e) {
 			log.error("failed to deploy ({})", versionKv(version), e);
 			throw new RuntimeException(e);
@@ -105,15 +125,18 @@ class DeploymentManagerImpl implements DeploymentManager {
 
 	@Override
 	public ReadableProjectVersion stopDeployment(WritableProjectVersion version) {
+		final Timer.Sample sample = Timer.start();
 		try {
 			final WritableDeployment deployment = getOrCreateDeploymentForVersion(version);
 			helmCommands.uninstall(version);
 			deploymentRepository.deleteById(deployment.getId());
 			version.setDesiredState(NotDeployed);
 			final ReadableProject readableProject = projectRepository.add(version.getProject());
-			return readableProject.getVersions().stream()
+			final ReadableProjectVersion readableProjectVersion = readableProject.getVersions().stream()
 					.filter(projectVersion -> projectVersion.getUuid().equals(version.getId()))
 					.findFirst().orElse(null);
+			sample.stop(stopDeploymentDurationTimer);
+			return readableProjectVersion;
 		} catch (HelmRegistryException e) {
 			log.error("failed to stop deployment ({})", versionKv(version), e);
 			throw new RuntimeException(e);
@@ -121,10 +144,12 @@ class DeploymentManagerImpl implements DeploymentManager {
 	}
 
 	private void stopDeploymentOfRemovedVersion(ProjectVersion version) {
+		final Timer.Sample sample = Timer.start();
 		try {
 			final WritableDeployment deployment = getOrCreateDeploymentForVersion(version);
 			helmCommands.uninstall(version);
 			deploymentRepository.deleteById(deployment.getId());
+			sample.stop(stopDeploymentDurationTimer);
 		} catch (HelmRegistryException e) {
 			log.error("failed to stop deployment of removed version ({})", versionKv(version), e);
 			throw new RuntimeException(e);
