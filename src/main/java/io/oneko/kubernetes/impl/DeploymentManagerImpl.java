@@ -15,6 +15,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import io.oneko.docker.event.ObsoleteProjectVersionRemovedEvent;
@@ -54,6 +55,8 @@ class DeploymentManagerImpl implements DeploymentManager {
 
 	private final Timer deployDurationTimer;
 	private final Timer stopDeploymentDurationTimer;
+	private final Counter startDeploymentErrors;
+	private final Counter stopDeploymentErrors;
 
 
 	DeploymentManagerImpl(DockerRegistryClientFactory dockerRegistryClientFactory,
@@ -81,6 +84,13 @@ class DeploymentManagerImpl implements DeploymentManager {
 				.publishPercentileHistogram()
 				.register(meterRegistry);
 
+		startDeploymentErrors = Counter.builder(new MetricNameBuilder().durationOf("kubernetes.deployment.errors").build())
+				.tag("action", "start")
+				.register(meterRegistry);
+
+		stopDeploymentErrors = Counter.builder(new MetricNameBuilder().durationOf("kubernetes.deployment.errors").build())
+				.tag("action", "stop")
+				.register(meterRegistry);
 	}
 
 	@Override
@@ -122,6 +132,7 @@ class DeploymentManagerImpl implements DeploymentManager {
 				return readableProjectVersion;
 			} catch (Exception e) {
 				log.error("failed to deploy ({})", versionKv(version), e);
+				startDeploymentErrors.increment();
 				rollback(version, e);
 				throw new RuntimeException(e);
 			}
@@ -148,6 +159,7 @@ class DeploymentManagerImpl implements DeploymentManager {
 			}
 		} catch (Exception e2) {
 			log.error("rollback deployment of {} failed", versionKv(version) , e2);
+			stopDeploymentErrors.increment();
 			throw new RuntimeException(e);
 		}
 	}
@@ -174,6 +186,7 @@ class DeploymentManagerImpl implements DeploymentManager {
 
 	@Override
 	public ReadableProjectVersion stopDeployment(final WritableProjectVersion version) {
+		final Timer.Sample sample = Timer.start();
 		return projectVersionLock.doWithProjectVersionLock(version, () -> {
 			try {
 				final WritableDeployment deployment = getOrCreateDeploymentForVersion(version);
@@ -185,23 +198,29 @@ class DeploymentManagerImpl implements DeploymentManager {
 				log.info("stopping helm releases ({}, {})",
 						kv("helm_releases", deployment.getReleaseNames()), versionKv(version));
 
-				return readableProject.getVersions().stream()
+				final ReadableProjectVersion readableProjectVersion = readableProject.getVersions().stream()
 						.filter(projectVersion -> projectVersion.getUuid().equals(version.getId()))
 						.findFirst().orElse(null);
+				sample.stop(stopDeploymentDurationTimer);
+				return readableProjectVersion;
 			} catch (HelmRegistryException e) {
 				log.error("failed to stop deployment ({})", versionKv(version), e);
+				stopDeploymentErrors.increment();
 				throw new RuntimeException(e);
 			}
 		});
 	}
 
 	private void stopDeploymentOfRemovedVersion(ProjectVersion<?, ?> version) {
+		final Timer.Sample sample = Timer.start();
 		try {
 			final WritableDeployment deployment = getOrCreateDeploymentForVersion(version);
 			helmCommands.uninstall(version);
 			deploymentRepository.deleteById(deployment.getId());
+			sample.stop(stopDeploymentDurationTimer);
 		} catch (HelmRegistryException e) {
 			log.error("failed to stop deployment of removed version ({})", versionKv(version), e);
+			stopDeploymentErrors.increment();
 			throw new RuntimeException(e);
 		}
 	}
