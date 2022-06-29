@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Page;
@@ -65,6 +66,8 @@ public class ActivityLogMongo implements WritableActivityLog {
 				.id(activity.getId())
 				.date(activity.getDate())
 				.priority(activity.getPriority())
+				// ActivityMongo uses 'name' for backwards compatability
+				.name(activity.getTitle())
 				.description(activity.getDescription())
 				.activityType(activity.getActivityType())
 				.typeOfTrigger(activity.getTriggerType())
@@ -84,7 +87,11 @@ public class ActivityLogMongo implements WritableActivityLog {
 				.id(activityMongo.getId())
 				.date(activityMongo.getDate())
 				.priority(activityMongo.getPriority())
-				.description(activityMongo.getDescription())
+
+				// for backwards compatability - previously only description was set¡
+				.title(StringUtils.isBlank(activityMongo.getName()) ? activityMongo.getDescription() : activityMongo.getName())
+				.description(StringUtils.isBlank(activityMongo.getName()) ? "" : activityMongo.getDescription())
+
 				.activityType(activityMongo.getActivityType())
 				.triggerType(activityMongo.getTypeOfTrigger())
 				.triggerName(activityMongo.getNameOfTrigger());

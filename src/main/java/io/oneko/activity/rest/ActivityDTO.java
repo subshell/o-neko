@@ -19,6 +19,7 @@ public class ActivityDTO {
 	private UUID id;
 	private LocalDateTime date;
 	private ActivityPriority priority;
+	private String title;
 	private String description;
 	private String activityType;
 

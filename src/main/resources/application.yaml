@@ -1,5 +1,9 @@
 # Default settings
 spring:
+  task:
+    scheduling:
+      pool:
+        size: 5
   application:
     name: O-Neko
   codec:

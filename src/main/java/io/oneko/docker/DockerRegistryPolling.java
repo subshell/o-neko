@@ -1,22 +1,24 @@
 package io.oneko.docker;
 
-import static io.oneko.deployable.DeploymentBehaviour.*;
-import static io.oneko.kubernetes.deployments.DesiredState.*;
-import static io.oneko.util.DurationUtils.*;
-import static io.oneko.util.MoreStructuredArguments.*;
-import static net.logstash.logback.argument.StructuredArguments.*;
+import static io.oneko.deployable.DeploymentBehaviour.automatically;
+import static io.oneko.kubernetes.deployments.DesiredState.Deployed;
+import static io.oneko.kubernetes.deployments.DesiredState.NotDeployed;
+import static io.oneko.util.DurationUtils.isLongerThan;
+import static io.oneko.util.MoreStructuredArguments.IMAGE_UPDATED_DATE_KEY;
+import static io.oneko.util.MoreStructuredArguments.projectKv;
+import static io.oneko.util.MoreStructuredArguments.versionKv;
+import static net.logstash.logback.argument.StructuredArguments.kv;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.StopWatch;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +28,6 @@ import io.oneko.docker.event.NewProjectVersionFoundEvent;
 import io.oneko.docker.event.ObsoleteProjectVersionRemovedEvent;
 import io.oneko.docker.v2.DockerRegistryClientFactory;
 import io.oneko.docker.v2.model.manifest.Manifest;
-import io.oneko.domain.Identifiable;
 import io.oneko.event.CurrentEventTrigger;
 import io.oneko.event.Event;
 import io.oneko.event.EventDispatcher;
@@ -36,7 +37,6 @@ import io.oneko.kubernetes.DeploymentManager;
 import io.oneko.project.ProjectRepository;
 import io.oneko.project.ProjectVersion;
 import io.oneko.project.ReadableProject;
-import io.oneko.project.ReadableProjectVersion;
 import io.oneko.project.WritableProject;
 import io.oneko.project.WritableProjectVersion;
 import io.oneko.util.ExpiringBucket;
@@ -52,6 +52,9 @@ class DockerRegistryPolling {
 		private final WritableProjectVersion version;
 		private final Manifest manifest;
 	}
+
+	private final Duration MAX_IMAGE_CHECK_DURATION = Duration.ofMinutes(5);
+	private final Duration MAX_UPDATE_DATES_DURATION = Duration.ofMinutes(10);
 
 	private final ProjectRepository projectRepository;
 	private final DockerRegistryClientFactory dockerRegistryClientFactory;
@@ -75,72 +78,75 @@ class DockerRegistryPolling {
 	}
 
 	@Scheduled(fixedDelay = 20000, initialDelay = 10000)
-	protected void checkDockerForNewImages() {
+	protected void updateAndRedeployAllIfRequired() {
 		try (var ignored = currentEventTrigger.forTryBlock(this.asTrigger)) {
-			final Instant start = Instant.now();
 			log.trace("starting polling job");
+
+			final StopWatch stopWatch = new StopWatch();
+			stopWatch.start();
 
 			final List<WritableProject> projects = projectRepository.getAll().stream()
 					.map(ReadableProject::writable)
 					.collect(Collectors.toList());
 
-			checkDockerForNewImages(projects);
-			final Instant stop = Instant.now();
+			updateAndRedeployIfRequired(projects);
+			stopWatch.stop();
 
-			final Duration duration = Duration.between(start, stop);
-			final Duration warnIfLongerThanThis = Duration.ofMinutes(5);
-			if (isLongerThan(duration, warnIfLongerThanThis)) {
-				log.warn("checking for new images took longer than expected ({}, {})", kv("threshold_millis", warnIfLongerThanThis.toMillis()), kv("duration_millis", duration.toMillis()));
+			if (isLongerThan(Duration.ofMillis(stopWatch.getTime()), MAX_IMAGE_CHECK_DURATION)) {
+				log.warn("checking for new images took longer than expected ({}, {})",
+						kv("threshold_millis", MAX_IMAGE_CHECK_DURATION.toMillis()),
+						kv("duration_millis", stopWatch.getTime()));
 			}
 
-			log.trace("finished polling job ({})", kv("duration_millis", duration.toMillis()));
+			log.trace("finished polling job ({})", kv("duration_millis", stopWatch.getTime()));
 		}
 	}
 
 	@Scheduled(fixedDelay = 1000 * 60 * 60 * 2, initialDelay = 60000) // Every 2 hours
 	protected void updateDatesForAllImagesAndAllTags() {
-		final Instant start = Instant.now();
 		log.trace("updating dates for all projects and all versions");
+
+		final StopWatch stopWatch = new StopWatch();
+		stopWatch.start();
 		projectRepository.getAll()
 				.stream()
 				.map(ReadableProject::writable)
 				.forEach(project -> fetchAndUpdateDatesForVersionsOfProject(project, project.getVersions()));
+		stopWatch.stop();
 
-		final Instant stop = Instant.now();
-		final Duration duration = Duration.between(start, stop);
-		final Duration warnIfLongerThanThis = Duration.ofMinutes(10);
-		if (isLongerThan(duration, warnIfLongerThanThis)) {
-			log.warn("updating dates for all projects and all versions took longer than expected ({}, {})", kv("threshold_millis", warnIfLongerThanThis.toMillis()), kv("duration_millis", duration.toMillis()));
+		if (isLongerThan(Duration.ofMillis(stopWatch.getTime()), MAX_UPDATE_DATES_DURATION)) {
+			log.warn("updating dates for all projects and all versions took longer than expected ({}, {})", kv("threshold_millis",
+					MAX_UPDATE_DATES_DURATION.toMillis()),
+					kv("duration_millis", stopWatch.getTime()));
 		}
 
-		log.trace("finished updating dates for all projects ({})", kv("duration_millis", duration.toMillis()));
+		log.trace("finished updating dates for all projects ({})", kv("duration_millis", stopWatch.getTime()));
 	}
 
 	/**
 	 * Iterates through all project versions checking for updates. Triggers re-deployments if necessary.
 	 */
-	private void checkDockerForNewImages(List<WritableProject> allProjects) {
+	private void updateAndRedeployIfRequired(List<WritableProject> allProjects) {
 		for (var project : allProjects) {
 			try {
-				project = this.updateProjectVersions(project);
+				project = updateProjectVersions(project);
 			} catch (Exception e) {
 				log.error("encountered an exception while checking new project versions ({})", kv("project", project.getName()), e);
 			}
 
 			try {
-				project = this.fetchAndUpdateMissingDatesForImages(project);
+				project = fetchAndUpdateMissingDatesForImages(project);
 			} catch (Exception e) {
 				log.error("encountered an exception while fetching the docker image dates ({})", kv("project", project.getName()), e);
 			}
 
 			try {
-				checkForNewImages(project);
+				fetchManifestsAndRedeploy(project);
 			} catch (Exception e) {
 				log.error("error on checking for new images for projects", e);
 			}
 		}
 	}
-
 
 	private WritableProject fetchAndUpdateMissingDatesForImages(WritableProject project) {
 		final List<WritableProjectVersion> versionsWithoutDate = project.getVersions().stream()
@@ -237,15 +243,12 @@ class DockerRegistryPolling {
 		return project;
 	}
 
-	/**
-	 * Checks for new images in this projects that might require this image.
-	 */
-	private void checkForNewImages(WritableProject project) {
+	private void fetchManifestsAndRedeploy(WritableProject project) {
 		project.getVersions().forEach(version -> {
 
 			if (version.getDesiredState() == NotDeployed ||
 					version.getDesiredState() == Deployed && version.getDeploymentBehaviour() != automatically) {
-				//nothing to do here...
+				// nothing to do here...
 				return;
 			}
 
@@ -257,7 +260,7 @@ class DockerRegistryPolling {
 			}
 
 			if (!StringUtils.isBlank(manifestWithContext.getManifest().getDockerContentDigest())) {
-				this.redeployAllByManifest(manifestWithContext.getManifest(), version);
+				this.redeployByManifest(manifestWithContext.getManifest(), version);
 			}
 		});
 	}
@@ -265,25 +268,16 @@ class DockerRegistryPolling {
 	/**
 	 * Tries to redeploy a project version
 	 */
-	private List<Identifiable> redeployAllByManifest(Manifest manifest, WritableProjectVersion version) {
-		List<Identifiable> depending = new ArrayList<>();
-
+	private void redeployByManifest(Manifest manifest, WritableProjectVersion version) {
 		String digest = manifest.getDockerContentDigest();
 		if (!StringUtils.equals(version.getDockerContentDigest(), digest)) {
 			log.info("found a new container image for project version ({}, {}, {})", kv("digest", digest), projectKv(version.getProject()), versionKv(version));
 			version.setDockerContentDigest(digest);
 			version.setImageUpdatedDate(manifest.getImageUpdatedDate().orElse(null));
-			this.redeployAndSaveVersion(version).ifPresent(depending::add);
+
+			if (version.getDesiredState() == Deployed && version.getDeploymentBehaviour() == automatically) {
+				deploymentManager.deploy(version);
+			}
 		}
-
-		return depending;
-	}
-
-	private Optional<ReadableProjectVersion> redeployAndSaveVersion(WritableProjectVersion version) {
-		if (version.getDesiredState() == Deployed && version.getDeploymentBehaviour() == automatically) {
-			return Optional.of(deploymentManager.deploy(version));
-		}
-
-		return Optional.empty();
 	}
 }

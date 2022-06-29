@@ -2,7 +2,7 @@ import {Injectable} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {EMPTY, Observable, throwError} from "rxjs";
-import {filter, mergeMap, share, shareReplay} from 'rxjs/operators';
+import {filter, mergeMap, shareReplay} from 'rxjs/operators';
 import {DeployableStatus} from "../deployable/deployment";
 import {RestService} from "../rest/rest.service";
 import {User} from "../user/user";
@@ -16,6 +16,7 @@ import {Project} from "./project";
 import {ProjectVersion} from "./project-version";
 import {ProjectExportDTO} from './project-export';
 import {TranslateService} from "@ngx-translate/core";
+import {HttpErrorResponse} from "@angular/common/http";
 
 @Injectable()
 export class ProjectService {
@@ -162,11 +163,11 @@ export class ProjectService {
         },
         duration: ProjectService.SNACKBAR_DEFAULT_DURATION
       });
-    }, (response) => {
+    }, (response: HttpErrorResponse) => {
       projectVersion.deployment.status = DeployableStatus.Unknown;
       this.snackBar.openFromComponent(TimeoutSnackbarComponent, {
         data: {
-          text: this.translate.instant('components.project.service.errorMessage', {message: response.error.message})
+          text: this.translate.instant('components.project.service.errorMessage', {message: response.error})
         },
         duration: ProjectService.SNACKBAR_ERROR_DURATION
       });
@@ -187,24 +188,15 @@ export class ProjectService {
         },
         duration: ProjectService.SNACKBAR_DEFAULT_DURATION
       });
-    }, (response) => {
+    }, (response: HttpErrorResponse) => {
       projectVersion.deployment.status = DeployableStatus.Unknown;
       this.snackBar.openFromComponent(TimeoutSnackbarComponent, {
         data: {
-          text: this.translate.instant('components.project.service.errorMessage', {message: response.error.message})
+          text: this.translate.instant('components.project.service.errorMessage', {message: response.error})
         },
         duration: ProjectService.SNACKBAR_ERROR_DURATION
       });
     });
-
   }
 
-  private saveProjectVersion(project: Project, user: User, version: ProjectVersion): Observable<Project> {
-    project.versions
-      .filter(v => v.uuid === version.uuid)
-      .forEach(v => {
-        v.mergeFrom(version);
-      });
-    return this.saveProject(project, user);
-  }
 }

@@ -9,16 +9,8 @@ import io.oneko.helm.HelmRegistryException;
 
 @ControllerAdvice
 public class ExceptionInterceptor {
-
-	@ExceptionHandler(value = IllegalArgumentException.class)
-	public ResponseEntity badRequest() {
-		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-	}
-
-	@ExceptionHandler(value = HelmRegistryException.class)
-	public ResponseEntity<String> badRequestForHelmRegistry(HelmRegistryException e) {
+	@ExceptionHandler({HelmRegistryException.class, IllegalArgumentException.class, RuntimeException.class})
+	public ResponseEntity<?> badRequest(Exception e) {
 		return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
 	}
-
-
 }

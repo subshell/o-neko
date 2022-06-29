@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import io.oneko.helm.HelmRegistryException;
 import io.oneko.helm.ReadableHelmRegistry;
 import io.oneko.helmapi.api.Helm;
@@ -17,7 +19,6 @@ import io.oneko.helmapi.model.Status;
 import io.oneko.helmapi.model.Values;
 import io.oneko.helmapi.process.CommandException;
 import io.oneko.project.ProjectVersion;
-import io.oneko.templates.ConfigurationTemplate;
 import io.oneko.templates.WritableConfigurationTemplate;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
@@ -111,14 +112,13 @@ public class HelmCommandUtils {
 		}
 	}
 
-	public List<String> getKubernetesYamlResources(ProjectVersion<?, ?> projectVersion) {
+	public List<String> getReferencedHelmReleases(ProjectVersion<?, ?> projectVersion) {
 		final String namespace = projectVersion.getNamespaceOrElseFromProject();
 		final List<Release> list = helm.list(namespace, null);
-		return list.stream().filter(release -> release.getName().startsWith(getReleaseNamePrefix(projectVersion)))
-				.map(release -> {
-					final Status status = helm.status(release.getName(), namespace);
-					return status.getManifest();
-				}).collect(Collectors.toList());
+		return list.stream()
+				.map(Release::getName)
+				.filter(name -> name.startsWith(getReleaseNamePrefix(projectVersion)))
+				.collect(Collectors.toList());
 	}
 
 	private static String getReleaseName(ProjectVersion<?, ?> projectVersion, int templateIndex) {
@@ -126,8 +126,13 @@ public class HelmCommandUtils {
 		return sanitizeReleaseName(maxLength(fullReleaseName, 53));
 	}
 
-	private static String getReleaseNamePrefix(ProjectVersion<?, ?> projectVersion) {
-		return sanitizeReleaseName(maxLength(projectVersion.getProject().getName(), 6) + "-" + maxLength(projectVersion.getName(), 20));
+	@VisibleForTesting
+	protected static String getReleaseNamePrefix(ProjectVersion<?, ?> projectVersion) {
+		var projectName = maxLength(projectVersion.getProject().getName(), 10);
+		var projectId = maxLength(projectVersion.getProject().getId().toString(), 8);
+		var versionName = maxLength(projectVersion.getName(), 10);
+		var versionId = maxLength(projectVersion.getId().toString(), 8);
+		return sanitizeReleaseName(String.format("%s%s-%s%s", projectName, projectId, versionName, versionId));
 	}
 
 	private static String sanitizeReleaseName(String in) {
