@@ -47,7 +47,8 @@ public class EventsToActivities {
 		Activity.ActivityBuilder activityBuilder = Activity.builder()
 				.id(event.getId())
 				.date(event.getCreationDate())
-				.description(event.humanReadable())
+				.title(event.title())
+				.description(event.description())
 				.priority(event.getTrigger().priority())
 				.triggerType(event.getTrigger().getType())
 				.triggerName(event.getTrigger().humanReadable());

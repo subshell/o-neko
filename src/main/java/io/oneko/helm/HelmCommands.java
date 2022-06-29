@@ -8,12 +8,15 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import io.oneko.helmapi.api.Helm;
 import io.oneko.helmapi.model.Chart;
 import io.oneko.helmapi.model.InstallStatus;
+import io.oneko.helmapi.model.Release;
 import io.oneko.helmapi.model.Status;
 import io.oneko.helmapi.model.Values;
 import io.oneko.helmapi.process.CommandException;
@@ -169,8 +172,22 @@ public class HelmCommands {
 		return sanitizeReleaseName(maxLength(fullReleaseName, 53));
 	}
 
-	private String getReleaseNamePrefix(ProjectVersion<?, ?> projectVersion) {
-		return sanitizeReleaseName(maxLength(projectVersion.getProject().getName(), 6) + "-" + maxLength(projectVersion.getName(), 20));
+	public List<String> getReferencedHelmReleases(ProjectVersion<?, ?> projectVersion) {
+		final String namespace = projectVersion.getNamespaceOrElseFromProject();
+		final List<Release> list = helm.list(namespace, null);
+		return list.stream()
+				.map(Release::getName)
+				.filter(name -> name.startsWith(getReleaseNamePrefix(projectVersion)))
+				.collect(Collectors.toList());
+	}
+
+	@VisibleForTesting
+	protected String getReleaseNamePrefix(ProjectVersion<?, ?> projectVersion) {
+		var projectName = maxLength(projectVersion.getProject().getName(), 10);
+		var projectId = maxLength(projectVersion.getProject().getId().toString(), 8);
+		var versionName = maxLength(projectVersion.getName(), 10);
+		var versionId = maxLength(projectVersion.getId().toString(), 8);
+		return sanitizeReleaseName(String.format("%s%s-%s%s", projectName, projectId, versionName, versionId));
 	}
 
 	private String sanitizeReleaseName(String in) {

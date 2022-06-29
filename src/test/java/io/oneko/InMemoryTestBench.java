@@ -10,6 +10,7 @@ import io.oneko.kubernetes.deployments.persistence.DeploymentInMemoryRepository;
 import io.oneko.namespace.NamespaceRepository;
 import io.oneko.namespace.persistence.NamespaceInMemoryRepository;
 import io.oneko.project.ProjectRepository;
+import io.oneko.project.ProjectVersionLock;
 import io.oneko.project.persistence.ProjectInMemoryRepository;
 import io.oneko.user.UserRepository;
 import io.oneko.user.persistence.UserInMemoryRepository;
@@ -26,7 +27,8 @@ public class InMemoryTestBench {
     public final ProjectRepository projectRepository = new ProjectInMemoryRepository(eventDispatcher);
     public final UserRepository userRepository = new UserInMemoryRepository(eventDispatcher);
     public final NamespaceRepository namespaceRepository = new NamespaceInMemoryRepository(eventDispatcher);
-    public final DeploymentRepository deploymentRepository = new DeploymentInMemoryRepository();
+    public final ProjectVersionLock projectVersionLock = new ProjectVersionLock();
+    public final DeploymentRepository deploymentRepository = new DeploymentInMemoryRepository(projectVersionLock);
 
     /**
      * Provides a new empty test bench with a bunch of in memory repos.

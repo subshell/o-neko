@@ -30,8 +30,16 @@ public abstract class Event extends Identifiable {
 	}
 
 	/**
-	 * Creates a human readable string representation of what happened.
+	 * Creates a human-readable name of what happened.
 	 * This should specifically cover the business properties fo the event's subclass.
 	 */
-	public abstract String humanReadable();
+	public abstract String title();
+
+	/**
+	 * Creates a human-readable description of what happened.
+	 * This should specifically cover the business properties fo the event's subclass.
+	 */
+	public String description() {
+		return "";
+	}
 }
