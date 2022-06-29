@@ -158,7 +158,7 @@ class DeploymentManagerImpl implements DeploymentManager {
 				version.setDesiredState(NotDeployed);
 				final ReadableProject readableProject = projectRepository.add(version.getProject());
 
-				log.info("stopping helm releases {} for {}",
+				log.info("stopping helm releases ({}, {})",
 						kv("helm_releases", deployment.getReleaseNames()), versionKv(version));
 
 				return readableProject.getVersions().stream()
