@@ -84,11 +84,11 @@ class DeploymentManagerImpl implements DeploymentManager {
 				.publishPercentileHistogram()
 				.register(meterRegistry);
 
-		startDeploymentErrors = Counter.builder(new MetricNameBuilder().durationOf("kubernetes.deployment.errors").build())
+		startDeploymentErrors = Counter.builder(new MetricNameBuilder().amountOf("kubernetes.deployment.errors").build())
 				.tag("action", "start")
 				.register(meterRegistry);
 
-		stopDeploymentErrors = Counter.builder(new MetricNameBuilder().durationOf("kubernetes.deployment.errors").build())
+		stopDeploymentErrors = Counter.builder(new MetricNameBuilder().amountOf("kubernetes.deployment.errors").build())
 				.tag("action", "stop")
 				.register(meterRegistry);
 	}
