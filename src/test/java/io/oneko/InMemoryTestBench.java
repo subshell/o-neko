@@ -1,5 +1,6 @@
 package io.oneko;
 
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import io.oneko.docker.DockerRegistryRepository;
 import io.oneko.docker.persistence.DockerRegistryInMemoryRepository;
 import io.oneko.event.CurrentEventTrigger;
@@ -20,7 +21,7 @@ import io.oneko.user.persistence.UserInMemoryRepository;
 public class InMemoryTestBench {
     private InMemoryTestBench(){}
     public final CurrentEventTrigger currentEventTrigger = new CurrentEventTrigger();
-    public final EventDispatcher eventDispatcher = new EventDispatcher(currentEventTrigger);
+    public final EventDispatcher eventDispatcher = new EventDispatcher(currentEventTrigger, new SimpleMeterRegistry());
 
     public final DockerRegistryRepository dockerRegistryRepository = new DockerRegistryInMemoryRepository(eventDispatcher);
     public final ProjectRepository projectRepository = new ProjectInMemoryRepository(eventDispatcher);

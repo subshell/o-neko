@@ -2,6 +2,7 @@ package io.oneko.docker.persistence;
 
 import static org.assertj.core.api.Assertions.*;
 
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import io.oneko.event.CurrentEventTrigger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,7 +19,7 @@ class DockerRegistryInMemoryRepositoryTest {
 	@BeforeEach
 	public void setup() {
 		currentEventTrigger = new CurrentEventTrigger();
-		dispatcher = new EventDispatcher(currentEventTrigger);
+		dispatcher = new EventDispatcher(currentEventTrigger, new SimpleMeterRegistry());
 		uut = new DockerRegistryInMemoryRepository(dispatcher);
 	}
 

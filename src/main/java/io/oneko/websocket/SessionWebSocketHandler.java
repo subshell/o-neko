@@ -17,6 +17,10 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.oneko.metrics.MetricNameBuilder;
 import io.oneko.websocket.message.ONekoWebSocketMessage;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,8 +32,19 @@ public class SessionWebSocketHandler extends TextWebSocketHandler {
 	private final Map<String, WebSocketSessionContext> sessionContextMap = new HashMap<>();
 	private final ObjectMapper objectMapper;
 
-	public SessionWebSocketHandler(ObjectMapper objectMapper) {
+	private final Counter receivedWebsocketMessageCounter;
+	private final Counter sentWebsocketMessageCounter;
+
+	public SessionWebSocketHandler(ObjectMapper objectMapper, MeterRegistry meterRegistry) {
 		this.objectMapper = objectMapper;
+		Gauge.builder(new MetricNameBuilder().amountOf("websocket.sessions").build(), sessionContextMap::size)
+				.register(meterRegistry);
+		this.receivedWebsocketMessageCounter = Counter.builder(new MetricNameBuilder().amountOf("websocket.messages").build())
+				.tag("type", "received")
+				.register(meterRegistry);
+		this.sentWebsocketMessageCounter = Counter.builder(new MetricNameBuilder().amountOf("websocket.messages").build())
+				.tag("type", "sent")
+				.register(meterRegistry);
 	}
 
 	@Override
@@ -63,6 +78,7 @@ public class SessionWebSocketHandler extends TextWebSocketHandler {
 		}
 		// Currently, we do not handle incoming webSocket messages, so we just log them
 		log.trace("received websocket message ({})", kv("message", msgObj.toString()));
+		receivedWebsocketMessageCounter.increment();
 	}
 
 	public void invalidateWsSession(String wsSessionId) {
@@ -85,6 +101,7 @@ public class SessionWebSocketHandler extends TextWebSocketHandler {
 		try {
 			var textMessage = new TextMessage(Objects.requireNonNull(this.messageToPayload(message)));
 			session.sendMessage(textMessage);
+			sentWebsocketMessageCounter.increment();
 		} catch (IOException e) {
 			log.error("error while sending websocket message ({})", kv("message", message));
 		}

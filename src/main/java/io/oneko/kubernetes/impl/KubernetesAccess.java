@@ -2,9 +2,6 @@ package io.oneko.kubernetes.impl;
 
 import static net.logstash.logback.argument.StructuredArguments.*;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
@@ -18,11 +15,9 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.LocalObjectReference;
 import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
-import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.api.model.SecretBuilder;
 import io.fabric8.kubernetes.api.model.ServiceAccount;
@@ -30,8 +25,11 @@ import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import io.oneko.event.EventDispatcher;
 import io.oneko.kubernetes.NamespaceCreatedEvent;
+import io.oneko.metrics.MetricNameBuilder;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -46,9 +44,16 @@ public class KubernetesAccess {
 	private final KubernetesClient kubernetesClient;
 	private final EventDispatcher eventDispatcher;
 
+	private final Timer createNamespaceTimer;
+	private final Timer deleteNamespaceTimer;
+	private final Timer createOrUpdateImagePullSecretTimer;
+	private final Timer deleteImagePullSecretTimer;
+	private final Timer patchServiceAccountTimer;
+
 	public KubernetesAccess(@Value("${kubernetes.server.url:}") final String masterUrl,
 													@Value("${kubernetes.auth.token:}") final String token,
-													EventDispatcher eventDispatcher) {
+													EventDispatcher eventDispatcher,
+													MeterRegistry meterRegistry) {
 		this.eventDispatcher = eventDispatcher;
 
 		ConfigBuilder configBuilder = new ConfigBuilder();
@@ -66,17 +71,24 @@ public class KubernetesAccess {
 				.build();
 
 		kubernetesClient = new DefaultKubernetesClient(config);
+
+		createNamespaceTimer = timer("namespace", "create", meterRegistry);
+		deleteNamespaceTimer = timer("namespace", "delete", meterRegistry);
+		createOrUpdateImagePullSecretTimer = timer("imagePullSecret", "createOrUpdate", meterRegistry);
+		deleteImagePullSecretTimer = timer("imagePullSecret", "delete", meterRegistry);
+		patchServiceAccountTimer = timer("serviceAccount", "patch", meterRegistry);
 	}
 
-	List<Pod> getPodsByLabelInNameSpace(String nameSpace, Map.Entry<String, String> label) {
-		return kubernetesClient.pods()
-				.inNamespace(nameSpace)
-				.withLabel(label.getKey(), label.getValue())
-				.list()
-				.getItems();
+	private Timer timer(String resource, String action, MeterRegistry meterRegistry) {
+		return Timer.builder(new MetricNameBuilder().durationOf("kubernetes.api.request").build())
+				.publishPercentileHistogram()
+				.tag("resource", resource)
+				.tag("action", action)
+				.register(meterRegistry);
 	}
 
 	Namespace createNamespaceIfNotExistent(String namespace) {
+		final Timer.Sample sample = Timer.start();
 		Namespace existingNamespace = kubernetesClient.namespaces().withName(namespace).get();
 		if (existingNamespace != null) {
 			return existingNamespace;
@@ -90,11 +102,12 @@ public class KubernetesAccess {
 		kubernetesClient.namespaces().create(newNameSpace);
 
 		eventDispatcher.dispatch(new NamespaceCreatedEvent(newNameSpace.getMetadata().getName()));
-
+		sample.stop(createNamespaceTimer);
 		return newNameSpace;
 	}
 
 	Secret createOrUpdateImagePullSecretInNamespace(String namespace, String secretName, String userName, String password, String url) throws JsonProcessingException {
+		final Timer.Sample sample = Timer.start();
 		final Secret existingSecret = kubernetesClient.secrets()
 				.inNamespace(namespace)
 				.withName(secretName).get();
@@ -116,13 +129,15 @@ public class KubernetesAccess {
 			final HashMap<String, String> dataMap = new HashMap<>();
 			dataMap.put(".dockerconfigjson", new String(Base64.getEncoder().encode(dockerConfigJson.getBytes())));
 
-			return kubernetesClient.secrets().inNamespace(namespace).createOrReplace(new SecretBuilder()
+			final Secret secret = kubernetesClient.secrets().inNamespace(namespace).createOrReplace(new SecretBuilder()
 					.withApiVersion("v1")
 					.withKind("Secret")
 					.withData(dataMap)
 					.withNewMetadata().withName(secretName).endMetadata()
 					.withType("kubernetes.io/dockerconfigjson")
 					.build());
+			sample.stop(createOrUpdateImagePullSecretTimer);
+			return secret;
 		} catch (JsonProcessingException e) {
 			log.error("failed to create image pull secret due to a JsonProcessingException.", e);
 			throw e;
@@ -130,69 +145,69 @@ public class KubernetesAccess {
 	}
 
 	void deleteImagePullSecretInNamespace(String namespace, String secretName) {
-		kubernetesClient.secrets()
-				.inNamespace(namespace)
-				.withName(secretName)
-				.delete();
+		deleteImagePullSecretTimer.record(() -> {
+			kubernetesClient.secrets()
+					.inNamespace(namespace)
+					.withName(secretName)
+					.delete();
+		});
 	}
 
 	ServiceAccount addImagePullSecretToServiceAccountIfNecessary(String namespace, String imagePullSecretName) {
-		final ServiceAccount defaultServiceAccount = kubernetesClient.serviceAccounts()
-				.inNamespace(namespace)
-				.withName("default")
-				.get();
+		return patchServiceAccountTimer.record(() -> {
+			final ServiceAccount defaultServiceAccount = kubernetesClient.serviceAccounts()
+					.inNamespace(namespace)
+					.withName("default")
+					.get();
 
-		List<LocalObjectReference> imagePullSecrets = defaultServiceAccount.getImagePullSecrets();
-		if (imagePullSecrets == null) {
-			imagePullSecrets = new ArrayList<>();
-		}
+			List<LocalObjectReference> imagePullSecrets = defaultServiceAccount.getImagePullSecrets();
+			if (imagePullSecrets == null) {
+				imagePullSecrets = new ArrayList<>();
+			}
 
-		if (imagePullSecrets.stream().anyMatch(ips -> ips.getName().equals(imagePullSecretName))) {
-			return defaultServiceAccount;
-		}
+			if (imagePullSecrets.stream().anyMatch(ips -> ips.getName().equals(imagePullSecretName))) {
+				return defaultServiceAccount;
+			}
 
-		log.info("adding image pull secret to default service account ({}, {})", kv("image_pull_secret", imagePullSecretName), kv("namespace", namespace));
-		imagePullSecrets.add(new LocalObjectReference(imagePullSecretName));
-		defaultServiceAccount.setImagePullSecrets(imagePullSecrets);
-		return kubernetesClient.serviceAccounts()
-				.inNamespace(namespace)
-				.createOrReplace(defaultServiceAccount);
+			log.info("adding image pull secret to default service account ({}, {})", kv("image_pull_secret", imagePullSecretName), kv("namespace", namespace));
+			imagePullSecrets.add(new LocalObjectReference(imagePullSecretName));
+			defaultServiceAccount.setImagePullSecrets(imagePullSecrets);
+			return kubernetesClient.serviceAccounts()
+					.inNamespace(namespace)
+					.createOrReplace(defaultServiceAccount);
+		});
 	}
 
 	ServiceAccount removeImagePullSecretFromServiceAccountIfNecessary(String namespace, String imagePullSecretName) {
-		final ServiceAccount defaultServiceAccount = kubernetesClient.serviceAccounts()
-				.inNamespace(namespace)
-				.withName("default")
-				.get();
+		return patchServiceAccountTimer.record(() -> {
+			final ServiceAccount defaultServiceAccount = kubernetesClient.serviceAccounts()
+					.inNamespace(namespace)
+					.withName("default")
+					.get();
 
-		List<LocalObjectReference> imagePullSecrets = defaultServiceAccount.getImagePullSecrets();
-		if (imagePullSecrets == null) {
-			return defaultServiceAccount;
-		}
+			List<LocalObjectReference> imagePullSecrets = defaultServiceAccount.getImagePullSecrets();
+			if (imagePullSecrets == null) {
+				return defaultServiceAccount;
+			}
 
-		if (imagePullSecrets.stream().noneMatch(ips -> ips.getName().equals(imagePullSecretName))) {
-			return defaultServiceAccount;
-		}
+			if (imagePullSecrets.stream().noneMatch(ips -> ips.getName().equals(imagePullSecretName))) {
+				return defaultServiceAccount;
+			}
 
-		imagePullSecrets.removeIf(ips -> ips.getName().equals(imagePullSecretName));
+			imagePullSecrets.removeIf(ips -> ips.getName().equals(imagePullSecretName));
 
-		log.info("removed image pull secret from default service account ({}, {})", kv("image_pull_secret", imagePullSecretName), kv("namespace", namespace));
-		imagePullSecrets.add(new LocalObjectReference(imagePullSecretName));
-		defaultServiceAccount.setImagePullSecrets(imagePullSecrets);
-		return kubernetesClient.serviceAccounts()
-				.inNamespace(namespace)
-				.createOrReplace(defaultServiceAccount);
+			log.info("removed image pull secret from default service account ({}, {})", kv("image_pull_secret", imagePullSecretName), kv("namespace", namespace));
+			imagePullSecrets.add(new LocalObjectReference(imagePullSecretName));
+			defaultServiceAccount.setImagePullSecrets(imagePullSecrets);
+			return kubernetesClient.serviceAccounts()
+					.inNamespace(namespace)
+					.createOrReplace(defaultServiceAccount);
+		});
 	}
 
 	public void deleteNamespaceByName(String name) {
-		kubernetesClient.namespaces().withName(name).delete();
-	}
-
-	List<HasMetadata> loadResource(String staticContent) {
-		try (InputStream is = new ByteArrayInputStream(staticContent.getBytes())) {
-			return kubernetesClient.load(is).get();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		deleteNamespaceTimer.record(() -> {
+			kubernetesClient.namespaces().withName(name).delete();
+		});
 	}
 }

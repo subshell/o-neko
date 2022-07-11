@@ -16,7 +16,10 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.springframework.stereotype.Component;
 
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import io.oneko.docker.DockerRegistry;
+import io.oneko.metrics.MetricNameBuilder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,8 +29,24 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class DockerRegistryVersionChecker {
+	private final Timer versionCheckTimerSuccess;
+	private final Timer versionCheckTimerError;
+
+	public DockerRegistryVersionChecker(MeterRegistry meterRegistry) {
+		versionCheckTimerSuccess = Timer.builder(new MetricNameBuilder().durationOf("docker.registry.versioncheck").build())
+				.description("time it takes to check whether the v2 api of a container registry is available")
+				.publishPercentileHistogram()
+				.tag("success", "true")
+				.register(meterRegistry);
+		versionCheckTimerError = Timer.builder(new MetricNameBuilder().durationOf("docker.registry.versioncheck").build())
+				.description("time it takes to check whether the v2 api of a container registry is available")
+				.publishPercentileHistogram()
+				.tag("success", "false")
+				.register(meterRegistry);
+	}
 
 	public DockerRegistryCheckResult checkV2ApiOf(DockerRegistry registry) {
+		final Timer.Sample sample = Timer.start();
 		final var builder = HttpClients.custom();
 		if (registry.isTrustInsecureCertificate()) {
 			builder.setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE);
@@ -35,8 +54,11 @@ public class DockerRegistryVersionChecker {
 		CloseableHttpClient client = builder.build();
 		HttpGet request = new HttpGet(registry.getRegistryUrl() + "/v2/");
 		try (CloseableHttpResponse response = client.execute(request)) {
-			return mapResponseToCheckResult(response);
+			final var result = mapResponseToCheckResult(response);
+			sample.stop(versionCheckTimerSuccess);
+			return result;
 		} catch (IOException e) {
+			sample.stop(versionCheckTimerError);
 			log.error("failed to check the docker V2 API ({})", containerRegistryKv(registry), e);
 			throw new IllegalStateException(e);
 		}

@@ -15,6 +15,9 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import io.oneko.docker.event.ObsoleteProjectVersionRemovedEvent;
 import io.oneko.docker.v2.DockerRegistryClientFactory;
 import io.oneko.docker.v2.model.manifest.Manifest;
@@ -22,14 +25,15 @@ import io.oneko.event.DeploymentRollbackEvent;
 import io.oneko.event.Event;
 import io.oneko.event.EventDispatcher;
 import io.oneko.event.HelmReleasesInstallEvent;
+import io.oneko.helm.HelmCommands;
 import io.oneko.helm.HelmRegistryException;
-import io.oneko.helm.util.HelmCommandUtils;
 import io.oneko.helmapi.model.InstallStatus;
 import io.oneko.helmapi.model.Status;
 import io.oneko.kubernetes.DeploymentManager;
 import io.oneko.kubernetes.deployments.DeploymentRepository;
 import io.oneko.kubernetes.deployments.ReadableDeployment;
 import io.oneko.kubernetes.deployments.WritableDeployment;
+import io.oneko.metrics.MetricNameBuilder;
 import io.oneko.project.ProjectRepository;
 import io.oneko.project.ProjectVersion;
 import io.oneko.project.ProjectVersionLock;
@@ -47,22 +51,51 @@ class DeploymentManagerImpl implements DeploymentManager {
 	private final DeploymentRepository deploymentRepository;
 	private final ProjectVersionLock projectVersionLock;
 	private final EventDispatcher eventDispatcher;
+	private final HelmCommands helmCommands;
+
+	private final Timer deployDurationTimer;
+	private final Timer stopDeploymentDurationTimer;
+	private final Counter startDeploymentErrors;
+	private final Counter stopDeploymentErrors;
 
 
 	DeploymentManagerImpl(DockerRegistryClientFactory dockerRegistryClientFactory,
 												ProjectRepository projectRepository,
 												DeploymentRepository deploymentRepository,
-												EventDispatcher eventDispatcher, ProjectVersionLock projectVersionLock) {
+												EventDispatcher eventDispatcher,
+												ProjectVersionLock projectVersionLock,
+												HelmCommands helmCommands,
+												MeterRegistry meterRegistry) {
 		this.dockerRegistryClientFactory = dockerRegistryClientFactory;
 		this.projectRepository = projectRepository;
 		this.deploymentRepository = deploymentRepository;
 		this.projectVersionLock = projectVersionLock;
 		this.eventDispatcher = eventDispatcher;
+		this.helmCommands = helmCommands;
 		eventDispatcher.registerListener(this::consumeDeletedVersionEvent);
+
+		deployDurationTimer = Timer.builder(new MetricNameBuilder().durationOf("kubernetes.deployment.action").build())
+				.tag("action", "start")
+				.publishPercentileHistogram()
+				.register(meterRegistry);
+
+		stopDeploymentDurationTimer = Timer.builder(new MetricNameBuilder().durationOf("kubernetes.deployment.action").build())
+				.tag("action", "stop")
+				.publishPercentileHistogram()
+				.register(meterRegistry);
+
+		startDeploymentErrors = Counter.builder(new MetricNameBuilder().amountOf("kubernetes.deployment.errors").build())
+				.tag("action", "start")
+				.register(meterRegistry);
+
+		stopDeploymentErrors = Counter.builder(new MetricNameBuilder().amountOf("kubernetes.deployment.errors").build())
+				.tag("action", "stop")
+				.register(meterRegistry);
 	}
 
 	@Override
 	public ReadableProjectVersion deploy(final WritableProjectVersion version) {
+		final Timer.Sample sample = Timer.start();
 		if (StringUtils.isBlank(version.getNamespaceOrElseFromProject())) {
 			throw new RuntimeException("A namespace must be configured in the project.");
 		}
@@ -74,10 +107,10 @@ class DeploymentManagerImpl implements DeploymentManager {
 				final WritableDeployment deployment = getOrCreateDeploymentForVersion(version);
 
 				if (!deployment.getReleaseNames().isEmpty()) {
-					HelmCommandUtils.uninstall(deployment.getReleaseNames());
+					helmCommands.uninstall(deployment.getReleaseNames());
 				}
 
-				final List<InstallStatus> installStatuses = HelmCommandUtils.install(version);
+				final List<InstallStatus> installStatuses = helmCommands.install(version);
 				log.info("installing helm releases ({}, {})",
 						kv("helm_releases", deployment.getReleaseNames()), versionKv(version));
 
@@ -87,17 +120,19 @@ class DeploymentManagerImpl implements DeploymentManager {
 
 				eventDispatcher.dispatch(new HelmReleasesInstallEvent(version, releaseNames));
 
-				return updateDeployableWithCreatedResources(version).map(newVersion -> {
+				final ReadableProjectVersion readableProjectVersion = updateDeployableWithCreatedResources(version).map(newVersion -> {
 					newVersion.setDesiredState(Deployed);
-
 					final ReadableProject project = projectRepository.add(newVersion.getProject());
 					return project.getVersions().stream()
 							.filter(projectVersion -> projectVersion.getUuid().equals(versionId))
 							.findFirst()
 							.orElse(null);
 				}).orElseThrow(() -> new RuntimeException("failed to update deployment from new version"));
+				sample.stop(deployDurationTimer);
+				return readableProjectVersion;
 			} catch (Exception e) {
 				log.error("failed to deploy ({})", versionKv(version), e);
+				startDeploymentErrors.increment();
 				rollback(version, e);
 				throw new RuntimeException(e);
 			}
@@ -109,7 +144,7 @@ class DeploymentManagerImpl implements DeploymentManager {
 		try {
 			eventDispatcher.dispatch(new DeploymentRollbackEvent(version, e.getMessage()));
 			final WritableDeployment deployment = getOrCreateDeploymentForVersion(version);
-			final List<String> referencedHelmReleases = HelmCommandUtils.getReferencedHelmReleases(version);
+			final List<String> referencedHelmReleases = helmCommands.getReferencedHelmReleases(version);
 			log.info("Found these helm releases for rollback: {}", kv("helm_releases", referencedHelmReleases));
 
 			if (!referencedHelmReleases.isEmpty()) {
@@ -118,12 +153,13 @@ class DeploymentManagerImpl implements DeploymentManager {
 				if (!CollectionUtils.isEqualCollection(deployment.getReleaseNames(), referencedHelmReleases)) {
 					log.warn("Orphaned helm release for project version {} detected. It will be removed.", versionKv(version));
 				}
-				HelmCommandUtils.uninstall(referencedHelmReleases);
+				helmCommands.uninstall(referencedHelmReleases);
 				deployment.setReleaseNames(new ArrayList<>());
 				deploymentRepository.save(deployment);
 			}
 		} catch (Exception e2) {
 			log.error("rollback deployment of {} failed", versionKv(version) , e2);
+			stopDeploymentErrors.increment();
 			throw new RuntimeException(e);
 		}
 	}
@@ -150,10 +186,11 @@ class DeploymentManagerImpl implements DeploymentManager {
 
 	@Override
 	public ReadableProjectVersion stopDeployment(final WritableProjectVersion version) {
+		final Timer.Sample sample = Timer.start();
 		return projectVersionLock.doWithProjectVersionLock(version, () -> {
 			try {
 				final WritableDeployment deployment = getOrCreateDeploymentForVersion(version);
-				HelmCommandUtils.uninstall(version);
+				helmCommands.uninstall(version);
 				deploymentRepository.deleteById(deployment.getId());
 				version.setDesiredState(NotDeployed);
 				final ReadableProject readableProject = projectRepository.add(version.getProject());
@@ -161,23 +198,29 @@ class DeploymentManagerImpl implements DeploymentManager {
 				log.info("stopping helm releases ({}, {})",
 						kv("helm_releases", deployment.getReleaseNames()), versionKv(version));
 
-				return readableProject.getVersions().stream()
+				final ReadableProjectVersion readableProjectVersion = readableProject.getVersions().stream()
 						.filter(projectVersion -> projectVersion.getUuid().equals(version.getId()))
 						.findFirst().orElse(null);
+				sample.stop(stopDeploymentDurationTimer);
+				return readableProjectVersion;
 			} catch (HelmRegistryException e) {
 				log.error("failed to stop deployment ({})", versionKv(version), e);
+				stopDeploymentErrors.increment();
 				throw new RuntimeException(e);
 			}
 		});
 	}
 
 	private void stopDeploymentOfRemovedVersion(ProjectVersion<?, ?> version) {
+		final Timer.Sample sample = Timer.start();
 		try {
 			final WritableDeployment deployment = getOrCreateDeploymentForVersion(version);
-			HelmCommandUtils.uninstall(version);
+			helmCommands.uninstall(version);
 			deploymentRepository.deleteById(deployment.getId());
+			sample.stop(stopDeploymentDurationTimer);
 		} catch (HelmRegistryException e) {
 			log.error("failed to stop deployment of removed version ({})", versionKv(version), e);
+			stopDeploymentErrors.increment();
 			throw new RuntimeException(e);
 		}
 	}
