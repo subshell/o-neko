@@ -17,31 +17,27 @@ class HelmCommandsTest {
 
 	@Test
 	void getLongReleaseNamePrefix() {
-		var projectUuid = UUID.fromString("5524b4a7-3b43-4879-8c0d-fe1c6a95c54f");
 		var versionUuid = UUID.fromString("39b30073-df7a-46d5-b85f-4d4377baa8c0");
 
 		var project = mock(Project.class);
 		when(project.getName()).thenReturn("pnamelonglong");
-		when(project.getId()).thenReturn(projectUuid);
 
 		var version = mock(ProjectVersion.class);
-		when(version.getName()).thenReturn("vnamelonglong");
+		when(version.getName()).thenReturn("vnamelonglonglonglong");
 		when(version.getId()).thenReturn(versionUuid);
 		when(version.getProject()).thenReturn(project);
 
 		var prefix = uut.getReleaseNamePrefix(version);
 		assertThat(prefix).hasSizeLessThanOrEqualTo(38);
-		assertThat(prefix).isEqualTo("pnamelongl5524b4a7-vnamelongl39b30073");
+		assertThat(prefix).isEqualTo("pnamelongl-vnamelonglonglongl-39b30073");
 	}
 
 	@Test
 	void getShortReleaseNamePrefix() {
-		var projectUuid = UUID.fromString("5524b4a7-3b43-4879-8c0d-fe1c6a95c54f");
 		var versionUuid = UUID.fromString("39b30073-df7a-46d5-b85f-4d4377baa8c0");
 
 		var project = mock(Project.class);
 		when(project.getName()).thenReturn("pname");
-		when(project.getId()).thenReturn(projectUuid);
 
 		var version = mock(ProjectVersion.class);
 		when(version.getName()).thenReturn("vname");
@@ -50,6 +46,6 @@ class HelmCommandsTest {
 
 		var prefix = uut.getReleaseNamePrefix(version);
 		assertThat(prefix).hasSizeLessThanOrEqualTo(38);
-		assertThat(prefix).isEqualTo("pname5524b4a7-vname39b30073");
+		assertThat(prefix).isEqualTo("pname-vname-39b30073");
 	}
 }

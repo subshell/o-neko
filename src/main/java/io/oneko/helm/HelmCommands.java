@@ -184,10 +184,9 @@ public class HelmCommands {
 	@VisibleForTesting
 	protected String getReleaseNamePrefix(ProjectVersion<?, ?> projectVersion) {
 		var projectName = maxLength(projectVersion.getProject().getName(), 10);
-		var projectId = maxLength(projectVersion.getProject().getId().toString(), 8);
-		var versionName = maxLength(projectVersion.getName(), 10);
+		var versionName = maxLength(projectVersion.getName(), 18);
 		var versionId = maxLength(projectVersion.getId().toString(), 8);
-		return sanitizeReleaseName(String.format("%s%s-%s%s", projectName, projectId, versionName, versionId));
+		return sanitizeReleaseName(String.format("%s-%s-%s", projectName, versionName, versionId));
 	}
 
 	private String sanitizeReleaseName(String in) {
