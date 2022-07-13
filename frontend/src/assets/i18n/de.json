@@ -117,7 +117,7 @@
       "dockerRegistries": "!alias:menu.administration.dockerRegistries",
       "createDockerRegistry": "!alias:components.dockerRegistry.editDialog.createRegistry",
       "trustsInsecureCertificates": "O-Neko wurde konfiguriert, unsicheren Zertifikaten dieser Registry zu vertrauen.",
-      "doesNotTrustInsecureCertificates": "O-Neko vertraut unseren Zertifikaten dieser Registry nicht."
+      "doesNotTrustInsecureCertificates": "O-Neko vertraut unsicheren Zertifikaten dieser Registry nicht."
     },
     "helmRegistry": {
       "deletionDialog": {
