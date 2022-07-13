@@ -1,3 +1,20 @@
+
+## 1.5.0 (2022-07-11)
+
+* feat(metrics): add metrics (#79) ([ce8a360](https://github.com/subshell/o-neko/commit/ce8a360)), closes [#79](https://github.com/subshell/o-neko/issues/79)
+* chore(deps): bump eventsource from 1.1.0 to 1.1.2 in /frontend ([dbe11da](https://github.com/subshell/o-neko/commit/dbe11da))
+* chore(deps): bump follow-redirects from 1.14.1 to 1.15.1 in /frontend ([bfd295a](https://github.com/subshell/o-neko/commit/bfd295a))
+* chore(docs): Update changelog ([67cab5a](https://github.com/subshell/o-neko/commit/67cab5a))
+* chore(deps): Bump async from 2.6.3 to 2.6.4 in /frontend ([97084da](https://github.com/subshell/o-neko/commit/97084da))
+* chore(deps): Bump gson from 2.8.6 to 2.8.9 ([a93a986](https://github.com/subshell/o-neko/commit/a93a986))
+* chore(deps): Bump karma from 6.3.3 to 6.3.16 in /frontend ([4cb05fc](https://github.com/subshell/o-neko/commit/4cb05fc))
+* chore(deps): Bump minimist from 1.2.5 to 1.2.6 in /frontend ([adacae2](https://github.com/subshell/o-neko/commit/adacae2))
+* chore(deps): Bump nanoid from 3.1.25 to 3.3.4 in /frontend ([5805956](https://github.com/subshell/o-neko/commit/5805956))
+* chore(deps): Bump url-parse from 1.5.3 to 1.5.10 in /frontend (#69) ([a44121b](https://github.com/subshell/o-neko/commit/a44121b)), closes [#69](https://github.com/subshell/o-neko/issues/69)
+* chore: Delete CNAME ([b836c03](https://github.com/subshell/o-neko/commit/b836c03))
+* fix: improved logging, concurrent deployment editing and rollback handling (#78) ([dc2016c](https://github.com/subshell/o-neko/commit/dc2016c)), closes [#78](https://github.com/subshell/o-neko/issues/78) [#77](https://github.com/subshell/o-neko/issues/77)
+
+
 ## 1.4.0 (2021-11-16)
 
 * feat(wakeup): add advanced sleep and wakeup features (#60) ([345e8c6](https://github.com/subshell/o-neko/commit/345e8c6)), closes [#60](https://github.com/subshell/o-neko/issues/60) [#58](https://github.com/subshell/o-neko/issues/58) [#59](https://github.com/subshell/o-neko/issues/59) [#61](https://github.com/subshell/o-neko/issues/61) [#62](https://github.com/subshell/o-neko/issues/62) [#65](https://github.com/subshell/o-neko/issues/65)
