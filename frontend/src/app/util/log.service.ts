@@ -1,19 +1,20 @@
-import {LFService, Logger, LoggerFactory, LoggerFactoryOptions, LogGroupRule, LogLevel} from "typescript-logging";
 import {environment} from "../../environments/environment";
 import {Class} from "./class";
 import {StringUtils} from "./string-utils";
+import {LogLevel} from "typescript-logging";
+import {Log4TSProvider, Logger} from "typescript-logging-log4ts-style";
 
 export class LogService {
 
-  private options: LoggerFactoryOptions;
-  private factory: LoggerFactory;
+  private provider: Log4TSProvider;
 
   constructor() {
-    let logLevel = environment.production ? LogLevel.Debug : LogLevel.Trace;
-    let rule = new LogGroupRule(/.+/, logLevel);
-    this.options = new LoggerFactoryOptions();
-    this.options.addLogGroupRule(rule);
-    this.factory = LFService.createLoggerFactory(this.options);
+    this.provider = Log4TSProvider.createProvider("ONekoLogProvider", {
+      groups: [{
+        level: environment.production ? LogLevel.Debug : LogLevel.Trace,
+        expression: new RegExp(".+")
+      }]
+    });
     LogService._instance = this;
   }
 
@@ -42,7 +43,7 @@ export class LogService {
     let className = (<any>forClass).name;
     let name = `${namePrefix ? namePrefix : ''}${!StringUtils.isEmpty(className) ? className : fallbackName}${nameSuffix ? nameSuffix : ''}`;
     if (!StringUtils.isEmpty(name)) {
-      return LogService.instance.factory.getLogger(name);
+      return LogService.instance.provider.getLogger(name);
     } else {
       throw new Error("Could not create logger.");
     }
@@ -57,6 +58,6 @@ export class LogService {
    * @returns {Logger}
    */
   public static getLoggerWithName(name: string): Logger {
-    return LogService.instance.factory.getLogger(name);
+    return LogService.instance.provider.getLogger(name);
   }
 }

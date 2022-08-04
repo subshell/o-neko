@@ -14,7 +14,6 @@ import {TranslateService} from "@ngx-translate/core";
 import {RestService} from "../../rest/rest.service";
 import {HelmRegistry} from "../../registries/helm/helm-registry";
 import {HelmCharts, HelmChartVersion} from "../../registries/helm-charts";
-import IStandaloneEditorConstructionOptions = monaco.editor.IStandaloneEditorConstructionOptions;
 
 export class ConfigurationTemplateEditorModel {
   constructor(public template?: ConfigurationTemplate, public defaultTemplate?: ConfigurationTemplate) {
@@ -94,7 +93,7 @@ export class TemplateEditorComponent implements OnInit {
   public chartRegistries: Observable<Array<HelmRegistry>>;
   public chartsByRegistry: {[registry: string]: HelmCharts} = {};
 
-  public editorOptions: IStandaloneEditorConstructionOptions = {
+  public editorOptions: any = {
     theme: 'vs-light',
     renderLineHighlight: 'gutter',
     language: 'yaml',

@@ -80,7 +80,7 @@ export class WebSocketService {
   private createWebSocket(onClose: (event: CloseEvent) => any): WebSocket {
     const ws = new WebSocket(this.getConnectionUrl());
     ws.onerror = (err) => {
-      this.log.error({msg: 'WebSocket error', data: err});
+      this.log.error("WebSocket error", err);
     };
 
     ws.onclose = event => {
