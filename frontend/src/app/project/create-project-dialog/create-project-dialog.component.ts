@@ -1,5 +1,5 @@
 import {Component, Inject, OnInit} from '@angular/core';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {UntypedFormBuilder, UntypedFormGroup, Validators} from '@angular/forms';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {DockerRegistry} from '../../registries/docker/docker-registry';
 import {RestService} from '../../rest/rest.service';
@@ -25,18 +25,18 @@ export class CreateProjectDialogComponent implements OnInit {
   public dockerRegistries: Array<DockerRegistry> = [];
 
   public projectExport?: ProjectExportDTO;
-  public projectImportFormGroup: FormGroup;
+  public projectImportFormGroup: UntypedFormGroup;
 
-  public projectNameFormGroup: FormGroup;
-  public dockerRegistryFormGroup: FormGroup;
-  public imageNameFormGroup: FormGroup;
+  public projectNameFormGroup: UntypedFormGroup;
+  public dockerRegistryFormGroup: UntypedFormGroup;
+  public imageNameFormGroup: UntypedFormGroup;
 
   private newProject: Project = new Project();
 
   constructor(public readonly dialogRef: MatDialogRef<CreateProjectDialogComponent>,
               @Inject(MAT_DIALOG_DATA) readonly data: CreateProjectDialogComponentData,
               private readonly rest: RestService,
-              private readonly formBuilder: FormBuilder,
+              private readonly formBuilder: UntypedFormBuilder,
               private readonly snackBar: MatSnackBar,
               private readonly translate: TranslateService) {
     this.rest.docker().getAllDockerRegistries().subscribe(regs => this.dockerRegistries = regs);

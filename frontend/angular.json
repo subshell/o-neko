@@ -136,7 +136,6 @@
       }
     }
   },
-  "defaultProject": "o-neko",
   "schematics": {
     "@schematics/angular:component": {
       "prefix": "oneko",

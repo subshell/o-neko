@@ -1,8 +1,8 @@
 import {Directive, Input, OnChanges, OnInit} from "@angular/core";
-import {FormControl, NG_VALIDATORS, ValidationErrors, Validator, ValidatorFn} from "@angular/forms";
+import {UntypedFormControl, NG_VALIDATORS, ValidationErrors, Validator, ValidatorFn} from "@angular/forms";
 
 function validateForbiddenValuesFactory(values: Array<string>): ValidatorFn {
-  return (control: FormControl) => {
+  return (control: UntypedFormControl) => {
     if (control.value && control.value.length > 0) {
       if (values.includes(control.value)) {
         return {forbiddenValues: {valid: false}};
@@ -33,7 +33,7 @@ export class ForbiddenValuesValidator implements OnInit, OnChanges, Validator {
     this.validator = validateForbiddenValuesFactory(this.forbiddenValues);
   }
 
-  validate(c: FormControl): ValidationErrors {
+  validate(c: UntypedFormControl): ValidationErrors {
     if (this.validator) {
       return this.validator(c);
     }

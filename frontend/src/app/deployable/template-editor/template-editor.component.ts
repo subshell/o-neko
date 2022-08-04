@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation} from '@angular/core';
-import {FormControl, NG_VALUE_ACCESSOR} from '@angular/forms';
+import {UntypedFormControl, NG_VALUE_ACCESSOR} from '@angular/forms';
 import {MatDialog} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {FileReaderService} from '../../form/upload/file-reader.service';
@@ -83,7 +83,7 @@ export class TemplateEditorComponent implements OnInit {
   @Output()
   public templatesValid: EventEmitter<boolean> = new EventEmitter<boolean>();
   public configurationTemplatesModels: Array<ConfigurationTemplateEditorModel> = [];
-  public selectedTab = new FormControl(0);
+  public selectedTab = new UntypedFormControl(0);
 
   private _fileReaderService: FileReaderService;
   private _skipTextOverwrite: Date = null;
