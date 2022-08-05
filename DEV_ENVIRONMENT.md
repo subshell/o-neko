@@ -1,6 +1,6 @@
 # How to set up your development environment
 
-1. Make sure you have the following tools installed on your computer: `Docker`, `node` >= 12, `kubectl`, `helm` >= 3, a JDK 11 and Maven. 
+1. Make sure you have the following tools installed on your computer: `Docker`, `node` >= 16, `kubectl`, `helm` >= 3, a JDK 11 and Maven. 
 We recommend to use [`nvm`](https://github.com/nvm-sh/nvm) to install and manage `node` versions and 
 [`jabba`](https://github.com/shyiko/jabba) to install and manage JDK versions, but this is optional.
 
