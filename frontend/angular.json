@@ -20,8 +20,8 @@
               "src/assets",
               {
                 "glob": "**/*",
-                "input": "node_modules/ngx-monaco-editor/assets/monaco",
-                "output": "./assets/monaco/"
+                "input": "node_modules/monaco-editor",
+                "output": "assets/monaco-editor"
               }
             ],
             "styles": [
@@ -118,18 +118,6 @@
               "src/assets"
             ]
           }
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "src/tsconfig.app.json",
-              "src/tsconfig.spec.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
-          }
         }
       }
     },
@@ -144,22 +132,10 @@
             "protractorConfig": "./protractor.conf.js",
             "devServerTarget": "o-neko:serve"
           }
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "e2e/tsconfig.e2e.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
-          }
         }
       }
     }
   },
-  "defaultProject": "o-neko",
   "schematics": {
     "@schematics/angular:component": {
       "prefix": "oneko",

@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation} from '@angular/core';
-import {FormControl, NG_VALUE_ACCESSOR} from '@angular/forms';
+import {UntypedFormControl, NG_VALUE_ACCESSOR} from '@angular/forms';
 import {MatDialog} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {FileReaderService} from '../../form/upload/file-reader.service';
@@ -14,7 +14,6 @@ import {TranslateService} from "@ngx-translate/core";
 import {RestService} from "../../rest/rest.service";
 import {HelmRegistry} from "../../registries/helm/helm-registry";
 import {HelmCharts, HelmChartVersion} from "../../registries/helm-charts";
-import IStandaloneEditorConstructionOptions = monaco.editor.IStandaloneEditorConstructionOptions;
 
 export class ConfigurationTemplateEditorModel {
   constructor(public template?: ConfigurationTemplate, public defaultTemplate?: ConfigurationTemplate) {
@@ -83,7 +82,7 @@ export class TemplateEditorComponent implements OnInit {
   @Output()
   public templatesValid: EventEmitter<boolean> = new EventEmitter<boolean>();
   public configurationTemplatesModels: Array<ConfigurationTemplateEditorModel> = [];
-  public selectedTab = new FormControl(0);
+  public selectedTab = new UntypedFormControl(0);
 
   private _fileReaderService: FileReaderService;
   private _skipTextOverwrite: Date = null;
@@ -94,7 +93,7 @@ export class TemplateEditorComponent implements OnInit {
   public chartRegistries: Observable<Array<HelmRegistry>>;
   public chartsByRegistry: {[registry: string]: HelmCharts} = {};
 
-  public editorOptions: IStandaloneEditorConstructionOptions = {
+  public editorOptions: any = {
     theme: 'vs-light',
     renderLineHighlight: 'gutter',
     language: 'yaml',
