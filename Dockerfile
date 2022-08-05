@@ -1,15 +1,15 @@
-FROM azul/zulu-openjdk-alpine:11.0.11-11.48.21-jre as builder
+FROM azul/zulu-openjdk-alpine:17.0.4-17.36.13-jre as builder
 
 WORKDIR /app
 ARG JAR_FILE
 ADD ${JAR_FILE} app.jar
 RUN java -Djarmode=layertools -jar app.jar extract
 
-FROM azul/zulu-openjdk-alpine:11.0.11-11.48.21-jre
+FROM azul/zulu-openjdk-alpine:17.0.4-17.36.13-jre
 LABEL maintainer="team-weasel@subshell.com"
 
-ARG HELM_VERSION="v3.6.3"
-ARG HELM_GCS_VERSION="0.3.13"
+ARG HELM_VERSION="v3.9.2"
+ARG HELM_GCS_VERSION="0.3.22"
 
 RUN java -Xshare:dump
 
