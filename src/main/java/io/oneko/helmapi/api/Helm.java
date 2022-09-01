@@ -171,6 +171,7 @@ public class Helm implements Helm3API {
 				.withArgument(name)
 				.withFlag("--namespace", namespace)
 				.withFlag("--dry-run", dryRun)
+				.withArgument("--wait")
 				.build();
 		var out = executor.execute(command);
 		log.info(out);
