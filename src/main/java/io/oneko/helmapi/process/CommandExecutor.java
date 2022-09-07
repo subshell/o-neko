@@ -15,7 +15,7 @@ public class CommandExecutor implements ICommandExecutor {
 			final Process process = processBuilder.start();
 			var output = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
 			var error = IOUtils.toString(process.getErrorStream(), StandardCharsets.UTF_8);
-			var exited = process.waitFor(1, TimeUnit.MINUTES);
+			var exited = process.waitFor(5, TimeUnit.MINUTES);
 			if (exited && process.exitValue() > 0) {
 				throw new CommandException(error);
 			} else if (!exited) {

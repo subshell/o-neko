@@ -107,12 +107,12 @@ class DeploymentManagerImpl implements DeploymentManager {
 				final WritableDeployment deployment = getOrCreateDeploymentForVersion(version);
 
 				if (!deployment.getReleaseNames().isEmpty()) {
-					helmCommands.uninstall(deployment.getReleaseNames());
+					helmCommands.uninstall(deployment.getReleaseNames(), true);
 				}
 
-				final List<InstallStatus> installStatuses = helmCommands.install(version);
 				log.info("installing helm releases ({}, {})",
 						kv("helm_releases", deployment.getReleaseNames()), versionKv(version));
+				final List<InstallStatus> installStatuses = helmCommands.install(version, true);
 
 				final List<String> releaseNames = installStatuses.stream().map(Status::getName).collect(Collectors.toList());
 				deployment.setReleaseNames(releaseNames);
@@ -153,7 +153,7 @@ class DeploymentManagerImpl implements DeploymentManager {
 				if (!CollectionUtils.isEqualCollection(deployment.getReleaseNames(), referencedHelmReleases)) {
 					log.warn("Orphaned helm release for project version {} detected. It will be removed.", versionKv(version));
 				}
-				helmCommands.uninstall(referencedHelmReleases);
+				helmCommands.uninstall(referencedHelmReleases, false);
 				deployment.setReleaseNames(new ArrayList<>());
 				deploymentRepository.save(deployment);
 			}
@@ -190,7 +190,7 @@ class DeploymentManagerImpl implements DeploymentManager {
 		return projectVersionLock.doWithProjectVersionLock(version, () -> {
 			try {
 				final WritableDeployment deployment = getOrCreateDeploymentForVersion(version);
-				helmCommands.uninstall(version);
+				helmCommands.uninstall(version, true);
 				deploymentRepository.deleteById(deployment.getId());
 				version.setDesiredState(NotDeployed);
 				final ReadableProject readableProject = projectRepository.add(version.getProject());
@@ -215,7 +215,7 @@ class DeploymentManagerImpl implements DeploymentManager {
 		final Timer.Sample sample = Timer.start();
 		try {
 			final WritableDeployment deployment = getOrCreateDeploymentForVersion(version);
-			helmCommands.uninstall(version);
+			helmCommands.uninstall(version, false);
 			deploymentRepository.deleteById(deployment.getId());
 			sample.stop(stopDeploymentDurationTimer);
 		} catch (HelmRegistryException e) {

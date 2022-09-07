@@ -108,7 +108,7 @@ public class HelmCommands {
 		}
 	}
 
-	public List<InstallStatus> install(ProjectVersion<?, ?> projectVersion) throws HelmRegistryException {
+	public List<InstallStatus> install(ProjectVersion<?, ?> projectVersion, boolean wait) throws HelmRegistryException {
 		try {
 			updateReposNotTooOften();
 			final var sample = Timer.start();
@@ -116,7 +116,7 @@ public class HelmCommands {
 			List<InstallStatus> result = new ArrayList<>();
 			for (int i = 0; i < calculatedConfigurationTemplates.size(); i++) {
 				WritableConfigurationTemplate template = calculatedConfigurationTemplates.get(i);
-				result.add(helm.install(getReleaseName(projectVersion, i), template.getChartName(), template.getChartVersion(), Values.fromYamlString(template.getContent()), projectVersion.getNamespaceOrElseFromProject(), false));
+				result.add(helm.install(getReleaseName(projectVersion, i), template.getChartName(), template.getChartVersion(), Values.fromYamlString(template.getContent()), projectVersion.getNamespaceOrElseFromProject(), false, wait));
 			}
 			sample.stop(installTimer);
 			return result;
@@ -126,12 +126,12 @@ public class HelmCommands {
 		}
 	}
 
-	public void uninstall(List<String> releaseNames) throws HelmRegistryException {
+	public void uninstall(List<String> releaseNames, boolean wait) throws HelmRegistryException {
 		try {
 			uninstallTimer.record(() ->
 					helm.listInAllNamespaces().stream()
 							.filter(release -> releaseNames.contains(release.getName()))
-							.forEach(release -> helm.uninstall(release.getName(), release.getNamespace()))
+							.forEach(release -> helm.uninstall(release.getName(), release.getNamespace(), false, wait))
 			);
 		} catch (CommandException e) {
 			commandErrorCounter.increment();
@@ -139,12 +139,12 @@ public class HelmCommands {
 		}
 	}
 
-	public void uninstall(ProjectVersion<?, ?> projectVersion) throws HelmRegistryException {
+	public void uninstall(ProjectVersion<?, ?> projectVersion, boolean wait) throws HelmRegistryException {
 		try {
 			uninstallTimer.record(() ->
 					helm.listInAllNamespaces().stream()
 							.filter(release -> release.getName().startsWith(getReleaseNamePrefix(projectVersion)))
-							.forEach(release -> helm.uninstall(release.getName(), release.getNamespace()))
+							.forEach(release -> helm.uninstall(release.getName(), release.getNamespace(), false, wait))
 			);
 		} catch (CommandException e) {
 			commandErrorCounter.increment();
