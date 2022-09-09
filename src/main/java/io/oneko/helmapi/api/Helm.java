@@ -62,7 +62,7 @@ public class Helm implements Helm3API {
 	 * @return
 	 */
 	@Override
-	public InstallStatus install(String name, String chart, String version, Values values, String namespace, boolean dryRun) {
+	public InstallStatus install(String name, String chart, String version, Values values, String namespace, boolean dryRun, boolean wait) {
 		final String[] command = initCommand("helm", "install")
 				.withArgument(name)
 				.withArgument(chart)
@@ -70,6 +70,7 @@ public class Helm implements Helm3API {
 				.withFlag("--namespace", namespace)
 				.withFlag("-f", values.getValuesFilePath().orElse(writeValuesToTemporaryFile(values, name).getAbsolutePath()))
 				.withFlag("--dry-run", dryRun)
+				.withFlag("--wait", wait)
 				.withFlag("-o", "json")
 				.build();
 		return executor.executeWithJsonOutput(InstallStatus.class, command);
@@ -166,11 +167,12 @@ public class Helm implements Helm3API {
 	}
 
 	@Override
-	public void uninstall(String name, String namespace, boolean dryRun) {
+	public void uninstall(String name, String namespace, boolean dryRun, boolean wait) {
 		final String[] command = initCommand("helm", "uninstall")
 				.withArgument(name)
 				.withFlag("--namespace", namespace)
 				.withFlag("--dry-run", dryRun)
+				.withFlag("--wait", wait)
 				.build();
 		var out = executor.execute(command);
 		log.info(out);

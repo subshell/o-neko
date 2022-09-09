@@ -8,7 +8,7 @@ RUN java -Djarmode=layertools -jar app.jar extract
 FROM azul/zulu-openjdk-alpine:17.0.4-17.36.13-jre
 LABEL maintainer="team-weasel@subshell.com"
 
-ARG HELM_VERSION="v3.9.2"
+ARG HELM_VERSION="v3.9.4"
 ARG HELM_GCS_VERSION="0.3.22"
 
 RUN java -Xshare:dump
