@@ -1,9 +1,23 @@
+##  <small>1.5.2 (2022-09-09)</small>
+
+* chore: update changelog ([bd6953f](https://github.com/subshell/o-neko/commit/bd6953f))
+* chore(deps): bump ini from 1.3.5 to 1.3.8 in /frontend (#87) ([e32f62a](https://github.com/subshell/o-neko/commit/e32f62a)), closes [#87](https://github.com/subshell/o-neko/issues/87)
+* chore(deps): bump json-schema from 0.2.3 to 0.4.0 in /frontend (#90) ([cbc7c9e](https://github.com/subshell/o-neko/commit/cbc7c9e)), closes [#90](https://github.com/subshell/o-neko/issues/90)
+* chore(deps): bump jszip from 3.4.0 to 3.10.1 in /frontend (#86) ([3b9f43e](https://github.com/subshell/o-neko/commit/3b9f43e)), closes [#86](https://github.com/subshell/o-neko/issues/86)
+* chore(deps): bump y18n from 4.0.0 to 4.0.3 in /frontend (#85) ([ae14d4c](https://github.com/subshell/o-neko/commit/ae14d4c)), closes [#85](https://github.com/subshell/o-neko/issues/85)
+* add wait option to "helm uninstall" and "helm install" (#89) ([443b8fb](https://github.com/subshell/o-neko/commit/443b8fb)), closes [#89](https://github.com/subshell/o-neko/issues/89)
+* remove dockerize_featurebranch step in pipeline ([c9c51f9](https://github.com/subshell/o-neko/commit/c9c51f9))
+* Updated description ([0c9e7ea](https://github.com/subshell/o-neko/commit/0c9e7ea))
+* Updated footer ([cacf255](https://github.com/subshell/o-neko/commit/cacf255))
+* readme: refer to our helm chart for installation instructions (#88) ([0b0d2d0](https://github.com/subshell/o-neko/commit/0b0d2d0)), closes [#88](https://github.com/subshell/o-neko/issues/88)
+
 ## <small>1.5.1 (2022-08-09)</small>
 
 * fix: don't log on trace per default ([b244acd](https://github.com/subshell/o-neko/commit/b244acd))
 * fix(i18n): fix container registry tooltip in german translation ([f2486d3](https://github.com/subshell/o-neko/commit/f2486d3))
 * chore: update to Angular 14 (#83) ([141b658](https://github.com/subshell/o-neko/commit/141b658)), closes [#83](https://github.com/subshell/o-neko/issues/83)
 * chore: update to Java 17, update some dependencies and update Helm and Helm GCS in the Dockerfile (# ([60eb191](https://github.com/subshell/o-neko/commit/60eb191)), closes [#84](https://github.com/subshell/o-neko/issues/84)
+* update changelog ([f2a81e0](https://github.com/subshell/o-neko/commit/f2a81e0))
 
 ## 1.5.0 (2022-07-11)
 
