@@ -31,7 +31,7 @@ class HelmTest {
 		tce.addDefinedCommand(helm_search_repo_sophora, "helm search repo Sophora Server --versions=false --devel=false -o=json");
 		tce.addDefinedCommand(helm_list, "helm list -o=json --time-format=2006-01-02T15:04:05Z07:00");
 		tce.addDefinedCommand("v3.4.2+g23dd3af", "helm version --short");
-		tce.addDefinedCommand(helm_install, "helm install ontest o-neko --namespace=deletethispls -f=" + tempFile.getAbsolutePath() + " --dry-run=false -o=json");
+		tce.addDefinedCommand(helm_install, "helm install ontest o-neko --namespace=deletethispls -f=" + tempFile.getAbsolutePath() + " --dry-run=false --wait=false -o=json");
 
 		uut = new Helm(tce);
 	}

@@ -1,3 +1,9 @@
+## <small>1.5.1 (2022-08-09)</small>
+
+* fix: don't log on trace per default ([b244acd](https://github.com/subshell/o-neko/commit/b244acd))
+* fix(i18n): fix container registry tooltip in german translation ([f2486d3](https://github.com/subshell/o-neko/commit/f2486d3))
+* chore: update to Angular 14 (#83) ([141b658](https://github.com/subshell/o-neko/commit/141b658)), closes [#83](https://github.com/subshell/o-neko/issues/83)
+* chore: update to Java 17, update some dependencies and update Helm and Helm GCS in the Dockerfile (# ([60eb191](https://github.com/subshell/o-neko/commit/60eb191)), closes [#84](https://github.com/subshell/o-neko/issues/84)
 
 ## 1.5.0 (2022-07-11)
 

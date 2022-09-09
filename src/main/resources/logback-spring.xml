@@ -50,7 +50,7 @@
             <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
         </appender>
 
-        <root level="TRACE">
+        <root level="DEBUG">
             <appender-ref ref="jsonConsoleAppender"/>
         </root>
     </springProfile>
