@@ -36,6 +36,7 @@
     "hash-it": "5.0.2",
     "lodash": "4.17.21",
     "messageformat": "2.3.0",
+    "monaco-editor": "0.34.1",
     "ngx-mat-select-search": "4.2.1",
     "ngx-monaco-editor": "12.0.0",
     "ngx-translate-messageformat-compiler": "5.1.0",
