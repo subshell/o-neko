@@ -1,3 +1,15 @@
+## <small>1.5.4 (2022-10-21)</small>
+
+* add monaco-editor to dependencies (#94) ([11ef36a](https://github.com/subshell/o-neko/commit/11ef36a)), closes [#94](https://github.com/subshell/o-neko/issues/94)
+* update java dependencies (#95) ([7452614](https://github.com/subshell/o-neko/commit/7452614)), closes [#95](https://github.com/subshell/o-neko/issues/95)
+
+## <small>1.5.3 (2022-10-17)</small>
+
+* deps: remove snakeyaml (#92) ([ba22a7b](https://github.com/subshell/o-neko/commit/ba22a7b)), closes [#92](https://github.com/subshell/o-neko/issues/92)
+* deps: update commons text (#93) ([3e13dfe](https://github.com/subshell/o-neko/commit/3e13dfe)), closes [#93](https://github.com/subshell/o-neko/issues/93)
+* chore(deps): bump snakeyaml from 1.30 to 1.31 ([d65b172](https://github.com/subshell/o-neko/commit/d65b172))
+
+
 ##  <small>1.5.2 (2022-09-09)</small>
 
 * chore: update changelog ([bd6953f](https://github.com/subshell/o-neko/commit/bd6953f))
