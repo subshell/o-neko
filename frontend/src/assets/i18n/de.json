@@ -302,7 +302,7 @@
           "okButtonText": "Löschen"
         },
         "projectSnackbarMessage": "Projekt {name} wurde {action, select, created{erstellt} saved{gespeichert} deleted{gelöscht} other{bearbeitet}}.",
-        "versionSnackbarMessage": "Version {version} des Projekts {name} wurde {action, select, deployed{deployed} stopped{gestoppt} other{bearbeitet}}.",
+        "versionSnackbarMessage": "{action, select, deployed{Deployment} stopped{Stoppen} other{Bearbeitung}} der Version {version} des Projekts {name} wurde angestoßen.",
         "errorMessage": "Fehler: {message}"
       }
     },
