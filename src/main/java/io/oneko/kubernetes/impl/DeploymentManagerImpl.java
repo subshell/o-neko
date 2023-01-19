@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -57,7 +60,7 @@ class DeploymentManagerImpl implements DeploymentManager {
 	private final Timer stopDeploymentDurationTimer;
 	private final Counter startDeploymentErrors;
 	private final Counter stopDeploymentErrors;
-
+	private final ExecutorService executor = Executors.newCachedThreadPool();
 
 	DeploymentManagerImpl(DockerRegistryClientFactory dockerRegistryClientFactory,
 												ProjectRepository projectRepository,
@@ -139,6 +142,11 @@ class DeploymentManagerImpl implements DeploymentManager {
 		});
 	}
 
+	@Override
+	public Future<ReadableProjectVersion> deployAsync(WritableProjectVersion version) {
+		return executor.submit(() -> deploy(version));
+	}
+
 	private void rollback(WritableProjectVersion version, Exception e) {
 		// In case a deployment has not been deleted properly
 		try {
@@ -209,6 +217,11 @@ class DeploymentManagerImpl implements DeploymentManager {
 				throw new RuntimeException(e);
 			}
 		});
+	}
+
+	@Override
+	public Future<ReadableProjectVersion> stopDeploymentAsync(WritableProjectVersion version) {
+		return executor.submit(() -> stopDeployment(version));
 	}
 
 	private void stopDeploymentOfRemovedVersion(ProjectVersion<?, ?> version) {

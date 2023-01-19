@@ -143,8 +143,8 @@ public class ProjectController {
 		WritableProject project = getProjectOr404(id).writable();
 		WritableProjectVersion projectVersion = project.getVersionById(versionId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project version with id " + versionId + " not found"));
-		final ReadableProjectVersion deployedVersion = deploymentManager.deploy(projectVersion);
-		return dtoMapper.projectToDTO(deployedVersion.getProject());
+		deploymentManager.deployAsync(projectVersion);
+		return dtoMapper.projectToDTO(projectVersion.getProject().readable());
 	}
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'DOER', 'VIEWER')")
@@ -155,8 +155,8 @@ public class ProjectController {
 
 		final UUID versionId = projectAndVersion.getRight().getUuid();
 		final WritableProjectVersion version = projectAndVersion.getLeft().writable().getVersionById(versionId).orElseThrow();
-		final ReadableProjectVersion deployedVersion = deploymentManager.deploy(version);
-		return dtoMapper.projectToDTO(deployedVersion.getProject());
+		deploymentManager.deployAsync(version);
+		return dtoMapper.projectToDTO(version.getProject().readable());
 	}
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'DOER', 'VIEWER')")
@@ -165,7 +165,7 @@ public class ProjectController {
 		WritableProject project = getProjectOr404(id).writable();
 		WritableProjectVersion projectVersion = project.getVersionById(versionId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project version with id " + versionId + " not found"));
-		deploymentManager.stopDeployment(projectVersion);
+		deploymentManager.stopDeploymentAsync(projectVersion);
 	}
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'DOER')")
