@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -139,25 +140,14 @@ public class ProjectController {
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'DOER', 'VIEWER')")
 	@PostMapping("/{id}/version/{versionId}/deploy")
-	ProjectDTO triggerDeploymentOfVersion(@PathVariable UUID id, @PathVariable UUID versionId) {
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	void triggerDeploymentOfVersion(@PathVariable UUID id, @PathVariable UUID versionId) {
 		WritableProject project = getProjectOr404(id).writable();
 		WritableProjectVersion projectVersion = project.getVersionById(versionId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project version with id " + versionId + " not found"));
 		deploymentManager.deployAsync(projectVersion);
-		return dtoMapper.projectToDTO(projectVersion.getProject().readable());
 	}
 
-	@PreAuthorize("hasAnyRole('ADMIN', 'DOER', 'VIEWER')")
-	@PostMapping("/deploy/url")
-	ProjectDTO triggerDeploymentOfVersionWithUrl(@RequestBody String url) {
-		final var projectAndVersion = projectRepository.getByDeploymentUrl(url)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No version with url " + url + " found."));
-
-		final UUID versionId = projectAndVersion.getRight().getUuid();
-		final WritableProjectVersion version = projectAndVersion.getLeft().writable().getVersionById(versionId).orElseThrow();
-		deploymentManager.deployAsync(version);
-		return dtoMapper.projectToDTO(version.getProject().readable());
-	}
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'DOER', 'VIEWER')")
 	@PostMapping("/{id}/version/{versionId}/stop")
