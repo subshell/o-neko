@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -99,6 +100,15 @@ public class ProjectController {
 		return this.projectRepository.getById(id)
 				.map(this.dtoMapper::projectToDTO)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project with id " + id + " not found"));
+	}
+
+	@PreAuthorize("hasAnyRole('ADMIN', 'DOER', 'VIEWER')")
+	@GetMapping("/byDeploymentUrl")
+	ProjectDTO getProjectByDeploymentUrl(@RequestParam String deploymentUrl) {
+		return this.projectRepository.getByDeploymentUrl(deploymentUrl)
+				.map(Pair::getLeft)
+				.map(this.dtoMapper::projectToDTO)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project with url " + deploymentUrl + " not found"));
 	}
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'DOER')")
