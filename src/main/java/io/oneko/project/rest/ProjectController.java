@@ -108,7 +108,7 @@ public class ProjectController {
 		return this.projectRepository.getByDeploymentUrl(deploymentUrl)
 				.map(Pair::getLeft)
 				.map(this.dtoMapper::projectToDTO)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project with url " + deploymentUrl + " not found"));
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No project matching the url " + deploymentUrl + " found"));
 	}
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'DOER')")
