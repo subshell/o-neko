@@ -116,14 +116,15 @@ class DeploymentManagerImpl implements DeploymentManager {
 
 		return projectVersionLock.doWithProjectVersionLock(version, () -> {
 			try {
+				version.setDesiredState(Deployed);
+				projectRepository.add(version.getProject());
+
 				final WritableDeployment deployment = getOrCreateDeploymentForVersion(version);
 
 				if (!deployment.getReleaseNames().isEmpty()) {
 					helmCommands.uninstall(deployment.getReleaseNames(), true);
 				}
 
-				version.setDesiredState(Deployed);
-				projectRepository.add(version.getProject());
 
 				log.info("installing helm releases ({}, {})",
 						kv("helm_releases", deployment.getReleaseNames()), versionKv(version));
@@ -146,6 +147,8 @@ class DeploymentManagerImpl implements DeploymentManager {
 				return readableProjectVersion;
 			} catch (Exception e) {
 				log.error("failed to deploy ({})", versionKv(version), e);
+				version.setDesiredState(NotDeployed);
+				projectRepository.add(version.getProject());
 				startDeploymentErrors.increment();
 				rollback(version, e);
 				throw new RuntimeException(e);
