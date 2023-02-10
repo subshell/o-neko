@@ -1,17 +1,16 @@
 package io.oneko.kubernetes.impl;
 
-import static io.oneko.kubernetes.deployments.DesiredState.Deployed;
-import static io.oneko.kubernetes.deployments.DesiredState.NotDeployed;
-import static io.oneko.util.MoreStructuredArguments.versionKv;
-import static net.logstash.logback.argument.StructuredArguments.kv;
+import static io.oneko.kubernetes.deployments.DesiredState.*;
+import static io.oneko.util.MoreStructuredArguments.*;
+import static net.logstash.logback.argument.StructuredArguments.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -59,7 +58,9 @@ class DeploymentManagerImpl implements DeploymentManager {
 	private final Timer deployDurationTimer;
 	private final Timer stopDeploymentDurationTimer;
 	private final Counter startDeploymentErrors;
+	private final Counter startDeploymentRejections;
 	private final Counter stopDeploymentErrors;
+	private final Counter stopDeploymentRejections;
 	private final ExecutorService executor = Executors.newCachedThreadPool();
 
 	DeploymentManagerImpl(DockerRegistryClientFactory dockerRegistryClientFactory,
@@ -94,6 +95,14 @@ class DeploymentManagerImpl implements DeploymentManager {
 		stopDeploymentErrors = Counter.builder(new MetricNameBuilder().amountOf("kubernetes.deployment.errors").build())
 				.tag("action", "stop")
 				.register(meterRegistry);
+
+		startDeploymentRejections = Counter.builder(new MetricNameBuilder().amountOf("kubernetes.deployment.rejections").build())
+				.tag("action", "start")
+				.register(meterRegistry);
+
+		stopDeploymentRejections = Counter.builder(new MetricNameBuilder().amountOf("kubernetes.deployment.rejections").build())
+				.tag("action", "stop")
+				.register(meterRegistry);
 	}
 
 	@Override
@@ -113,6 +122,9 @@ class DeploymentManagerImpl implements DeploymentManager {
 					helmCommands.uninstall(deployment.getReleaseNames(), true);
 				}
 
+				version.setDesiredState(Deployed);
+				projectRepository.add(version.getProject());
+
 				log.info("installing helm releases ({}, {})",
 						kv("helm_releases", deployment.getReleaseNames()), versionKv(version));
 				final List<InstallStatus> installStatuses = helmCommands.install(version, true);
@@ -124,7 +136,6 @@ class DeploymentManagerImpl implements DeploymentManager {
 				eventDispatcher.dispatch(new HelmReleasesInstallEvent(version, releaseNames));
 
 				final ReadableProjectVersion readableProjectVersion = updateDeployableWithCreatedResources(version).map(newVersion -> {
-					newVersion.setDesiredState(Deployed);
 					final ReadableProject project = projectRepository.add(newVersion.getProject());
 					return project.getVersions().stream()
 							.filter(projectVersion -> projectVersion.getUuid().equals(versionId))
@@ -143,8 +154,14 @@ class DeploymentManagerImpl implements DeploymentManager {
 	}
 
 	@Override
-	public Future<ReadableProjectVersion> deployAsync(WritableProjectVersion version) {
-		return executor.submit(() -> deploy(version));
+	public CompletableFuture<ReadableProjectVersion> deployAsync(WritableProjectVersion version) {
+		if (projectVersionLock.isVersionLocked(version.getUuid())) {
+			startDeploymentRejections.increment();
+			log.warn("rejected action on project version because it is already being started or stopped at this moment ({}, {})", versionKv(version), kv("action", "start"));
+			return CompletableFuture.failedFuture(new ConcurrentDeploymentException("This version is already being deployed or stopped at this moment. Try again later."));
+		}
+
+		return CompletableFuture.supplyAsync(() -> deploy(version), executor);
 	}
 
 	private void rollback(WritableProjectVersion version, Exception e) {
@@ -166,7 +183,7 @@ class DeploymentManagerImpl implements DeploymentManager {
 				deploymentRepository.save(deployment);
 			}
 		} catch (Exception e2) {
-			log.error("rollback deployment of {} failed", versionKv(version) , e2);
+			log.error("rollback deployment of {} failed", versionKv(version), e2);
 			stopDeploymentErrors.increment();
 			throw new RuntimeException(e);
 		}
@@ -220,8 +237,14 @@ class DeploymentManagerImpl implements DeploymentManager {
 	}
 
 	@Override
-	public Future<ReadableProjectVersion> stopDeploymentAsync(WritableProjectVersion version) {
-		return executor.submit(() -> stopDeployment(version));
+	public CompletableFuture<ReadableProjectVersion> stopDeploymentAsync(WritableProjectVersion version) {
+		if (projectVersionLock.isVersionLocked(version.getUuid())) {
+			stopDeploymentRejections.increment();
+			log.warn("rejected action on project version because it is already being started or stopped at this moment ({}, {})", versionKv(version), kv("action", "stop"));
+			return CompletableFuture.failedFuture(new ConcurrentDeploymentException("This version is already being deployed or stopped at this moment. Try again later."));
+		}
+
+		return CompletableFuture.supplyAsync(() -> stopDeployment(version), executor);
 	}
 
 	private void stopDeploymentOfRemovedVersion(ProjectVersion<?, ?> version) {

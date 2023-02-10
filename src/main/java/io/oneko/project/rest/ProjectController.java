@@ -3,6 +3,8 @@ package io.oneko.project.rest;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
@@ -144,7 +146,8 @@ public class ProjectController {
 		WritableProject project = getProjectOr404(id).writable();
 		WritableProjectVersion projectVersion = project.getVersionById(versionId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project version with id " + versionId + " not found"));
-		deploymentManager.deployAsync(projectVersion);
+		final var deployTask = deploymentManager.deployAsync(projectVersion);
+		handleImmediateAsyncExceptionWithoutBlocking(deployTask);
 	}
 
 
@@ -154,7 +157,19 @@ public class ProjectController {
 		WritableProject project = getProjectOr404(id).writable();
 		WritableProjectVersion projectVersion = project.getVersionById(versionId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project version with id " + versionId + " not found"));
-		deploymentManager.stopDeploymentAsync(projectVersion);
+		final var stopTask = deploymentManager.stopDeploymentAsync(projectVersion);
+		handleImmediateAsyncExceptionWithoutBlocking(stopTask);
+	}
+
+	private <T> void handleImmediateAsyncExceptionWithoutBlocking(CompletableFuture<T> future) {
+		if (future.isCompletedExceptionally()) {
+			try {
+				future.get();
+			} catch(ExecutionException | InterruptedException e) {
+				String message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
+				throw new RuntimeException(message);
+			}
+		}
 	}
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'DOER')")

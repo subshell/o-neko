@@ -1,6 +1,6 @@
 package io.oneko.kubernetes;
 
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 
 import io.oneko.project.ReadableProjectVersion;
 import io.oneko.project.WritableProjectVersion;
@@ -12,10 +12,10 @@ public interface DeploymentManager {
 
 	ReadableProjectVersion deploy(WritableProjectVersion version);
 
-	Future<ReadableProjectVersion> deployAsync(WritableProjectVersion version);
+	CompletableFuture<ReadableProjectVersion> deployAsync(WritableProjectVersion version);
 
 	ReadableProjectVersion stopDeployment(WritableProjectVersion version);
 
-	Future<ReadableProjectVersion> stopDeploymentAsync(WritableProjectVersion version);
+	CompletableFuture<ReadableProjectVersion> stopDeploymentAsync(WritableProjectVersion version);
 
 }

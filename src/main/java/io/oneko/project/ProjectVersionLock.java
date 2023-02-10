@@ -21,6 +21,11 @@ public class ProjectVersionLock {
 			AbstractReferenceMap.ReferenceStrength.HARD, AbstractReferenceMap.ReferenceStrength.WEAK
 	));
 
+	public boolean isVersionLocked(UUID versionUUID) {
+		final ReentrantLock versionLock = locks.get(versionUUID);
+		return versionLock != null && versionLock.isLocked();
+	}
+
 	public boolean currentThreadHasLock(UUID versionUUID) {
 		return this.versionsPerThread.get().contains(versionUUID);
 	}
