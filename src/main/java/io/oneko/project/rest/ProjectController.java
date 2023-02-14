@@ -1,24 +1,5 @@
 package io.oneko.project.rest;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
-
 import io.oneko.configuration.Controllers;
 import io.oneko.docker.DockerRegistry;
 import io.oneko.docker.DockerRegistryRepository;
@@ -32,7 +13,22 @@ import io.oneko.project.WritableProject;
 import io.oneko.project.WritableProjectVersion;
 import io.oneko.project.rest.export.ProjectExportDTO;
 import io.oneko.project.rest.export.ProjectExportDTOMapper;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @Slf4j
@@ -48,9 +44,9 @@ public class ProjectController {
 	private final DeploymentManager deploymentManager;
 
 	public ProjectController(ProjectRepository projectRepository, DockerRegistryRepository dockerRegistryRepository,
-													 ProjectDTOMapper dtoMapper,
-													 DeployableConfigurationDTOMapper configurationDTOMapper,
-													 DeploymentManager deploymentManager) {
+			ProjectDTOMapper dtoMapper,
+			DeployableConfigurationDTOMapper configurationDTOMapper,
+			DeploymentManager deploymentManager) {
 		this.projectRepository = projectRepository;
 		this.dockerRegistryRepository = dockerRegistryRepository;
 		this.dtoMapper = dtoMapper;
@@ -71,14 +67,16 @@ public class ProjectController {
 		} else {
 			return dockerRegistryRepository.getById(dto.getDockerRegistryUUID())
 					.map(DockerRegistry::getUuid)
-					.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "DockerRegistry with id " + dto.getDockerRegistryUUID() + " not found"));
+					.orElseThrow(
+							() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "DockerRegistry with id " + dto.getDockerRegistryUUID() + " not found"));
 		}
 	}
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'DOER', 'VIEWER')")
 	@GetMapping
 	List<ProjectDTO> getAllProjects() {
-		return this.projectRepository.getAll().stream()
+		return this.projectRepository.getAll()
+				.stream()
 				.map(this.dtoMapper::projectToDTO)
 				.collect(Collectors.toList());
 	}
@@ -116,10 +114,13 @@ public class ProjectController {
 	@PostMapping("/{id}/version/{versionId}/templateVariables")
 	ProjectDTO updateProjectVersionTemplateVariables(@PathVariable UUID id, @PathVariable UUID versionId, @RequestBody ProjectDTO dto) {
 		WritableProject project = getProjectOr404(id).writable();
-		project.getVersionById(versionId).ifPresent(version -> dto.getVersions().stream()
-				.filter(v -> v.getUuid().equals(version.getId()))
-				.findFirst()
-				.ifPresent(versionFromDto -> version.setTemplateVariables(versionFromDto.getTemplateVariables())));
+		project.getVersionById(versionId)
+				.ifPresent(version -> dto.getVersions()
+						.stream()
+						.filter(v -> v.getUuid()
+								.equals(version.getId()))
+						.findFirst()
+						.ifPresent(versionFromDto -> version.setTemplateVariables(versionFromDto.getTemplateVariables())));
 		final ReadableProject persisted = projectRepository.add(project);
 		return dtoMapper.projectToDTO(persisted);
 	}
@@ -146,8 +147,7 @@ public class ProjectController {
 		WritableProject project = getProjectOr404(id).writable();
 		WritableProjectVersion projectVersion = project.getVersionById(versionId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project version with id " + versionId + " not found"));
-		final var deployTask = deploymentManager.deployAsync(projectVersion);
-		handleImmediateAsyncExceptionWithoutBlocking(deployTask);
+		deploymentManager.deployAsync(projectVersion);
 	}
 
 
@@ -157,19 +157,7 @@ public class ProjectController {
 		WritableProject project = getProjectOr404(id).writable();
 		WritableProjectVersion projectVersion = project.getVersionById(versionId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project version with id " + versionId + " not found"));
-		final var stopTask = deploymentManager.stopDeploymentAsync(projectVersion);
-		handleImmediateAsyncExceptionWithoutBlocking(stopTask);
-	}
-
-	private <T> void handleImmediateAsyncExceptionWithoutBlocking(CompletableFuture<T> future) {
-		if (future.isCompletedExceptionally()) {
-			try {
-				future.get();
-			} catch(ExecutionException | InterruptedException e) {
-				String message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
-				throw new RuntimeException(message);
-			}
-		}
+		deploymentManager.stopDeploymentAsync(projectVersion);
 	}
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'DOER')")

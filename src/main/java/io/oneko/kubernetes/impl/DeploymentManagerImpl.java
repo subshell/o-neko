@@ -64,12 +64,12 @@ class DeploymentManagerImpl implements DeploymentManager {
 	private final ExecutorService executor = Executors.newCachedThreadPool();
 
 	DeploymentManagerImpl(DockerRegistryClientFactory dockerRegistryClientFactory,
-												ProjectRepository projectRepository,
-												DeploymentRepository deploymentRepository,
-												EventDispatcher eventDispatcher,
-												ProjectVersionLock projectVersionLock,
-												HelmCommands helmCommands,
-												MeterRegistry meterRegistry) {
+			ProjectRepository projectRepository,
+			DeploymentRepository deploymentRepository,
+			EventDispatcher eventDispatcher,
+			ProjectVersionLock projectVersionLock,
+			HelmCommands helmCommands,
+			MeterRegistry meterRegistry) {
 		this.dockerRegistryClientFactory = dockerRegistryClientFactory;
 		this.projectRepository = projectRepository;
 		this.deploymentRepository = deploymentRepository;
@@ -78,29 +78,35 @@ class DeploymentManagerImpl implements DeploymentManager {
 		this.helmCommands = helmCommands;
 		eventDispatcher.registerListener(this::consumeDeletedVersionEvent);
 
-		deployDurationTimer = Timer.builder(new MetricNameBuilder().durationOf("kubernetes.deployment.action").build())
+		deployDurationTimer = Timer.builder(new MetricNameBuilder().durationOf("kubernetes.deployment.action")
+						.build())
 				.tag("action", "start")
 				.publishPercentileHistogram()
 				.register(meterRegistry);
 
-		stopDeploymentDurationTimer = Timer.builder(new MetricNameBuilder().durationOf("kubernetes.deployment.action").build())
+		stopDeploymentDurationTimer = Timer.builder(new MetricNameBuilder().durationOf("kubernetes.deployment.action")
+						.build())
 				.tag("action", "stop")
 				.publishPercentileHistogram()
 				.register(meterRegistry);
 
-		startDeploymentErrors = Counter.builder(new MetricNameBuilder().amountOf("kubernetes.deployment.errors").build())
+		startDeploymentErrors = Counter.builder(new MetricNameBuilder().amountOf("kubernetes.deployment.errors")
+						.build())
 				.tag("action", "start")
 				.register(meterRegistry);
 
-		stopDeploymentErrors = Counter.builder(new MetricNameBuilder().amountOf("kubernetes.deployment.errors").build())
+		stopDeploymentErrors = Counter.builder(new MetricNameBuilder().amountOf("kubernetes.deployment.errors")
+						.build())
 				.tag("action", "stop")
 				.register(meterRegistry);
 
-		startDeploymentRejections = Counter.builder(new MetricNameBuilder().amountOf("kubernetes.deployment.rejections").build())
+		startDeploymentRejections = Counter.builder(new MetricNameBuilder().amountOf("kubernetes.deployment.rejections")
+						.build())
 				.tag("action", "start")
 				.register(meterRegistry);
 
-		stopDeploymentRejections = Counter.builder(new MetricNameBuilder().amountOf("kubernetes.deployment.rejections").build())
+		stopDeploymentRejections = Counter.builder(new MetricNameBuilder().amountOf("kubernetes.deployment.rejections")
+						.build())
 				.tag("action", "stop")
 				.register(meterRegistry);
 	}
@@ -121,7 +127,8 @@ class DeploymentManagerImpl implements DeploymentManager {
 
 				final WritableDeployment deployment = getOrCreateDeploymentForVersion(version);
 
-				if (!deployment.getReleaseNames().isEmpty()) {
+				if (!deployment.getReleaseNames()
+						.isEmpty()) {
 					helmCommands.uninstall(deployment.getReleaseNames(), true);
 				}
 
@@ -130,19 +137,24 @@ class DeploymentManagerImpl implements DeploymentManager {
 						kv("helm_releases", deployment.getReleaseNames()), versionKv(version));
 				final List<InstallStatus> installStatuses = helmCommands.install(version, true);
 
-				final List<String> releaseNames = installStatuses.stream().map(Status::getName).collect(Collectors.toList());
+				final List<String> releaseNames = installStatuses.stream()
+						.map(Status::getName)
+						.collect(Collectors.toList());
 				deployment.setReleaseNames(releaseNames);
 				deploymentRepository.save(deployment);
 
 				eventDispatcher.dispatch(new HelmReleasesInstallEvent(version, releaseNames));
 
 				final ReadableProjectVersion readableProjectVersion = updateDeployableWithCreatedResources(version).map(newVersion -> {
-					final ReadableProject project = projectRepository.add(newVersion.getProject());
-					return project.getVersions().stream()
-							.filter(projectVersion -> projectVersion.getUuid().equals(versionId))
-							.findFirst()
-							.orElse(null);
-				}).orElseThrow(() -> new RuntimeException("failed to update deployment from new version"));
+							final ReadableProject project = projectRepository.add(newVersion.getProject());
+							return project.getVersions()
+									.stream()
+									.filter(projectVersion -> projectVersion.getUuid()
+											.equals(versionId))
+									.findFirst()
+									.orElse(null);
+						})
+						.orElseThrow(() -> new RuntimeException("failed to update deployment from new version"));
 				sample.stop(deployDurationTimer);
 				return readableProjectVersion;
 			} catch (Exception e) {
@@ -160,8 +172,9 @@ class DeploymentManagerImpl implements DeploymentManager {
 	public CompletableFuture<ReadableProjectVersion> deployAsync(WritableProjectVersion version) {
 		if (projectVersionLock.isVersionLocked(version.getUuid())) {
 			startDeploymentRejections.increment();
-			log.warn("rejected action on project version because it is already being started or stopped at this moment ({}, {})", versionKv(version), kv("action", "start"));
-			return CompletableFuture.failedFuture(new ConcurrentDeploymentException("This version is already being deployed or stopped at this moment. Try again later."));
+			log.warn("rejected action on project version because it is already being started or stopped at this moment ({}, {})", versionKv(version),
+					kv("action", "start"));
+			throw new ConcurrentDeploymentException("This version is already being deployed or stopped at this moment. Try again later.");
 		}
 
 		return CompletableFuture.supplyAsync(() -> deploy(version), executor);
@@ -226,9 +239,12 @@ class DeploymentManagerImpl implements DeploymentManager {
 				log.info("stopping helm releases ({}, {})",
 						kv("helm_releases", deployment.getReleaseNames()), versionKv(version));
 
-				final ReadableProjectVersion readableProjectVersion = readableProject.getVersions().stream()
-						.filter(projectVersion -> projectVersion.getUuid().equals(version.getId()))
-						.findFirst().orElse(null);
+				final ReadableProjectVersion readableProjectVersion = readableProject.getVersions()
+						.stream()
+						.filter(projectVersion -> projectVersion.getUuid()
+								.equals(version.getId()))
+						.findFirst()
+						.orElse(null);
 				sample.stop(stopDeploymentDurationTimer);
 				return readableProjectVersion;
 			} catch (HelmRegistryException e) {
@@ -243,8 +259,9 @@ class DeploymentManagerImpl implements DeploymentManager {
 	public CompletableFuture<ReadableProjectVersion> stopDeploymentAsync(WritableProjectVersion version) {
 		if (projectVersionLock.isVersionLocked(version.getUuid())) {
 			stopDeploymentRejections.increment();
-			log.warn("rejected action on project version because it is already being started or stopped at this moment ({}, {})", versionKv(version), kv("action", "stop"));
-			return CompletableFuture.failedFuture(new ConcurrentDeploymentException("This version is already being deployed or stopped at this moment. Try again later."));
+			log.warn("rejected action on project version because it is already being started or stopped at this moment ({}, {})", versionKv(version),
+					kv("action", "stop"));
+			throw new ConcurrentDeploymentException("This version is already being deployed or stopped at this moment. Try again later.");
 		}
 
 		return CompletableFuture.supplyAsync(() -> stopDeployment(version), executor);
@@ -267,7 +284,8 @@ class DeploymentManagerImpl implements DeploymentManager {
 	private void consumeDeletedVersionEvent(Event event) {
 		if (event instanceof ObsoleteProjectVersionRemovedEvent) {
 			var e = (ObsoleteProjectVersionRemovedEvent) event;
-			if (deploymentRepository.findByProjectVersionId(e.getVersionId()).isPresent()) {
+			if (deploymentRepository.findByProjectVersionId(e.getVersionId())
+					.isPresent()) {
 				log.info("stopping obsolete deployment {}", versionKv(e.getVersion()));
 				stopDeploymentOfRemovedVersion(e.getVersion());
 			}
