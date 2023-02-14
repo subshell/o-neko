@@ -149,7 +149,7 @@ export class ProjectService {
     return deletionObservable;
   }
 
-  public deployProjectVersion(projectVersion: ProjectVersion, project: Project, user: User): Observable<Project> {
+  public deployProjectVersion(projectVersion: ProjectVersion, project: Project, user: User): Observable<void> {
     if (!this.isUserAllowedToDeployProjects(user)) {
       return throwError('User has no permissions to trigger version deployments');
     }

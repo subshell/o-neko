@@ -294,7 +294,7 @@ class DockerRegistryPolling {
 			version.setImageUpdatedDate(manifest.getImageUpdatedDate().orElse(null));
 
 			if (version.getDesiredState() == Deployed && version.getDeploymentBehaviour() == automatically) {
-				deploymentManager.deploy(version);
+				deploymentManager.deployAsync(version);
 			}
 		}
 	}

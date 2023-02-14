@@ -13,7 +13,7 @@ export interface ProjectRestClient {
 
   deleteProject(project: Project): Observable<void>;
 
-  deployProjectVersion(version: ProjectVersion, project: Project): Observable<Project>;
+  deployProjectVersion(version: ProjectVersion, project: Project): Observable<void>;
 
   stopDeployment(version: ProjectVersion, project: Project): Observable<void>;
 
