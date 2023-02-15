@@ -60,8 +60,8 @@ export class CachingProjectRestClient implements ProjectRestClient, OnDestroy {
     return this.delegate.deleteProject(project).pipe(tap(() => this.cache.invalidate(project.uuid)));
   }
 
-  deployProjectVersion(version: ProjectVersion, project: Project): Observable<Project> {
-    return this.delegate.deployProjectVersion(version, project).pipe(tap(project => this.cache.put(project.uuid, project)));
+  deployProjectVersion(version: ProjectVersion, project: Project): Observable<void> {
+    return this.delegate.deployProjectVersion(version, project);
   }
 
   stopDeployment(version: ProjectVersion, project: Project): Observable<void> {

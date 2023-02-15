@@ -88,7 +88,7 @@ public class ScheduledLifetimeController {
 					final var projectVersion = expiredVersionDeploymentPair.getLeft();
 					beforeStopDeployment.accept(projectVersion);
 					if (projectVersion instanceof WritableProjectVersion) {
-						deploymentManager.stopDeployment((WritableProjectVersion) projectVersion);
+						deploymentManager.stopDeploymentAsync((WritableProjectVersion) projectVersion);
 					} else {
 						log.error("stopping is not supported ({})", kv("class_name", projectVersion.getClass()));
 					}

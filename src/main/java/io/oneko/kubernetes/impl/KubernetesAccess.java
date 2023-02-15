@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.fabric8.kubernetes.api.model.AuthProviderConfig;
 import io.fabric8.kubernetes.api.model.LocalObjectReference;
 import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
@@ -25,6 +26,7 @@ import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import io.oneko.event.EventDispatcher;
@@ -67,10 +69,9 @@ public class KubernetesAccess {
 		}
 
 		Config config = configBuilder
-				.withNamespace("default")
 				.build();
 
-		kubernetesClient = new DefaultKubernetesClient(config);
+		kubernetesClient = new KubernetesClientBuilder().withConfig(config).build();
 
 		createNamespaceTimer = timer("namespace", "create", meterRegistry);
 		deleteNamespaceTimer = timer("namespace", "delete", meterRegistry);

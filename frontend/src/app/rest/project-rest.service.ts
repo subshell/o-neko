@@ -48,8 +48,8 @@ export class ProjectRestService implements ProjectRestClient {
     return this.http.get(`${this.root_path}/${project.uuid}/export`) as Observable<ProjectExportDTO>;
   }
 
-  public deployProjectVersion(version: ProjectVersion, project: Project): Observable<Project> {
-    return this.http.post<ProjectDTO>(`${this.root_path}/${project.uuid}/version/${version.uuid}/deploy`, {}).pipe(map(projectDTO => Project.from(projectDTO)));
+  public deployProjectVersion(version: ProjectVersion, project: Project): Observable<void> {
+    return this.http.post(`${this.root_path}/${project.uuid}/version/${version.uuid}/deploy`, {}).pipe(map(() => null));
   }
 
   public stopDeployment(version: ProjectVersion, project: Project): Observable<void> {
