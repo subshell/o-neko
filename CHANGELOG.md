@@ -1,3 +1,16 @@
+## 1.6.0 (2023-02-15)
+
+* chore: update backend dependencies (#105) ([afdd7a5](https://github.com/subshell/o-neko/commit/afdd7a5)), closes [#105](https://github.com/subshell/o-neko/issues/105)
+* chore(deps): bump engine.io from 6.2.0 to 6.2.1 in /frontend (#98) ([f12932f](https://github.com/subshell/o-neko/commit/f12932f)), closes [#98](https://github.com/subshell/o-neko/issues/98)
+* chore(deps): bump http-cache-semantics from 4.1.0 to 4.1.1 in /frontend (#107) ([a94639c](https://github.com/subshell/o-neko/commit/a94639c)), closes [#107](https://github.com/subshell/o-neko/issues/107)
+* chore(deps): bump json5 from 2.2.1 to 2.2.3 in /frontend (#101) ([5c82ecd](https://github.com/subshell/o-neko/commit/5c82ecd)), closes [#101](https://github.com/subshell/o-neko/issues/101)
+* chore(deps): bump loader-utils from 2.0.2 to 2.0.4 in /frontend (#97) ([dae510e](https://github.com/subshell/o-neko/commit/dae510e)), closes [#97](https://github.com/subshell/o-neko/issues/97)
+* chore(deps): bump qs from 6.5.2 to 6.5.3 in /frontend (#100) ([b205108](https://github.com/subshell/o-neko/commit/b205108)), closes [#100](https://github.com/subshell/o-neko/issues/100)
+* chore(deps): bump ua-parser-js from 0.7.31 to 0.7.33 in /frontend (#106) ([d70b09d](https://github.com/subshell/o-neko/commit/d70b09d)), closes [#106](https://github.com/subshell/o-neko/issues/106)
+* fix: change blocking deploy API calls (#102) ([21ba098](https://github.com/subshell/o-neko/commit/21ba098)), closes [#102](https://github.com/subshell/o-neko/issues/102)
+* update angular and some other frontend libraries (#104) ([6b3cc3b](https://github.com/subshell/o-neko/commit/6b3cc3b)), closes [#104](https://github.com/subshell/o-neko/issues/104)
+* update docker base image, helm and helm gcs (#103) ([2fe1737](https://github.com/subshell/o-neko/commit/2fe1737)), closes [#103](https://github.com/subshell/o-neko/issues/103)
+
 ## <small>1.5.4 (2022-10-21)</small>
 
 * add monaco-editor to dependencies (#94) ([11ef36a](https://github.com/subshell/o-neko/commit/11ef36a)), closes [#94](https://github.com/subshell/o-neko/issues/94)
