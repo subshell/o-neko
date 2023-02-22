@@ -2,7 +2,7 @@ package io.oneko.helm;
 
 import static io.oneko.util.MoreStructuredArguments.*;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import org.springframework.stereotype.Service;
 
