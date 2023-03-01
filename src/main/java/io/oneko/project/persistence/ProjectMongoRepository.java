@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -77,6 +78,20 @@ class ProjectMongoRepository extends EventAwareProjectRepository {
 	@Override
 	public List<ReadableProject> getAll() {
 		return this.innerProjectRepo.findAll().stream().map(this::fromProjectMongo).collect(Collectors.toList());
+	}
+
+	@Override
+	public List<ReadableProject> findProject(String searchString) {
+		return innerProjectRepo.queryByNameContainingIgnoreCase(searchString).stream().map(this::fromProjectMongo).toList();
+	}
+
+	@Override
+	public List<ReadableProjectVersion> findProjectVersion(String searchString) {
+		return innerProjectRepo.queryByVersions_Name_ContainingIgnoreCase(searchString).stream().map(this::fromProjectMongo)
+				.map(ReadableProject::getVersions)
+				.flatMap(Collection::stream)
+				.filter(version -> StringUtils.containsIgnoreCase(version.getName(), searchString))
+				.toList();
 	}
 
 	@Override

@@ -24,6 +24,10 @@ public interface ProjectRepository {
 
 	List<ReadableProject> getAll();
 
+	List<ReadableProject> findProject(String searchString);
+
+	List<ReadableProjectVersion> findProjectVersion(String searchString);
+
 	/**
 	 * Persists the project.
 	 */
