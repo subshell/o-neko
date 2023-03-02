@@ -26,7 +26,11 @@ import {MatSortModule} from "@angular/material/sort";
 import {MatStepperModule} from "@angular/material/stepper";
 import {MatLegacyTabsModule as MatTabsModule} from "@angular/material/legacy-tabs";
 import {MatToolbarModule} from "@angular/material/toolbar";
-import {MAT_LEGACY_TOOLTIP_DEFAULT_OPTIONS as MAT_TOOLTIP_DEFAULT_OPTIONS, MatLegacyTooltipDefaultOptions as MatTooltipDefaultOptions, MatLegacyTooltipModule as MatTooltipModule} from "@angular/material/legacy-tooltip";
+import {
+  MAT_LEGACY_TOOLTIP_DEFAULT_OPTIONS as MAT_TOOLTIP_DEFAULT_OPTIONS,
+  MatLegacyTooltipDefaultOptions as MatTooltipDefaultOptions,
+  MatLegacyTooltipModule as MatTooltipModule
+} from "@angular/material/legacy-tooltip";
 import {BrowserModule, DomSanitizer} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 
@@ -88,12 +92,7 @@ import {UsernameAvailableValidator} from "./util/validators/username-available.v
 import {WebSocketServiceWrapper} from "./websocket/web-socket-service-wrapper.service";
 import {WebSocketService} from "./websocket/web-socket.service";
 import {MonacoEditorModule} from "ngx-monaco-editor";
-import {
-  configureMatPaginatorI18n,
-  configureSvgIcons,
-  configureTranslations,
-  provideAnimationDriverBasedOnUserPreferences
-} from "./configuration/configuration";
+import {configureMatPaginatorI18n, configureSvgIcons, configureTranslations, provideAnimationDriverBasedOnUserPreferences} from "./configuration/configuration";
 import {MainComponent} from "./views/main/main.component";
 import {ExpandableMenuComponent} from "./components/expandable-menu/expandable-menu.component";
 import {NgxsModule, Store} from "@ngxs/store";
@@ -106,7 +105,9 @@ import {appStates} from "./store";
 import {ThemingState} from "./store/theming/theming.state";
 import {ThemeSwitcherComponent} from "./components/theme-switcher/theme-switcher.component";
 import {DndDirective} from './form/upload/dnd.directive';
-import {EditConfigurationTemplateDialogComponent} from './deployable/template-editor/edit-configuration-template-dialog/edit-configuration-template-dialog.component';
+import {
+  EditConfigurationTemplateDialogComponent
+} from './deployable/template-editor/edit-configuration-template-dialog/edit-configuration-template-dialog.component';
 import {FooterComponent} from "./components/footer/footer.component";
 import {TranslateCompiler, TranslateLoader, TranslateModule, TranslateService} from "@ngx-translate/core";
 import {TranslateHttpLoader} from "@ngx-translate/http-loader";
@@ -119,66 +120,70 @@ import {I18nSwitcherComponent} from "./components/i18n-switcher/i18n-switcher.co
 import {I18nState} from "./store/i18n/i18n.state";
 import {UrlTemplatesComponent} from "./form/url-templates-input/url-templates.component";
 
+export function HttpLoaderFactory(http: HttpClient) {
+  return new TranslateHttpLoader(http, '/assets/i18n/', '.json');
+}
+
 @NgModule({
-    declarations: [
-        AppComponent,
-        HomeComponent,
-        LoginComponent,
-        TimeoutWithUiComponent,
-        TimeoutSnackbarComponent,
-        NavigationComponent,
-        BreadcrumbComponent,
-        UserListComponent,
-        UserEditDialog,
-        ConfirmDialog,
-        MustMatchValidatorDirective,
-        MeComponent,
-        UsernameAvailableValidator,
-        EmailAvailableValidator,
-        ConfirmWithTextDialog,
-        ShowDeployableConfigurationDialog,
-        LoginComponent,
-        DockerRegistryListComponent,
-        DockerRegistryEditDialogComponent,
-        ConfirmDeletionDialogComponent,
-        KeyValueInputComponent,
-        LifetimeBehaviourInputComponent,
-        DeploymentBehaviourInputComponent,
-        DeployableStatusComponent,
-        ActivityLogComponent,
-        FileUploadComponent,
-        TemplateEditorComponent,
-        ForbiddenValuesValidator,
-        ProjectListComponent,
-        EditProjectComponent,
-        ProjectVersionListComponent,
-        EditProjectVersionComponent,
-        CreateProjectDialogComponent,
-        LogsComponent,
-        ProjectDashboardComponent,
-        ProjectVersionActionsComponent,
-        DefinedNamespacesListComponent,
-        CreateNamespaceDialogComponent,
-        DeleteNamespaceDialogComponent,
-        TemplateVariablesComponent,
-        TemplateVariableEditorComponent,
-        ValueInputComponent,
-        DeploymentsDashboardComponent,
-        DeployableActionsComponent,
-        ProjectVersionVariableActionsComponent,
-        MainComponent,
-        ExpandableMenuComponent,
-        ThemeSwitcherComponent,
-        DndDirective,
-        EditConfigurationTemplateDialogComponent,
-        FooterComponent,
-        HelmRegistryListComponent,
-        HelmRegistryEditDialogComponent,
-        DistinctObjectArrayPipe,
-        FilterDeepPipe,
-        I18nSwitcherComponent,
-        UrlTemplatesComponent
-    ],
+  declarations: [
+    AppComponent,
+    HomeComponent,
+    LoginComponent,
+    TimeoutWithUiComponent,
+    TimeoutSnackbarComponent,
+    NavigationComponent,
+    BreadcrumbComponent,
+    UserListComponent,
+    UserEditDialog,
+    ConfirmDialog,
+    MustMatchValidatorDirective,
+    MeComponent,
+    UsernameAvailableValidator,
+    EmailAvailableValidator,
+    ConfirmWithTextDialog,
+    ShowDeployableConfigurationDialog,
+    LoginComponent,
+    DockerRegistryListComponent,
+    DockerRegistryEditDialogComponent,
+    ConfirmDeletionDialogComponent,
+    KeyValueInputComponent,
+    LifetimeBehaviourInputComponent,
+    DeploymentBehaviourInputComponent,
+    DeployableStatusComponent,
+    ActivityLogComponent,
+    FileUploadComponent,
+    TemplateEditorComponent,
+    ForbiddenValuesValidator,
+    ProjectListComponent,
+    EditProjectComponent,
+    ProjectVersionListComponent,
+    EditProjectVersionComponent,
+    CreateProjectDialogComponent,
+    LogsComponent,
+    ProjectDashboardComponent,
+    ProjectVersionActionsComponent,
+    DefinedNamespacesListComponent,
+    CreateNamespaceDialogComponent,
+    DeleteNamespaceDialogComponent,
+    TemplateVariablesComponent,
+    TemplateVariableEditorComponent,
+    ValueInputComponent,
+    DeploymentsDashboardComponent,
+    DeployableActionsComponent,
+    ProjectVersionVariableActionsComponent,
+    MainComponent,
+    ExpandableMenuComponent,
+    ThemeSwitcherComponent,
+    DndDirective,
+    EditConfigurationTemplateDialogComponent,
+    FooterComponent,
+    HelmRegistryListComponent,
+    HelmRegistryEditDialogComponent,
+    DistinctObjectArrayPipe,
+    FilterDeepPipe,
+    I18nSwitcherComponent,
+    UrlTemplatesComponent
+  ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
@@ -228,7 +233,7 @@ import {UrlTemplatesComponent} from "./form/url-templates-input/url-templates.co
       },
       loader: {
         provide: TranslateLoader,
-        useFactory: (http: HttpClient) => new TranslateHttpLoader(http),
+        useFactory: HttpLoaderFactory,
         deps: [HttpClient]
       }
     })

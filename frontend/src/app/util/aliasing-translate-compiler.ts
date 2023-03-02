@@ -1,5 +1,5 @@
-import {TranslateMessageFormatCompiler} from 'ngx-translate-messageformat-compiler';
 import {flatten} from './functions';
+import {TranslateMessageFormatCompiler} from "ngx-translate-messageformat-compiler";
 
 export class AliasingTranslateCompiler extends TranslateMessageFormatCompiler {
 
@@ -17,9 +17,8 @@ export class AliasingTranslateCompiler extends TranslateMessageFormatCompiler {
         key,
         alias: value.substring(AliasingTranslateCompiler.ALIAS_MARKER.length)
       }));
-
-    const compileTranslations = super.compileTranslations(translations, lang);
-    return this.replaceAliases(compileTranslations, aliases);
+    const replaced = this.replaceAliases(translations, aliases)
+    return super.compileTranslations(replaced, lang);
   }
 
   private replaceAliases(translations: any, aliases: Array<{ key: string, alias: string }>): any {
