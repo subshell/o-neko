@@ -13,6 +13,8 @@ import io.oneko.project.WritableProject;
 import io.oneko.project.WritableProjectVersion;
 import io.oneko.project.rest.export.ProjectExportDTO;
 import io.oneko.project.rest.export.ProjectExportDTOMapper;
+import io.oneko.search.SearchResultEntry;
+import io.oneko.search.SearchService;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -42,16 +45,19 @@ public class ProjectController {
 	private final ProjectDTOMapper dtoMapper;
 	private final DeployableConfigurationDTOMapper configurationDTOMapper;
 	private final DeploymentManager deploymentManager;
+	private final SearchService searchService;
 
 	public ProjectController(ProjectRepository projectRepository, DockerRegistryRepository dockerRegistryRepository,
 			ProjectDTOMapper dtoMapper,
 			DeployableConfigurationDTOMapper configurationDTOMapper,
-			DeploymentManager deploymentManager) {
+			DeploymentManager deploymentManager,
+			SearchService searchService) {
 		this.projectRepository = projectRepository;
 		this.dockerRegistryRepository = dockerRegistryRepository;
 		this.dtoMapper = dtoMapper;
 		this.configurationDTOMapper = configurationDTOMapper;
 		this.deploymentManager = deploymentManager;
+		this.searchService = searchService;
 	}
 
 	/**
@@ -167,6 +173,11 @@ public class ProjectController {
 		ReadableProjectVersion projectVersion = project.getVersionById(versionId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project version with id " + versionId + " not found"));
 		return configurationDTOMapper.create(projectVersion);
+	}
+
+	@GetMapping("/search")
+	List<SearchResultEntry> findProjectsOrVersions(@RequestParam String query) {
+		return searchService.findProjectsAndVersions(query);
 	}
 
 	private ReadableProject getProjectOr404(UUID id) {

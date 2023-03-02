@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import io.oneko.automations.LifetimeBehaviour;
@@ -24,6 +25,7 @@ import lombok.NoArgsConstructor;
 public class ProjectVersionMongo {
 	@Id
 	private UUID projectVersionUuid;
+	@Indexed
 	private String name;
 	private DeploymentBehaviour deploymentBehaviour;
 	private String dockerContentDigest;
