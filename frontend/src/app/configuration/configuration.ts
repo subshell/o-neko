@@ -6,7 +6,7 @@ import {
   ɵWebAnimationsDriver as WebAnimationsDriver
 } from '@angular/animations/browser';
 import {TranslateService} from "@ngx-translate/core";
-import {MatPaginatorIntl} from "@angular/material/paginator";
+import {MatLegacyPaginatorIntl as MatPaginatorIntl} from "@angular/material/legacy-paginator";
 import {Store} from "@ngxs/store";
 import {I18nState} from "../store/i18n/i18n.state";
 

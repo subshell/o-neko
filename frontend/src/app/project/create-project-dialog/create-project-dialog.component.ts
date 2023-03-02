@@ -1,11 +1,11 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {UntypedFormBuilder, UntypedFormGroup, Validators} from '@angular/forms';
-import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
+import {MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef} from '@angular/material/legacy-dialog';
 import {DockerRegistry} from '../../registries/docker/docker-registry';
 import {RestService} from '../../rest/rest.service';
 import {Project} from '../project';
 import {FileReaderService} from '../../form/upload/file-reader.service';
-import {MatSnackBar} from '@angular/material/snack-bar';
+import {MatLegacySnackBar as MatSnackBar} from '@angular/material/legacy-snack-bar';
 import {ProjectExportDTO} from '../project-export';
 import {TranslateService} from "@ngx-translate/core";
 

@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from "@angular/core";
-import {MatInput} from "@angular/material/input";
+import {MatLegacyInput as MatInput} from "@angular/material/legacy-input";
 
 @Component({
   selector: 'on-url-templates-input',
