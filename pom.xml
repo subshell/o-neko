@@ -23,10 +23,10 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<spring.boot.version>2.7.7</spring.boot.version>
+		<spring.boot.version>3.0.3</spring.boot.version>
 		<feign.version>12.1</feign.version>
 		<org.mapstruct.version>1.5.3.Final</org.mapstruct.version>
-		<org.projectlombok.lombok.version>1.18.24</org.projectlombok.lombok.version>
+		<org.projectlombok.lombok.version>1.18.26</org.projectlombok.lombok.version>
 		<springdoc.version>1.6.14</springdoc.version>
 		<branchName></branchName>
 		<buildNumber></buildNumber>
@@ -120,7 +120,7 @@
 		<dependency>
 			<groupId>com.github.ben-manes.caffeine</groupId>
 			<artifactId>caffeine</artifactId>
-			<version>3.1.2</version>
+			<version>3.1.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
@@ -153,7 +153,7 @@
 		<dependency>
 			<groupId>de.flapdoodle.embed</groupId>
 			<artifactId>de.flapdoodle.embed.mongo</artifactId>
-			<version>4.3.3</version>
+			<version>4.5.1</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -164,7 +164,7 @@
 		<dependency>
 			<groupId>io.fabric8</groupId>
 			<artifactId>kubernetes-client</artifactId>
-			<version>6.3.1</version>
+			<version>6.4.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mapstruct</groupId>
@@ -185,7 +185,7 @@
 		<dependency>
 			<groupId>net.logstash.logback</groupId>
 			<artifactId>logstash-logback-encoder</artifactId>
-			<version>7.2</version>
+			<version>7.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springdoc</groupId>
@@ -231,6 +231,7 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>${spring.boot.version}</version>
 				<executions>
 					<execution>
 						<id>build-info</id>
