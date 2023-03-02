@@ -7,12 +7,12 @@ import io.oneko.security.UserRole;
 import io.oneko.user.ReadableUser;
 import io.oneko.user.UserRepository;
 import io.oneko.user.WritableUser;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.Optional;
 
 /**

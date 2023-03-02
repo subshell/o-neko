@@ -1,10 +1,5 @@
 package io.oneko.activity.internal;
 
-import java.util.function.Consumer;
-
-
-import javax.annotation.PreDestroy;
-
 import io.oneko.activity.Activity;
 import io.oneko.domain.DescribingEntityChange;
 import io.oneko.event.EntityChangedEvent;
@@ -12,6 +7,8 @@ import io.oneko.event.Event;
 import io.oneko.event.EventDispatcher;
 import io.oneko.websocket.SessionWebSocketHandler;
 import io.oneko.websocket.message.ActivityMessage;
+import jakarta.annotation.PreDestroy;
+import java.util.function.Consumer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -30,8 +27,8 @@ public class EventsToActivities {
 
 	@Autowired
 	public EventsToActivities(WritableActivityLog activityLog,
-	                          SessionWebSocketHandler webSocketHandler,
-	                          EventDispatcher eventDispatcher) {
+			SessionWebSocketHandler webSocketHandler,
+			EventDispatcher eventDispatcher) {
 		this.activityLog = activityLog;
 		this.webSocketHandler = webSocketHandler;
 		this.eventDispatcher = eventDispatcher;
@@ -49,9 +46,12 @@ public class EventsToActivities {
 				.date(event.getCreationDate())
 				.title(event.title())
 				.description(event.description())
-				.priority(event.getTrigger().priority())
-				.triggerType(event.getTrigger().getType())
-				.triggerName(event.getTrigger().humanReadable());
+				.priority(event.getTrigger()
+						.priority())
+				.triggerType(event.getTrigger()
+						.getType())
+				.triggerName(event.getTrigger()
+						.humanReadable());
 
 		if (event instanceof EntityChangedEvent) {
 			EntityChangedEvent ece = (EntityChangedEvent) event;
@@ -65,7 +65,8 @@ public class EventsToActivities {
 					.build();
 			activityBuilder.changedEntity(entityChange);
 		} else {
-			activityBuilder.activityType(event.getClass().getSimpleName());
+			activityBuilder.activityType(event.getClass()
+					.getSimpleName());
 		}
 
 		Activity activity = activityBuilder.build();
