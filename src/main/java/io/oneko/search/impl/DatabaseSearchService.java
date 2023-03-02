@@ -19,6 +19,7 @@ public class DatabaseSearchService implements SearchService {
 	private final ProjectRepository projectRepository;
 	private final Cache<String, List<SearchResultEntry>> queryResultCache = Caffeine.newBuilder()
 			.expireAfterWrite(1, TimeUnit.HOURS)
+			.maximumSize(512)
 			.build();
 
 	public DatabaseSearchService(ProjectRepository projectRepository, EventDispatcher eventDispatcher) {

@@ -9,14 +9,7 @@ import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-@Data
-@AllArgsConstructor
-public class SearchResultEntry {
-	SearchResultEntryType type;
-	String text;
-	UUID id;
-	UUID projectId;
-
+public record SearchResultEntry(SearchResultEntryType type, String text, UUID id, UUID projectId) {
 	public static SearchResultEntry of(ReadableProject project) {
 		return new SearchResultEntry(PROJECT, project.getName(), project.getId(), project.getId());
 	}
