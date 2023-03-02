@@ -1,0 +1,20 @@
+@import '../../../styles/mixins';
+
+.global-search-container {
+  padding: 0 0 0 8px;
+  border-radius: $mat-radius;
+  font-size: 1rem;
+  font-weight: normal;
+  .mat-icon-button {
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+  }
+  input {
+    all: unset;
+  }
+  mat-divider {
+    height: 2em;
+    margin: 0 0 0 8px;
+  }
+}

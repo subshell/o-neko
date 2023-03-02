@@ -1,0 +1,21 @@
+@use '@angular/material' as mat;
+@import '../../../styles/mixins';
+
+@mixin global-search-theme($theme) {
+  $background: map-get($theme, background);
+  $foreground: map-get($theme, foreground);
+  $primary: map-get($theme, primary);
+
+  on-global-search {
+    .global-search-container {
+      background-color: mat.get-color-from-palette($background, background);
+      border: 1px solid mat.get-color-from-palette($foreground, divider);
+    }
+    input {
+      color: mat.get-color-from-palette($foreground, text);
+      &::placeholder {
+        color: mat.get-color-from-palette($foreground, text);
+      }
+    }
+  }
+}

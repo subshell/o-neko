@@ -1,7 +1,9 @@
-<mat-toolbar fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="1em">
+<mat-toolbar fxLayout="column" fxLayoutAlign="center">
+  <mat-toolbar-row fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="1em">
   <button *ngIf="!isDesktop" mat-icon-button (click)="sidenav.toggle()">
     <mat-icon svgIcon="menu"></mat-icon>
   </button>
+  <on-global-search *ngIf="isDesktop" fxFlex></on-global-search>
   <div fxFlex *ngIf="!isDesktop"></div>
   <on-i18n-switcher></on-i18n-switcher>
   <on-theme-switcher></on-theme-switcher>
@@ -22,4 +24,8 @@
       </button>
     </mat-menu>
   </button>
+  </mat-toolbar-row>
+  <mat-toolbar-row *ngIf="!isDesktop" fxLayout="row">
+    <on-global-search fxFlex></on-global-search>
+  </mat-toolbar-row>
 </mat-toolbar>

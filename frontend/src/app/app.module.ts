@@ -119,6 +119,7 @@ import {FilterDeepPipe} from "./util/filter-deep.pipe";
 import {I18nSwitcherComponent} from "./components/i18n-switcher/i18n-switcher.component";
 import {I18nState} from "./store/i18n/i18n.state";
 import {UrlTemplatesComponent} from "./form/url-templates-input/url-templates.component";
+import {GlobalSearchComponent} from "./navigation/global-search/global-search.component";
 
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, '/assets/i18n/', '.json');
@@ -182,7 +183,8 @@ export function HttpLoaderFactory(http: HttpClient) {
     DistinctObjectArrayPipe,
     FilterDeepPipe,
     I18nSwitcherComponent,
-    UrlTemplatesComponent
+    UrlTemplatesComponent,
+    GlobalSearchComponent
   ],
   imports: [
     BrowserModule,

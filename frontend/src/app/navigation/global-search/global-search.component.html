@@ -1,0 +1,13 @@
+<div class="global-search-container" fxLayout="row" fxLayoutAlign="start center">
+  <input #inputElement type="text" fxFlex placeholder="xx Search (⌘ + K) xx" />
+  <button matSuffix mat-icon-button (click)="clearSearch()">
+    <mat-icon svgIcon="mdi:close"></mat-icon>
+  </button>
+  <mat-divider [vertical]="true"></mat-divider>
+  <button mat-button color="primary">
+    <div fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="8px">
+      <mat-icon svgIcon="mdi:magnify"></mat-icon>
+      <span>xx Search xx</span>
+    </div>
+  </button>
+</div>
