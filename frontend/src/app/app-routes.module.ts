@@ -110,8 +110,7 @@ export const APP_ROUTES: Routes = [
   imports: [
     RouterModule.forRoot(APP_ROUTES, {
     onSameUrlNavigation: 'ignore',
-    useHash: false,
-    relativeLinkResolution: 'legacy'
+    useHash: false
 })
   ],
   exports: [RouterModule]
