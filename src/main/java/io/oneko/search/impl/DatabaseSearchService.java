@@ -11,9 +11,11 @@ import io.oneko.search.SearchResultEntry;
 import io.oneko.search.SearchService;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 @Service
+@ConditionalOnProperty(value = "o-neko.search.meilisearch.enabled", havingValue = "false", matchIfMissing = true)
 public class DatabaseSearchService implements SearchService {
 
 	private final ProjectRepository projectRepository;

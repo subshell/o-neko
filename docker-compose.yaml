@@ -5,3 +5,10 @@ services:
     container_name: o-neko-mongodb
     ports:
       - "27017:27017"
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.0.2
+    ports:
+      - "7700:7700"
+    environment:
+      - MEILI_MASTER_KEY=ZWEZtwJKXZX3mQGA9hlqKr7THr2UTcHOKThuV8aWq3A
