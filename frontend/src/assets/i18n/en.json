@@ -173,17 +173,27 @@
       "fileUpload": {
         "dndFiles": "Drag and drop files here",
         "upload": "Upload"
-      },
-      "navigation": {
-        "account": "Account",
-        "logout": "Logout"
+      }
+    },
+    "navigation": {
+      "account": "Account",
+      "logout": "Logout",
+      "search": {
+        "placeholder": "Search ({shortcut}) for projects or versions",
+        "label": "You can search for projects and versions by their name",
+        "search": "Search",
+        "projects": "Projects",
+        "versions": "Versions",
+        "resultCountText": "showing {showing} of {found}",
+        "viewAll": "View all",
+        "noResults": "No results"
       }
     },
     "namespace": {
       "createDialog": {
         "define": "Define Namespace",
         "description": "You are about to define a new namespace in O-Neko. You totally can type in a namespace that already exists in Kubernetes.<br/>If you define a namespace that is not yet existing then it will not be created until a project version using this namespace really is deployed.",
-        "errorPattern": "The name must only contain alpha-numeric lowercase characters and dashes inbetween.",
+        "errorPattern": "The name must only contain alpha-numeric lowercase characters and dashes in between.",
         "errorMaxLength": "The name must be 63 characters or less."
       },
       "namespaceAction": "The namespace {namespace} has been {action, select, created{created} deleted{deleted} other{modified}}.",

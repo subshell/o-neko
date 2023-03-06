@@ -1,13 +1,45 @@
-<div class="global-search-container" fxLayout="row" fxLayoutAlign="start center">
-  <input #inputElement type="text" fxFlex placeholder="xx Search (⌘ + K) xx" />
-  <button matSuffix mat-icon-button (click)="clearSearch()">
-    <mat-icon svgIcon="mdi:close"></mat-icon>
-  </button>
-  <mat-divider [vertical]="true"></mat-divider>
-  <button mat-button color="primary">
-    <div fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="8px">
-      <mat-icon svgIcon="mdi:magnify"></mat-icon>
-      <span>xx Search xx</span>
+<div class="search">
+  <div class="global-search-container" [class.open]="showSearchResultBox" fxLayout="row" fxLayoutAlign="start center">
+    <input tabindex="0" [formControl]="inputControl"
+           #inputElement
+           type="text"
+           fxFlex
+           [placeholder]="'components.navigation.search.placeholder' | translate: {shortcut: displayShortcut}"
+           (focus)="inputFocused()"/>
+    <button matSuffix mat-icon-button (click)="clearSearch()">
+      <mat-icon svgIcon="mdi:close"></mat-icon>
+    </button>
+    <mat-divider [vertical]="true"></mat-divider>
+    <button mat-button color="primary">
+      <div fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="8px">
+        <mat-icon svgIcon="mdi:magnify"></mat-icon>
+        <span>{{ 'components.navigation.search.search' | translate }}</span>
+      </div>
+    </button>
+  </div>
+  <div class="search-result-box" *ngIf="showSearchResultBox">
+    <div class="search-hint" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="6px">
+      <mat-icon svgIcon="mdi:lightbulb-on"></mat-icon>
+      <span>{{ 'components.navigation.search.label' | translate }}</span>
     </div>
-  </button>
+    <div *ngIf="(results$ | async)?.length == 0" class="search-hint" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="6px">
+      <mat-icon svgIcon="mdi:lightbulb-outline"></mat-icon>
+      <span>{{ 'components.navigation.search.noResults' | translate }}</span>
+    </div>
+    <div class="list-container" *ngIf="(results$ | async)?.length > 0">
+      <mat-action-list tabindex="1">
+        <span mat-subheader *ngIf="(foundProjectsLimited$ | async)?.length > 0">{{ 'components.navigation.search.projects' | translate }} ({{ 'components.navigation.search.resultCountText' | translate: {showing: (foundProjectsLimited$ | async)?.length, found: (foundProjectCount$ | async)} }})</span>
+        <mat-list-item *ngFor="let project of (foundProjectsLimited$ | async)">
+          <mat-icon svgIcon="mdi:folder-outline" mat-list-icon></mat-icon>
+          <span mat-line>{{ project.text }}</span>
+        </mat-list-item>
+        <mat-divider *ngIf="(foundProjectsLimited$ | async)?.length > 0 && (foundVersionsLimited$ | async)?.length > 0"></mat-divider>
+        <span mat-subheader *ngIf="(foundVersionsLimited$ | async)?.length > 0">{{ 'components.navigation.search.versions' | translate }} ({{ 'components.navigation.search.resultCountText' | translate: {showing: (foundVersionsLimited$ | async)?.length, found: (foundVersionCount$ | async)} }})</span>
+        <mat-list-item *ngFor="let version of (foundVersionsLimited$ | async)">
+          <mat-icon svgIcon="mdi:folder-text-outline" mat-list-icon></mat-icon>
+          <span mat-line>{{ version.text }}</span>
+        </mat-list-item>
+      </mat-action-list>
+    </div>
+  </div>
 </div>

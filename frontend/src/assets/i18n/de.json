@@ -173,10 +173,20 @@
       "fileUpload": {
         "dndFiles": "Ziehen Sie Dateien hier hin",
         "upload": "Hochladen"
-      },
-      "navigation": {
-        "account": "Account",
-        "logout": "Ausloggen"
+      }
+    },
+    "navigation": {
+      "account": "Account",
+      "logout": "Ausloggen",
+      "search": {
+        "placeholder": "Suche ({shortcut}) nach Projekten oder Versionen",
+        "label": "Du kannst Projekte oder Versionen anhand ihrer Namen suchen",
+        "search": "Suchen",
+        "projects": "Projekte",
+        "versions": "Versionen",
+        "resultCountText": "{showing} von {found} angezeigt",
+        "viewAll": "Alle anzeigen",
+        "noResults": "Keine Ergebnisse"
       }
     },
     "namespace": {

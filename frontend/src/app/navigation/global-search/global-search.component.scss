@@ -1,20 +1,53 @@
+@use '@angular/material' as mat;
 @import '../../../styles/mixins';
 
-.global-search-container {
-  padding: 0 0 0 8px;
-  border-radius: $mat-radius;
-  font-size: 1rem;
-  font-weight: normal;
-  .mat-icon-button {
-    width: 28px;
-    height: 28px;
-    line-height: 28px;
+:host {
+  position: relative;
+}
+
+.search {
+  .global-search-container {
+    padding: 0 0 0 8px;
+    border-radius: $mat-radius;
+    font-size: 1rem;
+    .mat-icon-button {
+      width: 28px;
+      height: 28px;
+      line-height: 28px;
+    }
+    input {
+      all: unset;
+    }
+    mat-divider {
+      height: 2em;
+      margin: 0 0 0 8px;
+    }
+    &.open {
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+    }
   }
-  input {
-    all: unset;
-  }
-  mat-divider {
-    height: 2em;
-    margin: 0 0 0 8px;
+
+  .search-result-box {
+    position: absolute;
+    left: 0;
+    right: 0;
+    border-bottom-left-radius: $mat-radius;
+    border-bottom-right-radius: $mat-radius;
+    padding: 0.5em 1em 1em 1em;
+    .list-container {
+      border-radius: $mat-radius;
+      .mat-action-list {
+        width: 100%;
+      }
+    }
+    .search-hint {
+      font-size: 0.6em;
+      margin-bottom: 0.5em;
+      mat-icon {
+        @include mat-icon-size(22px);
+      }
+    }
   }
 }
+

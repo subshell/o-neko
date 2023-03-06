@@ -16,11 +16,11 @@
     <mat-menu [overlapTrigger]="false" #userMenu="matMenu">
       <a mat-menu-item routerLink="/me">
         <mat-icon svgIcon="mdi:account-edit"></mat-icon>
-        <span>{{'components.forms.navigation.account' | translate}}</span>
+        <span>{{'components.navigation.account' | translate}}</span>
       </a>
       <button mat-menu-item (click)="logout()">
         <mat-icon svgIcon="mdi:logout-variant"></mat-icon>
-        <span>{{'components.forms.navigation.logout' | translate}}</span>
+        <span>{{'components.navigation.logout' | translate}}</span>
       </button>
     </mat-menu>
   </button>

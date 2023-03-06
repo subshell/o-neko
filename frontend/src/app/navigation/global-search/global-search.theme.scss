@@ -5,16 +5,41 @@
   $background: map-get($theme, background);
   $foreground: map-get($theme, foreground);
   $primary: map-get($theme, primary);
+  $shadowColor: mat.get-color-from-palette($foreground, elevation);
 
   on-global-search {
-    .global-search-container {
-      background-color: mat.get-color-from-palette($background, background);
-      border: 1px solid mat.get-color-from-palette($foreground, divider);
-    }
-    input {
-      color: mat.get-color-from-palette($foreground, text);
-      &::placeholder {
+    .search {
+
+
+      .global-search-container {
+        background-color: mat.get-color-from-palette($background, background);
+        border: 1px solid mat.get-color-from-palette($foreground, divider);
+        &.open {
+          box-shadow: 0 4px 6px 6px rgba($shadowColor, 10%);
+        }
+      }
+
+      .search-result-box {
+        box-shadow: 0 4px 6px 0 rgba($shadowColor, 10%), 0 12px 12px 0 rgba($shadowColor, 20%);
+        background-color: mat.get-color-from-palette($background, app-bar);
+        border: 1px solid mat.get-color-from-palette($foreground, divider);
+        border-top: none;
+
+        .search-hint {
+          color: mat.get-color-from-palette($primary, 400);
+        }
+        .list-container {
+          background-color: mat.get-color-from-palette($background, background);
+          .mat-action-list {
+          }
+        }
+      }
+
+      input {
         color: mat.get-color-from-palette($foreground, text);
+        &::placeholder {
+          color: mat.get-color-from-palette($foreground, text);
+        }
       }
     }
   }
