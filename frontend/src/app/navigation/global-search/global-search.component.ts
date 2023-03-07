@@ -48,9 +48,10 @@ export class GlobalSearchComponent implements OnInit {
     this.displayShortcut = isMac ? "⌘ + K" : "ctrl + K";
 
     const eventName = `keydown.${isMac ? 'meta' : 'ctrl'}.k`;
-    this.renderer.listen(document, eventName, () => {
+    this.renderer.listen(document, eventName, (event: KeyboardEvent) => {
       this.inputElement.nativeElement.focus();
       this.showSearchResultBox = true;
+      event.preventDefault();
     });
     this.renderer.listen(document, 'keydown.escape', () => this.hideResults());
     this.renderer.listen(document, 'click', (event: MouseEvent) => {
