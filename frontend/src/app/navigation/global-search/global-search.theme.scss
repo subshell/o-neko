@@ -39,7 +39,7 @@
       input {
         color: mat.get-color-from-palette($foreground, text);
         &::placeholder {
-          color: mat.get-color-from-palette($foreground, text);
+          color: mat.get-color-from-palette($foreground, secondary-text);
         }
       }
     }

@@ -1,10 +1,10 @@
 import {Component, OnDestroy} from "@angular/core";
 import {Subscription} from "rxjs";
 import {DeployableStatus, DesiredState} from "../../deployable/deployment";
-import {RestService} from "../../rest/rest.service";
 import {WebSocketServiceWrapper} from "../../websocket/web-socket-service-wrapper.service";
 import {Project} from "../project";
 import {ProjectVersion} from "../project-version";
+import {CachingProjectRestClient} from "../../rest/caching-project-rest-client";
 
 @Component({
   selector: 'project-dashboard',
@@ -17,9 +17,9 @@ export class ProjectDashboardComponent implements OnDestroy {
   public currentlyShownProjects: Array<string> = [];
   private updateSubscriptions: Array<Subscription> = [];
 
-  constructor(private rest: RestService,
+  constructor(private rest: CachingProjectRestClient,
               private wsService: WebSocketServiceWrapper) {
-    this.rest.project().getAllProjects().subscribe(projects => {
+    this.rest.getAllProjects().subscribe(projects => {
       this.projects = projects.sort((a, b) => a.name.localeCompare(b.name, "en"));
       for (let project of this.projects) {
         this.updateSubscriptions.push(this.wsService.getProjectVersionChanges(project.uuid)
