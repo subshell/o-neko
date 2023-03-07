@@ -3,7 +3,7 @@ import {DOCUMENT} from "@angular/common";
 import {RestService} from "../../rest/rest.service";
 import {FormControl} from "@angular/forms";
 import {Observable} from "rxjs";
-import {map, mergeMap, startWith} from "rxjs/operators";
+import {map, mergeMap, shareReplay, startWith} from "rxjs/operators";
 import {ProjectSearchResultEntry, SearchResult, VersionSearchResultEntry} from "../../search/search.model";
 import {ProjectVersion} from "../../project/project-version";
 import {Project} from "../../project/project";
@@ -73,7 +73,7 @@ export class GlobalSearchComponent implements OnInit {
     if (this.result$) {
       return;
     }
-    this.result$ = this.inputControl.valueChanges.pipe(startWith(""), mergeMap(inputContent => this.api.findProjectsOrVersions(inputContent)));
+    this.result$ = this.inputControl.valueChanges.pipe(startWith(""), mergeMap(inputContent => this.api.findProjectsOrVersions(inputContent)), shareReplay());
     this.inputControl.valueChanges.subscribe(() => this.showSearchResultBox = true);
     this.foundVersionsLimited$ = this.result$.pipe(
       map(r => r.versions.slice(0, this.displayedEntriesLimit)),
@@ -92,8 +92,16 @@ export class GlobalSearchComponent implements OnInit {
     this.foundProjectsLimited$ = this.result$.pipe(map(r => r.projects.slice(0, this.displayedEntriesLimit)));
   }
 
+  clearButtonClicked() {
+    this.clearSearch();
+    this.focusInput();
+  }
+
   clearSearch() {
     this.inputControl.setValue('');
+  }
+
+  focusInput() {
     this.inputElement.nativeElement.focus();
   }
 }

@@ -6,7 +6,7 @@
            fxFlex
            [placeholder]="'components.navigation.search.placeholder' | translate: {shortcut: displayShortcut}"
            (focus)="inputFocused()"/>
-    <button matSuffix mat-icon-button (click)="clearSearch()">
+    <button matSuffix mat-icon-button (click)="clearButtonClicked()">
       <mat-icon svgIcon="mdi:close"></mat-icon>
     </button>
     <mat-divider [vertical]="true"></mat-divider>

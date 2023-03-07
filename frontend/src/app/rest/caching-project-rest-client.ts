@@ -29,7 +29,9 @@ export class CachingProjectRestClient implements ProjectRestClient, OnDestroy {
         }
         //else case is 'Deleted', but then we just have to drop it from our cache and we're good to go.
       }
-    }))
+    }), this.wsService.getProjectVersionChanges().subscribe(message => {
+      this.cache.invalidate(message.ownerId);
+    }));
   }
 
   ngOnDestroy() {
