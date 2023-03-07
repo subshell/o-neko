@@ -13,7 +13,8 @@ import io.oneko.project.WritableProject;
 import io.oneko.project.WritableProjectVersion;
 import io.oneko.project.rest.export.ProjectExportDTO;
 import io.oneko.project.rest.export.ProjectExportDTOMapper;
-import io.oneko.search.SearchResultEntry;
+import io.oneko.search.ProjectSearchResultEntry;
+import io.oneko.search.SearchResult;
 import io.oneko.search.SearchService;
 import java.util.List;
 import java.util.Objects;
@@ -176,7 +177,7 @@ public class ProjectController {
 	}
 
 	@GetMapping("/search")
-	List<SearchResultEntry> findProjectsOrVersions(@RequestParam String query) {
+	SearchResult findProjectsOrVersions(@RequestParam String query) {
 		return searchService.findProjectsAndVersions(query);
 	}
 

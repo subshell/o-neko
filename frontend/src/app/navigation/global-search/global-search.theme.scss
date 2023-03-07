@@ -9,8 +9,6 @@
 
   on-global-search {
     .search {
-
-
       .global-search-container {
         background-color: mat.get-color-from-palette($background, background);
         border: 1px solid mat.get-color-from-palette($foreground, divider);
@@ -26,7 +24,10 @@
         border-top: none;
 
         .search-hint {
-          color: mat.get-color-from-palette($primary, 400);
+          color: mat.get-color-from-palette($foreground, secondary-text);
+          mat-icon {
+            color: mat.get-color-from-palette($primary, 400);
+          }
         }
         .list-container {
           background-color: mat.get-color-from-palette($background, background);
@@ -40,6 +41,12 @@
         &::placeholder {
           color: mat.get-color-from-palette($foreground, text);
         }
+      }
+    }
+    .search-backdrop {
+      transition: background-color ease-in-out 0.125s;
+      &.search-backdrop-active {
+        background-color: rgba(black, 0.3);
       }
     }
   }

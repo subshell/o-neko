@@ -2,6 +2,7 @@ import {Observable} from "rxjs";
 import {EffectiveDeployableConfiguration} from "../deployable/effective-deployable-configuration";
 import {Project} from "../project/project";
 import {ProjectVersion} from "../project/project-version";
+import {SearchResult} from "../search/search.model";
 
 export interface ProjectRestClient {
 
@@ -18,5 +19,7 @@ export interface ProjectRestClient {
   stopDeployment(version: ProjectVersion, project: Project): Observable<void>;
 
   getCalculatedProjectVersionConfiguration(version: ProjectVersion, project: Project): Observable<EffectiveDeployableConfiguration>;
+
+  findProjectsOrVersions(query: string): Observable<SearchResult>;
 
 }

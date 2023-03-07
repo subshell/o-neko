@@ -1,5 +1,6 @@
 <div fxLayout="row" fxLayoutAlign="space-between center">
   <project-version-variable-actions
+    *ngIf="!hideVariables"
     [hasEditPermission]="hasEditVariablesPermission"
     [version]="version"
     (onVariableChange)="saveVersion($event)">

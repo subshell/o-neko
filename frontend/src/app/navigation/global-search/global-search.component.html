@@ -17,29 +17,46 @@
       </div>
     </button>
   </div>
-  <div class="search-result-box" *ngIf="showSearchResultBox">
-    <div class="search-hint" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="6px">
+  <div class="search-result-box" *ngIf="showSearchResultBox && (result$ | async) as result">
+    <div class="search-hint" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="6px" *ngIf="inputControl.value?.length === 0">
       <mat-icon svgIcon="mdi:lightbulb-on"></mat-icon>
       <span>{{ 'components.navigation.search.label' | translate }}</span>
     </div>
-    <div *ngIf="(results$ | async)?.length == 0" class="search-hint" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="6px">
+    <div *ngIf="result.total == 0" class="search-hint" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="6px">
       <mat-icon svgIcon="mdi:lightbulb-outline"></mat-icon>
       <span>{{ 'components.navigation.search.noResults' | translate }}</span>
     </div>
-    <div class="list-container" *ngIf="(results$ | async)?.length > 0">
-      <mat-action-list tabindex="1">
-        <span mat-subheader *ngIf="(foundProjectsLimited$ | async)?.length > 0">{{ 'components.navigation.search.projects' | translate }} ({{ 'components.navigation.search.resultCountText' | translate: {showing: (foundProjectsLimited$ | async)?.length, found: (foundProjectCount$ | async)} }})</span>
-        <mat-list-item *ngFor="let project of (foundProjectsLimited$ | async)">
-          <mat-icon svgIcon="mdi:folder-outline" mat-list-icon></mat-icon>
-          <span mat-line>{{ project.text }}</span>
-        </mat-list-item>
-        <mat-divider *ngIf="(foundProjectsLimited$ | async)?.length > 0 && (foundVersionsLimited$ | async)?.length > 0"></mat-divider>
-        <span mat-subheader *ngIf="(foundVersionsLimited$ | async)?.length > 0">{{ 'components.navigation.search.versions' | translate }} ({{ 'components.navigation.search.resultCountText' | translate: {showing: (foundVersionsLimited$ | async)?.length, found: (foundVersionCount$ | async)} }})</span>
-        <mat-list-item *ngFor="let version of (foundVersionsLimited$ | async)">
-          <mat-icon svgIcon="mdi:folder-text-outline" mat-list-icon></mat-icon>
-          <span mat-line>{{ version.text }}</span>
-        </mat-list-item>
-      </mat-action-list>
+    <div class="list-container" *ngIf="result.total > 0">
+      <mat-list tabindex="1">
+        <ng-container *ngIf="(foundProjectsLimited$ | async) as foundProjectsLimited">
+          <span mat-subheader *ngIf="foundProjectsLimited.length > 0">{{ 'components.navigation.search.projects' | translate }} ({{ 'components.navigation.search.resultCountText' | translate: {showing: foundProjectsLimited.length, found: result.totalProjectsFound} }})</span>
+          <ng-container *ngFor="let project of foundProjectsLimited; let last = last;">
+            <mat-list-item>
+              <mat-icon svgIcon="mdi:folder-outline" mat-list-icon></mat-icon>
+              <a mat-line class="o-neko-internal-link" [routerLink]="'/projects/' + project.id" (click)="hideResults()">{{ project.name }}</a>
+            </mat-list-item>
+            <mat-divider *ngIf="!last"></mat-divider>
+          </ng-container>
+        </ng-container>
+        <ng-container *ngIf="(foundVersionsLimited$ | async) as foundVersionsLimited">
+          <span mat-subheader *ngIf="foundVersionsLimited.length > 0">{{ 'components.navigation.search.versions' | translate }} ({{ 'components.navigation.search.resultCountText' | translate: {showing: foundVersionsLimited.length, found: result.totalVersionsFound} }})</span>
+          <ng-container *ngFor="let version of foundVersionsLimited; let last = last;">
+            <mat-list-item>
+              <deployableStatus class="version-status" [status]="(version.version | async).deployment.status" mat-list-icon></deployableStatus>
+              <a mat-line class="o-neko-internal-link" [routerLink]="'/projects/' + version.searchResult.projectId + '/versions/' + version.searchResult.id" (click)="hideResults()">{{ version.searchResult.name }}</a>
+              <span mat-line fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="4px">
+                <mat-icon svgIcon="mdi:folder-outline"></mat-icon>
+                <span>{{ version.searchResult.projectName }}</span>
+              </span>
+              <div>
+                <projectVersionActions hideVariables="true" [version]="version.version | async" [project]="version.project | async"></projectVersionActions>
+              </div>
+            </mat-list-item>
+            <mat-divider *ngIf="!last"></mat-divider>
+          </ng-container>
+        </ng-container>
+      </mat-list>
     </div>
   </div>
 </div>
+<div class="search-backdrop" [class.search-backdrop-active]="showSearchResultBox"></div>

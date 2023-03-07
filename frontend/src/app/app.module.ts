@@ -120,6 +120,7 @@ import {I18nSwitcherComponent} from "./components/i18n-switcher/i18n-switcher.co
 import {I18nState} from "./store/i18n/i18n.state";
 import {UrlTemplatesComponent} from "./form/url-templates-input/url-templates.component";
 import {GlobalSearchComponent} from "./navigation/global-search/global-search.component";
+import {CachingProjectRestClient} from "./rest/caching-project-rest-client";
 
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, '/assets/i18n/', '.json');
@@ -269,7 +270,8 @@ export function HttpLoaderFactory(http: HttpClient) {
     {
       provide: AnimationDriver,
       useFactory: () => provideAnimationDriverBasedOnUserPreferences()
-    }
+    },
+    CachingProjectRestClient
   ],
   bootstrap: [AppComponent]
 })

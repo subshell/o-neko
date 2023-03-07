@@ -5,7 +5,11 @@
   position: relative;
 }
 
+$zIndex: 1;
+
 .search {
+  z-index: $zIndex + 1;
+  position: relative;
   .global-search-container {
     padding: 0 0 0 8px;
     border-radius: $mat-radius;
@@ -37,7 +41,7 @@
     padding: 0.5em 1em 1em 1em;
     .list-container {
       border-radius: $mat-radius;
-      .mat-action-list {
+      .mat-list {
         width: 100%;
       }
     }
@@ -48,6 +52,18 @@
         @include mat-icon-size(22px);
       }
     }
+    .version-status {
+      font-size: initial;
+    }
   }
 }
 
+.search-backdrop{
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: $zIndex;
+  pointer-events: none;
+}

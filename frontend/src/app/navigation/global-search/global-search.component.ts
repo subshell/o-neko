@@ -2,9 +2,18 @@ import {Component, ElementRef, Inject, OnInit, Renderer2, ViewChild} from "@angu
 import {DOCUMENT} from "@angular/common";
 import {RestService} from "../../rest/rest.service";
 import {FormControl} from "@angular/forms";
-import {SearchResultEntry} from "../../search/search.model";
 import {Observable} from "rxjs";
 import {map, mergeMap, startWith} from "rxjs/operators";
+import {ProjectSearchResultEntry, SearchResult, VersionSearchResultEntry} from "../../search/search.model";
+import {ProjectVersion} from "../../project/project-version";
+import {Project} from "../../project/project";
+import {CachingProjectRestClient} from "../../rest/caching-project-rest-client";
+
+interface EnrichedVersionSearchResult {
+  version: Observable<ProjectVersion>;
+  project: Observable<Project>;
+  searchResult: VersionSearchResultEntry;
+}
 
 @Component({
   selector: 'on-global-search',
@@ -19,17 +28,13 @@ export class GlobalSearchComponent implements OnInit {
   displayShortcut = ""
 
 
-  results$: Observable<Array<SearchResultEntry>>;
-  foundVersions$: Observable<Array<SearchResultEntry>>;
-  foundVersionsLimited$: Observable<Array<SearchResultEntry>>;
-  foundVersionCount$: Observable<number>;
-  foundProjects$: Observable<Array<SearchResultEntry>>;
-  foundProjectsLimited$: Observable<Array<SearchResultEntry>>;
-  foundProjectCount$: Observable<number>;
+  result$: Observable<SearchResult>;
+  foundVersionsLimited$: Observable<Array<EnrichedVersionSearchResult>>;
+  foundProjectsLimited$: Observable<Array<ProjectSearchResultEntry>>;
 
   constructor(private renderer: Renderer2,
               @Inject(DOCUMENT) document: Document,
-              private api: RestService,
+              private api: CachingProjectRestClient,
               private elementRef: ElementRef) {
   }
 
@@ -65,17 +70,26 @@ export class GlobalSearchComponent implements OnInit {
   }
 
   private startRenderingResults() {
-    if (this.results$) {
+    if (this.result$) {
       return;
     }
-    this.results$ = this.inputControl.valueChanges.pipe(startWith(""), mergeMap(inputContent => this.api.project().findProjectsOrVersions(inputContent)));
+    this.result$ = this.inputControl.valueChanges.pipe(startWith(""), mergeMap(inputContent => this.api.findProjectsOrVersions(inputContent)));
     this.inputControl.valueChanges.subscribe(() => this.showSearchResultBox = true);
-    this.foundVersions$ = this.results$.pipe(map(results => results.filter(entry => entry.type === "PROJECT_VERSION")));
-    this.foundVersionsLimited$ = this.foundVersions$.pipe(map(r => r.slice(0, this.displayedEntriesLimit)));
-    this.foundVersionCount$ = this.foundVersions$.pipe(map(r => r.length));
-    this.foundProjects$ = this.results$.pipe(map(results => results.filter(entry => entry.type === "PROJECT")));
-    this.foundProjectsLimited$ = this.foundProjects$.pipe(map(r => r.slice(0, this.displayedEntriesLimit)));
-    this.foundProjectCount$ = this.foundProjects$.pipe(map(r => r.length));
+    this.foundVersionsLimited$ = this.result$.pipe(
+      map(r => r.versions.slice(0, this.displayedEntriesLimit)),
+      map(r => {
+        return r.map(v => {
+          let project = this.api.getProjectById(v.projectId);
+          let version = project.pipe(map(p => p.getVersionById(v.id)));
+          return <EnrichedVersionSearchResult>{
+            searchResult: v,
+            project,
+            version
+          };
+        });
+      })
+    );
+    this.foundProjectsLimited$ = this.result$.pipe(map(r => r.projects.slice(0, this.displayedEntriesLimit)));
   }
 
   clearSearch() {

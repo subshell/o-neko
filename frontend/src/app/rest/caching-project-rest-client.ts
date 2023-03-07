@@ -8,6 +8,7 @@ import {Cache} from "../util/cache";
 import {WebSocketServiceWrapper} from "../websocket/web-socket-service-wrapper.service";
 import {ProjectRestClient} from "./project-rest-client";
 import {RestService} from "./rest.service";
+import {SearchResult} from "../search/search.model";
 
 @Injectable()
 export class CachingProjectRestClient implements ProjectRestClient, OnDestroy {
@@ -39,7 +40,7 @@ export class CachingProjectRestClient implements ProjectRestClient, OnDestroy {
 
   getAllProjects(): Observable<Array<Project>> {
     if (this.allLoaded) {
-      return of(this.cache.getAll());
+      return of(this.cache.getAll<Project>());
     } else {
       return this.delegate.getAllProjects().pipe(tap(projects => {
         projects.forEach(project => this.cache.put(project.uuid, project));
@@ -70,6 +71,10 @@ export class CachingProjectRestClient implements ProjectRestClient, OnDestroy {
 
   getCalculatedProjectVersionConfiguration(version: ProjectVersion, project: Project): Observable<EffectiveDeployableConfiguration> {
     return this.delegate.getCalculatedProjectVersionConfiguration(version, project);
+  }
+
+  findProjectsOrVersions(query: string): Observable<SearchResult> {
+    return this.delegate.findProjectsOrVersions(query);
   }
 
 }
