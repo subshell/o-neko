@@ -15,4 +15,6 @@ public class VersionMeili {
 	private UUID id;
 	private String name;
 	private UUID projectId;
+
+	private String projectName;
 }

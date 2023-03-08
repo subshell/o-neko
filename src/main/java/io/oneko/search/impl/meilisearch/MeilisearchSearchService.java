@@ -1,14 +1,9 @@
 package io.oneko.search.impl.meilisearch;
 
-import static io.oneko.search.SearchResultEntryType.PROJECT;
-import static io.oneko.search.SearchResultEntryType.PROJECT_VERSION;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.google.common.collect.Streams;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.meilisearch.sdk.Client;
 import com.meilisearch.sdk.Config;
 import com.meilisearch.sdk.Index;
@@ -16,41 +11,46 @@ import com.meilisearch.sdk.SearchRequest;
 import com.meilisearch.sdk.exceptions.MeilisearchException;
 import com.meilisearch.sdk.json.GsonJsonHandler;
 import com.meilisearch.sdk.model.Searchable;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.oneko.event.EventDispatcher;
 import io.oneko.project.ProjectRepository;
 import io.oneko.project.ReadableProject;
 import io.oneko.project.ReadableProjectVersion;
 import io.oneko.project.event.ProjectDeletedEvent;
 import io.oneko.project.event.ProjectSavedEvent;
-import io.oneko.search.SearchResultEntry;
-import io.oneko.search.SearchService;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import io.oneko.search.MeasuringSearchService;
+import io.oneko.search.ProjectSearchResultEntry;
+import io.oneko.search.SearchResult;
+import io.oneko.search.VersionSearchResultEntry;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 @Service
 @ConditionalOnProperty(value = "o-neko.search.meilisearch.enabled", havingValue = "true")
-public class MeilisearchSearchService implements SearchService {
+public class MeilisearchSearchService extends MeasuringSearchService {
+
 	private final ObjectMapper objectMapper;
 	private final Index projectIndex;
 	private final Index versionIndex;
 	private final Gson gson = new Gson();
-	private final Cache<String, List<SearchResultEntry>> queryResultCache = Caffeine.newBuilder()
+	private final Cache<String, SearchResult> queryResultCache = Caffeine.newBuilder()
 			.expireAfterWrite(1, TimeUnit.HOURS)
 			.maximumSize(512)
 			.build(); // TODO: Evaluate if cache is really useful in combination with Meilisearch
 
-	public MeilisearchSearchService(ProjectRepository projectRepository, EventDispatcher eventDispatcher, ObjectMapper objectMapper)
-			throws MeilisearchException {
+	public MeilisearchSearchService(ProjectRepository projectRepository,
+			EventDispatcher eventDispatcher,
+			ObjectMapper objectMapper,
+			MeterRegistry meterRegistry) throws MeilisearchException {
+		super(meterRegistry);
+
 		this.objectMapper = objectMapper;
 
-		Client client = new Client(new Config("http://localhost:7700", "ZWEZtwJKXZX3mQGA9hlqKr7THr2UTcHOKThuV8aWq3A", new GsonJsonHandler())); // TODO: Read key from config
+		Client client = new Client(
+				new Config("http://localhost:7700", "ZWEZtwJKXZX3mQGA9hlqKr7THr2UTcHOKThuV8aWq3A", new GsonJsonHandler())); // TODO: Read values from config
 		projectIndex = client.index("oneko_projects");
 		versionIndex = client.index("oneko_versions");
 
@@ -117,11 +117,12 @@ public class MeilisearchSearchService implements SearchService {
 	}
 
 	private VersionMeili toVersionMeili(ReadableProjectVersion version) {
+		ReadableProject project = version.getProject();
 		return VersionMeili.builder()
 				.id(version.getId())
 				.name(version.getName())
-				.projectId(version.getProject()
-						.getId())
+				.projectId(project.getId())
+				.projectName(project.getName())
 				.build();
 	}
 
@@ -147,18 +148,28 @@ public class MeilisearchSearchService implements SearchService {
 	}
 
 	@Override
-	public List<SearchResultEntry> findProjectsAndVersions(String searchTerm) {
+	public SearchResult findProjectsAndVersions(String searchTerm) {
 		return queryResultCache.get(searchTerm, s -> {
 			try {
-
-				var versions = versionIndex.search(searchTerm).getHits().stream().map(res -> objectMapper.convertValue(res, VersionMeili.class))
-						.map(vm -> new SearchResultEntry(PROJECT_VERSION, vm.getName(), vm.getId(), vm.getProjectId()));
-
-				var projects = projectIndex.search(searchTerm).getHits().stream().map(res -> objectMapper.convertValue(res, ProjectMeili.class))
-						.map(pm -> new SearchResultEntry(PROJECT, pm.getName(), pm.getId(), pm.getId()));
-
-				return Streams.concat(versions, projects)
+				var versions = versionIndex.search(searchTerm)
+						.getHits()
+						.stream()
+						.map(res -> objectMapper.convertValue(res, VersionMeili.class))
+						.map(vm -> new VersionSearchResultEntry(vm.getName(), vm.getId(), vm.getProjectName(), vm.getProjectId()))
 						.toList();
+
+				var projects = projectIndex.search(searchTerm)
+						.getHits()
+						.stream()
+						.map(res -> objectMapper.convertValue(res, ProjectMeili.class))
+						.map(pm -> new ProjectSearchResultEntry(pm.getName(), pm.getId()))
+						.toList();
+
+				return SearchResult.builder()
+						.query(searchTerm)
+						.projects(projects)
+						.versions(versions)
+						.build();
 			} catch (MeilisearchException e) {
 				throw new RuntimeException(e);
 			}
