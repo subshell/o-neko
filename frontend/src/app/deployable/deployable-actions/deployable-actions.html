@@ -8,7 +8,8 @@
           (click)="deploy(); $event.stopPropagation()">
     <span fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="6px">
       <mat-icon svgIcon="mdi:play-circle"></mat-icon>
-      <span>{{ (isDeployed ? 'components.deployableActions.reDeploy' : 'components.deployableActions.deploy') | translate }}</span>
+      <span *ngIf="!overrideDeployLabel?.length">{{ (isDeployed ? 'components.deployableActions.reDeploy' : 'components.deployableActions.deploy') | translate }}</span>
+      <span *ngIf="overrideDeployLabel?.length">{{ overrideDeployLabel }}</span>
     </span>
   </button>
 
@@ -21,7 +22,8 @@
           (click)="stop(); $event.stopPropagation()">
     <span fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="6px">
       <mat-icon svgIcon="mdi:stop-circle"></mat-icon>
-      <span>{{'components.deployableActions.stop' | translate}}</span>
+      <span *ngIf="!overrideStopLabel?.length">{{'components.deployableActions.stop' | translate}}</span>
+      <span *ngIf="overrideStopLabel?.length">{{ overrideStopLabel }}</span>
     </span>
   </button>
 </div>

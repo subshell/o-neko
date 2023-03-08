@@ -67,6 +67,10 @@
       "reDeploy": "Re-Deploy",
       "stop": "Stop"
     },
+    "multiDeployActions": {
+      "deploy": "Deploy {count, plural, one{this version} other{these # versions}}",
+      "stop": "Stop {count, plural, one{this version} other{these # versions}}"
+    },
     "deployableStatus": {
       "runningOutdated": "This deployment is running with an outdated configuration",
       "NotScheduled": "Not scheduled",
@@ -313,6 +317,7 @@
         },
         "projectSnackbarMessage": "Project {name} has been {action, select, created{created} saved{saved} deleted{deleted} other{modified}}.",
         "versionSnackbarMessage": "{action, select, deployed{Deployment} stopped{Stopping} other{Modification}} of {name} version {version} has been triggered.",
+        "multiDeploySnackbarMessage": "Triggered {action, select, deployed{deployment} stopped{stopping} other{modification}} of {count, plural, one{one version} other{# versions}}.",
         "errorMessage": "Error: {message}"
       }
     },

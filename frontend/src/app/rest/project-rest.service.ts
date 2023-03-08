@@ -34,7 +34,7 @@ export class ProjectRestService implements ProjectRestClient {
     }
   }
 
-  public persistProjectVersionVariables(project: Project, projectVersion: ProjectVersion) {
+  public persistProjectVersionVariables(project: Project, projectVersion: ProjectVersion): Observable<Project> {
     if (project.isNew()) {
       return throwError("Cannot persist variables for a new project");
     }

@@ -21,6 +21,7 @@ $zIndex: 1;
     }
     input {
       all: unset;
+      padding: 0 1em;
     }
     mat-divider {
       height: 2em;
@@ -38,7 +39,7 @@ $zIndex: 1;
     right: 0;
     border-bottom-left-radius: $mat-radius;
     border-bottom-right-radius: $mat-radius;
-    padding: 0.5em 1em 1em 1em;
+    padding: 1em;
     .list-container {
       border-radius: $mat-radius;
       .mat-list {
@@ -47,13 +48,20 @@ $zIndex: 1;
     }
     .search-hint {
       font-size: 0.6em;
-      margin-bottom: 0.5em;
+      margin-bottom: 1em;
       mat-icon {
         @include mat-icon-size(22px);
       }
     }
     .version-status {
       font-size: initial;
+    }
+    on-multi-deploy-actions {
+      margin: 0.5em auto;
+    }
+    .view-all-container {
+      margin-top: 1em;
+      font-size: 0.7em;
     }
   }
 }

@@ -2,13 +2,14 @@ import {Injectable, OnDestroy} from "@angular/core";
 import {Observable, of, Subscription} from "rxjs";
 import {tap} from "rxjs/operators";
 import {EffectiveDeployableConfiguration} from "../deployable/effective-deployable-configuration";
-import {Project} from "../project/project";
+import {Project, ProjectDTO} from "../project/project";
 import {ProjectVersion} from "../project/project-version";
 import {Cache} from "../util/cache";
 import {WebSocketServiceWrapper} from "../websocket/web-socket-service-wrapper.service";
 import {ProjectRestClient} from "./project-rest-client";
 import {RestService} from "./rest.service";
 import {SearchResult} from "../search/search.model";
+import {ProjectExportDTO} from "../project/project-export";
 
 @Injectable()
 export class CachingProjectRestClient implements ProjectRestClient, OnDestroy {
@@ -59,8 +60,16 @@ export class CachingProjectRestClient implements ProjectRestClient, OnDestroy {
     return this.delegate.persistProject(project).pipe(tap(persistedProject => this.cache.put(persistedProject.uuid, persistedProject)));
   }
 
+  persistProjectVersionVariables(project: Project, projectVersion: ProjectVersion): Observable<Project> {
+    return this.delegate.persistProjectVersionVariables(project, projectVersion);
+  }
+
   deleteProject(project: Project): Observable<void> {
     return this.delegate.deleteProject(project).pipe(tap(() => this.cache.invalidate(project.uuid)));
+  }
+
+  exportProject(project: Project): Observable<ProjectExportDTO> {
+    return this.delegate.exportProject(project);
   }
 
   deployProjectVersion(version: ProjectVersion, project: Project): Observable<void> {

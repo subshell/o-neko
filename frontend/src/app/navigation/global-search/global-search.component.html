@@ -42,20 +42,29 @@
           <span mat-subheader *ngIf="foundVersionsLimited.length > 0">{{ 'components.navigation.search.versions' | translate }} ({{ 'components.navigation.search.resultCountText' | translate: {showing: foundVersionsLimited.length, found: result.totalVersionsFound} }})</span>
           <ng-container *ngFor="let version of foundVersionsLimited; let last = last;">
             <mat-list-item>
-              <deployableStatus class="version-status" [status]="(version.version | async).deployment.status" mat-list-icon></deployableStatus>
+              <deployableStatus class="version-status" [status]="version.version.deployment.status" mat-list-icon></deployableStatus>
               <a mat-line class="o-neko-internal-link" [routerLink]="'/projects/' + version.searchResult.projectId + '/versions/' + version.searchResult.id" (click)="hideResults()">{{ version.searchResult.name }}</a>
               <span mat-line fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="4px">
                 <mat-icon svgIcon="mdi:folder-outline"></mat-icon>
                 <span>{{ version.searchResult.projectName }}</span>
               </span>
               <div>
-                <projectVersionActions hideVariables="true" [version]="version.version | async" [project]="version.project | async"></projectVersionActions>
+                <projectVersionActions hideVariables="true" [version]="version.version" [project]="version.project"></projectVersionActions>
               </div>
             </mat-list-item>
             <mat-divider *ngIf="!last"></mat-divider>
           </ng-container>
+          <div fxLayout="row" fxLayoutAlign="center">
+            <on-multi-deploy-actions [versions]="versionsMultiDeployModel$ | async"></on-multi-deploy-actions>
+          </div>
         </ng-container>
       </mat-list>
+    </div>
+    <div *ngIf="result.totalVersionsFound > displayedEntriesLimit || result.totalProjectsFound > displayedEntriesLimit" fxLayout="row" fxLayoutAlign="center" class="view-all-container">
+      <a class="o-neko-internal-link" routerLink="" fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="4px">
+        <mat-icon svgIcon="mdi:text-search-variant"></mat-icon>
+        <span>{{ 'components.navigation.search.viewAll' | translate }}</span>
+      </a>
     </div>
   </div>
 </div>

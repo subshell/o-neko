@@ -67,6 +67,10 @@
       "reDeploy": "Erneut starten",
       "stop": "Stoppen"
     },
+    "multiDeployActions": {
+      "deploy": "Diese {count, plural, one{Version} other{# Versionen}} starten",
+      "stop": "Diese {count, plural, one{Version} other{# Versionen}} stoppen"
+    },
     "deployableStatus": {
       "runningOutdated": "Dieses Deployment läuft mit einer veralteten Konfiguration",
       "NotScheduled": "Nicht ausgeführt",
@@ -313,6 +317,7 @@
         },
         "projectSnackbarMessage": "Projekt {name} wurde {action, select, created{erstellt} saved{gespeichert} deleted{gelöscht} other{bearbeitet}}.",
         "versionSnackbarMessage": "{action, select, deployed{Deployment} stopped{Stoppen} other{Bearbeitung}} der Version {version} des Projekts {name} wurde initiiert.",
+        "multiDeploySnackbarMessage": "{action, select, deployed{Deployment} stopped{Stoppen} other{Bearbeitung}} von {count, plural, one{einer Version} other{# Versionen}} eingeleitet.",
         "errorMessage": "Fehler: {message}"
       }
     },
