@@ -8,5 +8,5 @@ $o-neko-warn: mat.define-palette($red-palette);
 
 $o-neko-light-theme: mat.define-light-theme($o-neko-primary, $o-neko-accent, $o-neko-warn);
 
-@include mat.all-component-themes($o-neko-light-theme);
+@include mat.all-legacy-component-themes($o-neko-light-theme);
 @include component-themes($o-neko-light-theme);

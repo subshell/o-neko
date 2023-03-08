@@ -1,6 +1,6 @@
 import {Component} from "@angular/core";
-import {MatDialogRef} from "@angular/material/dialog";
-import {MatSnackBar} from "@angular/material/snack-bar";
+import {MatLegacyDialogRef as MatDialogRef} from "@angular/material/legacy-dialog";
+import {MatLegacySnackBar as MatSnackBar} from "@angular/material/legacy-snack-bar";
 import {RestService} from "../../rest/rest.service";
 import {User} from "../../user/user";
 import {UserService} from "../../user/user.service";

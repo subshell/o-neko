@@ -48,6 +48,6 @@ $o-neko-dark-theme: (
 );
 
 .dark-theme {
-  @include mat.all-component-themes($o-neko-dark-theme);
+  @include mat.all-legacy-component-themes($o-neko-dark-theme);
   @include component-themes($o-neko-dark-theme);
 }

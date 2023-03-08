@@ -2,7 +2,7 @@ import {Component, OnDestroy, OnInit} from "@angular/core";
 import {Subscription} from "rxjs";
 import {RestService} from "../../rest/rest.service";
 import {WebSocketServiceWrapper} from "../../websocket/web-socket-service-wrapper.service";
-import {PageEvent} from "@angular/material/paginator";
+import {LegacyPageEvent as PageEvent} from "@angular/material/legacy-paginator";
 import {Activity} from "../activity";
 
 const activityIconMap = {

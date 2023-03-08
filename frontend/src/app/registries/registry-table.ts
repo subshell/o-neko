@@ -1,5 +1,5 @@
 import {Sort} from "@angular/material/sort";
-import {PageEvent} from "@angular/material/paginator";
+import {LegacyPageEvent as PageEvent} from "@angular/material/legacy-paginator";
 import {Registry} from "./registry";
 
 export class RegistryTable<R extends Registry> {

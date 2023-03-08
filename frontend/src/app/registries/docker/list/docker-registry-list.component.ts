@@ -1,5 +1,5 @@
 import {Component} from "@angular/core";
-import {MatDialog} from "@angular/material/dialog";
+import {MatLegacyDialog as MatDialog} from "@angular/material/legacy-dialog";
 import {RestService} from "../../../rest/rest.service";
 import {User} from "../../../user/user";
 import {UserRole} from "../../../user/user-role";

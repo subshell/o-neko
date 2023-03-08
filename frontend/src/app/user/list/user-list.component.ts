@@ -1,6 +1,6 @@
 import {Component} from "@angular/core";
-import {MatDialog} from "@angular/material/dialog";
-import {PageEvent} from "@angular/material/paginator";
+import {MatLegacyDialog as MatDialog} from "@angular/material/legacy-dialog";
+import {LegacyPageEvent as PageEvent} from "@angular/material/legacy-paginator";
 import {Sort} from "@angular/material/sort";
 import {RestService} from "../../rest/rest.service";
 import {
