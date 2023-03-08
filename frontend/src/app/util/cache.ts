@@ -1,4 +1,4 @@
-import {hash} from "hash-it";
+import hash from "hash-it";
 import {cloneDeep} from "lodash";
 import {interval, Observable, of, Subscription} from "rxjs";
 import {shareReplay} from "rxjs/operators";
@@ -32,7 +32,7 @@ export class Cache {
       expiryDate: maxAge ? new Date(now.getTime() + maxAge) : null
     };
     this.cache.set(hash(key), entry);
-    this.log.trace({msg: "Stored element for key: ", data: key});
+    this.log.trace("Stored element for key: ", key);
     return value;
   }
 
@@ -45,15 +45,15 @@ export class Cache {
     if (entry) {
       if (this.isExpired(entry)) {
         this.cache.delete(hash(key));
-        this.log.debug({msg: "Removing expired item from cache. Key:", data: key});
+        this.log.debug("Removing expired item from cache. Key:",key);
         return null;
       }
 
       try {
-        this.log.trace({msg: "Retrieved cached element for key: ", data: key});
+        this.log.trace("Retrieved cached element for key: ", key);
         return cloneDeep(entry.value) as T;
       } catch (e) {
-        this.log.error({msg: "Failed to cast cached item into expected type. Key:", data: key});
+        this.log.error("Failed to cast cached item into expected type. Key:", key);
       }
     }
     return null;
@@ -72,7 +72,7 @@ export class Cache {
       return pendingCalculation;
     }
 
-    this.log.trace({msg: "Using supplier to generate requested value for key:", data: key});
+    this.log.trace("Using supplier to generate requested value for key:", key);
     let observable = supplier.pipe(shareReplay());
     this.pendingCacheEntryCalculations.set(hashedKey, observable);
     observable.subscribe(value => {
@@ -85,7 +85,7 @@ export class Cache {
   invalidate(key: any) {
     let hashedKey = hash(key);
     if (this.cache.has(hashedKey)) {
-      this.log.debug({msg: "Removing item from cache. Key:", data: key});
+      this.log.debug("Removing item from cache. Key:", key);
       this.pendingCacheEntryCalculations.delete(hashedKey);
       this.cache.delete(hashedKey);
     }

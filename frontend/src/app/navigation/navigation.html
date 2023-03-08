@@ -1,7 +1,9 @@
-<mat-toolbar fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="1em">
+<mat-toolbar fxLayout="column" fxLayoutAlign="center">
+  <mat-toolbar-row fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="1em">
   <button *ngIf="!isDesktop" mat-icon-button (click)="sidenav.toggle()">
     <mat-icon svgIcon="menu"></mat-icon>
   </button>
+  <on-global-search *ngIf="isDesktop" fxFlex></on-global-search>
   <div fxFlex *ngIf="!isDesktop"></div>
   <on-i18n-switcher></on-i18n-switcher>
   <on-theme-switcher></on-theme-switcher>
@@ -14,12 +16,16 @@
     <mat-menu [overlapTrigger]="false" #userMenu="matMenu">
       <a mat-menu-item routerLink="/me">
         <mat-icon svgIcon="mdi:account-edit"></mat-icon>
-        <span>{{'components.forms.navigation.account' | translate}}</span>
+        <span>{{'components.navigation.account' | translate}}</span>
       </a>
       <button mat-menu-item (click)="logout()">
         <mat-icon svgIcon="mdi:logout-variant"></mat-icon>
-        <span>{{'components.forms.navigation.logout' | translate}}</span>
+        <span>{{'components.navigation.logout' | translate}}</span>
       </button>
     </mat-menu>
   </button>
+  </mat-toolbar-row>
+  <mat-toolbar-row *ngIf="!isDesktop" fxLayout="row">
+    <on-global-search fxFlex></on-global-search>
+  </mat-toolbar-row>
 </mat-toolbar>

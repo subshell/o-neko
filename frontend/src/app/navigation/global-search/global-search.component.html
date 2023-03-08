@@ -1,0 +1,71 @@
+<div class="search">
+  <div class="global-search-container" [class.open]="showSearchResultBox" fxLayout="row" fxLayoutAlign="start center">
+    <input tabindex="0" [formControl]="inputControl"
+           #inputElement
+           type="text"
+           fxFlex
+           [placeholder]="'components.navigation.search.placeholder' | translate: {shortcut: displayShortcut}"
+           (focus)="inputFocused()"/>
+    <button matSuffix mat-icon-button (click)="clearButtonClicked()">
+      <mat-icon svgIcon="mdi:close"></mat-icon>
+    </button>
+    <mat-divider [vertical]="true"></mat-divider>
+    <button mat-button color="primary">
+      <div fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="8px">
+        <mat-icon svgIcon="mdi:magnify"></mat-icon>
+        <span>{{ 'components.navigation.search.search' | translate }}</span>
+      </div>
+    </button>
+  </div>
+  <div class="search-result-box" *ngIf="showSearchResultBox && (result$ | async) as result">
+    <div class="search-hint" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="6px" *ngIf="inputControl.value?.length === 0">
+      <mat-icon svgIcon="mdi:lightbulb-on"></mat-icon>
+      <span>{{ 'components.navigation.search.label' | translate }}</span>
+    </div>
+    <div *ngIf="result.total == 0" class="search-hint" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="6px">
+      <mat-icon svgIcon="mdi:lightbulb-outline"></mat-icon>
+      <span>{{ 'components.navigation.search.noResults' | translate }}</span>
+    </div>
+    <div class="list-container" *ngIf="result.total > 0">
+      <mat-list tabindex="1">
+        <ng-container *ngIf="(foundProjectsLimited$ | async) as foundProjectsLimited">
+          <span mat-subheader *ngIf="foundProjectsLimited.length > 0">{{ 'components.navigation.search.projects' | translate }} ({{ 'components.navigation.search.resultCountText' | translate: {showing: foundProjectsLimited.length, found: result.totalProjectsFound} }})</span>
+          <ng-container *ngFor="let project of foundProjectsLimited; let last = last;">
+            <mat-list-item>
+              <mat-icon svgIcon="mdi:folder-outline" mat-list-icon></mat-icon>
+              <a mat-line class="o-neko-internal-link" [routerLink]="'/projects/' + project.id" (click)="hideResults()">{{ project.name }}</a>
+            </mat-list-item>
+            <mat-divider *ngIf="!last"></mat-divider>
+          </ng-container>
+        </ng-container>
+        <ng-container *ngIf="(foundVersionsLimited$ | async) as foundVersionsLimited">
+          <span mat-subheader *ngIf="foundVersionsLimited.length > 0">{{ 'components.navigation.search.versions' | translate }} ({{ 'components.navigation.search.resultCountText' | translate: {showing: foundVersionsLimited.length, found: result.totalVersionsFound} }})</span>
+          <ng-container *ngFor="let version of foundVersionsLimited; let last = last;">
+            <mat-list-item>
+              <deployableStatus class="version-status" [status]="version.version.deployment.status" mat-list-icon></deployableStatus>
+              <a mat-line class="o-neko-internal-link" [routerLink]="'/projects/' + version.searchResult.projectId + '/versions/' + version.searchResult.id" (click)="hideResults()">{{ version.searchResult.name }}</a>
+              <span mat-line fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="4px">
+                <mat-icon svgIcon="mdi:folder-outline"></mat-icon>
+                <span>{{ version.searchResult.projectName }}</span>
+              </span>
+              <div>
+                <projectVersionActions hideVariables="true" [version]="version.version" [project]="version.project"></projectVersionActions>
+              </div>
+            </mat-list-item>
+            <mat-divider *ngIf="!last"></mat-divider>
+          </ng-container>
+          <div fxLayout="row" fxLayoutAlign="center">
+            <on-multi-deploy-actions [versions]="versionsMultiDeployModel$ | async"></on-multi-deploy-actions>
+          </div>
+        </ng-container>
+      </mat-list>
+    </div>
+    <div *ngIf="result.totalVersionsFound > displayedEntriesLimit || result.totalProjectsFound > displayedEntriesLimit" fxLayout="row" fxLayoutAlign="center" class="view-all-container">
+      <a class="o-neko-internal-link" routerLink="" fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="4px">
+        <mat-icon svgIcon="mdi:text-search-variant"></mat-icon>
+        <span>{{ 'components.navigation.search.viewAll' | translate }}</span>
+      </a>
+    </div>
+  </div>
+</div>
+<div class="search-backdrop" [class.search-backdrop-active]="showSearchResultBox"></div>

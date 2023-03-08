@@ -1,10 +1,9 @@
 import {Component, OnDestroy, OnInit} from "@angular/core";
-import {PageEvent} from "@angular/material/paginator";
+import {LegacyPageEvent as PageEvent} from "@angular/material/legacy-paginator";
 import {Sort} from "@angular/material/sort";
 import {ActivatedRoute, ParamMap} from "@angular/router";
 import {Subscription} from "rxjs";
 import {switchMap} from "rxjs/operators";
-import {RestService} from "../../rest/rest.service";
 import {User} from "../../user/user";
 import {UserService} from "../../user/user.service";
 import {WebSocketServiceWrapper} from "../../websocket/web-socket-service-wrapper.service";
@@ -12,6 +11,7 @@ import {Project} from "../project";
 import {ProjectVersion} from "../project-version";
 import {ProjectService} from "../project.service";
 import {TranslateService} from "@ngx-translate/core";
+import {CachingProjectRestClient} from "../../rest/caching-project-rest-client";
 
 class ColumnDefinition {
 
@@ -63,7 +63,7 @@ export class ProjectVersionListComponent implements OnInit, OnDestroy {
   private pageEvent: PageEvent;
   private sort: Sort;
 
-  constructor(private rest: RestService,
+  constructor(private rest: CachingProjectRestClient,
               private userService: UserService,
               private projectService: ProjectService,
               private route: ActivatedRoute,
@@ -88,7 +88,7 @@ export class ProjectVersionListComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.route.paramMap.pipe(
-      switchMap((params: ParamMap) => this.rest.project().getProjectById(params.get('id')))
+      switchMap((params: ParamMap) => this.rest.getProjectById(params.get('id')))
     ).subscribe(project => {
       this.project = project;
       this.projectVersions = project.versions;

@@ -1,5 +1,5 @@
 import {Component, OnDestroy, OnInit} from "@angular/core";
-import {MatDialog} from "@angular/material/dialog";
+import {MatLegacyDialog as MatDialog} from "@angular/material/legacy-dialog";
 import {ActivatedRoute, ParamMap} from "@angular/router";
 import {Subscription} from "rxjs";
 

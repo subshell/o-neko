@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation} from '@angular/core';
 import {UntypedFormControl, NG_VALUE_ACCESSOR} from '@angular/forms';
-import {MatDialog} from '@angular/material/dialog';
-import {MatSnackBar} from '@angular/material/snack-bar';
+import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
+import {MatLegacySnackBar as MatSnackBar} from '@angular/material/legacy-snack-bar';
 import {FileReaderService} from '../../form/upload/file-reader.service';
 import {ConfirmDialog} from '../../util/confirm-dialog/confirm-dialog.component';
 import {ConfigurationTemplate} from '../configuration-template';

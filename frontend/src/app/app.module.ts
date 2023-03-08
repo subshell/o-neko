@@ -2,31 +2,35 @@ import {HTTP_INTERCEPTORS, HttpClient, HttpClientModule} from "@angular/common/h
 import {NgModule} from '@angular/core';
 import {FlexLayoutModule} from "@angular/flex-layout";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {MatCheckboxModule} from "@angular/material/checkbox";
-import {MatRadioModule} from "@angular/material/radio";
-import {MatButtonModule} from "@angular/material/button";
-import {MatCardModule} from "@angular/material/card";
-import {MatChipsModule} from "@angular/material/chips";
+import {MatLegacyCheckboxModule as MatCheckboxModule} from "@angular/material/legacy-checkbox";
+import {MatLegacyRadioModule as MatRadioModule} from "@angular/material/legacy-radio";
+import {MatLegacyButtonModule as MatButtonModule} from "@angular/material/legacy-button";
+import {MatLegacyCardModule as MatCardModule} from "@angular/material/legacy-card";
+import {MatLegacyChipsModule as MatChipsModule} from "@angular/material/legacy-chips";
 import {MatRippleModule} from "@angular/material/core";
-import {MatDialogModule} from "@angular/material/dialog";
+import {MatLegacyDialogModule as MatDialogModule} from "@angular/material/legacy-dialog";
 import {MatDividerModule} from "@angular/material/divider";
 import {MatExpansionModule} from "@angular/material/expansion";
-import {MatFormFieldModule} from "@angular/material/form-field";
+import {MatLegacyFormFieldModule as MatFormFieldModule} from "@angular/material/legacy-form-field";
 import {MatIconModule, MatIconRegistry} from "@angular/material/icon";
-import {MatInputModule} from "@angular/material/input";
-import {MatListModule} from "@angular/material/list";
-import {MatMenuModule} from "@angular/material/menu";
-import {MatPaginatorIntl, MatPaginatorModule} from "@angular/material/paginator";
-import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
-import {MatSelectModule} from "@angular/material/select";
+import {MatLegacyInputModule as MatInputModule} from "@angular/material/legacy-input";
+import {MatLegacyListModule as MatListModule} from "@angular/material/legacy-list";
+import {MatLegacyMenuModule as MatMenuModule} from "@angular/material/legacy-menu";
+import {MatLegacyPaginatorIntl as MatPaginatorIntl, MatLegacyPaginatorModule as MatPaginatorModule} from "@angular/material/legacy-paginator";
+import {MatLegacyProgressSpinnerModule as MatProgressSpinnerModule} from "@angular/material/legacy-progress-spinner";
+import {MatLegacySelectModule as MatSelectModule} from "@angular/material/legacy-select";
 import {MatSidenavModule} from "@angular/material/sidenav";
-import {MatSlideToggleModule} from "@angular/material/slide-toggle";
-import {MatSnackBarModule} from "@angular/material/snack-bar";
+import {MatLegacySlideToggleModule as MatSlideToggleModule} from "@angular/material/legacy-slide-toggle";
+import {MatLegacySnackBarModule as MatSnackBarModule} from "@angular/material/legacy-snack-bar";
 import {MatSortModule} from "@angular/material/sort";
 import {MatStepperModule} from "@angular/material/stepper";
-import {MatTabsModule} from "@angular/material/tabs";
+import {MatLegacyTabsModule as MatTabsModule} from "@angular/material/legacy-tabs";
 import {MatToolbarModule} from "@angular/material/toolbar";
-import {MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipDefaultOptions, MatTooltipModule} from "@angular/material/tooltip";
+import {
+  MAT_LEGACY_TOOLTIP_DEFAULT_OPTIONS as MAT_TOOLTIP_DEFAULT_OPTIONS,
+  MatLegacyTooltipDefaultOptions as MatTooltipDefaultOptions,
+  MatLegacyTooltipModule as MatTooltipModule
+} from "@angular/material/legacy-tooltip";
 import {BrowserModule, DomSanitizer} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 
@@ -88,12 +92,7 @@ import {UsernameAvailableValidator} from "./util/validators/username-available.v
 import {WebSocketServiceWrapper} from "./websocket/web-socket-service-wrapper.service";
 import {WebSocketService} from "./websocket/web-socket.service";
 import {MonacoEditorModule} from "ngx-monaco-editor";
-import {
-  configureMatPaginatorI18n,
-  configureSvgIcons,
-  configureTranslations,
-  provideAnimationDriverBasedOnUserPreferences
-} from "./configuration/configuration";
+import {configureMatPaginatorI18n, configureSvgIcons, configureTranslations, provideAnimationDriverBasedOnUserPreferences} from "./configuration/configuration";
 import {MainComponent} from "./views/main/main.component";
 import {ExpandableMenuComponent} from "./components/expandable-menu/expandable-menu.component";
 import {NgxsModule, Store} from "@ngxs/store";
@@ -106,7 +105,9 @@ import {appStates} from "./store";
 import {ThemingState} from "./store/theming/theming.state";
 import {ThemeSwitcherComponent} from "./components/theme-switcher/theme-switcher.component";
 import {DndDirective} from './form/upload/dnd.directive';
-import {EditConfigurationTemplateDialogComponent} from './deployable/template-editor/edit-configuration-template-dialog/edit-configuration-template-dialog.component';
+import {
+  EditConfigurationTemplateDialogComponent
+} from './deployable/template-editor/edit-configuration-template-dialog/edit-configuration-template-dialog.component';
 import {FooterComponent} from "./components/footer/footer.component";
 import {TranslateCompiler, TranslateLoader, TranslateModule, TranslateService} from "@ngx-translate/core";
 import {TranslateHttpLoader} from "@ngx-translate/http-loader";
@@ -118,67 +119,76 @@ import {FilterDeepPipe} from "./util/filter-deep.pipe";
 import {I18nSwitcherComponent} from "./components/i18n-switcher/i18n-switcher.component";
 import {I18nState} from "./store/i18n/i18n.state";
 import {UrlTemplatesComponent} from "./form/url-templates-input/url-templates.component";
+import {GlobalSearchComponent} from "./navigation/global-search/global-search.component";
+import {CachingProjectRestClient} from "./rest/caching-project-rest-client";
+import {MultiDeployActionsComponent} from "./deployable/multi-deploy-actions/multi-deploy-actions.component";
+
+export function HttpLoaderFactory(http: HttpClient) {
+  return new TranslateHttpLoader(http, '/assets/i18n/', '.json');
+}
 
 @NgModule({
-    declarations: [
-        AppComponent,
-        HomeComponent,
-        LoginComponent,
-        TimeoutWithUiComponent,
-        TimeoutSnackbarComponent,
-        NavigationComponent,
-        BreadcrumbComponent,
-        UserListComponent,
-        UserEditDialog,
-        ConfirmDialog,
-        MustMatchValidatorDirective,
-        MeComponent,
-        UsernameAvailableValidator,
-        EmailAvailableValidator,
-        ConfirmWithTextDialog,
-        ShowDeployableConfigurationDialog,
-        LoginComponent,
-        DockerRegistryListComponent,
-        DockerRegistryEditDialogComponent,
-        ConfirmDeletionDialogComponent,
-        KeyValueInputComponent,
-        LifetimeBehaviourInputComponent,
-        DeploymentBehaviourInputComponent,
-        DeployableStatusComponent,
-        ActivityLogComponent,
-        FileUploadComponent,
-        TemplateEditorComponent,
-        ForbiddenValuesValidator,
-        ProjectListComponent,
-        EditProjectComponent,
-        ProjectVersionListComponent,
-        EditProjectVersionComponent,
-        CreateProjectDialogComponent,
-        LogsComponent,
-        ProjectDashboardComponent,
-        ProjectVersionActionsComponent,
-        DefinedNamespacesListComponent,
-        CreateNamespaceDialogComponent,
-        DeleteNamespaceDialogComponent,
-        TemplateVariablesComponent,
-        TemplateVariableEditorComponent,
-        ValueInputComponent,
-        DeploymentsDashboardComponent,
-        DeployableActionsComponent,
-        ProjectVersionVariableActionsComponent,
-        MainComponent,
-        ExpandableMenuComponent,
-        ThemeSwitcherComponent,
-        DndDirective,
-        EditConfigurationTemplateDialogComponent,
-        FooterComponent,
-        HelmRegistryListComponent,
-        HelmRegistryEditDialogComponent,
-        DistinctObjectArrayPipe,
-        FilterDeepPipe,
-        I18nSwitcherComponent,
-        UrlTemplatesComponent
-    ],
+  declarations: [
+    AppComponent,
+    HomeComponent,
+    LoginComponent,
+    TimeoutWithUiComponent,
+    TimeoutSnackbarComponent,
+    NavigationComponent,
+    BreadcrumbComponent,
+    UserListComponent,
+    UserEditDialog,
+    ConfirmDialog,
+    MustMatchValidatorDirective,
+    MeComponent,
+    UsernameAvailableValidator,
+    EmailAvailableValidator,
+    ConfirmWithTextDialog,
+    ShowDeployableConfigurationDialog,
+    LoginComponent,
+    DockerRegistryListComponent,
+    DockerRegistryEditDialogComponent,
+    ConfirmDeletionDialogComponent,
+    KeyValueInputComponent,
+    LifetimeBehaviourInputComponent,
+    DeploymentBehaviourInputComponent,
+    DeployableStatusComponent,
+    ActivityLogComponent,
+    FileUploadComponent,
+    TemplateEditorComponent,
+    ForbiddenValuesValidator,
+    ProjectListComponent,
+    EditProjectComponent,
+    ProjectVersionListComponent,
+    EditProjectVersionComponent,
+    CreateProjectDialogComponent,
+    LogsComponent,
+    ProjectDashboardComponent,
+    ProjectVersionActionsComponent,
+    DefinedNamespacesListComponent,
+    CreateNamespaceDialogComponent,
+    DeleteNamespaceDialogComponent,
+    TemplateVariablesComponent,
+    TemplateVariableEditorComponent,
+    ValueInputComponent,
+    DeploymentsDashboardComponent,
+    DeployableActionsComponent,
+    ProjectVersionVariableActionsComponent,
+    MainComponent,
+    ExpandableMenuComponent,
+    ThemeSwitcherComponent,
+    DndDirective,
+    EditConfigurationTemplateDialogComponent,
+    FooterComponent,
+    HelmRegistryListComponent,
+    HelmRegistryEditDialogComponent,
+    DistinctObjectArrayPipe,
+    FilterDeepPipe,
+    I18nSwitcherComponent,
+    UrlTemplatesComponent,
+    GlobalSearchComponent,
+    MultiDeployActionsComponent
+  ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
@@ -228,10 +238,10 @@ import {UrlTemplatesComponent} from "./form/url-templates-input/url-templates.co
       },
       loader: {
         provide: TranslateLoader,
-        useFactory: (http: HttpClient) => new TranslateHttpLoader(http),
+        useFactory: HttpLoaderFactory,
         deps: [HttpClient]
       }
-    })
+    }),
   ],
   providers: [
     RestService,
@@ -262,7 +272,8 @@ import {UrlTemplatesComponent} from "./form/url-templates-input/url-templates.co
     {
       provide: AnimationDriver,
       useFactory: () => provideAnimationDriverBasedOnUserPreferences()
-    }
+    },
+    CachingProjectRestClient
   ],
   bootstrap: [AppComponent]
 })

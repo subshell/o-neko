@@ -12,25 +12,30 @@ export interface ProjectVersionVariableActionChangeEvent {
   styleUrls: ['./project-version-variable-actions.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class ProjectVersionVariableActionsComponent implements OnInit {
+export class ProjectVersionVariableActionsComponent {
 
   @Input()
   public hasEditPermission: boolean;
 
   @Input()
-  public version: ProjectVersion;
+  set version(v: ProjectVersion) {
+    this._version = v;
+    if (this.version) {
+      for (let availableTemplateVariable of this.version.availableTemplateVariables) {
+        this.version.templateVariables[availableTemplateVariable.name] = this.version.templateVariables[availableTemplateVariable.name] || availableTemplateVariable.defaultValue;
+      }
+    }
+  }
+  get version(): ProjectVersion {
+    return this._version;
+  }
+  private _version: ProjectVersion;
 
   @Output()
   public onVariableChange: EventEmitter<ProjectVersionVariableActionChangeEvent> = new EventEmitter<ProjectVersionVariableActionChangeEvent>();
 
   public get availableTemplateVariables(): Array<TemplateVariable> {
     return this.version.availableTemplateVariables.filter(templateVariable => templateVariable.showOnDashboard);
-  }
-
-  public ngOnInit(): void {
-    for (let availableTemplateVariable of this.version.availableTemplateVariables) {
-      this.version.templateVariables[availableTemplateVariable.name] = this.version.templateVariables[availableTemplateVariable.name] || availableTemplateVariable.defaultValue;
-    }
   }
 
   public emitOnChange() {

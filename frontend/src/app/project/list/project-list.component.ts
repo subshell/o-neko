@@ -1,15 +1,15 @@
 import {Component} from '@angular/core';
-import {MatDialog} from '@angular/material/dialog';
-import {PageEvent} from '@angular/material/paginator';
+import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
+import {LegacyPageEvent as PageEvent} from '@angular/material/legacy-paginator';
 import {Sort} from '@angular/material/sort';
 import {Router} from '@angular/router';
-import {RestService} from '../../rest/rest.service';
 import {User} from '../../user/user';
 import {UserService} from '../../user/user.service';
 import {CreateProjectDialogComponent, CreateProjectDialogComponentData} from '../create-project-dialog/create-project-dialog.component';
 import {Project} from '../project';
 import {ProjectService} from '../project.service';
 import {TranslateService} from "@ngx-translate/core";
+import {CachingProjectRestClient} from "../../rest/caching-project-rest-client";
 
 class ColumnDefinition {
 
@@ -56,7 +56,7 @@ export class ProjectListComponent {
 
   public userMayEditProjects = false;
 
-  constructor(private rest: RestService,
+  constructor(private rest: CachingProjectRestClient,
               private userService: UserService,
               private projectService: ProjectService,
               private dialog: MatDialog,
@@ -73,7 +73,7 @@ export class ProjectListComponent {
       this.editingUser = currentUser;
       this.userMayEditProjects = this.projectService.isUserAllowedToEditProjects(this.editingUser);
     });
-    this.rest.project().getAllProjects().subscribe(projects => {
+    this.rest.getAllProjects().subscribe(projects => {
       this.projects = projects;
       this.sortProjects();
     });

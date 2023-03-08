@@ -114,4 +114,8 @@ export class Project implements ProjectDTO {
   public isOrphan(): boolean {
     return !this.dockerRegistryUUID;
   }
+
+  public getVersionById(id: string): ProjectVersion {
+    return this.versions.find(v => v.uuid === id);
+  }
 }

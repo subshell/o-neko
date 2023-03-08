@@ -9,8 +9,12 @@
 mat-toolbar {
   min-height: 3.4rem;
 
-  &.mat-toolbar-single-row {
+  mat-toolbar-row {
+    min-height: 3.4rem;
     height: initial;
+    on-global-search {
+      margin: 8px 0;
+    }
   }
 
   button.user-button {
