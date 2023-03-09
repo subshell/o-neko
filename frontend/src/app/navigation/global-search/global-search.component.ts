@@ -58,9 +58,9 @@ export class GlobalSearchComponent implements OnInit, OnDestroy {
     const eventName = `keydown.${isMac ? 'meta' : 'ctrl'}.k`;
     this.unsubscribeOnDestroy.push(
       this.renderer.listen(document, eventName, (event: KeyboardEvent) => {
+        event.preventDefault();
         this.inputElement.nativeElement.focus();
         this.showResults();
-        event.preventDefault();
       }),
       this.renderer.listen(document, 'keydown.escape', () => {
         this.clearSearch();
