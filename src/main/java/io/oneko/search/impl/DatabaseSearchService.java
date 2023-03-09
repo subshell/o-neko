@@ -3,7 +3,6 @@ package io.oneko.search.impl;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Timer;
 import io.oneko.event.EventDispatcher;
 import io.oneko.project.ProjectRepository;
 import io.oneko.project.event.ProjectDeletedEvent;
@@ -41,9 +40,8 @@ public class DatabaseSearchService extends MeasuringSearchService {
 	}
 
 	@Override
-	public SearchResult findProjectsAndVersions(String searchTerm) {
-		Timer.Sample sample = Timer.start();
-		SearchResult searchResult = queryResultCache.get(searchTerm, s -> {
+	public SearchResult findProjectsAndVersionsInternal(String searchTerm) {
+		return queryResultCache.get(searchTerm, s -> {
 			var versions = projectRepository.findProjectVersion(searchTerm)
 					.stream()
 					.map(VersionSearchResultEntry::of)
@@ -59,7 +57,5 @@ public class DatabaseSearchService extends MeasuringSearchService {
 					.versions(versions)
 					.build();
 		});
-		sample.stop(queryDurationTimer);
-		return searchResult;
 	}
 }

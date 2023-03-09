@@ -1,35 +1,39 @@
-import {Component, Input} from "@angular/core";
+import {ChangeDetectionStrategy, Component, Input} from "@angular/core";
 import {ProjectAndVersion, ProjectService} from "../../project/project.service";
 import {UserService} from "../../user/user.service";
 import {map, tap} from "rxjs/operators";
 import {User} from "../../user/user";
+import {Observable} from "rxjs";
 
 @Component({
   selector: 'on-multi-deploy-actions',
   templateUrl: './multi-deploy-actions.component.html',
-  styleUrls: ['./multi-deploy-actions.component.scss']
+  styleUrls: ['./multi-deploy-actions.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MultiDeployActionsComponent {
   @Input() versions: Array<ProjectAndVersion> = [];
-  private editingUser: User;
-  hasDeployPermission: boolean;
+  private editingUser$: Observable<User>;
+  hasDeployPermission$: Observable<boolean>;
 
   constructor(private projectService: ProjectService,
               private userService: UserService) {
-    this.userService.currentUser()
-      .pipe(
-        tap(currentUser => this.editingUser = currentUser),
-        map(currentUser => projectService.isUserAllowedToDeployProjects(currentUser))
-      ).subscribe(allowedToDeploy => {
-      this.hasDeployPermission = allowedToDeploy;
-    });
+
+    this.editingUser$ = this.userService.currentUser();
+    this.hasDeployPermission$ = this.editingUser$.pipe(
+      map(currentUser => projectService.isUserAllowedToDeployProjects(currentUser))
+    );
   }
 
   deploy() {
-    this.projectService.deployProjectVersions(this.versions, this.editingUser);
+    this.editingUser$.subscribe(user => {
+      this.projectService.deployProjectVersions(this.versions, user);
+    });
   }
 
   stop() {
-    this.projectService.stopDeployments(this.versions, this.editingUser);
+    this.editingUser$.subscribe(user => {
+      this.projectService.stopDeployments(this.versions, user);
+    });
   }
 }

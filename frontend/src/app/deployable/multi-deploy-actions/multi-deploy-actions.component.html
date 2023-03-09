@@ -3,7 +3,7 @@
   (onStop)="stop()"
   [isStopDisabled]="false"
   [isDeployDisabled]="false"
-  [userHasPermissions]="hasDeployPermission"
+  [userHasPermissions]="hasDeployPermission$ | async"
   [isDeployed]="false"
   [overrideDeployLabel]="'components.multiDeployActions.deploy' | translate: {count: versions.length}"
   [overrideStopLabel]="'components.multiDeployActions.stop' | translate: {count: versions.length}"

@@ -1,5 +1,5 @@
 <div class="search">
-  <div class="global-search-container" [class.open]="showSearchResultBox" fxLayout="row" fxLayoutAlign="start center">
+  <div class="global-search-container" [class.open]="(showSearchResultBox$ | async)" fxLayout="row" fxLayoutAlign="start center">
     <input tabindex="0" [formControl]="inputControl"
            #inputElement
            type="text"
@@ -17,7 +17,7 @@
       </div>
     </button>
   </div>
-  <div class="search-result-box" *ngIf="showSearchResultBox && (result$ | async) as result">
+  <div class="search-result-box" *ngIf="(showSearchResultBox$ | async) && (result$ | async) as result">
     <div class="search-hint" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="6px" *ngIf="inputControl.value?.length === 0">
       <mat-icon svgIcon="mdi:lightbulb-on"></mat-icon>
       <span>{{ 'components.navigation.search.label' | translate }}</span>
@@ -68,4 +68,4 @@
     </div>
   </div>
 </div>
-<div class="search-backdrop" [class.search-backdrop-active]="showSearchResultBox"></div>
+<div class="search-backdrop" [class.search-backdrop-active]="(showSearchResultBox$ | async)"></div>

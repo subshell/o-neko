@@ -1,7 +1,7 @@
-import {Component, ElementRef, Inject, OnInit, Renderer2, ViewChild} from "@angular/core";
+import {ChangeDetectionStrategy, Component, ElementRef, Inject, OnDestroy, OnInit, Renderer2, ViewChild} from "@angular/core";
 import {DOCUMENT} from "@angular/common";
 import {FormControl} from "@angular/forms";
-import {combineLatest, Observable, of} from "rxjs";
+import {combineLatest, Observable, of, ReplaySubject, Subject, Subscription} from "rxjs";
 import {map, mergeMap, shareReplay, startWith} from "rxjs/operators";
 import {ProjectSearchResultEntry, SearchResult, VersionSearchResultEntry} from "../../search/search.model";
 import {ProjectVersion} from "../../project/project-version";
@@ -18,11 +18,12 @@ interface EnrichedVersionSearchResult {
 @Component({
   selector: 'on-global-search',
   templateUrl: './global-search.component.html',
-  styleUrls: ['./global-search.component.scss']
+  styleUrls: ['./global-search.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class GlobalSearchComponent implements OnInit {
+export class GlobalSearchComponent implements OnInit, OnDestroy {
   @ViewChild('inputElement') inputElement: ElementRef<HTMLInputElement>;
-  showSearchResultBox = false;
+  showSearchResultBox$: Observable<boolean> = new ReplaySubject(1);
   inputControl = new FormControl("");
   displayedEntriesLimit = 5;
   displayShortcut = ""
@@ -32,11 +33,17 @@ export class GlobalSearchComponent implements OnInit {
   foundVersionsLimited$: Observable<Array<EnrichedVersionSearchResult>>;
   foundProjectsLimited$: Observable<Array<ProjectSearchResultEntry>>;
   versionsMultiDeployModel$: Observable<Array<ProjectAndVersion>>;
+  private unsubscribeOnDestroy: Array<() => void> = [];
 
   constructor(private renderer: Renderer2,
               @Inject(DOCUMENT) document: Document,
               private api: CachingProjectRestClient,
               private elementRef: ElementRef) {
+    this.hideResults();
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribeOnDestroy.forEach(u => u());
   }
 
   ngOnInit(): void {
@@ -49,31 +56,37 @@ export class GlobalSearchComponent implements OnInit {
     this.displayShortcut = isMac ? "⌘ + K" : "ctrl + K";
 
     const eventName = `keydown.${isMac ? 'meta' : 'ctrl'}.k`;
-    this.renderer.listen(document, eventName, (event: KeyboardEvent) => {
-      this.inputElement.nativeElement.focus();
-      this.showSearchResultBox = true;
-      event.preventDefault();
-    });
-    this.renderer.listen(document, 'keydown.escape', () => {
-      this.clearSearch();
-      this.hideResults();
-    });
-    this.renderer.listen(document, 'click', (event: MouseEvent) => {
-      if (!(event.composedPath().includes(this.elementRef.nativeElement))) { // detect outside clicks
+    this.unsubscribeOnDestroy.push(
+      this.renderer.listen(document, eventName, (event: KeyboardEvent) => {
+        this.inputElement.nativeElement.focus();
+        this.showResults();
+        event.preventDefault();
+      }),
+      this.renderer.listen(document, 'keydown.escape', () => {
+        this.clearSearch();
         this.hideResults();
-      } else if (event.composedPath().includes(this.inputElement.nativeElement)) {
-        this.inputFocused();
-      }
-    });
+      }),
+      this.renderer.listen(document, 'click', (event: MouseEvent) => {
+        if (!(event.composedPath().includes(this.elementRef.nativeElement))) { // detect outside clicks
+          this.hideResults();
+        } else if (event.composedPath().includes(this.inputElement.nativeElement)) {
+          this.inputFocused();
+        }
+      })
+    );
   }
 
   inputFocused() {
     this.startRenderingResults();
-    this.showSearchResultBox = true;
+    this.showResults();
   }
 
   hideResults() {
-    this.showSearchResultBox = false;
+    (this.showSearchResultBox$ as Subject<boolean>).next(false);
+  }
+
+  private showResults() {
+    (this.showSearchResultBox$ as Subject<boolean>).next(true);
   }
 
   private startRenderingResults() {
@@ -81,13 +94,23 @@ export class GlobalSearchComponent implements OnInit {
       return;
     }
     this.result$ = this.inputControl.valueChanges.pipe(startWith(""), mergeMap(inputContent => this.api.findProjectsOrVersions(inputContent)), shareReplay());
-    this.inputControl.valueChanges.subscribe(() => this.showSearchResultBox = true);
+    this.addUnsubscribe(this.inputControl.valueChanges.subscribe(() => this.showResults()));
+    this.initFilteredResults();
+  }
+
+  private initFilteredResults() {
+    if (this.foundVersionsLimited$) {
+      return;
+    }
+
+    // show a maximum of $displayedEntriesLimit projects
+    this.foundProjectsLimited$ = this.result$.pipe(map(r => r.projects.slice(0, this.displayedEntriesLimit)));
+
+    // show a maximum of $displayedEntriesLimit versions. get the project to every version and map to EnrichedVersionSearchResult
     this.foundVersionsLimited$ = this.result$.pipe(
       map(r => r.versions.slice(0, this.displayedEntriesLimit)),
       mergeMap(r => combineLatest([of(r), ...r.map(v => this.api.getProjectById(v.projectId))])),
-      map(combined => {
-        const r = combined[0];
-        const projects = combined.slice(1) as Array<Project>;
+      map(([r, ...projects]) => {
         return r.map((v, i) => (<EnrichedVersionSearchResult>{
           searchResult: v,
           project: projects[i],
@@ -95,13 +118,14 @@ export class GlobalSearchComponent implements OnInit {
         }));
       })
     );
-    this.foundProjectsLimited$ = this.result$.pipe(map(r => r.projects.slice(0, this.displayedEntriesLimit)));
+
+    // create the model used by the multi-deploy button from all visible versions
     this.versionsMultiDeployModel$ = this.foundVersionsLimited$.pipe(map(versions => {
       return versions.map(version => ({
         version: version.version,
         project: version.project
       }));
-    }))
+    }));
   }
 
   clearButtonClicked() {
@@ -115,5 +139,9 @@ export class GlobalSearchComponent implements OnInit {
 
   focusInput() {
     this.inputElement.nativeElement.focus();
+  }
+
+  private addUnsubscribe(subscription: Subscription) {
+    this.unsubscribeOnDestroy.push(() => subscription.unsubscribe());
   }
 }

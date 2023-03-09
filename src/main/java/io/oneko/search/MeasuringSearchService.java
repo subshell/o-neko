@@ -3,12 +3,11 @@ package io.oneko.search;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import io.oneko.metrics.MetricNameBuilder;
-import lombok.Builder;
 
 public abstract class MeasuringSearchService implements SearchService {
 
 	protected final MeterRegistry meterRegistry;
-	protected final Timer queryDurationTimer;
+	private final Timer queryDurationTimer;
 
 	public MeasuringSearchService(MeterRegistry meterRegistry) {
 		this.meterRegistry = meterRegistry;
@@ -18,4 +17,9 @@ public abstract class MeasuringSearchService implements SearchService {
 				.register(meterRegistry);
 	}
 
+	public SearchResult findProjectsAndVersions(String searchTerm) {
+		return queryDurationTimer.record(() -> findProjectsAndVersionsInternal(searchTerm));
+	}
+
+	protected abstract SearchResult findProjectsAndVersionsInternal(String searchTerm);
 }
