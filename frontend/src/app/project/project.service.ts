@@ -1,7 +1,7 @@
 import {Injectable} from "@angular/core";
 import {MatLegacyDialog as MatDialog} from "@angular/material/legacy-dialog";
 import {MatLegacySnackBar as MatSnackBar} from "@angular/material/legacy-snack-bar";
-import {EMPTY, Observable, combineLatest, throwError} from "rxjs";
+import {catchError, combineLatest, EMPTY, Observable, throwError} from "rxjs";
 import {filter, mergeMap, shareReplay} from 'rxjs/operators';
 import {DeployableStatus} from "../deployable/deployment";
 import {User} from "../user/user";
@@ -184,19 +184,16 @@ export class ProjectService {
 
     let observable = combineLatest(projectsAndVersions.map(({project, version}) => {
       version.deployment.status = DeployableStatus.Pending;
-      let deployObservable = this.rest.deployProjectVersion(version, project).pipe(shareReplay());
-      deployObservable.subscribe({
-        error: (response: HttpErrorResponse) => {
-          version.deployment.status = DeployableStatus.Unknown;
-          this.snackBar.openFromComponent(TimeoutSnackbarComponent, {
-            data: {
-              text: this.translate.instant('components.project.service.errorMessage', {message: response.error})
-            },
-            duration: ProjectService.SNACKBAR_ERROR_DURATION
-          });
-        }
-      })
-      return deployObservable;
+      return this.rest.deployProjectVersion(version, project).pipe(catchError((response: HttpErrorResponse) => {
+        version.deployment.status = DeployableStatus.Unknown;
+        this.snackBar.openFromComponent(TimeoutSnackbarComponent, {
+          data: {
+            text: this.translate.instant('components.project.service.errorMessage', {message: response.error})
+          },
+          duration: ProjectService.SNACKBAR_ERROR_DURATION
+        });
+        return EMPTY;
+      }));
     })).pipe(shareReplay());
 
     observable.subscribe(() => {

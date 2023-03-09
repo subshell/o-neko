@@ -10,7 +10,7 @@ export class UserService {
 
   private user: Observable<User>;
   constructor(private auth: AuthService, private rest: RestService) {
-    auth.authenticated.subscribe(authenticated => {
+    auth.isAuthenticated().subscribe(authenticated => {
       if (authenticated) {
         this.user = this.rest.currentUser().pipe(shareReplay());
       } else {
