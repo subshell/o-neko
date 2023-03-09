@@ -148,7 +148,7 @@ public class MeilisearchSearchService extends MeasuringSearchService {
 	}
 
 	@Override
-	public SearchResult findProjectsAndVersions(String searchTerm) {
+	public SearchResult findProjectsAndVersionsInternal(String searchTerm) {
 		return queryResultCache.get(searchTerm, s -> {
 			try {
 				var versions = versionIndex.search(searchTerm)
