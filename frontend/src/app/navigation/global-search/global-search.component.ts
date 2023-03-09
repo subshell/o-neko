@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, Component, ElementRef, Inject, OnDestroy, OnInit, Renderer2, ViewChild} from "@angular/core";
 import {DOCUMENT} from "@angular/common";
 import {FormControl} from "@angular/forms";
-import {combineLatest, Observable, of, ReplaySubject, Subject, Subscription} from "rxjs";
+import {combineLatest, Observable, of, ReplaySubject, sampleTime, Subject, Subscription} from "rxjs";
 import {map, mergeMap, shareReplay, startWith} from "rxjs/operators";
 import {ProjectSearchResultEntry, SearchResult, VersionSearchResultEntry} from "../../search/search.model";
 import {ProjectVersion} from "../../project/project-version";
@@ -93,7 +93,7 @@ export class GlobalSearchComponent implements OnInit, OnDestroy {
     if (this.result$) {
       return;
     }
-    this.result$ = this.inputControl.valueChanges.pipe(startWith(""), mergeMap(inputContent => this.api.findProjectsOrVersions(inputContent)), shareReplay());
+    this.result$ = this.inputControl.valueChanges.pipe(startWith(""), sampleTime(200), mergeMap(inputContent => this.api.findProjectsOrVersions(inputContent)), shareReplay());
     this.addUnsubscribe(this.inputControl.valueChanges.subscribe(() => this.showResults()));
     this.initFilteredResults();
   }
