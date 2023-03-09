@@ -119,6 +119,9 @@ import {FilterDeepPipe} from "./util/filter-deep.pipe";
 import {I18nSwitcherComponent} from "./components/i18n-switcher/i18n-switcher.component";
 import {I18nState} from "./store/i18n/i18n.state";
 import {UrlTemplatesComponent} from "./form/url-templates-input/url-templates.component";
+import {GlobalSearchComponent} from "./navigation/global-search/global-search.component";
+import {CachingProjectRestClient} from "./rest/caching-project-rest-client";
+import {MultiDeployActionsComponent} from "./deployable/multi-deploy-actions/multi-deploy-actions.component";
 
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, '/assets/i18n/', '.json');
@@ -182,7 +185,9 @@ export function HttpLoaderFactory(http: HttpClient) {
     DistinctObjectArrayPipe,
     FilterDeepPipe,
     I18nSwitcherComponent,
-    UrlTemplatesComponent
+    UrlTemplatesComponent,
+    GlobalSearchComponent,
+    MultiDeployActionsComponent
   ],
   imports: [
     BrowserModule,
@@ -236,7 +241,7 @@ export function HttpLoaderFactory(http: HttpClient) {
         useFactory: HttpLoaderFactory,
         deps: [HttpClient]
       }
-    })
+    }),
   ],
   providers: [
     RestService,
@@ -267,7 +272,8 @@ export function HttpLoaderFactory(http: HttpClient) {
     {
       provide: AnimationDriver,
       useFactory: () => provideAnimationDriverBasedOnUserPreferences()
-    }
+    },
+    CachingProjectRestClient
   ],
   bootstrap: [AppComponent]
 })

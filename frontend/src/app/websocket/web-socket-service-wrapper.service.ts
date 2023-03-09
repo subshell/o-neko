@@ -20,10 +20,10 @@ export class WebSocketServiceWrapper {
   constructor(private websocket: WebSocketService) {
   }
 
-  public getProjectVersionChanges(projectId: string): Observable<DeploymentStatusChangedMessage> {
+  public getProjectVersionChanges(projectId?: string): Observable<DeploymentStatusChangedMessage> {
     return this.streamType(DeploymentStatusChangedMessage)
       .pipe(
-        filter(msg => msg.ownerId === projectId)
+        filter(msg => projectId ? msg.ownerId === projectId : true)
       );
   }
 

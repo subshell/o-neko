@@ -2,12 +2,14 @@ import {Injectable, OnDestroy} from "@angular/core";
 import {Observable, of, Subscription} from "rxjs";
 import {tap} from "rxjs/operators";
 import {EffectiveDeployableConfiguration} from "../deployable/effective-deployable-configuration";
-import {Project} from "../project/project";
+import {Project, ProjectDTO} from "../project/project";
 import {ProjectVersion} from "../project/project-version";
 import {Cache} from "../util/cache";
 import {WebSocketServiceWrapper} from "../websocket/web-socket-service-wrapper.service";
 import {ProjectRestClient} from "./project-rest-client";
 import {RestService} from "./rest.service";
+import {SearchResult} from "../search/search.model";
+import {ProjectExportDTO} from "../project/project-export";
 
 @Injectable()
 export class CachingProjectRestClient implements ProjectRestClient, OnDestroy {
@@ -28,7 +30,9 @@ export class CachingProjectRestClient implements ProjectRestClient, OnDestroy {
         }
         //else case is 'Deleted', but then we just have to drop it from our cache and we're good to go.
       }
-    }))
+    }), this.wsService.getProjectVersionChanges().subscribe(message => {
+      this.cache.invalidate(message.ownerId);
+    }));
   }
 
   ngOnDestroy() {
@@ -39,7 +43,7 @@ export class CachingProjectRestClient implements ProjectRestClient, OnDestroy {
 
   getAllProjects(): Observable<Array<Project>> {
     if (this.allLoaded) {
-      return of(this.cache.getAll());
+      return of(this.cache.getAll<Project>());
     } else {
       return this.delegate.getAllProjects().pipe(tap(projects => {
         projects.forEach(project => this.cache.put(project.uuid, project));
@@ -56,8 +60,16 @@ export class CachingProjectRestClient implements ProjectRestClient, OnDestroy {
     return this.delegate.persistProject(project).pipe(tap(persistedProject => this.cache.put(persistedProject.uuid, persistedProject)));
   }
 
+  persistProjectVersionVariables(project: Project, projectVersion: ProjectVersion): Observable<Project> {
+    return this.delegate.persistProjectVersionVariables(project, projectVersion);
+  }
+
   deleteProject(project: Project): Observable<void> {
     return this.delegate.deleteProject(project).pipe(tap(() => this.cache.invalidate(project.uuid)));
+  }
+
+  exportProject(project: Project): Observable<ProjectExportDTO> {
+    return this.delegate.exportProject(project);
   }
 
   deployProjectVersion(version: ProjectVersion, project: Project): Observable<void> {
@@ -70,6 +82,10 @@ export class CachingProjectRestClient implements ProjectRestClient, OnDestroy {
 
   getCalculatedProjectVersionConfiguration(version: ProjectVersion, project: Project): Observable<EffectiveDeployableConfiguration> {
     return this.delegate.getCalculatedProjectVersionConfiguration(version, project);
+  }
+
+  findProjectsOrVersions(query: string): Observable<SearchResult> {
+    return this.delegate.findProjectsOrVersions(query);
   }
 
 }

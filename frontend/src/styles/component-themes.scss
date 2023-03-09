@@ -20,6 +20,7 @@
 @import "../app/form/upload/file-upload.component.theme";
 @import "../app/components/footer/footer.component.theme";
 @import "../app/components/i18n-switcher/i18n-switcher.component.theme";
+@import "../app/navigation/global-search/global-search.theme";
 
 @mixin component-themes($theme) {
   @include main-component-theme($theme);
@@ -44,4 +45,5 @@
   @include file-upload-component-theme($theme);
   @include full-page-form-theme($theme);
   @include footer-theme($theme);
+  @include global-search-theme($theme);
 }

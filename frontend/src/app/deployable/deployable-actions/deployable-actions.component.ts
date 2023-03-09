@@ -13,6 +13,10 @@ export class DeployableActionsComponent {
   @Input() isDeployDisabled: boolean = false;
   @Input() isStopDisabled: boolean = false;
   @Input() userHasPermissions: boolean = false;
+
+  @Input() overrideDeployLabel: string = '';
+  @Input() overrideStopLabel: string = '';
+
   @Output()
   public onDeploy: EventEmitter<void> = new EventEmitter();
   @Output()

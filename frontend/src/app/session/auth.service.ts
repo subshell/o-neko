@@ -13,4 +13,5 @@ export class AuthService {
   public isAuthenticated(): Observable<boolean> {
     return this.authenticatedSubject.asObservable().pipe(distinctUntilChanged());
   }
+
 }

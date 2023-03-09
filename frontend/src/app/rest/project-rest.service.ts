@@ -6,6 +6,7 @@ import {Project, ProjectDTO} from '../project/project';
 import {ProjectVersion} from '../project/project-version';
 import {ProjectRestClient} from './project-rest-client';
 import {ProjectExportDTO} from '../project/project-export';
+import {SearchResult} from "../search/search.model";
 
 export class ProjectRestService implements ProjectRestClient {
 
@@ -33,7 +34,7 @@ export class ProjectRestService implements ProjectRestClient {
     }
   }
 
-  public persistProjectVersionVariables(project: Project, projectVersion: ProjectVersion) {
+  public persistProjectVersionVariables(project: Project, projectVersion: ProjectVersion): Observable<Project> {
     if (project.isNew()) {
       return throwError("Cannot persist variables for a new project");
     }
@@ -60,4 +61,11 @@ export class ProjectRestService implements ProjectRestClient {
     return this.http.get<EffectiveDeployableConfiguration>(`${this.root_path}/${project.uuid}/version/${version.uuid}/configuration`);
   }
 
+  public findProjectsOrVersions(query: string): Observable<SearchResult> {
+    return this.http.get<SearchResult>(`${this.root_path}/search`, {
+      params: {
+        query
+      }
+    });
+  }
 }

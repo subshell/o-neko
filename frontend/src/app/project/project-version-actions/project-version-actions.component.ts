@@ -19,6 +19,8 @@ export class ProjectVersionActionsComponent {
   @Input() project: Project;
   @Input() hideIcons: boolean = false;
   @Input() hideText: boolean = false;
+
+  @Input() hideVariables: boolean = false;
   public hasDeployPermission: boolean;
   public hasEditVariablesPermission: boolean;
   private log = LogService.getLogger(ProjectVersionActionsComponent);
