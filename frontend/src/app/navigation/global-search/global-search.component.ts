@@ -36,7 +36,7 @@ export class GlobalSearchComponent implements OnInit, OnDestroy {
   private unsubscribeOnDestroy: Array<() => void> = [];
 
   constructor(private renderer: Renderer2,
-              @Inject(DOCUMENT) document: Document,
+              @Inject(DOCUMENT) private document: Document,
               private api: CachingProjectRestClient,
               private elementRef: ElementRef) {
     this.hideResults();
@@ -55,18 +55,18 @@ export class GlobalSearchComponent implements OnInit, OnDestroy {
     const isMac = platform.toUpperCase().indexOf("MAC") >= 0;
     this.displayShortcut = isMac ? "⌘ + K" : "ctrl + K";
 
-    const eventName = `keydown.${isMac ? 'meta' : 'ctrl'}.k`;
+    const eventName = `keydown.${isMac ? 'meta' : 'control'}.k`;
     this.unsubscribeOnDestroy.push(
-      this.renderer.listen(document, eventName, (event: KeyboardEvent) => {
+      this.renderer.listen(this.document, eventName, (event: KeyboardEvent) => {
         event.preventDefault();
         this.inputElement.nativeElement.focus();
         this.showResults();
       }),
-      this.renderer.listen(document, 'keydown.escape', () => {
+      this.renderer.listen(this.document, 'keydown.escape', () => {
         this.clearSearch();
         this.hideResults();
       }),
-      this.renderer.listen(document, 'click', (event: MouseEvent) => {
+      this.renderer.listen(this.document, 'click', (event: MouseEvent) => {
         if (!(event.composedPath().includes(this.elementRef.nativeElement))) { // detect outside clicks
           this.hideResults();
         } else if (event.composedPath().includes(this.inputElement.nativeElement)) {
