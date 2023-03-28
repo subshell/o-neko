@@ -16,6 +16,7 @@ import {DefinedNamespacesListComponent} from "./namespace/list/defined-namespace
 import {MeComponent} from "./user/me/me.component";
 import {LogsComponent} from "./logs/logs.component";
 import {HelmRegistryListComponent} from "./registries/helm/list/helm-registry-list.component";
+import {SearchPageComponent} from "./search/search-page.component";
 
 export const APP_ROUTES: Routes = [
   // Login
@@ -96,6 +97,11 @@ export const APP_ROUTES: Routes = [
       {
         path: 'logs',
         component: LogsComponent,
+        canActivate: [AuthGuardService]
+      },
+      {
+        path: 'search',
+        component: SearchPageComponent,
         canActivate: [AuthGuardService]
       },
       {

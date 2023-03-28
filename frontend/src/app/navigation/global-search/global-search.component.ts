@@ -2,12 +2,13 @@ import {ChangeDetectionStrategy, Component, ElementRef, Inject, OnDestroy, OnIni
 import {DOCUMENT} from "@angular/common";
 import {FormControl} from "@angular/forms";
 import {combineLatest, Observable, of, ReplaySubject, sampleTime, Subject, Subscription} from "rxjs";
-import {map, mergeMap, shareReplay, startWith} from "rxjs/operators";
+import {filter, map, mergeMap, shareReplay, startWith} from "rxjs/operators";
 import {ProjectSearchResultEntry, SearchResult, VersionSearchResultEntry} from "../../search/search.model";
 import {ProjectVersion} from "../../project/project-version";
 import {Project} from "../../project/project";
 import {CachingProjectRestClient} from "../../rest/caching-project-rest-client";
 import {ProjectAndVersion} from "../../project/project.service";
+import {NavigationSkipped, NavigationStart, Router} from "@angular/router";
 
 interface EnrichedVersionSearchResult {
   version: ProjectVersion;
@@ -33,12 +34,17 @@ export class GlobalSearchComponent implements OnInit, OnDestroy {
   foundVersionsLimited$: Observable<Array<EnrichedVersionSearchResult>>;
   foundProjectsLimited$: Observable<Array<ProjectSearchResultEntry>>;
   versionsMultiDeployModel$: Observable<Array<ProjectAndVersion>>;
+  fullSearchQueryParams: {q: string};
   private unsubscribeOnDestroy: Array<() => void> = [];
 
   constructor(private renderer: Renderer2,
               @Inject(DOCUMENT) private document: Document,
               private api: CachingProjectRestClient,
-              private elementRef: ElementRef) {
+              private elementRef: ElementRef,
+              private router: Router) {
+    this.addUnsubscribe(
+      router.events.pipe(filter(e => e instanceof NavigationStart || e instanceof NavigationSkipped)).subscribe(() => this.hideResults())
+    );
     this.hideResults();
   }
 
@@ -94,7 +100,12 @@ export class GlobalSearchComponent implements OnInit, OnDestroy {
       return;
     }
     this.result$ = this.inputControl.valueChanges.pipe(startWith(""), sampleTime(200), mergeMap(inputContent => this.api.findProjectsOrVersions(inputContent)), shareReplay());
-    this.addUnsubscribe(this.inputControl.valueChanges.subscribe(() => this.showResults()));
+    this.addUnsubscribe(this.inputControl.valueChanges.subscribe(value => {
+      this.fullSearchQueryParams = {
+        q: value
+      };
+      this.showResults();
+    }));
     this.initFilteredResults();
   }
 
@@ -143,5 +154,9 @@ export class GlobalSearchComponent implements OnInit, OnDestroy {
 
   private addUnsubscribe(subscription: Subscription) {
     this.unsubscribeOnDestroy.push(() => subscription.unsubscribe());
+  }
+
+  onEnter() {
+    this.router.navigate(['/search'], {queryParams: this.fullSearchQueryParams});
   }
 }

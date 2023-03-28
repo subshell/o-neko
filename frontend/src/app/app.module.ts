@@ -122,6 +122,7 @@ import {UrlTemplatesComponent} from "./form/url-templates-input/url-templates.co
 import {GlobalSearchComponent} from "./navigation/global-search/global-search.component";
 import {CachingProjectRestClient} from "./rest/caching-project-rest-client";
 import {MultiDeployActionsComponent} from "./deployable/multi-deploy-actions/multi-deploy-actions.component";
+import {SearchPageComponent} from "./search/search-page.component";
 
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, '/assets/i18n/', '.json');
@@ -187,7 +188,8 @@ export function HttpLoaderFactory(http: HttpClient) {
     I18nSwitcherComponent,
     UrlTemplatesComponent,
     GlobalSearchComponent,
-    MultiDeployActionsComponent
+    MultiDeployActionsComponent,
+    SearchPageComponent
   ],
   imports: [
     BrowserModule,

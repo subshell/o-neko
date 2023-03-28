@@ -5,16 +5,10 @@
            type="text"
            fxFlex
            [placeholder]="'components.navigation.search.placeholder' | translate: {shortcut: displayShortcut}"
-           (focus)="inputFocused()"/>
+           (focus)="inputFocused()"
+           (keydown.enter)="onEnter()"/>
     <button matSuffix mat-icon-button (click)="clearButtonClicked()">
       <mat-icon svgIcon="mdi:close"></mat-icon>
-    </button>
-    <mat-divider [vertical]="true"></mat-divider>
-    <button mat-button color="primary">
-      <div fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="8px">
-        <mat-icon svgIcon="mdi:magnify"></mat-icon>
-        <span>{{ 'components.navigation.search.search' | translate }}</span>
-      </div>
     </button>
   </div>
   <div class="search-result-box" *ngIf="(showSearchResultBox$ | async) && (result$ | async) as result">
@@ -61,7 +55,7 @@
       </mat-list>
     </div>
     <div *ngIf="result.totalVersionsFound > displayedEntriesLimit || result.totalProjectsFound > displayedEntriesLimit" fxLayout="row" fxLayoutAlign="center" class="view-all-container">
-      <a class="o-neko-internal-link" routerLink="" fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="4px">
+      <a class="o-neko-internal-link" routerLink="/search" [queryParams]="fullSearchQueryParams" fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="4px">
         <mat-icon svgIcon="mdi:text-search-variant"></mat-icon>
         <span>{{ 'components.navigation.search.viewAll' | translate }}</span>
       </a>

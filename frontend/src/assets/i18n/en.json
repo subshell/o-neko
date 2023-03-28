@@ -21,6 +21,7 @@
   },
   "menu": {
     "home": "Home",
+    "search": "Search",
     "projectManagement": {
       "projectManagement": "Project Management",
       "projects": "Projects",

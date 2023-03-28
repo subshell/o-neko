@@ -1,0 +1,37 @@
+<div class="main-content-padding">
+  <div class="main-content-padding" fxLayout="column">
+    <h2 fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="12px">
+      <mat-icon svgIcon="content-paste-search"></mat-icon>
+      <span>{{'views.search.search' | translate}}</span>
+    </h2>
+
+    <mat-form-field appearance="fill">
+      <input matInput placeholder="Search for foo" [formControl]="inputControl" />
+      <mat-label>Search bla</mat-label>
+      <button matSuffix mat-icon-button>
+        <mat-icon svgIcon="mdi:close"></mat-icon>
+      </button>
+    </mat-form-field>
+
+    <mat-paginator [length]="(result$ | async)?.totalProjectsFound"
+                   [pageSize]="(currentPage$ | async)?.pageSize"
+                   [pageSizeOptions]="pageSizeOptions"
+                   [pageIndex]="(currentPage$ | async)?.pageIndex"
+                   (page)="paginationEvent($event)"></mat-paginator>
+    <div *ngIf="(result$ | async) as result">
+    <mat-list>
+      <ng-container *ngIf="(paginatedProjects$ | async) as paginatedProjects">
+        <span mat-subheader *ngIf="paginatedProjects.length > 0">{{ 'components.navigation.search.projects' | translate }} ({{ 'components.navigation.search.resultCountText' | translate: {showing: paginatedProjects.length, found: result.totalProjectsFound} }})</span>
+        <ng-container *ngFor="let project of paginatedProjects; let last = last;">
+          <mat-list-item>
+            <mat-icon svgIcon="mdi:folder-outline" mat-list-icon></mat-icon>
+            <a mat-line class="o-neko-internal-link" [routerLink]="'/projects/' + project.id">{{ project.name }}</a>
+          </mat-list-item>
+          <mat-divider *ngIf="!last"></mat-divider>
+        </ng-container>
+      </ng-container>
+    </mat-list>
+    </div>
+
+  </div>
+</div>
