@@ -23,7 +23,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<spring.boot.version>3.0.3</spring.boot.version>
+		<spring.boot.version>3.0.5</spring.boot.version>
 		<feign.version>12.1</feign.version>
 		<org.mapstruct.version>1.5.3.Final</org.mapstruct.version>
 		<org.projectlombok.lombok.version>1.18.26</org.projectlombok.lombok.version>
