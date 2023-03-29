@@ -30,7 +30,7 @@
     "@ngx-translate/http-loader": "7.0.0",
     "@ngxs/logger-plugin": "3.7.6",
     "@ngxs/storage-plugin": "3.7.6",
-    "@ngxs/store": "3.7.6",
+    "@ngxs/store": "3.8.0",
     "core-js": "3.29.0",
     "date-fns": "2.29.3",
     "hash-it": "6.0.0",
