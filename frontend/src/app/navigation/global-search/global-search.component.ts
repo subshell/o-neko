@@ -1,14 +1,15 @@
 import {ChangeDetectionStrategy, Component, ElementRef, Inject, OnDestroy, OnInit, Renderer2, ViewChild} from "@angular/core";
 import {DOCUMENT} from "@angular/common";
 import {FormControl} from "@angular/forms";
-import {combineLatest, Observable, of, ReplaySubject, sampleTime, Subject, Subscription} from "rxjs";
-import {filter, map, mergeMap, shareReplay, startWith} from "rxjs/operators";
+import {combineLatest, Observable, of, ReplaySubject, Subject, Subscription} from "rxjs";
+import {filter, map, mergeMap, tap} from "rxjs/operators";
 import {ProjectSearchResultEntry, SearchResult, VersionSearchResultEntry} from "../../search/search.model";
 import {ProjectVersion} from "../../project/project-version";
 import {Project} from "../../project/project";
 import {CachingProjectRestClient} from "../../rest/caching-project-rest-client";
 import {ProjectAndVersion} from "../../project/project.service";
-import {NavigationSkipped, NavigationStart, Router} from "@angular/router";
+import {NavigationEnd, NavigationSkipped, NavigationStart, Router} from "@angular/router";
+import {SearchMiddleware} from "../../search/search-middleware.service";
 
 interface EnrichedVersionSearchResult {
   version: ProjectVersion;
@@ -24,27 +25,39 @@ interface EnrichedVersionSearchResult {
 })
 export class GlobalSearchComponent implements OnInit, OnDestroy {
   @ViewChild('inputElement') inputElement: ElementRef<HTMLInputElement>;
+
   showSearchResultBox$: Observable<boolean> = new ReplaySubject(1);
   inputControl = new FormControl("");
   displayedEntriesLimit = 5;
   displayShortcut = ""
+  renderSearchResults = true; // on the /search page we do not want the search result box to open
 
 
   result$: Observable<SearchResult>;
   foundVersionsLimited$: Observable<Array<EnrichedVersionSearchResult>>;
   foundProjectsLimited$: Observable<Array<ProjectSearchResultEntry>>;
   versionsMultiDeployModel$: Observable<Array<ProjectAndVersion>>;
-  fullSearchQueryParams: {q: string};
+  fullSearchQueryParams: { q: string };
   private unsubscribeOnDestroy: Array<() => void> = [];
 
   constructor(private renderer: Renderer2,
               @Inject(DOCUMENT) private document: Document,
               private api: CachingProjectRestClient,
+              private search: SearchMiddleware,
               private elementRef: ElementRef,
               private router: Router) {
     this.addUnsubscribe(
-      router.events.pipe(filter(e => e instanceof NavigationStart || e instanceof NavigationSkipped)).subscribe(() => this.hideResults())
+      router.events.pipe(
+        filter(e => e instanceof NavigationStart || e instanceof NavigationSkipped)
+      ).subscribe(() => this.hideResults()),
+      router.events.pipe(
+        tap(e => console.log(e)),
+        filter(e => e instanceof NavigationEnd)
+      ).subscribe((e: NavigationEnd) => {
+        this.renderSearchResults = !e.url.startsWith("/search");
+      })
     );
+    this.renderSearchResults = !this.router.url.startsWith("/search");
     this.hideResults();
   }
 
@@ -78,7 +91,13 @@ export class GlobalSearchComponent implements OnInit, OnDestroy {
         } else if (event.composedPath().includes(this.inputElement.nativeElement)) {
           this.inputFocused();
         }
-      })
+      }),
+    );
+    this.addUnsubscribe(
+      this.inputControl.valueChanges.subscribe(value => this.search.searchInputChanged(value, this)),
+      this.search.searchInput$.pipe(
+        filter(sic => sic.cause != this)
+      ).subscribe(sic => this.inputControl.setValue(sic.input, {emitEvent: false}))
     );
   }
 
@@ -92,6 +111,9 @@ export class GlobalSearchComponent implements OnInit, OnDestroy {
   }
 
   private showResults() {
+    if (!this.renderSearchResults) {
+      return;
+    }
     (this.showSearchResultBox$ as Subject<boolean>).next(true);
   }
 
@@ -99,7 +121,7 @@ export class GlobalSearchComponent implements OnInit, OnDestroy {
     if (this.result$) {
       return;
     }
-    this.result$ = this.inputControl.valueChanges.pipe(startWith(""), sampleTime(200), mergeMap(inputContent => this.api.findProjectsOrVersions(inputContent)), shareReplay());
+    this.result$ = this.search.result$;
     this.addUnsubscribe(this.inputControl.valueChanges.subscribe(value => {
       this.fullSearchQueryParams = {
         q: value
@@ -115,11 +137,13 @@ export class GlobalSearchComponent implements OnInit, OnDestroy {
     }
 
     // show a maximum of $displayedEntriesLimit projects
-    this.foundProjectsLimited$ = this.result$.pipe(map(r => r.projects.slice(0, this.displayedEntriesLimit)));
+    this.foundProjectsLimited$ = this.search.foundProjects$.pipe(
+      map(p => p.slice(0, this.displayedEntriesLimit))
+    );
 
     // show a maximum of $displayedEntriesLimit versions. get the project to every version and map to EnrichedVersionSearchResult
-    this.foundVersionsLimited$ = this.result$.pipe(
-      map(r => r.versions.slice(0, this.displayedEntriesLimit)),
+    this.foundVersionsLimited$ = this.search.foundVersions$.pipe(
+      map(v => v.slice(0, this.displayedEntriesLimit)),
       mergeMap(r => combineLatest([of(r), ...r.map(v => this.api.getProjectById(v.projectId))])),
       map(([r, ...projects]) => {
         return r.map((v, i) => (<EnrichedVersionSearchResult>{
@@ -152,8 +176,8 @@ export class GlobalSearchComponent implements OnInit, OnDestroy {
     this.inputElement.nativeElement.focus();
   }
 
-  private addUnsubscribe(subscription: Subscription) {
-    this.unsubscribeOnDestroy.push(() => subscription.unsubscribe());
+  private addUnsubscribe(...subscriptions: Array<Subscription>) {
+    subscriptions.forEach(subscription => this.unsubscribeOnDestroy.push(() => subscription.unsubscribe()));
   }
 
   onEnter() {

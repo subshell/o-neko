@@ -123,6 +123,7 @@ import {GlobalSearchComponent} from "./navigation/global-search/global-search.co
 import {CachingProjectRestClient} from "./rest/caching-project-rest-client";
 import {MultiDeployActionsComponent} from "./deployable/multi-deploy-actions/multi-deploy-actions.component";
 import {SearchPageComponent} from "./search/search-page.component";
+import {SearchMiddleware} from "./search/search-middleware.service";
 
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, '/assets/i18n/', '.json');
@@ -275,7 +276,8 @@ export function HttpLoaderFactory(http: HttpClient) {
       provide: AnimationDriver,
       useFactory: () => provideAnimationDriverBasedOnUserPreferences()
     },
-    CachingProjectRestClient
+    CachingProjectRestClient,
+    SearchMiddleware
   ],
   bootstrap: [AppComponent]
 })

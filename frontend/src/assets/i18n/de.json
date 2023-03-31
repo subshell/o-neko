@@ -47,6 +47,9 @@
     },
     "namespaces": {
       "namespaces": "Namespaces"
+    },
+    "search": {
+      "search": "Suche"
     }
   },
   "components": {

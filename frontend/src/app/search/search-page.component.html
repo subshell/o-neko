@@ -5,14 +5,6 @@
       <span>{{'views.search.search' | translate}}</span>
     </h2>
 
-    <mat-form-field appearance="fill">
-      <input matInput placeholder="Search for foo" [formControl]="inputControl" />
-      <mat-label>Search bla</mat-label>
-      <button matSuffix mat-icon-button>
-        <mat-icon svgIcon="mdi:close"></mat-icon>
-      </button>
-    </mat-form-field>
-
     <mat-paginator [length]="(result$ | async)?.totalProjectsFound"
                    [pageSize]="(currentPage$ | async)?.pageSize"
                    [pageSizeOptions]="pageSizeOptions"

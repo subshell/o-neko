@@ -1,13 +1,13 @@
-import {ChangeDetectionStrategy, Component} from "@angular/core";
+import {ChangeDetectionStrategy, Component, OnDestroy} from "@angular/core";
 import {PageEvent} from "@angular/material/paginator";
-import {FormControl} from "@angular/forms";
-import {combineLatest, Observable, ReplaySubject, sampleTime, Subject} from "rxjs";
+import {combineLatest, Observable, ReplaySubject, Subject, Subscription} from "rxjs";
 import {ProjectSearchResultEntry, SearchResult, VersionSearchResultEntry} from "./search.model";
 import {ProjectVersion} from "../project/project-version";
 import {Project} from "../project/project";
 import {ActivatedRoute} from "@angular/router";
 import {CachingProjectRestClient} from "../rest/caching-project-rest-client";
-import {map, mergeMap, shareReplay, startWith} from "rxjs/operators";
+import {map} from "rxjs/operators";
+import {SearchMiddleware} from "./search-middleware.service";
 
 interface EnrichedVersionSearchResult {
   version: ProjectVersion;
@@ -26,9 +26,9 @@ interface PageOptions {
   styleUrls: ['./search-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SearchPageComponent {
+export class SearchPageComponent implements OnDestroy {
+
   pageSizeOptions: [5, 10, 25, 50];
-  inputControl = new FormControl("");
 
   result$: Observable<SearchResult>;
   paginatedProjects$: Observable<Array<ProjectSearchResultEntry>>;
@@ -36,22 +36,25 @@ export class SearchPageComponent {
 
   currentPage$: Observable<PageOptions> = new ReplaySubject(1);
 
-  constructor(route: ActivatedRoute,
-              private api: CachingProjectRestClient) {
-    this.setPage(0, 10);
-    route.queryParams.subscribe(params => {
-      this.inputControl.setValue(params.q || '');
-    });
-    this.inputControl.valueChanges.subscribe(value => {
-      this.updateCurrentUrl(value);
-      this.setPage(0, 10);
-    });
-    this.result$ = this.inputControl.valueChanges
-      .pipe(startWith(""), sampleTime(200), mergeMap(inputContent => this.api.findProjectsOrVersions(inputContent)), shareReplay());
+  private subscriptions: Array<Subscription> = [];
 
-    this.paginatedProjects$ = combineLatest([this.currentPage$, this.result$]).pipe(
-      map(([page, result]) => {
-        return result.projects.slice(page.pageIndex * page.pageSize, page.pageSize);
+  constructor(route: ActivatedRoute,
+              private api: CachingProjectRestClient,
+              private search: SearchMiddleware) {
+    this.setPage(0, 10);
+    this.result$ = this.search.result$;
+    this.subscriptions.push(
+      route.queryParams.subscribe(params => {
+        this.search.searchInputChanged(params.q || '', this);
+      }),
+      this.search.searchInput$.subscribe(value => {
+        this.updateCurrentUrl(value.input);
+        this.setPage(0, 10);
+      })
+    );
+    this.paginatedProjects$ = combineLatest([this.currentPage$, this.search.foundProjects$]).pipe(
+      map(([page, projects]) => {
+        return projects.slice(page.pageIndex * page.pageSize, page.pageSize);
       })
     );
   }
@@ -68,5 +71,9 @@ export class SearchPageComponent {
     let url = new URL(window.location.toString());
     url.searchParams.set("q", query);
     window.history.replaceState(null, '', url.toString());
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(s => s.unsubscribe());
   }
 }
