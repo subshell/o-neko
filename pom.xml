@@ -27,7 +27,7 @@
 		<feign.version>12.2</feign.version>
 		<org.mapstruct.version>1.5.3.Final</org.mapstruct.version>
 		<org.projectlombok.lombok.version>1.18.26</org.projectlombok.lombok.version>
-		<springdoc.version>1.6.15</springdoc.version>
+		<springdoc.version>1.7.0</springdoc.version>
 		<branchName></branchName>
 		<buildNumber></buildNumber>
 	</properties>
