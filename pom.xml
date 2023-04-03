@@ -283,7 +283,7 @@
 			<!-- Include frontend sources in the jar -->
 			<plugin>
 				<artifactId>maven-resources-plugin</artifactId>
-				<version>3.1.0</version>
+				<version>3.3.1</version>
 				<executions>
 					<execution>
 						<id>prepare-package-javascript</id>
