@@ -1,28 +1,91 @@
 <div class="main-content-padding">
-  <div class="main-content-padding" fxLayout="column">
+  <div class="main-content-padding">
     <h2 fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="12px">
       <mat-icon svgIcon="content-paste-search"></mat-icon>
       <span>{{'views.search.search' | translate}}</span>
     </h2>
 
-    <mat-paginator [length]="(result$ | async)?.totalProjectsFound"
-                   [pageSize]="(currentPage$ | async)?.pageSize"
-                   [pageSizeOptions]="pageSizeOptions"
-                   [pageIndex]="(currentPage$ | async)?.pageIndex"
-                   (page)="paginationEvent($event)"></mat-paginator>
-    <div *ngIf="(result$ | async) as result">
-    <mat-list>
-      <ng-container *ngIf="(paginatedProjects$ | async) as paginatedProjects">
-        <span mat-subheader *ngIf="paginatedProjects.length > 0">{{ 'components.navigation.search.projects' | translate }} ({{ 'components.navigation.search.resultCountText' | translate: {showing: paginatedProjects.length, found: result.totalProjectsFound} }})</span>
-        <ng-container *ngFor="let project of paginatedProjects; let last = last;">
-          <mat-list-item>
-            <mat-icon svgIcon="mdi:folder-outline" mat-list-icon></mat-icon>
-            <a mat-line class="o-neko-internal-link" [routerLink]="'/projects/' + project.id">{{ project.name }}</a>
-          </mat-list-item>
-          <mat-divider *ngIf="!last"></mat-divider>
-        </ng-container>
-      </ng-container>
-    </mat-list>
+    <div class="search-hint" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="6px" *ngIf="isInputBlank$ | async">
+      <mat-icon svgIcon="mdi:lightbulb-on"></mat-icon>
+      <span>{{ 'components.navigation.search.label' | translate }}</span>
+    </div>
+
+    <div *ngIf="(result$ | async) as result" fxLayout="column" fxLayoutGap="2em">
+      <div class="search-result-container" *ngIf="(paginatedProjects$ | async) as paginatedProjects">
+        <div fxLayout="row wrap" fxLayoutAlign="space-between center" fxLayoutGap="1em">
+          <h3 fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="12px">
+            <mat-icon svgIcon="mdi:folder"></mat-icon>
+            <span>{{'views.search.projects' | translate }}</span>
+          </h3>
+          <mat-paginator *ngIf="paginatedProjects.length > 0"
+                         [length]="(result$ | async)?.totalProjectsFound"
+                         [pageSize]="(projectsCurrentPage$ | async)?.pageSize"
+                         [pageSizeOptions]="pageSizeOptions"
+                         [pageIndex]="(projectsCurrentPage$ | async)?.pageIndex"
+                         [showFirstLastButtons]="true"
+                         (page)="projectsPaginationEvent($event)"></mat-paginator>
+
+        </div>
+        <div *ngIf="paginatedProjects?.length == 0" class="search-hint" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="6px">
+          <mat-icon svgIcon="mdi:lightbulb-outline"></mat-icon>
+          <span>{{ 'components.navigation.search.noResults' | translate }}</span>
+        </div>
+
+        <mat-list *ngIf="paginatedProjects.length > 0">
+          <span mat-subheader>{{ 'components.navigation.search.projects' | translate }}
+            ({{ 'components.navigation.search.resultCountText' | translate: {showing: paginatedProjects.length, found: result.totalProjectsFound} }})</span>
+          <ng-container *ngFor="let project of paginatedProjects; let last = last;">
+            <mat-list-item>
+              <mat-icon svgIcon="mdi:folder-outline" mat-list-icon></mat-icon>
+              <a mat-line class="o-neko-internal-link" [routerLink]="'/projects/' + project.id">{{ project.name }}</a>
+            </mat-list-item>
+            <mat-divider *ngIf="!last"></mat-divider>
+          </ng-container>
+        </mat-list>
+      </div>
+
+      <div class="search-result-container" *ngIf="(paginatedVersions$ | async) as paginatedVersions">
+        <div fxLayout="row wrap" fxLayoutAlign="space-between center" fxLayoutGap="1em">
+          <h3 fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="12px">
+            <mat-icon svgIcon="mdi:file-document-multiple"></mat-icon>
+            <span>{{'views.search.projectVersions' | translate }}</span>
+          </h3>
+          <mat-paginator *ngIf="paginatedVersions.length > 0"
+                         [length]="(result$ | async)?.totalVersionsFound"
+                         [pageSize]="(versionsCurrentPage$ | async)?.pageSize"
+                         [pageSizeOptions]="pageSizeOptions"
+                         [pageIndex]="(versionsCurrentPage$ | async)?.pageIndex"
+                         [showFirstLastButtons]="true"
+                         (page)="versionsPaginationEvent($event)"></mat-paginator>
+        </div>
+        <div *ngIf="paginatedVersions?.length == 0" class="search-hint" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="6px">
+          <mat-icon svgIcon="mdi:lightbulb-outline"></mat-icon>
+          <span>{{ 'components.navigation.search.noResults' | translate }}</span>
+        </div>
+        <mat-list *ngIf="paginatedVersions.length > 0">
+            <span mat-subheader>{{ 'components.navigation.search.versions' | translate }}
+              ({{ 'components.navigation.search.resultCountText' | translate: {showing: paginatedVersions.length, found: result.totalVersionsFound} }})</span>
+          <ng-container *ngFor="let version of paginatedVersions; let last = last;">
+            <mat-list-item>
+              <deployableStatus class="version-status" [status]="version.version.deployment.status" mat-list-icon></deployableStatus>
+              <a mat-line class="o-neko-internal-link"
+                 [routerLink]="'/projects/' + version.project.uuid + '/versions/' + version.version.uuid">{{ version.version.name }}</a>
+                <span mat-line fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="4px">
+                  <mat-icon svgIcon="mdi:folder-outline"></mat-icon>
+                  <span>{{ version.project.name }}</span>
+                </span>
+              <div fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="8px">
+                <on-deployment-urls [version]="version.version"></on-deployment-urls>
+                <projectVersionActions [version]="version.version" [project]="version.project"></projectVersionActions>
+              </div>
+            </mat-list-item>
+            <mat-divider *ngIf="!last"></mat-divider>
+          </ng-container>
+          <div fxLayout="row" fxLayoutAlign="center">
+            <on-multi-deploy-actions [versions]="paginatedVersions"></on-multi-deploy-actions>
+          </div>
+        </mat-list>
+      </div>
     </div>
 
   </div>

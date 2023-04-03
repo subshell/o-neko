@@ -124,6 +124,7 @@ import {CachingProjectRestClient} from "./rest/caching-project-rest-client";
 import {MultiDeployActionsComponent} from "./deployable/multi-deploy-actions/multi-deploy-actions.component";
 import {SearchPageComponent} from "./search/search-page.component";
 import {SearchMiddleware} from "./search/search-middleware.service";
+import {DeploymentUrlsComponent} from "./components/deployment-urls/deployment-urls.component";
 
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, '/assets/i18n/', '.json');
@@ -190,7 +191,8 @@ export function HttpLoaderFactory(http: HttpClient) {
     UrlTemplatesComponent,
     GlobalSearchComponent,
     MultiDeployActionsComponent,
-    SearchPageComponent
+    SearchPageComponent,
+    DeploymentUrlsComponent
   ],
   imports: [
     BrowserModule,

@@ -49,7 +49,9 @@
       "namespaces": "Namespaces"
     },
     "search": {
-      "search": "Search"
+      "search": "Search",
+      "projects": "Projects",
+      "projectVersions": "Project Versions"
     }
   },
   "components": {
@@ -73,7 +75,8 @@
     },
     "multiDeployActions": {
       "deploy": "Deploy {count, plural, one{this version} other{these # versions}}",
-      "stop": "Stop {count, plural, one{this version} other{these # versions}}"
+      "stop": "Stop {count, plural, one{this version} other{these # versions}}",
+      "limitExceeded": "You cannot take action on more than {limit} versions concurrently."
     },
     "deployableStatus": {
       "runningOutdated": "This deployment is running with an outdated configuration",

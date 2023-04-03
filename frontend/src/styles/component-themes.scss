@@ -22,6 +22,7 @@
 @import "../app/components/i18n-switcher/i18n-switcher.component.theme";
 @import "../app/navigation/global-search/global-search.theme";
 @import "../app/search/search-page.theme";
+@import "../app/deployable/multi-deploy-actions/multi-deploy-actions.theme";
 
 @mixin component-themes($theme) {
   @include main-component-theme($theme);
@@ -48,4 +49,5 @@
   @include footer-theme($theme);
   @include global-search-theme($theme);
   @include search-page-theme($theme);
+  @include multi-deploy-actions-theme($theme);
 }

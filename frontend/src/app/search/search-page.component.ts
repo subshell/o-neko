@@ -1,23 +1,24 @@
 import {ChangeDetectionStrategy, Component, OnDestroy} from "@angular/core";
 import {PageEvent} from "@angular/material/paginator";
-import {combineLatest, Observable, ReplaySubject, Subject, Subscription} from "rxjs";
-import {ProjectSearchResultEntry, SearchResult, VersionSearchResultEntry} from "./search.model";
-import {ProjectVersion} from "../project/project-version";
-import {Project} from "../project/project";
+import {BehaviorSubject, combineLatest, Observable, of, Subject, Subscription} from "rxjs";
+import {ProjectSearchResultEntry, SearchResult} from "./search.model";
 import {ActivatedRoute} from "@angular/router";
 import {CachingProjectRestClient} from "../rest/caching-project-rest-client";
-import {map} from "rxjs/operators";
+import {map, mergeMap} from "rxjs/operators";
 import {SearchMiddleware} from "./search-middleware.service";
+import {ProjectAndVersion} from "../project/project.service";
 
-interface EnrichedVersionSearchResult {
-  version: ProjectVersion;
-  project: Project;
-  searchResult: VersionSearchResultEntry;
-}
+class PageOptions {
+  constructor(public readonly pageIndex: number, public readonly pageSize: number) {
+  }
 
-interface PageOptions {
-  pageIndex: number,
-  pageSize: number
+  public startIndexIncl(): number {
+    return this.pageIndex * this.pageSize;
+  }
+
+  public endIndexExcl(): number {
+    return this.startIndexIncl() + this.pageSize;
+  }
 }
 
 @Component({
@@ -28,20 +29,24 @@ interface PageOptions {
 })
 export class SearchPageComponent implements OnDestroy {
 
-  pageSizeOptions: [5, 10, 25, 50];
+  pageSizeOptions = [5, 10, 25, 50];
 
+  isInputBlank$: Observable<boolean>;
   result$: Observable<SearchResult>;
   paginatedProjects$: Observable<Array<ProjectSearchResultEntry>>;
-  paginatedVersions$: Observable<Array<EnrichedVersionSearchResult>> = new ReplaySubject(1);
-
-  currentPage$: Observable<PageOptions> = new ReplaySubject(1);
+  paginatedVersions$: Observable<Array<ProjectAndVersion>>;
+  projectsCurrentPage$: Observable<PageOptions> = new BehaviorSubject(new PageOptions(0, 10));
+  versionsCurrentPage$: Observable<PageOptions> = new BehaviorSubject(new PageOptions(0, 10));
 
   private subscriptions: Array<Subscription> = [];
 
   constructor(route: ActivatedRoute,
               private api: CachingProjectRestClient,
               private search: SearchMiddleware) {
-    this.setPage(0, 10);
+    this.resetPagination();
+    this.isInputBlank$ = this.search.searchInput$.pipe(
+      map(input => input.input?.length === 0)
+    );
     this.result$ = this.search.result$;
     this.subscriptions.push(
       route.queryParams.subscribe(params => {
@@ -49,22 +54,45 @@ export class SearchPageComponent implements OnDestroy {
       }),
       this.search.searchInput$.subscribe(value => {
         this.updateCurrentUrl(value.input);
-        this.setPage(0, 10);
+        this.resetPagination();
       })
     );
-    this.paginatedProjects$ = combineLatest([this.currentPage$, this.search.foundProjects$]).pipe(
+    this.paginatedProjects$ = combineLatest([this.projectsCurrentPage$, this.search.foundProjects$]).pipe(
       map(([page, projects]) => {
-        return projects.slice(page.pageIndex * page.pageSize, page.pageSize);
+        return projects.slice(page.startIndexIncl(), page.endIndexExcl());
+      })
+    );
+    this.paginatedVersions$ = combineLatest([this.versionsCurrentPage$, this.search.foundVersions$]).pipe(
+      map(([page, v]) => v.slice(page.startIndexIncl(), page.endIndexExcl())),
+      mergeMap(r => combineLatest([of(r), ...r.map(v => this.api.getProjectById(v.projectId))])),
+      map(([r, ...projects]) => {
+        return r.map((v, i) => (<ProjectAndVersion>{
+          project: projects[i],
+          version: projects[i].getVersionById(v.id)
+        }))
       })
     );
   }
 
-  paginationEvent($event: PageEvent) {
-    this.setPage($event.pageIndex, $event.pageSize);
+  private resetPagination() {
+    this.setProjectsPage(0, 10);
+    this.setVersionsPage(0, 10);
   }
 
-  private setPage(pageIndex: number, pageSize: number) {
-    (this.currentPage$ as Subject<PageOptions>).next({pageSize: pageSize, pageIndex: pageIndex});
+  projectsPaginationEvent($event: PageEvent) {
+    this.setProjectsPage($event.pageIndex, $event.pageSize);
+  }
+
+  private setProjectsPage(pageIndex: number, pageSize: number) {
+    (this.projectsCurrentPage$ as Subject<PageOptions>).next(new PageOptions(pageIndex, pageSize));
+  }
+
+  versionsPaginationEvent($event: PageEvent) {
+    this.setVersionsPage($event.pageIndex, $event.pageSize);
+  }
+
+  private setVersionsPage(pageIndex: number, pageSize: number) {
+    (this.versionsCurrentPage$ as Subject<PageOptions>).next(new PageOptions(pageIndex, pageSize));
   }
 
   updateCurrentUrl(query: string) {

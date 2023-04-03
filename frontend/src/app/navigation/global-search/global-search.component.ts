@@ -3,19 +3,11 @@ import {DOCUMENT} from "@angular/common";
 import {FormControl} from "@angular/forms";
 import {combineLatest, Observable, of, ReplaySubject, Subject, Subscription} from "rxjs";
 import {filter, map, mergeMap, tap} from "rxjs/operators";
-import {ProjectSearchResultEntry, SearchResult, VersionSearchResultEntry} from "../../search/search.model";
-import {ProjectVersion} from "../../project/project-version";
-import {Project} from "../../project/project";
+import {ProjectSearchResultEntry, SearchResult} from "../../search/search.model";
 import {CachingProjectRestClient} from "../../rest/caching-project-rest-client";
 import {ProjectAndVersion} from "../../project/project.service";
 import {NavigationEnd, NavigationSkipped, NavigationStart, Router} from "@angular/router";
 import {SearchMiddleware} from "../../search/search-middleware.service";
-
-interface EnrichedVersionSearchResult {
-  version: ProjectVersion;
-  project: Project;
-  searchResult: VersionSearchResultEntry;
-}
 
 @Component({
   selector: 'on-global-search',
@@ -34,9 +26,8 @@ export class GlobalSearchComponent implements OnInit, OnDestroy {
 
 
   result$: Observable<SearchResult>;
-  foundVersionsLimited$: Observable<Array<EnrichedVersionSearchResult>>;
+  foundVersionsLimited$: Observable<Array<ProjectAndVersion>>;
   foundProjectsLimited$: Observable<Array<ProjectSearchResultEntry>>;
-  versionsMultiDeployModel$: Observable<Array<ProjectAndVersion>>;
   fullSearchQueryParams: { q: string };
   private unsubscribeOnDestroy: Array<() => void> = [];
 
@@ -141,26 +132,17 @@ export class GlobalSearchComponent implements OnInit, OnDestroy {
       map(p => p.slice(0, this.displayedEntriesLimit))
     );
 
-    // show a maximum of $displayedEntriesLimit versions. get the project to every version and map to EnrichedVersionSearchResult
+    // show a maximum of $displayedEntriesLimit versions
     this.foundVersionsLimited$ = this.search.foundVersions$.pipe(
       map(v => v.slice(0, this.displayedEntriesLimit)),
       mergeMap(r => combineLatest([of(r), ...r.map(v => this.api.getProjectById(v.projectId))])),
       map(([r, ...projects]) => {
-        return r.map((v, i) => (<EnrichedVersionSearchResult>{
-          searchResult: v,
+        return r.map((v, i) => (<ProjectAndVersion>{
           project: projects[i],
           version: projects[i].getVersionById(v.id)
-        }));
+        }))
       })
     );
-
-    // create the model used by the multi-deploy button from all visible versions
-    this.versionsMultiDeployModel$ = this.foundVersionsLimited$.pipe(map(versions => {
-      return versions.map(version => ({
-        version: version.version,
-        project: version.project
-      }));
-    }));
   }
 
   clearButtonClicked() {

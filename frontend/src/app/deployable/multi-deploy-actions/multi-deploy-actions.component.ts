@@ -3,7 +3,7 @@ import {ProjectAndVersion, ProjectService} from "../../project/project.service";
 import {UserService} from "../../user/user.service";
 import {map, tap} from "rxjs/operators";
 import {User} from "../../user/user";
-import {Observable} from "rxjs";
+import {BehaviorSubject, Observable, Subject} from "rxjs";
 
 @Component({
   selector: 'on-multi-deploy-actions',
@@ -12,13 +12,30 @@ import {Observable} from "rxjs";
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MultiDeployActionsComponent {
-  @Input() versions: Array<ProjectAndVersion> = [];
-  private editingUser$: Observable<User>;
+  @Input() set versions(versions: Array<ProjectAndVersion>) {
+    this._versions = versions;
+    this.refreshIsLimitExceeded();
+  }
+  get versions(): Array<ProjectAndVersion> {
+    return this._versions;
+  }
+  private _versions: Array<ProjectAndVersion> = [];
+  @Input() set limit(limit: number) {
+    this._limit = limit;
+    this.refreshIsLimitExceeded();
+  };
+  get limit(): number {
+    return this._limit;
+  }
+  private _limit: number = 10;
+
   hasDeployPermission$: Observable<boolean>;
+  isLimitExceeded$: Observable<boolean> = new BehaviorSubject(false);
+
+  private editingUser$: Observable<User>;
 
   constructor(private projectService: ProjectService,
               private userService: UserService) {
-
     this.editingUser$ = this.userService.currentUser();
     this.hasDeployPermission$ = this.editingUser$.pipe(
       map(currentUser => projectService.isUserAllowedToDeployProjects(currentUser))
@@ -26,14 +43,26 @@ export class MultiDeployActionsComponent {
   }
 
   deploy() {
-    this.editingUser$.subscribe(user => {
-      this.projectService.deployProjectVersions(this.versions, user);
-    });
+    if (!this.isLimitExceeded()) {
+      this.editingUser$.subscribe(user => {
+        this.projectService.deployProjectVersions(this.versions, user);
+      });
+    }
   }
 
   stop() {
-    this.editingUser$.subscribe(user => {
-      this.projectService.stopDeployments(this.versions, user);
-    });
+    if (!this.isLimitExceeded()) {
+      this.editingUser$.subscribe(user => {
+        this.projectService.stopDeployments(this.versions, user);
+      });
+    }
+  }
+
+  private refreshIsLimitExceeded() {
+    (this.isLimitExceeded$ as Subject<boolean>).next(this.isLimitExceeded());
+  }
+
+  private isLimitExceeded(): boolean {
+    return this.limit < this.versions.length;
   }
 }

@@ -18,12 +18,14 @@ export class SearchMiddleware {
 
   constructor(private api: CachingProjectRestClient) {
     this.result$ = this.searchInput$.pipe(
-      sampleTime(200),
+      sampleTime(150),
       mergeMap(sic => this.api.findProjectsOrVersions(sic.input)),
       shareReplay()
     );
 
-    this.foundProjects$ = this.result$.pipe(map(r => r.projects));
+    this.foundProjects$ = this.result$.pipe(
+      map(r => r.projects)
+    );
     this.foundVersions$ = this.result$.pipe(
       map(r => r.versions)
     );

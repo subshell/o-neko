@@ -1,10 +1,17 @@
-<deployable-actions
-  (onDeploy)="deploy()"
-  (onStop)="stop()"
-  [isStopDisabled]="false"
-  [isDeployDisabled]="false"
-  [userHasPermissions]="hasDeployPermission$ | async"
-  [isDeployed]="false"
-  [overrideDeployLabel]="'components.multiDeployActions.deploy' | translate: {count: versions.length}"
-  [overrideStopLabel]="'components.multiDeployActions.stop' | translate: {count: versions.length}"
-></deployable-actions>
+<div fxLayout="column" fxLayoutAlign="center center">
+  <deployable-actions
+    (onDeploy)="deploy()"
+    (onStop)="stop()"
+    [isStopDisabled]="isLimitExceeded$ | async"
+    [isDeployDisabled]="isLimitExceeded$ | async"
+    [userHasPermissions]="hasDeployPermission$ | async"
+    [isDeployed]="false"
+    [overrideDeployLabel]="'components.multiDeployActions.deploy' | translate: {count: versions.length}"
+    [overrideStopLabel]="'components.multiDeployActions.stop' | translate: {count: versions.length}"
+  ></deployable-actions>
+  <span class="hint" *ngIf="isLimitExceeded$ | async" fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="4px">
+    <mat-icon svgIcon="mdi:alert-circle"></mat-icon>
+    <span>{{ 'components.multiDeployActions.limitExceeded' | translate: {limit: limit} }}</span>
+  </span>
+</div>
+

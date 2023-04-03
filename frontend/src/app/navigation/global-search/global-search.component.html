@@ -37,10 +37,10 @@
           <ng-container *ngFor="let version of foundVersionsLimited; let last = last;">
             <mat-list-item>
               <deployableStatus class="version-status" [status]="version.version.deployment.status" mat-list-icon></deployableStatus>
-              <a mat-line class="o-neko-internal-link" [routerLink]="'/projects/' + version.searchResult.projectId + '/versions/' + version.searchResult.id" (click)="hideResults()">{{ version.searchResult.name }}</a>
+              <a mat-line class="o-neko-internal-link" [routerLink]="'/projects/' + version.project.uuid + '/versions/' + version.version.uuid" (click)="hideResults()">{{ version.version.name }}</a>
               <span mat-line fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="4px">
                 <mat-icon svgIcon="mdi:folder-outline"></mat-icon>
-                <span>{{ version.searchResult.projectName }}</span>
+                <span>{{ version.project.name }}</span>
               </span>
               <div>
                 <projectVersionActions hideVariables="true" [version]="version.version" [project]="version.project"></projectVersionActions>
@@ -49,7 +49,7 @@
             <mat-divider *ngIf="!last"></mat-divider>
           </ng-container>
           <div fxLayout="row" fxLayoutAlign="center">
-            <on-multi-deploy-actions [versions]="versionsMultiDeployModel$ | async"></on-multi-deploy-actions>
+            <on-multi-deploy-actions [versions]="foundVersionsLimited"></on-multi-deploy-actions>
           </div>
         </ng-container>
       </mat-list>
