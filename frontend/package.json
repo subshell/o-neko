@@ -44,7 +44,7 @@
     "tslib": "2.5.0",
     "typescript-logging": "2.0.2",
     "typescript-logging-log4ts-style": "2.0.2",
-    "zone.js": "0.12.0"
+    "zone.js": "0.13.0"
   },
   "devDependencies": {
     "ajv": "^8.12.0",
