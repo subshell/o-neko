@@ -42,7 +42,7 @@
     "ngx-translate-messageformat-compiler": "6.2.0",
     "rxjs": "7.8.0",
     "tslib": "2.5.0",
-    "typescript-logging": "2.0.2",
+    "typescript-logging": "2.1.0",
     "typescript-logging-log4ts-style": "2.0.2",
     "zone.js": "0.12.0"
   },
