@@ -48,7 +48,7 @@
   },
   "devDependencies": {
     "ajv": "^8.12.0",
-    "@angular-devkit/build-angular": "15.2.4",
+    "@angular-devkit/build-angular": "15.2.5",
     "@angular/cli": "15.2.4",
     "@angular/compiler-cli": "15.2.5",
     "@angular/language-service": "15.2.5",
