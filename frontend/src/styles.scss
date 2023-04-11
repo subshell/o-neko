@@ -81,3 +81,10 @@ $full-page-form-slim-padding: 1em;
   font-size: 12px !important;
   font-weight: 400 !important;
 }
+
+.truncate-menu-items-left {
+  .mat-menu-item {
+    direction: rtl;
+    text-align: right;
+  }
+}

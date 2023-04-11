@@ -1,0 +1,17 @@
+@use '@angular/material' as mat;
+@import "../../styles/mixins";
+
+h3 {
+  font-size: 1.6em;
+  font-weight: 400;
+  margin: 0;
+}
+
+.search-result-container {
+  padding: 1em;
+  border-radius: $mat-radius;
+}
+
+.search-hint {
+  margin: 1em 0;
+}

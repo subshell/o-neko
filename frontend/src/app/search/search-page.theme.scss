@@ -1,0 +1,27 @@
+@use '@angular/material' as mat;
+@import "src/styles/mixins";
+
+@mixin search-page-theme($theme) {
+  $background: map-get($theme, background);
+  $foreground: map-get($theme, foreground);
+  $primary: map-get($theme, primary);
+  $shadowColor: mat.get-color-from-palette($foreground, elevation);
+
+  on-search-page {
+    .mat-paginator {
+      background: transparent;
+    }
+
+    .search-hint {
+      color: mat.get-color-from-palette($foreground, secondary-text);
+      mat-icon {
+        color: mat.get-color-from-palette($primary, 400);
+      }
+    }
+
+    .search-result-container {
+      background-color: mat.get-color-from-palette($background, card);
+      @include mat.elevation(1, $shadowColor);
+    }
+  }
+}

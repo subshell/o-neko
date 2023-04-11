@@ -1,0 +1,10 @@
+@use '@angular/material' as mat;
+
+@mixin multi-deploy-actions-theme($theme) {
+  $foreground: map-get($theme, foreground);
+  on-multi-deploy-actions {
+    .hint {
+      color: mat.get-color-from-palette($foreground, secondary-text);
+    }
+  }
+}

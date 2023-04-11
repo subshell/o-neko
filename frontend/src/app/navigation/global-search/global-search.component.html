@@ -5,16 +5,10 @@
            type="text"
            fxFlex
            [placeholder]="'components.navigation.search.placeholder' | translate: {shortcut: displayShortcut}"
-           (focus)="inputFocused()"/>
+           (focus)="inputFocused()"
+           (keydown.enter)="onEnter()"/>
     <button matSuffix mat-icon-button (click)="clearButtonClicked()">
       <mat-icon svgIcon="mdi:close"></mat-icon>
-    </button>
-    <mat-divider [vertical]="true"></mat-divider>
-    <button mat-button color="primary">
-      <div fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="8px">
-        <mat-icon svgIcon="mdi:magnify"></mat-icon>
-        <span>{{ 'components.navigation.search.search' | translate }}</span>
-      </div>
     </button>
   </div>
   <div class="search-result-box" *ngIf="(showSearchResultBox$ | async) && (result$ | async) as result">
@@ -43,10 +37,10 @@
           <ng-container *ngFor="let version of foundVersionsLimited; let last = last;">
             <mat-list-item>
               <deployableStatus class="version-status" [status]="version.version.deployment.status" mat-list-icon></deployableStatus>
-              <a mat-line class="o-neko-internal-link" [routerLink]="'/projects/' + version.searchResult.projectId + '/versions/' + version.searchResult.id" (click)="hideResults()">{{ version.searchResult.name }}</a>
+              <a mat-line class="o-neko-internal-link" [routerLink]="'/projects/' + version.project.uuid + '/versions/' + version.version.uuid" (click)="hideResults()">{{ version.version.name }}</a>
               <span mat-line fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="4px">
                 <mat-icon svgIcon="mdi:folder-outline"></mat-icon>
-                <span>{{ version.searchResult.projectName }}</span>
+                <span>{{ version.project.name }}</span>
               </span>
               <div>
                 <projectVersionActions hideVariables="true" [version]="version.version" [project]="version.project"></projectVersionActions>
@@ -55,13 +49,13 @@
             <mat-divider *ngIf="!last"></mat-divider>
           </ng-container>
           <div fxLayout="row" fxLayoutAlign="center">
-            <on-multi-deploy-actions [versions]="versionsMultiDeployModel$ | async"></on-multi-deploy-actions>
+            <on-multi-deploy-actions [versions]="foundVersionsLimited"></on-multi-deploy-actions>
           </div>
         </ng-container>
       </mat-list>
     </div>
     <div *ngIf="result.totalVersionsFound > displayedEntriesLimit || result.totalProjectsFound > displayedEntriesLimit" fxLayout="row" fxLayoutAlign="center" class="view-all-container">
-      <a class="o-neko-internal-link" routerLink="" fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="4px">
+      <a class="o-neko-internal-link" routerLink="/search" [queryParams]="fullSearchQueryParams" fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="4px">
         <mat-icon svgIcon="mdi:text-search-variant"></mat-icon>
         <span>{{ 'components.navigation.search.viewAll' | translate }}</span>
       </a>

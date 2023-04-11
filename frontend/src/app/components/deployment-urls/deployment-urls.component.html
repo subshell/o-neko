@@ -1,0 +1,9 @@
+<a mat-icon-button *ngIf="version?.urls.length === 1" [href]="'https://'+ version.urls[0]" [matTooltip]="'https://'+ version.urls[0]" target="_blank" referrerpolicy="no-referrer">
+  <mat-icon svgIcon="mdi:open-in-new"></mat-icon>
+</a>
+<button mat-icon-button *ngIf="version?.urls.length > 1" [matMenuTriggerFor]="urlMenu">
+  <mat-icon svgIcon="mdi:open-in-new"></mat-icon>
+  <mat-menu #urlMenu="matMenu" classList="truncate-menu-items-left">
+    <a mat-menu-item *ngFor="let url of version?.urls" [href]="'https://'+ url" target="_blank" referrerpolicy="no-referrer">{{'https://' + url}}</a>
+  </mat-menu>
+</button>

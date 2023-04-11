@@ -11,7 +11,7 @@ $zIndex: 1;
   z-index: $zIndex + 1;
   position: relative;
   .global-search-container {
-    padding: 0 0 0 8px;
+    padding: 0 8px;
     border-radius: $mat-radius;
     font-size: 1rem;
     .mat-icon-button {
@@ -22,10 +22,6 @@ $zIndex: 1;
     input {
       all: unset;
       padding: 0 1em;
-    }
-    mat-divider {
-      height: 2em;
-      margin: 0 0 0 8px;
     }
     &.open {
       border-bottom-left-radius: 0;

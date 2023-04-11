@@ -43,6 +43,12 @@ export class MainComponent {
           isSingleEntry: true
         },
         {
+          title: 'menu.search',
+          icon: 'search',
+          href: '/search',
+          isSingleEntry: true
+        },
+        {
           title: 'menu.projectManagement.projectManagement',
           icon: 'folder',
           children: [{

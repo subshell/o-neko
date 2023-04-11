@@ -21,6 +21,7 @@
   },
   "menu": {
     "home": "Home",
+    "search": "Suche",
     "projectManagement": {
       "projectManagement": "Projektverwaltung",
       "projects": "Projekte",
@@ -46,6 +47,11 @@
     },
     "namespaces": {
       "namespaces": "Namespaces"
+    },
+    "search": {
+      "search": "Suche",
+      "projects": "Projekte",
+      "projectVersions": "Versionen"
     }
   },
   "components": {
@@ -69,7 +75,8 @@
     },
     "multiDeployActions": {
       "deploy": "Diese {count, plural, one{Version} other{# Versionen}} starten",
-      "stop": "Diese {count, plural, one{Version} other{# Versionen}} stoppen"
+      "stop": "Diese {count, plural, one{Version} other{# Versionen}} stoppen",
+      "limitExceeded": "Es können nicht mehr als {limit} Versionen gleichzeitig bearbeitet werden."
     },
     "deployableStatus": {
       "runningOutdated": "Dieses Deployment läuft mit einer veralteten Konfiguration",
