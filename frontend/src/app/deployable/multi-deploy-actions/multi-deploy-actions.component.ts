@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, Component, Input} from "@angular/core";
 import {ProjectAndVersion, ProjectService} from "../../project/project.service";
 import {UserService} from "../../user/user.service";
-import {map, tap} from "rxjs/operators";
+import {map, take} from "rxjs/operators";
 import {User} from "../../user/user";
 import {BehaviorSubject, Observable, Subject} from "rxjs";
 
@@ -16,17 +16,22 @@ export class MultiDeployActionsComponent {
     this._versions = versions;
     this.refreshIsLimitExceeded();
   }
+
   get versions(): Array<ProjectAndVersion> {
     return this._versions;
   }
+
   private _versions: Array<ProjectAndVersion> = [];
+
   @Input() set limit(limit: number) {
     this._limit = limit;
     this.refreshIsLimitExceeded();
   };
+
   get limit(): number {
     return this._limit;
   }
+
   private _limit: number = 10;
 
   hasDeployPermission$: Observable<boolean>;
@@ -44,7 +49,7 @@ export class MultiDeployActionsComponent {
 
   deploy() {
     if (!this.isLimitExceeded()) {
-      this.editingUser$.subscribe(user => {
+      this.editingUser$.pipe(take(1)).subscribe(user => {
         this.projectService.deployProjectVersions(this.versions, user);
       });
     }
@@ -52,7 +57,7 @@ export class MultiDeployActionsComponent {
 
   stop() {
     if (!this.isLimitExceeded()) {
-      this.editingUser$.subscribe(user => {
+      this.editingUser$.pipe(take(1)).subscribe(user => {
         this.projectService.stopDeployments(this.versions, user);
       });
     }
