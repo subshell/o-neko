@@ -1,5 +1,4 @@
-
-<center>
+<div align="center" markdown="1">
 
 ![O-Neko Logo](oneko.svg)
 # O-Neko
@@ -9,8 +8,7 @@
 
 O-Neko lets everyone preview and try out new features of your software by creating on-demand test environments for feature branches. O-Neko is Kubernetes-native and allows for flexible project configurations via Helm charts. Make sure developers, testers, project managers, product owners and clients are on the same page! Preview and test _before_ you merge!
 
-</center>
-
+</div>
 
 
 |                                                 |                                                  |                                                    |

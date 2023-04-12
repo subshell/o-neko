@@ -1,3 +1,27 @@
+## 1.7.0 (2023-04-12)
+
+### Highlights
+* O-Neko now has a search functionality, which allows to deploy multiple versions simultaneously (#109, #112, #130)
+
+### What's Changed
+* deps: update java dependencies by @philmtd in https://github.com/subshell/o-neko/pull/108
+* feat: Implement simple search API by @philmtd in https://github.com/subshell/o-neko/pull/109
+* deps: update frontend dependencies by @philmtd in https://github.com/subshell/o-neko/pull/110
+* feat: implement search field by @philmtd in https://github.com/subshell/o-neko/pull/112
+* chore(deps): bump springdoc.version from 1.6.14 to 1.6.15 by @dependabot in https://github.com/subshell/o-neko/pull/115
+* chore(deps): bump caffeine from 3.1.4 to 3.1.5 by @dependabot in https://github.com/subshell/o-neko/pull/119
+* chore(deps): bump spring.boot.version from 3.0.3 to 3.0.5 by @dependabot in https://github.com/subshell/o-neko/pull/120
+* chore(deps): bump feign.version from 12.1 to 12.2 by @dependabot in https://github.com/subshell/o-neko/pull/118
+* chore(deps-dev): bump de.flapdoodle.embed.mongo from 4.5.1 to 4.6.2 by @dependabot in https://github.com/subshell/o-neko/pull/116
+* update material icons by @philmtd in https://github.com/subshell/o-neko/pull/114
+* chore(deps): bump springdoc.version from 1.6.15 to 1.7.0 by @dependabot in https://github.com/subshell/o-neko/pull/129
+* chore(deps): bump kubernetes-client from 6.4.1 to 6.5.1 by @dependabot in https://github.com/subshell/o-neko/pull/128
+* chore(deps): bump maven-compiler-plugin from 3.8.1 to 3.11.0 by @dependabot in https://github.com/subshell/o-neko/pull/127
+* chore(deps): bump maven-resources-plugin from 3.1.0 to 3.3.1 by @dependabot in https://github.com/subshell/o-neko/pull/126
+* chore(deps): bump caffeine from 3.1.5 to 3.1.6 by @dependabot in https://github.com/subshell/o-neko/pull/142
+* chore(deps): bump feign.version from 12.2 to 12.3 by @dependabot in https://github.com/subshell/o-neko/pull/140
+* feat(search): add search page by @philmtd in https://github.com/subshell/o-neko/pull/130
+
 ## 1.6.0 (2023-02-15)
 
 * chore: update backend dependencies (#105) ([afdd7a5](https://github.com/subshell/o-neko/commit/afdd7a5)), closes [#105](https://github.com/subshell/o-neko/issues/105)
