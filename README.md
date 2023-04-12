@@ -1,12 +1,20 @@
-# O-Neko ![O-Neko Logo](oneko.svg)
+
+<center>
+
+![O-Neko Logo](oneko.svg)
+# O-Neko
 
 [![CircleCI](https://circleci.com/gh/subshell/o-neko/tree/master.svg?style=svg)](https://circleci.com/gh/subshell/o-neko/tree/master)
 [![Docker Image Version (latest semver)](https://img.shields.io/docker/v/subshellgmbh/o-neko?color=2496ED&label=subshellgmbh%2Fo-neko&logo=docker&logoColor=white&sort=semver)](https://hub.docker.com/r/subshellgmbh/o-neko/tags)
 
 O-Neko lets everyone preview and try out new features of your software by creating on-demand test environments for feature branches. O-Neko is Kubernetes-native and allows for flexible project configurations via Helm charts. Make sure developers, testers, project managers, product owners and clients are on the same page! Preview and test _before_ you merge!
 
-|       |       |       |
-| ----- | ----- | ----- |
+</center>
+
+
+
+|                                                 |                                                  |                                                    |
+|-------------------------------------------------|--------------------------------------------------|----------------------------------------------------|
 | ![O-Neko login screen](./docs/images/login.png) | ![O-Neko dashboard](./docs/images/dashboard.png) | ![O-Neko project list](./docs/images/projects.png) |
 
 ## Documentation and installation guide
