@@ -25,7 +25,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<spring.boot.version>3.0.5</spring.boot.version>
 		<feign.version>12.3</feign.version>
-		<org.mapstruct.version>1.5.3.Final</org.mapstruct.version>
+		<org.mapstruct.version>1.5.4.Final</org.mapstruct.version>
 		<org.projectlombok.lombok.version>1.18.26</org.projectlombok.lombok.version>
 		<springdoc.version>1.7.0</springdoc.version>
 		<branchName></branchName>
