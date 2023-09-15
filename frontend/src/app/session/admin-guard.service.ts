@@ -1,5 +1,5 @@
 import {Injectable} from "@angular/core";
-import {ActivatedRouteSnapshot, CanActivate, RouterStateSnapshot} from "@angular/router";
+import { ActivatedRouteSnapshot, RouterStateSnapshot } from "@angular/router";
 import {Observable} from "rxjs";
 import {map} from "rxjs/operators";
 import {UserRole} from "../user/user-role";
@@ -7,7 +7,7 @@ import {UserService} from "../user/user.service";
 
 
 @Injectable()
-export class AdminGuardService implements CanActivate {
+export class AdminGuardService  {
 
   constructor(private userService: UserService) {
   }
