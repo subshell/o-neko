@@ -30,7 +30,7 @@ export class ExpandableMenuComponent extends CdkAccordionItem implements OnInit 
 
   ngOnInit(): void {
     this.subRouteIsActive = this.router.events.pipe(
-      map((event: RouterEvent) => {
+      map(event => {
         if (event instanceof NavigationEnd) {
           return this.isSubRouteActive(event.url);
         }
