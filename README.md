@@ -34,7 +34,7 @@ O-Neko lets everyone preview and try out new features of your software by creati
 * You need Helm charts for each project you want to deploy. The charts need to be hosted in a chart registry.
   * Currently we support standard Helm chart registries and Helm GCS
   * The Docker image tag and the image pull policy need to be configurable
-* O-Neko works with kubernetes versions 1.10.0 - 1.25.3 (these versions are *officially* supported by the Kubernetes client library we use)
+* O-Neko works with any recent kubernetes versions (according to the [Kubernetes client library we use](https://github.com/fabric8io/kubernetes-client))
 
 ## How does it work?
 
