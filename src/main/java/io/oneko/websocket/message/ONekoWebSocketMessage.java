@@ -9,7 +9,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonSubTypes({
 		@Type(TestMessage.class),
 		@Type(DeploymentStatusChangedMessage.class),
-		@Type(ActivityMessage.class)
+		@Type(ActivityMessage.class),
+		@Type(SubscribeToLogsMessage.class),
+		@Type(UnsubscribeFromLogsMessage.class),
+		@Type(LogsMessage.class)
 })
 public interface ONekoWebSocketMessage {
 
