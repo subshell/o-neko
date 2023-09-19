@@ -23,7 +23,7 @@ public class ObservableStringLineOutputStream extends OutputStream {
     @Override
     public void flush() {
         if (!stringBuilder.isEmpty()) {
-            observer.accept(stringBuilder.toString().trim());
+            observer.accept(stringBuilder.toString());
             stringBuilder.delete(0, stringBuilder.length());
         }
     }
