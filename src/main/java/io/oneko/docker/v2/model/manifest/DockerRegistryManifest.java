@@ -60,7 +60,7 @@ public class DockerRegistryManifest {
         if (!isManifestList()) {
             return new Digest(config.digest);
         }
-        throw new IllegalStateException("unsupported mediaType: " + mediaType);
+        throw new IllegalStateException("tried to receive single digest from manifest list");
     }
 
     public boolean isManifestList() {
