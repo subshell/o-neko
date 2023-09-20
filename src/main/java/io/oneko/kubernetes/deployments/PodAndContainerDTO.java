@@ -10,6 +10,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PodAndContainerDTO {
-    private String podName;
-    private List<String> containerNames;
+	private String podName;
+	private List<String> containerNames;
 }

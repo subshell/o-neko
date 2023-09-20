@@ -10,8 +10,8 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SubscribeToLogsMessage implements ONekoWebSocketMessage {
-    UUID projectId;
-    UUID versionId;
-    String pod;
-    String container;
+	UUID projectId;
+	UUID versionId;
+	String pod;
+	String container;
 }

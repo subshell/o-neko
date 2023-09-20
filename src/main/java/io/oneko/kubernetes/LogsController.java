@@ -20,25 +20,25 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class LogsController {
 
-    public static final String PATH = Controllers.ROOT_PATH + "/logs";
+	public static final String PATH = Controllers.ROOT_PATH + "/logs";
 
-    private final KubernetesLogService logService;
-    private final ProjectRepository projectRepository;
+	private final KubernetesLogService logService;
+	private final ProjectRepository projectRepository;
 
-    @GetMapping("/containers/project/{projectId}/version/{projectVersionId}")
-    public List<PodAndContainerDTO> getPodsAndContainersForProjectVersion(@PathVariable UUID projectId, @PathVariable UUID projectVersionId) {
-        ReadableProject readableProject = projectRepository.getById(projectId).orElseThrow();
-        ReadableProjectVersion readableProjectVersion = readableProject.getVersionById(projectVersionId).orElseThrow();
-        return logService.getPodAndContainersForVersion(readableProjectVersion).entrySet()
-                .stream()
-                .map(entry -> new PodAndContainerDTO(entry.getKey(), entry.getValue()))
-                .collect(Collectors.toList());
-    }
+	@GetMapping("/containers/project/{projectId}/version/{projectVersionId}")
+	public List<PodAndContainerDTO> getPodsAndContainersForProjectVersion(@PathVariable UUID projectId, @PathVariable UUID projectVersionId) {
+		ReadableProject readableProject = projectRepository.getById(projectId).orElseThrow();
+		ReadableProjectVersion readableProjectVersion = readableProject.getVersionById(projectVersionId).orElseThrow();
+		return logService.getPodAndContainersForVersion(readableProjectVersion).entrySet()
+			.stream()
+			.map(entry -> new PodAndContainerDTO(entry.getKey(), entry.getValue()))
+			.collect(Collectors.toList());
+	}
 
-    @GetMapping("/project/{projectId}/version/{projectVersionId}")
-    public String getLogsForPodAndContainer(@PathVariable UUID projectId, @PathVariable UUID projectVersionId, @RequestParam(value = "pod", required = true) String pod, @RequestParam(value = "container", required = false) String container) {
-        ReadableProject readableProject = projectRepository.getById(projectId).orElseThrow();
-        ReadableProjectVersion readableProjectVersion = readableProject.getVersionById(projectVersionId).orElseThrow();
-        return logService.getLogs(readableProjectVersion, pod, container);
-    }
+	@GetMapping("/project/{projectId}/version/{projectVersionId}")
+	public String getLogsForPodAndContainer(@PathVariable UUID projectId, @PathVariable UUID projectVersionId, @RequestParam(value = "pod", required = true) String pod, @RequestParam(value = "container", required = false) String container) {
+		ReadableProject readableProject = projectRepository.getById(projectId).orElseThrow();
+		ReadableProjectVersion readableProjectVersion = readableProject.getVersionById(projectVersionId).orElseThrow();
+		return logService.getLogs(readableProjectVersion, pod, container);
+	}
 }

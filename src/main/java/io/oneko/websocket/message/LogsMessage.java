@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
@@ -12,6 +11,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class LogsMessage implements ONekoWebSocketMessage {
-    Date timestamp;
-    List<String> lines;
+	Date timestamp;
+	List<String> lines;
 }
