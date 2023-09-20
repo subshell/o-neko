@@ -26,7 +26,7 @@
 		<spring.boot.version>3.1.3</spring.boot.version>
 		<feign.version>12.5</feign.version>
 		<org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
-		<org.projectlombok.lombok.version>1.18.28</org.projectlombok.lombok.version>
+		<org.projectlombok.lombok.version>1.18.30</org.projectlombok.lombok.version>
 		<springdoc.version>1.7.0</springdoc.version>
 		<branchName></branchName>
 		<buildNumber></buildNumber>
