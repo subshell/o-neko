@@ -1,0 +1,41 @@
+@import '../../../styles/mixins';
+
+@mixin live-animation() {
+  animation: live 1s infinite alternate ease-in-out;
+}
+
+@keyframes live {
+  0%, 10% {
+    opacity: 0.64;
+  }
+  90%, 100% {
+    opacity: 1;
+  }
+}
+
+div.console {
+  overflow-x: auto;
+  min-height: 30vh;
+  max-height: 60vh;
+  padding: 1em;
+  border-radius: $mat-radius;
+
+  span {
+    padding: 2px 0;
+    display: block;
+    white-space: pre;
+    font-size: 13px;
+    line-height: 1.2em;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .live-indicator {
+    @include live-animation();
+    span {
+      display: inline-block;
+      text-transform: uppercase;
+      padding: 2px 4px;
+      border-radius: $mat-radius;
+    }
+  }
+}

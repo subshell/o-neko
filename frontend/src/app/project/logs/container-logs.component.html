@@ -1,0 +1,36 @@
+<breadcrumbs [breadcrumbs]="[{label: ('menu.home' | translate), link: ''},
+  {label: ('menu.projectManagement.projects' | translate), link: '/projects'},
+  {label: project?.name, link: '/projects/' + project?.uuid},
+  {label: ('components.project.editVersion.versions' | translate ), link: '/projects/' + project?.uuid + '/versions'},
+  {label: projectVersion?.name, link: '/projects/' + project?.uuid + '/versions/' + projectVersion?.uuid},
+  {label: 'components.project.containerLogs.logs' | translate}]">
+</breadcrumbs>
+<div class="main-content-padding">
+  <h2 fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="12px">
+    <mat-icon svgIcon="text-snippet"></mat-icon>
+    <span>{{ 'components.project.containerLogs.logs' | translate }}</span>
+  </h2>
+  <div fxLayout="row" fxLayoutGap="1em">
+    <mat-form-field>
+      <mat-label>{{ 'components.project.containerLogs.pod' | translate }}</mat-label>
+      <mat-select [(value)]="selectedPod" (selectionChange)="selectedPodChanged($event)">
+        <mat-option *ngFor="let pac of podAndContainers" [value]="pac">{{pac.podName}}</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>{{ 'components.project.containerLogs.container' | translate }}</mat-label>
+      <mat-select [(value)]="selectedContainer" (selectionChange)="selectedContainerChanged($event)">
+        <mat-option *ngFor="let container of selectedPod?.containerNames" [value]="container">{{ container }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div class="console" #console>
+    <span *ngIf="!lines?.length">{{'components.project.containerLogs.logfileIsEmpty' | translate}}</span>
+    <span *ngFor="let line of lines" >{{line}}</span>
+    <span class="live-indicator" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="4px">
+      <mat-icon svgIcon="mdi:record"></mat-icon>
+      <span>{{'components.project.containerLogs.live' | translate}}</span>
+    </span>
+  </div>
+</div>

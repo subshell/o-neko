@@ -272,6 +272,13 @@
         "versionSpecificVariables": "Version specific variables",
         "showEffectiveConfiguration": "Show effective configuration"
       },
+      "containerLogs": {
+        "logs": "Logs",
+        "pod": "Pod",
+        "container": "Container",
+        "live": "Live",
+        "logfileIsEmpty": "The log is empty"
+      },
       "list": {
         "projects": "!alias:menu.projectManagement.projects",
         "createProject": "Create Project",
