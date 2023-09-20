@@ -1,18 +1,37 @@
 package io.oneko.docker.v2.model.manifest;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import lombok.Data;
+import java.util.List;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DockerRegistryManifest {
-
 	@Data
 	static class Config {
 		String digest;
+		String mediaType;
+		int size;
+	}
+
+	@Data
+	static class Platform {
+		String architecture;
+		String os;
+	}
+
+	@Data
+	public static class Manifest {
+		String digest;
+		String mediaType;
+		Platform platform;
+		int size;
+
+		public Digest getDigest() {
+			return new Digest(digest);
+		}
 	}
 
 	@Data
@@ -31,9 +50,20 @@ public class DockerRegistryManifest {
 		}
 	}
 
+
+	private String mediaType;
 	private Config config;
+	private List<Manifest> manifests;
+
 
 	public Digest getDigest() {
-		return new Digest(config.digest);
+		if (!isManifestList()) {
+			return new Digest(config.digest);
+		}
+		throw new IllegalStateException("tried to receive single digest from manifest list");
+	}
+
+	public boolean isManifestList() {
+		return manifests != null && !manifests.isEmpty();
 	}
 }
