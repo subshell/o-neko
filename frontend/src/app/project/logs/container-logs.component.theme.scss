@@ -1,0 +1,22 @@
+@use '@angular/material' as mat;
+@import '../../../styles/mixins';
+
+@mixin container-logs-theme($theme) {
+  $primary: map-get($theme, primary);
+  $accent: map-get($theme, accent);
+  on-container-logs {
+    div.console {
+      background-color: rgba(black, 0.9);
+      span {
+        color: white;
+      }
+      .live-indicator {
+        color: mat.get-color-from-palette($accent, 300);
+        span {
+          color: mat.get-color-from-palette($accent, 300);
+          background-color: rgba(mat.get-color-from-palette($accent, 800), 0.24);
+        }
+      }
+    }
+  }
+}

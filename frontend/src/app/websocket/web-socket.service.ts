@@ -1,13 +1,15 @@
 import {Injectable} from '@angular/core';
-import {Observable, Subject} from 'rxjs';
+import {Observable, ReplaySubject, Subject} from 'rxjs';
 import {LogService} from "../util/log.service";
 import {ONekoWebsocketMessage} from "./message/websocket-message";
+import {first, take} from "rxjs/operators";
 
 export type WebSocketState = number;
 
 @Injectable()
 export class WebSocketService {
   private _stream$: Subject<MessageEvent> = new Subject();
+  private _ready$: Subject<boolean> = new ReplaySubject(1);
   private _ws: WebSocket;
   private _retryConnectionId: number = -1;
 
@@ -22,6 +24,10 @@ export class WebSocketService {
 
   public stream(): Observable<any> {
     return this._stream$.asObservable();
+  }
+
+  public ready(): Observable<boolean> {
+    return this._ready$.asObservable().pipe(first());
   }
 
   public send(msg: ONekoWebsocketMessage): void {
@@ -90,10 +96,10 @@ export class WebSocketService {
 
     ws.onopen = () => {
       this.log.info('WebSocket connection opened');
+      this._ready$.next(true);
     };
 
     ws.onmessage = msg => {
-      this.log.trace(`Received WebSocket message ${msg.data}`);
       this._stream$.next(JSON.parse(msg.data));
     };
 

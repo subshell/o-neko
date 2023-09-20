@@ -10,6 +10,7 @@ import {DefinedNamespaceRestService} from "./defined-namespace-rest.service";
 import {DockerRestService} from "./docker-rest.service";
 import {ProjectRestService} from "./project-rest.service";
 import {HelmRestService} from "./helm-rest.service";
+import {LogsRestService} from "./logs-rest.service";
 
 @Injectable()
 export class RestService {
@@ -19,6 +20,7 @@ export class RestService {
   private readonly projectRestService: ProjectRestService;
   private readonly activityRestService: ActivityRestService;
   private readonly namespaceRestService: DefinedNamespaceRestService;
+  private readonly logsRestService: LogsRestService;
 
   constructor(private http: HttpClient, private authService: AuthService) {
     this.dockerRestService = new DockerRestService(this.http, RestService.ROOT_PATH);
@@ -26,6 +28,7 @@ export class RestService {
     this.projectRestService = new ProjectRestService(this.http, RestService.ROOT_PATH);
     this.activityRestService = new ActivityRestService(this.http, RestService.ROOT_PATH);
     this.namespaceRestService = new DefinedNamespaceRestService(this.http, RestService.ROOT_PATH);
+    this.logsRestService = new LogsRestService(this.http, RestService.ROOT_PATH);
   }
 
   /*------------------------------------------------------------
@@ -121,5 +124,9 @@ export class RestService {
 
   public namespace(): DefinedNamespaceRestService {
     return this.namespaceRestService;
+  }
+
+  public logs(): LogsRestService {
+    return this.logsRestService;
   }
 }

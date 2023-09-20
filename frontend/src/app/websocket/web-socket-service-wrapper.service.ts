@@ -5,8 +5,8 @@ import {Activity} from "../activity/activity";
 import {LogService} from "../util/log.service";
 import {
   ActivityMessage,
-  DeploymentStatusChangedMessage,
-  ONekoWebsocketMessage,
+  DeploymentStatusChangedMessage, LogsMessage,
+  ONekoWebsocketMessage, SubscribeToLogsMessage, UnsubscribeFromLogsMessage,
   WebsocketMessageMapping,
   WebsocketMessageType
 } from "./message/websocket-message";
@@ -30,6 +30,25 @@ export class WebSocketServiceWrapper {
   public getActivityStream(): Observable<Activity> {
     return this.streamType(ActivityMessage)
       .pipe(map(message => message.activity));
+  }
+
+  public getLogStream(): Observable<LogsMessage> {
+    return this.streamType(LogsMessage);
+  }
+
+  public streamLogs(projectId: string, versionId: string, pod: string, container?: string) {
+    let message = new SubscribeToLogsMessage(projectId, versionId, pod, container);
+    this.send(message);
+  }
+
+  public unsubscribeFromLogs() {
+    this.send(new UnsubscribeFromLogsMessage());
+  }
+
+  private send(message: ONekoWebsocketMessage) {
+    this.websocket.ready().subscribe(() => {
+      this.websocket.send(message);
+    });
   }
 
   private streamType<T extends ONekoWebsocketMessage>(type: WebsocketMessageType<T>): Observable<T> {
