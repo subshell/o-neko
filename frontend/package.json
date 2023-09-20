@@ -53,7 +53,7 @@
     "@angular/compiler-cli": "16.2.5",
     "@angular/language-service": "16.2.5",
     "@ngxs/devtools-plugin": "3.8.1",
-    "@types/jasmine": "4.3.5",
+    "@types/jasmine": "4.3.6",
     "@types/jasminewd2": "2.0.10",
     "@types/lodash": "4.14.198",
     "@types/node": "20.6.1",
