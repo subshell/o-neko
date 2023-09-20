@@ -9,61 +9,61 @@ import java.util.List;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DockerRegistryManifest {
-    @Data
-    static class Config {
-        String digest;
-        String mediaType;
-        int size;
-    }
+	@Data
+	static class Config {
+		String digest;
+		String mediaType;
+		int size;
+	}
 
-    @Data
-    static class Platform {
-        String architecture;
-        String os;
-    }
+	@Data
+	static class Platform {
+		String architecture;
+		String os;
+	}
 
-    @Data
-    public static class Manifest {
-        String digest;
-        String mediaType;
-        Platform platform;
-        int size;
+	@Data
+	public static class Manifest {
+		String digest;
+		String mediaType;
+		Platform platform;
+		int size;
 
-        public Digest getDigest() {
-            return new Digest(digest);
-        }
-    }
+		public Digest getDigest() {
+			return new Digest(digest);
+		}
+	}
 
-    @Data
-    public static class Digest {
-        String algorithm;
-        String digest;
+	@Data
+	public static class Digest {
+		String algorithm;
+		String digest;
 
-        public Digest(String digest) {
-            final String[] split = StringUtils.defaultString(digest).split(":");
-            this.algorithm = StringUtils.defaultString(split[0]);
-            this.digest = StringUtils.defaultString(split[1]);
-        }
+		public Digest(String digest) {
+			final String[] split = StringUtils.defaultString(digest).split(":");
+			this.algorithm = StringUtils.defaultString(split[0]);
+			this.digest = StringUtils.defaultString(split[1]);
+		}
 
-        public String getFullDigest() {
-            return algorithm + ":" + digest;
-        }
-    }
-
-
-    private String mediaType;
-    private Config config;
-    private List<Manifest> manifests;
+		public String getFullDigest() {
+			return algorithm + ":" + digest;
+		}
+	}
 
 
-    public Digest getDigest() {
-        if (!isManifestList()) {
-            return new Digest(config.digest);
-        }
-        throw new IllegalStateException("tried to receive single digest from manifest list");
-    }
+	private String mediaType;
+	private Config config;
+	private List<Manifest> manifests;
 
-    public boolean isManifestList() {
-        return manifests != null && !manifests.isEmpty();
-    }
+
+	public Digest getDigest() {
+		if (!isManifestList()) {
+			return new Digest(config.digest);
+		}
+		throw new IllegalStateException("tried to receive single digest from manifest list");
+	}
+
+	public boolean isManifestList() {
+		return manifests != null && !manifests.isEmpty();
+	}
 }
