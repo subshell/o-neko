@@ -277,7 +277,10 @@
         "pod": "Pod",
         "container": "Container",
         "live": "Live",
-        "logfileIsEmpty": "Es sind keine Logs vorhanden"
+        "logfileIsEmpty": "Es sind keine Logs vorhanden",
+        "download": "Herunterladen",
+        "versionNotDeployed": "Diese Version wird aktuell nicht ausgeführt",
+        "filter": "Filtern"
       },
       "list": {
         "projects": "!alias:menu.projectManagement.projects",
