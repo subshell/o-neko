@@ -6,8 +6,8 @@ import {ProjectVersion} from "../project-version";
 import {PodAndContainer} from "./model";
 import {MatLegacySelectChange} from "@angular/material/legacy-select";
 import {WebSocketServiceWrapper} from "../../websocket/web-socket-service-wrapper.service";
-import {Observable, zip} from "rxjs";
-import {tap} from "rxjs/operators";
+import {Observable, ReplaySubject, Subject, zip} from "rxjs";
+import {filter, map, tap} from "rxjs/operators";
 
 @Component({
   selector: 'on-container-logs',
@@ -22,6 +22,9 @@ export class ContainerLogsComponent implements OnInit, AfterViewInit, OnDestroy 
   selectedPod: PodAndContainer;
   selectedContainer: string;
   lines: Array<string> = [];
+  lines$: Observable<Array<string>> = new ReplaySubject(1);
+  filteredLines$: Observable<Array<string>>;
+  filterString: string = '';
 
   @ViewChild('console') console: ElementRef<HTMLDivElement>;
 
@@ -42,10 +45,12 @@ export class ContainerLogsComponent implements OnInit, AfterViewInit, OnDestroy 
     this.wsService.getLogStream().subscribe(message => {
       const keepScrollPositionAtBottom = this.isScrolledToBottom();
       this.lines.push(...message.lines);
+      (this.lines$ as Subject<Array<string>>).next(this.lines)
       if (keepScrollPositionAtBottom) {
         this.scrollToBottom();
       }
     });
+    this.filteredLines$ = this.lines$.pipe(map(lns => lns.filter(l => l.toLowerCase().includes(this.filterString.toLowerCase()))));
   }
 
   ngAfterViewInit() {
@@ -88,7 +93,7 @@ export class ContainerLogsComponent implements OnInit, AfterViewInit, OnDestroy 
     this.wsService.streamLogs(this.project.uuid, this.projectVersion.uuid, this.selectedPod.podName, this.selectedContainer);
   }
 
-  private scrollToBottom() {
+  scrollToBottom() {
     if (this.console?.nativeElement) {
       setTimeout(() => { // required to let the browser render changes first
         this.console.nativeElement.scrollTo({
@@ -109,5 +114,28 @@ export class ContainerLogsComponent implements OnInit, AfterViewInit, OnDestroy 
 
   private equalsWithDelta(a: number, b: number, delta: number): boolean {
     return Math.abs(a - b) <= delta;
+  }
+
+  download() {
+    const element = document.createElement('a');
+    try {
+      element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(this.lines.join('\n')));
+      element.setAttribute('download', `${this.selectedPod.podName}_${this.selectedContainer}.log`);
+      element.style.display = 'none';
+      document.body.appendChild(element);
+      element.click();
+    } finally {
+      document.body.removeChild(element);
+    }
+  }
+
+  filterChanged() {
+    this.filteredLines$ = this.lines$.pipe(map(lns => lns.filter(l => l.toLowerCase().includes(this.filterString.toLowerCase()))));
+    this.scrollToBottom();
+  }
+
+  clearFilter() {
+    this.filterString = '';
+    this.filterChanged();
   }
 }
