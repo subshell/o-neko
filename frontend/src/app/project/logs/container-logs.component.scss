@@ -13,12 +13,19 @@
   }
 }
 
+div.action-row {
+  padding: 1em;
+  border-top-left-radius: $mat-radius;
+  border-top-right-radius: $mat-radius;
+}
+
 div.console {
   overflow-x: auto;
   min-height: 30vh;
   max-height: 70vh;
   padding: 1em;
-  border-radius: $mat-radius;
+  border-bottom-left-radius: $mat-radius;
+  border-bottom-right-radius: $mat-radius;
 
   span {
     padding: 2px 0;

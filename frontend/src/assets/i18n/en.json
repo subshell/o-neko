@@ -280,7 +280,8 @@
         "logfileIsEmpty": "The log is empty",
         "download": "Download",
         "versionNotDeployed": "This version is not currently deployed",
-        "filter": "Filter"
+        "filter": "Filter",
+        "openExternalLogs": "Open in external logging"
       },
       "list": {
         "projects": "!alias:menu.projectManagement.projects",

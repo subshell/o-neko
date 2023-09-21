@@ -10,7 +10,7 @@
     <mat-icon svgIcon="text-snippet"></mat-icon>
     <span>{{ 'components.project.containerLogs.logs' | translate }}</span>
   </h2>
-  <div fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="2em">
+  <div class="action-row" fxLayout="row wrap" fxLayoutAlign="space-between center" fxLayoutGap="2em">
     <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="1em">
       <mat-form-field>
         <mat-label>{{ 'components.project.containerLogs.pod' | translate }}</mat-label>
@@ -21,7 +21,7 @@
       <mat-form-field>
         <mat-label>{{ 'components.project.containerLogs.container' | translate }}</mat-label>
         <mat-select [disabled]="error" [(value)]="selectedContainer" (selectionChange)="selectedContainerChanged($event)">
-          <mat-option *ngFor="let container of selectedPod?.containerNames" [value]="container">{{ container }}</mat-option>
+          <mat-option *ngFor="let container of selectedPod?.containers" [value]="container">{{ container.name }}</mat-option>
         </mat-select>
       </mat-form-field>
     </div>
@@ -33,12 +33,12 @@
           <mat-icon svgIcon="mdi:close"></mat-icon>
         </button>
       </mat-form-field>
-      <button [disabled]="error" mat-button mat-stroked-button (click)="download()">
-        <span fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="8px">
-          <mat-icon svgIcon="mdi:download"></mat-icon>
-          <span>{{'components.project.containerLogs.download' | translate}}</span>
-        </span>
+      <button [disabled]="error" mat-icon-button (click)="download()" [matTooltip]="'components.project.containerLogs.download' | translate">
+        <mat-icon svgIcon="mdi:download"></mat-icon>
       </button>
+      <a *ngIf="selectedContainer?.externalLogUrl.length" [disabled]="error" mat-icon-button [href]="selectedContainer?.externalLogUrl" [matTooltip]="'components.project.containerLogs.openExternalLogs' | translate" target="_blank" rel="noopener noreferrer">
+        <mat-icon svgIcon="mdi:open-in-new"></mat-icon>
+      </a>
     </div>
   </div>
 
