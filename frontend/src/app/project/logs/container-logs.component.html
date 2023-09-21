@@ -14,13 +14,13 @@
     <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="1em">
       <mat-form-field>
         <mat-label>{{ 'components.project.containerLogs.pod' | translate }}</mat-label>
-        <mat-select [(value)]="selectedPod" (selectionChange)="selectedPodChanged($event)">
+        <mat-select [disabled]="error" [(value)]="selectedPod" (selectionChange)="selectedPodChanged($event)">
           <mat-option *ngFor="let pac of podAndContainers" [value]="pac">{{pac.podName}}</mat-option>
         </mat-select>
       </mat-form-field>
       <mat-form-field>
         <mat-label>{{ 'components.project.containerLogs.container' | translate }}</mat-label>
-        <mat-select [(value)]="selectedContainer" (selectionChange)="selectedContainerChanged($event)">
+        <mat-select [disabled]="error" [(value)]="selectedContainer" (selectionChange)="selectedContainerChanged($event)">
           <mat-option *ngFor="let container of selectedPod?.containerNames" [value]="container">{{ container }}</mat-option>
         </mat-select>
       </mat-form-field>
@@ -28,24 +28,25 @@
     <div fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="1em">
       <mat-form-field>
         <mat-label>{{'components.project.containerLogs.filter' | translate}}</mat-label>
-        <input type="text" matInput [(ngModel)]="filterString" (ngModelChange)="filterChanged()" />
-        <button matSuffix mat-icon-button aria-label="Clear" (click)="clearFilter()">
+        <input [disabled]="error" type="text" matInput [(ngModel)]="filterString" (ngModelChange)="filterChanged()" />
+        <button [disabled]="error" matSuffix mat-icon-button aria-label="Clear" (click)="clearFilter()">
           <mat-icon svgIcon="mdi:close"></mat-icon>
         </button>
       </mat-form-field>
-      <button mat-button mat-stroked-button (click)="download()">
-        <div fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="8px">
+      <button [disabled]="error" mat-button mat-stroked-button (click)="download()">
+        <span fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="8px">
           <mat-icon svgIcon="mdi:download"></mat-icon>
           <span>{{'components.project.containerLogs.download' | translate}}</span>
-        </div>
+        </span>
       </button>
     </div>
   </div>
 
   <div class="console" #console>
-    <span *ngIf="!lines?.length">{{'components.project.containerLogs.logfileIsEmpty' | translate}}</span>
+    <span *ngIf="!lines?.length && !error">{{'components.project.containerLogs.logfileIsEmpty' | translate}}</span>
+    <span *ngIf="!lines?.length && error">{{'components.project.containerLogs.versionNotDeployed' | translate}}</span>
     <span *ngFor="let line of (filteredLines$ | async)" >{{line}}</span>
-    <span class="live-indicator" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="4px">
+    <span *ngIf="!error" class="live-indicator" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="4px">
       <mat-icon svgIcon="mdi:record"></mat-icon>
       <span>{{'components.project.containerLogs.live' | translate}}</span>
     </span>

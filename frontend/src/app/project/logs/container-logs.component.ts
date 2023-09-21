@@ -7,7 +7,7 @@ import {PodAndContainer} from "./model";
 import {MatLegacySelectChange} from "@angular/material/legacy-select";
 import {WebSocketServiceWrapper} from "../../websocket/web-socket-service-wrapper.service";
 import {Observable, ReplaySubject, Subject, zip} from "rxjs";
-import {filter, map, tap} from "rxjs/operators";
+import {map, shareReplay, tap} from "rxjs/operators";
 
 @Component({
   selector: 'on-container-logs',
@@ -25,6 +25,7 @@ export class ContainerLogsComponent implements OnInit, AfterViewInit, OnDestroy 
   lines$: Observable<Array<string>> = new ReplaySubject(1);
   filteredLines$: Observable<Array<string>>;
   filterString: string = '';
+  error = false;
 
   @ViewChild('console') console: ElementRef<HTMLDivElement>;
 
@@ -38,8 +39,13 @@ export class ContainerLogsComponent implements OnInit, AfterViewInit, OnDestroy 
       let projectId = params.get('id');
       let projectVersionId = params.get('versionId');
       zip(this.initPodsAndContainers(projectId, projectVersionId), this.initProjectAndVersion(projectId, projectVersionId))
-        .subscribe(() => {
-          this.updateLogSubscription();
+        .subscribe({
+          next: () => {
+            this.updateLogSubscription();
+          },
+          error: error => {
+            this.error = true;
+          }
         })
     });
     this.wsService.getLogStream().subscribe(message => {
@@ -61,7 +67,7 @@ export class ContainerLogsComponent implements OnInit, AfterViewInit, OnDestroy 
     return this.rest.project().getProjectById(projectId).pipe(tap(project => {
       this.project = project;
       this.projectVersion = project.versions.find(v => v.uuid === versionId);
-    }));
+    }), shareReplay());
   }
 
   private initPodsAndContainers(projectId: string, versionId: string): Observable<any> {
