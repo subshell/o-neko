@@ -3,7 +3,7 @@ import {ActivatedRoute, ParamMap} from "@angular/router";
 import {RestService} from "../../rest/rest.service";
 import {Project} from "../project";
 import {ProjectVersion} from "../project-version";
-import {PodAndContainer} from "./model";
+import {Container, PodAndContainer} from "./model";
 import {MatLegacySelectChange} from "@angular/material/legacy-select";
 import {WebSocketServiceWrapper} from "../../websocket/web-socket-service-wrapper.service";
 import {Observable, ReplaySubject, Subject, zip} from "rxjs";
@@ -20,7 +20,7 @@ export class ContainerLogsComponent implements OnInit, AfterViewInit, OnDestroy 
   projectVersion: ProjectVersion;
   podAndContainers: Array<PodAndContainer> = [];
   selectedPod: PodAndContainer;
-  selectedContainer: string;
+  selectedContainer: Container;
   lines: Array<string> = [];
   lines$: Observable<Array<string>> = new ReplaySubject(1);
   filteredLines$: Observable<Array<string>>;
@@ -74,7 +74,7 @@ export class ContainerLogsComponent implements OnInit, AfterViewInit, OnDestroy 
     return this.rest.logs().getPodsAndContainers(projectId, versionId).pipe(tap(pac => {
       this.podAndContainers = pac;
       this.selectedPod = this.podAndContainers.length ? this.podAndContainers[0] : null;
-      this.selectedContainer = this.selectedPod ? this.selectedPod.containerNames[0] : null;
+      this.selectedContainer = this.selectedPod ? this.selectedPod.containers[0] : null;
     }));
   }
 
@@ -84,7 +84,7 @@ export class ContainerLogsComponent implements OnInit, AfterViewInit, OnDestroy 
 
   selectedPodChanged($event: MatLegacySelectChange) {
     this.selectedPod = $event.value;
-    this.selectedContainer = this.selectedPod.containerNames[0];
+    this.selectedContainer = this.selectedPod.containers[0];
     this.updateLogSubscription();
   }
 
@@ -96,7 +96,7 @@ export class ContainerLogsComponent implements OnInit, AfterViewInit, OnDestroy 
   private updateLogSubscription() {
     this.wsService.unsubscribeFromLogs();
     this.lines = [];
-    this.wsService.streamLogs(this.project.uuid, this.projectVersion.uuid, this.selectedPod.podName, this.selectedContainer);
+    this.wsService.streamLogs(this.project.uuid, this.projectVersion.uuid, this.selectedPod.podName, this.selectedContainer.name);
   }
 
   scrollToBottom() {

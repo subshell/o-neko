@@ -1,5 +1,10 @@
 
 export interface PodAndContainer {
   podName: string;
-  containerNames: Array<string>;
+  containers: Array<Container>;
+}
+
+export interface Container {
+  name: string;
+  externalLogUrl: string;
 }

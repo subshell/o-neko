@@ -4,9 +4,21 @@
 @mixin container-logs-theme($theme) {
   $primary: map-get($theme, primary);
   $accent: map-get($theme, accent);
+  $is-dark: map-get($theme, is-dark);
   on-container-logs {
+    div.action-row {
+      @if($is-dark) {
+        background-color: rgba(mat.get-color-from-palette($primary, 900), 0.5);
+      } @else {
+        background-color: rgba(mat.get-color-from-palette($primary, 300), 0.3);
+      }
+      border-bottom: 1px solid mat.get-color-from-palette($primary, 300);
+    }
     div.console {
       background-color: rgba(black, 0.9);
+      ::-webkit-scrollbar {
+        background: black;
+      }
       span {
         color: white;
       }
