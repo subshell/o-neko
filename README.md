@@ -26,6 +26,7 @@ O-Neko lets everyone preview and try out new features of your software by creati
 * Automatically re-deploy running versions when the corresponding Docker image has changed (configurable per project and version)
 * Automatically stop running versions after a specific time (configurable per project and version)
 * Select variables that allow fast changes to frequently used configuration settings (e.g. server URLs)
+* View container logs fetched from Kubernetes and add links to your external logging system
 
 ## Pre-requisites
 
