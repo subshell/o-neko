@@ -68,7 +68,7 @@ public class ContainerLogWebsocketService implements WebsocketListener {
 	}
 
 	private void unsubscribe(String sessionId) {
-		LogWatch logWatch = sessionIdToLogWatch.get(sessionId);
+		LogWatch logWatch = sessionIdToLogWatch.remove(sessionId);
 		if (logWatch != null) {
 			log.info("removing log stream ({})", kv("sessionId", sessionId));
 			logWatch.close();

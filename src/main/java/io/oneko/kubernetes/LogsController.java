@@ -1,5 +1,8 @@
 package io.oneko.kubernetes;
 
+import io.marioslab.basis.template.Template;
+import io.marioslab.basis.template.TemplateContext;
+import io.marioslab.basis.template.TemplateLoader;
 import io.oneko.configuration.Controllers;
 import io.oneko.kubernetes.deployments.PodAndContainerDTO;
 import io.oneko.kubernetes.impl.KubernetesLogService;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @RestController
@@ -24,6 +28,7 @@ public class LogsController {
 
 	private final KubernetesLogService logService;
 	private final ProjectRepository projectRepository;
+	private final ExternalLoggingProperties loggingProperties;
 
 	@GetMapping("/containers/project/{projectId}/version/{projectVersionId}")
 	public List<PodAndContainerDTO> getPodsAndContainersForProjectVersion(@PathVariable UUID projectId, @PathVariable UUID projectVersionId) {
@@ -31,8 +36,22 @@ public class LogsController {
 		ReadableProjectVersion readableProjectVersion = readableProject.getVersionById(projectVersionId).orElseThrow();
 		return logService.getPodAndContainersForVersion(readableProjectVersion).entrySet()
 			.stream()
-			.map(entry -> new PodAndContainerDTO(entry.getKey(), entry.getValue()))
+			.map(entry -> PodAndContainerDTO.build(entry.getKey(), entry.getValue(), externalLogsUrlMappingFunction(entry.getKey(), readableProjectVersion.getNamespaceOrElseFromProject())))
 			.collect(Collectors.toList());
+	}
+
+	private Function<String, String> externalLogsUrlMappingFunction(String podName, String namespace) {
+		TemplateLoader.MapTemplateLoader loader = new TemplateLoader.MapTemplateLoader();
+		loader.set("tpl", loggingProperties.getExternalLogUrlTemplate());
+		final Template tpl = loader.load("tpl");
+
+		TemplateContext context = new TemplateContext();
+		context.set("pod", podName);
+		context.set("namespace", namespace);
+		return containerName -> {
+			context.set("container", containerName);
+			return tpl.render(context);
+		};
 	}
 
 	@GetMapping("/project/{projectId}/version/{projectVersionId}")
