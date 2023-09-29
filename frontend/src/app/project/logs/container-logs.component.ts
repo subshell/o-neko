@@ -8,6 +8,7 @@ import {MatLegacySelectChange} from "@angular/material/legacy-select";
 import {WebSocketServiceWrapper} from "../../websocket/web-socket-service-wrapper.service";
 import {Observable, ReplaySubject, Subject, zip} from "rxjs";
 import {map, shareReplay, tap} from "rxjs/operators";
+import {AnsiUp} from "ansi_up";
 
 @Component({
   selector: 'on-container-logs',
@@ -27,11 +28,14 @@ export class ContainerLogsComponent implements OnInit, AfterViewInit, OnDestroy 
   filterString: string = '';
   error = false;
 
+  private ansiUp = new AnsiUp();
+
   @ViewChild('console') console: ElementRef<HTMLDivElement>;
 
   constructor(private route: ActivatedRoute,
               private rest: RestService,
               private wsService: WebSocketServiceWrapper) {
+    this.ansiUp.use_classes = true;
   }
 
   ngOnInit() {
@@ -56,7 +60,10 @@ export class ContainerLogsComponent implements OnInit, AfterViewInit, OnDestroy 
         this.scrollToBottom();
       }
     });
-    this.filteredLines$ = this.lines$.pipe(map(lns => lns.filter(l => l.toLowerCase().includes(this.filterString.toLowerCase()))));
+    this.filteredLines$ = this.lines$.pipe(
+      map(lns => lns.filter(l => l.toLowerCase().includes(this.filterString.toLowerCase()))),
+      map(lns => lns.map(l => this.ansiUp.ansi_to_html(l)))
+    );
   }
 
   ngAfterViewInit() {
