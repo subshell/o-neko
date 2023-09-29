@@ -126,6 +126,7 @@ import {SearchPageComponent} from "./search/search-page.component";
 import {SearchMiddleware} from "./search/search-middleware.service";
 import {DeploymentUrlsComponent} from "./components/deployment-urls/deployment-urls.component";
 import {ContainerLogsComponent} from "./project/logs/container-logs.component";
+import {SafeHtmlPipe} from "./util/safe-html.pipe";
 
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, '/assets/i18n/', '.json');
@@ -194,7 +195,8 @@ export function HttpLoaderFactory(http: HttpClient) {
     MultiDeployActionsComponent,
     SearchPageComponent,
     DeploymentUrlsComponent,
-    ContainerLogsComponent
+    ContainerLogsComponent,
+    SafeHtmlPipe
   ],
   imports: [
     BrowserModule,

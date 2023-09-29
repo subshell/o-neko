@@ -45,7 +45,7 @@
   <div class="console" #console>
     <span *ngIf="!lines?.length && !error">{{'components.project.containerLogs.logfileIsEmpty' | translate}}</span>
     <span *ngIf="!lines?.length && error">{{'components.project.containerLogs.versionNotDeployed' | translate}}</span>
-    <span *ngFor="let line of (filteredLines$ | async)" >{{line}}</span>
+    <span *ngFor="let line of (filteredLines$ | async)" [innerHTML]="line | safeHtml"></span>
     <span *ngIf="!error" class="live-indicator" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="4px">
       <mat-icon svgIcon="mdi:record"></mat-icon>
       <span>{{'components.project.containerLogs.live' | translate}}</span>
