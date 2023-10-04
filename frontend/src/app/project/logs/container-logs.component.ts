@@ -6,9 +6,10 @@ import {ProjectVersion} from "../project-version";
 import {Container, PodAndContainer} from "./model";
 import {MatLegacySelectChange} from "@angular/material/legacy-select";
 import {WebSocketServiceWrapper} from "../../websocket/web-socket-service-wrapper.service";
-import {Observable, ReplaySubject, Subject, zip} from "rxjs";
-import {map, shareReplay, tap} from "rxjs/operators";
+import {combineLatest, Observable, ReplaySubject, Subject, zip} from "rxjs";
+import {map, shareReplay, startWith, tap} from "rxjs/operators";
 import {AnsiUp} from "ansi_up";
+import {FormControl} from "@angular/forms";
 
 @Component({
   selector: 'on-container-logs',
@@ -25,7 +26,7 @@ export class ContainerLogsComponent implements OnInit, AfterViewInit, OnDestroy 
   lines: Array<string> = [];
   lines$: Observable<Array<string>> = new ReplaySubject(1);
   filteredLines$: Observable<Array<string>>;
-  filterString: string = '';
+  filterControl = new FormControl("");
   error = false;
 
   private ansiUp = new AnsiUp();
@@ -60,8 +61,9 @@ export class ContainerLogsComponent implements OnInit, AfterViewInit, OnDestroy 
         this.scrollToBottom();
       }
     });
-    this.filteredLines$ = this.lines$.pipe(
-      map(lns => lns.filter(l => l.toLowerCase().includes(this.filterString.toLowerCase()))),
+    this.filterControl.valueChanges.subscribe(() => this.scrollToBottom());
+    this.filteredLines$ = combineLatest([this.lines$, this.filterControl.valueChanges.pipe(startWith(""))]).pipe(
+      map(([lns, filterValue]) => lns.filter(l => l.toLowerCase().includes(filterValue.toLowerCase()))),
       map(lns => lns.map(l => this.ansiUp.ansi_to_html(l)))
     );
   }
@@ -142,13 +144,7 @@ export class ContainerLogsComponent implements OnInit, AfterViewInit, OnDestroy 
     }
   }
 
-  filterChanged() {
-    this.filteredLines$ = this.lines$.pipe(map(lns => lns.filter(l => l.toLowerCase().includes(this.filterString.toLowerCase()))));
-    this.scrollToBottom();
-  }
-
   clearFilter() {
-    this.filterString = '';
-    this.filterChanged();
+    this.filterControl.setValue("");
   }
 }
