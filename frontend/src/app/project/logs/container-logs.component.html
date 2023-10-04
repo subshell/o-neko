@@ -28,7 +28,7 @@
     <div fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="1em">
       <mat-form-field>
         <mat-label>{{'components.project.containerLogs.filter' | translate}}</mat-label>
-        <input [disabled]="error" type="text" matInput [(ngModel)]="filterString" (ngModelChange)="filterChanged()" />
+        <input [disabled]="error" type="text" matInput [formControl]="filterControl" />
         <button [disabled]="error" matSuffix mat-icon-button aria-label="Clear" (click)="clearFilter()">
           <mat-icon svgIcon="mdi:close"></mat-icon>
         </button>
