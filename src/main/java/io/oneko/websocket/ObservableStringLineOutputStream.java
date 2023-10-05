@@ -52,7 +52,7 @@ public class ObservableStringLineOutputStream extends OutputStream {
 	}
 
 	@Override
-	public void flush() {
+	public synchronized void flush() {
 		if (!resultStringBuilder.isEmpty()) {
 			lastFlush = System.currentTimeMillis();
 			observer.accept(resultStringBuilder.toString());
