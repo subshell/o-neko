@@ -135,7 +135,7 @@ export class ContainerLogsComponent implements OnInit, AfterViewInit, OnDestroy 
     const element = document.createElement('a');
     try {
       element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(this.lines.join('\n')));
-      element.setAttribute('download', `${this.selectedPod.podName}_${this.selectedContainer}.log`);
+      element.setAttribute('download', `${this.selectedPod.podName}_${this.selectedContainer.name}.log`);
       element.style.display = 'none';
       document.body.appendChild(element);
       element.click();
