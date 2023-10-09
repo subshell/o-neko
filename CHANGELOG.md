@@ -1,3 +1,18 @@
+## 1.8.0 (2023-10-09)
+
+### Highlights
+
+* O-Neko now has a built-in container logs view. The view also includes a new configuration option which can contain a URL 
+  template to an external logging system, which is used to add a direct link to the correct logs.
+
+### What's Changed
+* update all backend dependencies by @philmtd in https://github.com/subshell/o-neko/pull/230
+* Update frontend dependencies by @philmtd in https://github.com/subshell/o-neko/pull/231
+* fixes polling of multiplatform images by @philmtd in https://github.com/subshell/o-neko/pull/232
+* feat: add container logs view to frontend by @philmtd in https://github.com/subshell/o-neko/pull/233
+
+**Full Changelog**: https://github.com/subshell/o-neko/compare/1.7.0...1.8.0
+
 ## 1.7.0 (2023-04-12)
 
 ### Highlights
