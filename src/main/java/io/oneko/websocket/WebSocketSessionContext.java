@@ -1,25 +1,28 @@
 package io.oneko.websocket;
 
-import static net.logstash.logback.argument.StructuredArguments.*;
-
-import java.io.IOException;
-import java.util.Arrays;
-
+import lombok.Builder;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.web.authentication.session.SessionAuthenticationException;
 import org.springframework.web.socket.WebSocketSession;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.util.Arrays;
+
+import static net.logstash.logback.argument.StructuredArguments.kv;
 
 @Data
 @Builder
 @Slf4j
 public class WebSocketSessionContext {
-	/** Unique id for all websocket sessions. One user has different ids in multiple tabs */
+	/**
+	 * Unique id for all websocket sessions. One user has different ids in multiple tabs
+	 */
 	private final String wsSessionId;
-	/** Unique id per user session */
+	/**
+	 * Unique id per user session
+	 */
 	private final String userSessionId;
 	private final WebSocketSession session;
 
@@ -35,17 +38,17 @@ public class WebSocketSessionContext {
 		// The session id "SESSION" is send via a cookie. We have to extract that id in order to connect
 		// it to our HTTP Session.
 		String sessionCookieId = Arrays.stream(cookies)
-				.map(String::trim)
-				.filter(cookie -> cookie.startsWith("SESSION"))
-				.map(cookie -> cookie.split("=")[1].trim())
-				.findFirst()
-				.orElseThrow(() -> new RuntimeException("Session does not contain any session id"));
+			.map(String::trim)
+			.filter(cookie -> cookie.startsWith("SESSION"))
+			.map(cookie -> cookie.split("=")[1].trim())
+			.findFirst()
+			.orElseThrow(() -> new RuntimeException("Session does not contain any session id"));
 
 		return WebSocketSessionContext.builder()
-				.session(wsSession)
-				.wsSessionId(wsSession.getId())
-				.userSessionId(sessionCookieId)
-				.build();
+			.session(wsSession)
+			.wsSessionId(wsSession.getId())
+			.userSessionId(sessionCookieId)
+			.build();
 	}
 
 	public void close() {

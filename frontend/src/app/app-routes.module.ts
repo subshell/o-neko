@@ -17,6 +17,7 @@ import {MeComponent} from "./user/me/me.component";
 import {LogsComponent} from "./logs/logs.component";
 import {HelmRegistryListComponent} from "./registries/helm/list/helm-registry-list.component";
 import {SearchPageComponent} from "./search/search-page.component";
+import {ContainerLogsComponent} from "./project/logs/container-logs.component";
 
 export const APP_ROUTES: Routes = [
   // Login
@@ -46,8 +47,15 @@ export const APP_ROUTES: Routes = [
                 children: [
                   {
                     path: ':versionId',
-                    component: EditProjectVersionComponent,
-                    canActivate: [AuthGuardService, IsAdminOrDoerGuardService]
+                    children: [{
+                      path: '',
+                      component: EditProjectVersionComponent,
+                      canActivate: [AuthGuardService, IsAdminOrDoerGuardService],
+                    },{
+                      path: 'logs',
+                      component: ContainerLogsComponent,
+                      canActivate: [AuthGuardService],
+                    }]
                   },
                   {
                     path: '',
@@ -115,9 +123,9 @@ export const APP_ROUTES: Routes = [
 @NgModule({
   imports: [
     RouterModule.forRoot(APP_ROUTES, {
-    onSameUrlNavigation: 'ignore',
-    useHash: false
-})
+      onSameUrlNavigation: 'ignore',
+      useHash: false
+    })
   ],
   exports: [RouterModule]
 })

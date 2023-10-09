@@ -272,6 +272,17 @@
         "versionSpecificVariables": "Version specific variables",
         "showEffectiveConfiguration": "Show effective configuration"
       },
+      "containerLogs": {
+        "logs": "Logs",
+        "pod": "Pod",
+        "container": "Container",
+        "live": "Live",
+        "logfileIsEmpty": "The log is empty",
+        "download": "Download",
+        "versionNotDeployed": "This version is not currently deployed",
+        "filter": "Filter",
+        "openExternalLogs": "Open in external logging"
+      },
       "list": {
         "projects": "!alias:menu.projectManagement.projects",
         "createProject": "Create Project",

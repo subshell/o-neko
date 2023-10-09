@@ -37,6 +37,9 @@
               </p>
             </a>
             <on-deployment-urls [version]="version"></on-deployment-urls>
+            <button mat-icon-button class="logs-button" [routerLink]="'/projects/' + project.uuid + '/versions/' + version.uuid + '/logs'">
+              <mat-icon svgIcon="mdi:text-long"></mat-icon>
+            </button>
             <projectVersionActions [version]="version" [project]="project"></projectVersionActions>
           </div>
           <mat-divider *ngIf="!lastVersion"></mat-divider>

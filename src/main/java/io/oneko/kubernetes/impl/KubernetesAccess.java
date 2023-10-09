@@ -1,38 +1,30 @@
 package io.oneko.kubernetes.impl;
 
-import static net.logstash.logback.argument.StructuredArguments.*;
-
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.fabric8.kubernetes.api.model.AuthProviderConfig;
-import io.fabric8.kubernetes.api.model.LocalObjectReference;
-import io.fabric8.kubernetes.api.model.Namespace;
-import io.fabric8.kubernetes.api.model.ObjectMeta;
-import io.fabric8.kubernetes.api.model.Secret;
-import io.fabric8.kubernetes.api.model.SecretBuilder;
-import io.fabric8.kubernetes.api.model.ServiceAccount;
+import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.api.model.apps.Deployment;
+import io.fabric8.kubernetes.api.model.apps.StatefulSet;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
-import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientBuilder;
+import io.fabric8.kubernetes.client.dsl.Listable;
+import io.fabric8.kubernetes.client.dsl.LogWatch;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import io.oneko.event.EventDispatcher;
 import io.oneko.kubernetes.NamespaceCreatedEvent;
 import io.oneko.metrics.MetricNameBuilder;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import java.io.OutputStream;
+import java.util.*;
+
+import static net.logstash.logback.argument.StructuredArguments.kv;
 
 /**
  * Hides away most parts of the kubernetes API's overall weirdness.
@@ -53,9 +45,9 @@ public class KubernetesAccess {
 	private final Timer patchServiceAccountTimer;
 
 	public KubernetesAccess(@Value("${kubernetes.server.url:}") final String masterUrl,
-													@Value("${kubernetes.auth.token:}") final String token,
-													EventDispatcher eventDispatcher,
-													MeterRegistry meterRegistry) {
+							@Value("${kubernetes.auth.token:}") final String token,
+							EventDispatcher eventDispatcher,
+							MeterRegistry meterRegistry) {
 		this.eventDispatcher = eventDispatcher;
 
 		ConfigBuilder configBuilder = new ConfigBuilder();
@@ -69,7 +61,7 @@ public class KubernetesAccess {
 		}
 
 		Config config = configBuilder
-				.build();
+			.build();
 
 		kubernetesClient = new KubernetesClientBuilder().withConfig(config).build();
 
@@ -82,10 +74,10 @@ public class KubernetesAccess {
 
 	private Timer timer(String resource, String action, MeterRegistry meterRegistry) {
 		return Timer.builder(new MetricNameBuilder().durationOf("kubernetes.api.request").build())
-				.publishPercentileHistogram()
-				.tag("resource", resource)
-				.tag("action", action)
-				.register(meterRegistry);
+			.publishPercentileHistogram()
+			.tag("resource", resource)
+			.tag("action", action)
+			.register(meterRegistry);
 	}
 
 	Namespace createNamespaceIfNotExistent(String namespace) {
@@ -110,8 +102,8 @@ public class KubernetesAccess {
 	Secret createOrUpdateImagePullSecretInNamespace(String namespace, String secretName, String userName, String password, String url) throws JsonProcessingException {
 		final Timer.Sample sample = Timer.start();
 		final Secret existingSecret = kubernetesClient.secrets()
-				.inNamespace(namespace)
-				.withName(secretName).get();
+			.inNamespace(namespace)
+			.withName(secretName).get();
 
 		if (existingSecret != null) {
 			log.info("updating image pull secret ({}, {})", kv("image_pull_secret", secretName), kv("namespace", namespace));
@@ -131,12 +123,12 @@ public class KubernetesAccess {
 			dataMap.put(".dockerconfigjson", new String(Base64.getEncoder().encode(dockerConfigJson.getBytes())));
 
 			final Secret secret = kubernetesClient.secrets().inNamespace(namespace).createOrReplace(new SecretBuilder()
-					.withApiVersion("v1")
-					.withKind("Secret")
-					.withData(dataMap)
-					.withNewMetadata().withName(secretName).endMetadata()
-					.withType("kubernetes.io/dockerconfigjson")
-					.build());
+				.withApiVersion("v1")
+				.withKind("Secret")
+				.withData(dataMap)
+				.withNewMetadata().withName(secretName).endMetadata()
+				.withType("kubernetes.io/dockerconfigjson")
+				.build());
 			sample.stop(createOrUpdateImagePullSecretTimer);
 			return secret;
 		} catch (JsonProcessingException e) {
@@ -148,18 +140,18 @@ public class KubernetesAccess {
 	void deleteImagePullSecretInNamespace(String namespace, String secretName) {
 		deleteImagePullSecretTimer.record(() -> {
 			kubernetesClient.secrets()
-					.inNamespace(namespace)
-					.withName(secretName)
-					.delete();
+				.inNamespace(namespace)
+				.withName(secretName)
+				.delete();
 		});
 	}
 
 	ServiceAccount addImagePullSecretToServiceAccountIfNecessary(String namespace, String imagePullSecretName) {
 		return patchServiceAccountTimer.record(() -> {
 			final ServiceAccount defaultServiceAccount = kubernetesClient.serviceAccounts()
-					.inNamespace(namespace)
-					.withName("default")
-					.get();
+				.inNamespace(namespace)
+				.withName("default")
+				.get();
 
 			List<LocalObjectReference> imagePullSecrets = defaultServiceAccount.getImagePullSecrets();
 			if (imagePullSecrets == null) {
@@ -174,17 +166,17 @@ public class KubernetesAccess {
 			imagePullSecrets.add(new LocalObjectReference(imagePullSecretName));
 			defaultServiceAccount.setImagePullSecrets(imagePullSecrets);
 			return kubernetesClient.serviceAccounts()
-					.inNamespace(namespace)
-					.createOrReplace(defaultServiceAccount);
+				.inNamespace(namespace)
+				.createOrReplace(defaultServiceAccount);
 		});
 	}
 
 	ServiceAccount removeImagePullSecretFromServiceAccountIfNecessary(String namespace, String imagePullSecretName) {
 		return patchServiceAccountTimer.record(() -> {
 			final ServiceAccount defaultServiceAccount = kubernetesClient.serviceAccounts()
-					.inNamespace(namespace)
-					.withName("default")
-					.get();
+				.inNamespace(namespace)
+				.withName("default")
+				.get();
 
 			List<LocalObjectReference> imagePullSecrets = defaultServiceAccount.getImagePullSecrets();
 			if (imagePullSecrets == null) {
@@ -201,8 +193,8 @@ public class KubernetesAccess {
 			imagePullSecrets.add(new LocalObjectReference(imagePullSecretName));
 			defaultServiceAccount.setImagePullSecrets(imagePullSecrets);
 			return kubernetesClient.serviceAccounts()
-					.inNamespace(namespace)
-					.createOrReplace(defaultServiceAccount);
+				.inNamespace(namespace)
+				.createOrReplace(defaultServiceAccount);
 		});
 	}
 
@@ -210,5 +202,51 @@ public class KubernetesAccess {
 		deleteNamespaceTimer.record(() -> {
 			kubernetesClient.namespaces().withName(name).delete();
 		});
+	}
+
+	public String getLogsForPodAndContainerInNamespace(String podName, String containerName, String namespace) {
+		return kubernetesClient.pods().inNamespace(namespace).withName(podName).inContainer(containerName).getLog();
+	}
+
+	public LogWatch streamLogsForPodAndContainerInNamespace(String podName, String containerName, String namespace, OutputStream outputStream) {
+		return kubernetesClient.pods().inNamespace(namespace).withName(podName).inContainer(containerName).watchLog(outputStream);
+	}
+
+	public List<Pod> getPodsForHelmReleaseInNamespace(String helmReleaseName, String namespace) {
+		List<Deployment> deployments = kubernetesClient.apps()
+			.deployments()
+			.inNamespace(namespace)
+			.list()
+			.getItems()
+			.stream().filter(dp -> dp.getMetadata().getAnnotations().containsKey("meta.helm.sh/release-name")
+				&& dp.getMetadata().getAnnotations().get("meta.helm.sh/release-name").equals(helmReleaseName)).toList();
+
+		List<Pod> deploymentPodList = deployments
+			.stream().map(dp -> dp.getSpec().getSelector())
+			.map(sel -> kubernetesClient.pods().inNamespace(namespace).withLabelSelector(sel))
+			.map(Listable::list)
+			.flatMap(pl -> pl.getItems().stream())
+			.toList();
+
+		List<StatefulSet> statefulSets = kubernetesClient.apps()
+			.statefulSets()
+			.inNamespace(namespace)
+			.list()
+			.getItems()
+			.stream().filter(dp -> dp.getMetadata().getAnnotations().containsKey("meta.helm.sh/release-name")
+				&& dp.getMetadata().getAnnotations().get("meta.helm.sh/release-name").equals(helmReleaseName)).toList();
+
+		List<Pod> stsPodList = statefulSets
+			.stream().map(dp -> dp.getSpec().getSelector())
+			.map(sel -> kubernetesClient.pods().inNamespace(namespace).withLabelSelector(sel))
+			.map(Listable::list)
+			.flatMap(pl -> pl.getItems().stream())
+			.toList();
+
+		List<Pod> result = new ArrayList<>();
+		result.addAll(deploymentPodList);
+		result.addAll(stsPodList);
+
+		return result;
 	}
 }

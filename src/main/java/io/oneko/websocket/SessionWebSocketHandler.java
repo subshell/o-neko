@@ -1,12 +1,14 @@
 package io.oneko.websocket;
 
-import static net.logstash.logback.argument.StructuredArguments.*;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Sets;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.oneko.metrics.MetricNameBuilder;
+import io.oneko.websocket.message.ONekoWebSocketMessage;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.CloseStatus;
@@ -14,15 +16,13 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.Gauge;
-import io.micrometer.core.instrument.MeterRegistry;
-import io.oneko.metrics.MetricNameBuilder;
-import io.oneko.websocket.message.ONekoWebSocketMessage;
-import lombok.extern.slf4j.Slf4j;
+import static net.logstash.logback.argument.StructuredArguments.kv;
 
 // https://books.google.de/books?id=EkBPDwAAQBAJ&pg=PA320&lpg=PA320&dq=getHandshakeInfo().getPrincipal()&source=bl&ots=9nchCL8YFm&sig=m-xV7tPCNjRh8bzi23xdx_xBWPY&hl=de&sa=X&ved=0ahUKEwiCsoLhg6ncAhWCjKQKHbWQAWwQ6AEIJzAA#v=onepage&q=getHandshakeInfo().getPrincipal()&f=false
 
@@ -34,17 +34,18 @@ public class SessionWebSocketHandler extends TextWebSocketHandler {
 
 	private final Counter receivedWebsocketMessageCounter;
 	private final Counter sentWebsocketMessageCounter;
+	private Set<WebsocketListener> listeners = Sets.newConcurrentHashSet();
 
 	public SessionWebSocketHandler(ObjectMapper objectMapper, MeterRegistry meterRegistry) {
 		this.objectMapper = objectMapper;
 		Gauge.builder(new MetricNameBuilder().amountOf("websocket.sessions").build(), sessionContextMap::size)
-				.register(meterRegistry);
+			.register(meterRegistry);
 		this.receivedWebsocketMessageCounter = Counter.builder(new MetricNameBuilder().amountOf("websocket.messages").build())
-				.tag("type", "received")
-				.register(meterRegistry);
+			.tag("type", "received")
+			.register(meterRegistry);
 		this.sentWebsocketMessageCounter = Counter.builder(new MetricNameBuilder().amountOf("websocket.messages").build())
-				.tag("type", "sent")
-				.register(meterRegistry);
+			.tag("type", "sent")
+			.register(meterRegistry);
 	}
 
 	@Override
@@ -76,8 +77,8 @@ public class SessionWebSocketHandler extends TextWebSocketHandler {
 		if (msgObj == null) {
 			return;
 		}
-		// Currently, we do not handle incoming webSocket messages, so we just log them
 		log.trace("received websocket message ({})", kv("message", msgObj.toString()));
+		listeners.forEach(l -> l.onMessage(msgObj, session.getId()));
 		receivedWebsocketMessageCounter.increment();
 	}
 
@@ -88,13 +89,14 @@ public class SessionWebSocketHandler extends TextWebSocketHandler {
 
 		sessionContextMap.get(wsSessionId).close();
 		sessionContextMap.remove(wsSessionId);
+		listeners.forEach(l -> l.sessionClosed(wsSessionId));
 		log.trace("removing websocket connection ({}, {})", kv("session_id", wsSessionId), kv("total_websocket_session_count", sessionContextMap.size()));
 	}
 
 	public void invalidateUserSession(String userSessionId) {
 		sessionContextMap.values().stream()
-				.filter(sessionsContext -> StringUtils.equals(sessionsContext.getUserSessionId(), userSessionId))
-				.forEach((wsSessionContext) -> invalidateUserSession(wsSessionContext.getWsSessionId()));
+			.filter(sessionsContext -> StringUtils.equals(sessionsContext.getUserSessionId(), userSessionId))
+			.forEach((wsSessionContext) -> invalidateUserSession(wsSessionContext.getWsSessionId()));
 	}
 
 	public void send(WebSocketSession session, ONekoWebSocketMessage message) {
@@ -148,5 +150,9 @@ public class SessionWebSocketHandler extends TextWebSocketHandler {
 		}
 
 		return null;
+	}
+
+	public void registerListener(WebsocketListener listener) {
+		this.listeners.add(listener);
 	}
 }

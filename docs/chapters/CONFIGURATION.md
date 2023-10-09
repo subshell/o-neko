@@ -24,6 +24,8 @@ o-neko:
         minute: 59
         onNextDay: false
       lastDayOfTheWeek: friday
+    logs:
+      externalLogUrlTemplate: ""
 ```
 
 ## Deployment Lifetime 
@@ -43,3 +45,19 @@ By setting `o-neko.deployments.lifetime.endOfDay.onNextDay` to `true`, `o-neko.d
 As you can see, `until tonight` always points to the current day (+1 if `onNextDay` is set to true) , while `until weekend` points to the configurable last day of the week (+1 if `onNextDay` is set to true). 
 
 **Note:** Deployments will stop on the next *possible* expiration date. So if you start a deployment shortly after the `until tonight` expiration date, it will be stopped on the next day.
+
+## Add external logging system URL
+
+You can configure O-Neko to display a link to your external logging system (e.g. Grafana Loki, Google Cloud Logging, Elasticsearch etc.). To do this, O-Neko needs
+a URL template to your logging application. That template can include the variables `pod`, `container` and `namespace`, which will be
+replaced by a project version's values.
+
+A simple example for that option is:
+```yaml
+o-neko:
+    logs:
+      externalLogUrlTemplate: "https://monitoring.myapplication.com/logs?pod={{pod}}&container={{container}}&namespace={{namespace}}"
+```
+
+If you do not configure an external logging system, no link will be shown. The built-in container log viewer will still be
+available.
