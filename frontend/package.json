@@ -24,7 +24,7 @@
     "@angular/material": "16.2.7",
     "@angular/platform-browser": "16.2.8",
     "@angular/platform-browser-dynamic": "16.2.8",
-    "@angular/router": "16.2.8",
+    "@angular/router": "16.2.11",
     "@fontsource-variable/jetbrains-mono": "5.0.16",
     "@fontsource/barlow": "^5.0.8",
     "@fontsource/varela-round": "^5.0.8",
