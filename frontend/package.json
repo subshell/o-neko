@@ -44,7 +44,7 @@
     "monaco-editor": "0.44.0",
     "ngx-mat-select-search": "7.0.4",
     "ngx-monaco-editor": "12.0.0",
-    "ngx-translate-messageformat-compiler": "6.5.0",
+    "ngx-translate-messageformat-compiler": "7.0.0",
     "rxjs": "7.8.1",
     "tslib": "2.6.2",
     "typescript-logging": "2.1.0",
