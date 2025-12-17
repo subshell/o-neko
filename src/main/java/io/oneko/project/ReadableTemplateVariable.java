@@ -2,14 +2,16 @@ package io.oneko.project;
 
 import com.google.common.collect.ImmutableList;
 import io.oneko.domain.Identifiable;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.util.List;
-import java.util.UUID;
-
 @Getter
 public class ReadableTemplateVariable extends Identifiable implements TemplateVariable {
+
 	private final UUID id;
 	private final String name;
 	private final String label;
@@ -23,7 +25,7 @@ public class ReadableTemplateVariable extends Identifiable implements TemplateVa
 		this.id = id;
 		this.name = name;
 		this.label = label;
-		this.values = ImmutableList.copyOf(values);
+		this.values = ImmutableList.copyOf(values.stream().filter(Objects::nonNull).collect(Collectors.toList()));
 		this.useValues = useValues;
 		this.defaultValue = defaultValue;
 		this.showOnDashboard = showOnDashboard;
@@ -31,13 +33,13 @@ public class ReadableTemplateVariable extends Identifiable implements TemplateVa
 
 	public WritableTemplateVariable writable() {
 		return WritableTemplateVariable.builder()
-				.id(getId())
-				.name(getName())
-				.label(getLabel())
-				.values(getValues())
-				.useValues(isUseValues())
-				.defaultValue(getDefaultValue())
-				.showOnDashboard(isShowOnDashboard())
-				.build();
+			.id(getId())
+			.name(getName())
+			.label(getLabel())
+			.values(getValues())
+			.useValues(isUseValues())
+			.defaultValue(getDefaultValue())
+			.showOnDashboard(isShowOnDashboard())
+			.build();
 	}
 }
