@@ -1,3 +1,7 @@
+## 1.8.1 (2025-12-17)
+
+* prevent NullPointerExceptions when filling Immutable collections
+
 ## 1.8.0 (2023-10-09)
 
 ### Highlights
