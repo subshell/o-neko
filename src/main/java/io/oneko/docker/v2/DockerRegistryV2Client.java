@@ -1,5 +1,9 @@
 package io.oneko.docker.v2;
 
+import static io.oneko.util.MoreStructuredArguments.projectKv;
+import static io.oneko.util.MoreStructuredArguments.versionKv;
+import static net.logstash.logback.argument.StructuredArguments.kv;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.hash.Hashing;
 import feign.Feign;
@@ -11,11 +15,16 @@ import feign.slf4j.Slf4jLogger;
 import io.micrometer.core.instrument.Timer;
 import io.oneko.docker.DockerRegistry;
 import io.oneko.docker.v2.metrics.MetersPerRegistry;
+import io.oneko.docker.v2.model.ListTagsResult;
 import io.oneko.docker.v2.model.manifest.DockerRegistryBlob;
 import io.oneko.docker.v2.model.manifest.DockerRegistryManifest;
 import io.oneko.docker.v2.model.manifest.Manifest;
 import io.oneko.project.Project;
 import io.oneko.project.ProjectVersion;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.Header;
 import org.apache.http.client.config.CookieSpecs;
@@ -23,15 +32,6 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
-
-import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-
-import static io.oneko.util.MoreStructuredArguments.projectKv;
-import static io.oneko.util.MoreStructuredArguments.versionKv;
-import static net.logstash.logback.argument.StructuredArguments.kv;
 
 /**
  * Accesses the API defined here:
@@ -44,9 +44,9 @@ public class DockerRegistryV2Client {
 	private final MetersPerRegistry meters;
 
 	public DockerRegistryV2Client(DockerRegistry registry,
-								  String token,
-								  ObjectMapper objectMapper,
-								  MetersPerRegistry meters) {
+		String token,
+		ObjectMapper objectMapper,
+		MetersPerRegistry meters) {
 		this.meters = meters;
 		List<Header> defaultHeaders = new ArrayList<>();
 		defaultHeaders.add(new BasicHeader("Accept", "*/*"));
@@ -86,9 +86,11 @@ public class DockerRegistryV2Client {
 	public List<String> getAllTags(Project<?, ?> project) {
 		final Timer.Sample sample = Timer.start();
 		try {
-			final List<String> result = feignClient.getAllTags(project.getImageName()).getTags();
+			final String imageName = project.getImageName();
+			ListTagsResult result = feignClient.getAllTags(imageName);
+			List<String> tags = result.getTags();
 			sample.stop(meters.getListAllTagsTimerOk());
-			return result;
+			return tags;
 		} catch (FeignException e) {
 			sample.stop(meters.getListAllTagsTimerError());
 			log.warn("failed to list all container image tags ({})", kv("image_name", project.getImageName()), e);
@@ -107,6 +109,10 @@ public class DockerRegistryV2Client {
 				result = generateManifestFromManifestList(imageName, dockerRegistryManifest);
 			} else {
 				final DockerRegistryManifest.Digest digest = dockerRegistryManifest.getDigest();
+				if (digest == null) {
+					log.warn("failed to get digest for project version ({}, {})", versionKv(version), projectKv(version.getProject()));
+					return null;
+				}
 				final DockerRegistryBlob blob = feignClient.getBlob(imageName, digest.getAlgorithm(), digest.getDigest());
 				result = new Manifest(digest.getFullDigest(), blob.getCreated());
 			}
@@ -135,7 +141,8 @@ public class DockerRegistryV2Client {
 				DockerRegistryBlob blob = feignClient.getBlob(imageName, m.getDigest().getAlgorithm(), m.getDigest().getDigest());
 				return new Manifest(m.getDigest().getFullDigest(), blob.getCreated());
 			}).reduce((m1, m2) -> {
-				String hash = "sha512:" + Hashing.sha512().hashString(m1.getDockerContentDigest() + m2.getDockerContentDigest(), StandardCharsets.UTF_8).toString();
+				String hash = "sha512:" + Hashing.sha512().hashString(m1.getDockerContentDigest() + m2.getDockerContentDigest(), StandardCharsets.UTF_8)
+					.toString();
 				Instant date = m1.getImageUpdatedDate().map(d -> {
 					if (m2.getImageUpdatedDate().isPresent() && d.isBefore(m2.getImageUpdatedDate().get())) {
 						return m2.getImageUpdatedDate().get();

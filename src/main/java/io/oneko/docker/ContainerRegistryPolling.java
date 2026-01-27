@@ -48,9 +48,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
-class DockerRegistryPolling {
-
-
+class ContainerRegistryPolling {
 
 	@Data
 	private static class VersionWithDockerManifest {
@@ -71,7 +69,7 @@ class DockerRegistryPolling {
 	private final Timer pollingJobTimer;
 	private final Timer updateDatesJobTimer;
 
-	DockerRegistryPolling(ProjectRepository projectRepository,
+	ContainerRegistryPolling(ProjectRepository projectRepository,
 												DockerRegistryClientFactory dockerRegistryClientFactory,
 												DeploymentManager deploymentManager,
 												EventDispatcher eventDispatcher,
@@ -237,7 +235,7 @@ class DockerRegistryPolling {
 			if (newVersions.size() == 1) {
 				log.info("found new project version ({}, {})", versionKv((String) newVersions.toArray()[0]), projectKv(project));
 			} else {
-				log.info("found new project versions ({}, {}, {})", kv("version_count", newVersions.size()), projectKv(project), kv("versions", newVersions));
+				log.info("found new project versions ({}, {})", kv("version_count", newVersions.size()), projectKv(project));
 			}
 		}
 
