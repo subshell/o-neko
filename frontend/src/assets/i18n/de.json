@@ -29,7 +29,7 @@
     },
     "administration": {
       "administration": "Administration",
-      "dockerRegistries": "Docker Registries",
+      "dockerRegistries": "Container Registries",
       "helmRegistries": "Helm Registries",
       "users": "Benutzer",
       "activityLog": "!alias:views.logs.activityLog"
@@ -63,7 +63,7 @@
     "activityLog": {
       "openEntity": "{entity} öffnen",
       "openUsersPage": "Benutzerliste öffnen",
-      "openDockerRegistryPage": "Docker-Registry-Liste öffnen",
+      "openDockerRegistryPage": "Container-Registry-Liste öffnen",
       "openNamespacesPage": "Namespace-Liste öffnen",
       "changedProperty": "Geänderter Wert",
       "newActivities": "{count} neue {count, plural, one{Event} other{Events}}"
@@ -112,17 +112,17 @@
     },
     "dockerRegistry": {
       "deletionDialog": {
-        "registryIsUsedByProject": "Die Docker Registry <b>{registry}</b> wird von folgenden Projekten verwendet:",
+        "registryIsUsedByProject": "Die Container Registry <b>{registry}</b> wird von folgenden Projekten verwendet:",
         "usedRegistryWarningText": "<p>Wenn diese Registry gelöscht wird, verwaisen diese Projekte.</p><p>Sie können danach nicht mehr deployed oder anderweitig verwendet werden, solang ihnen keine neue Registry zugewiesen wird, die die Images unter dem selben Namen bereitstellt.</p>",
         "confirmDeletionText": "Bitte bestätigen Sie das Löschen der Registry indem Sie ihren Namen in das Eingabefeld tippen. Das Löschen kann nicht rückgängig gemacht werden.",
         "confirmName": "Namen der Registry bestätigen"
       },
       "editDialog": {
-        "createRegistry": "Docker Registry anlegen",
-        "editRegistry": "Docker Registry bearbeiten",
+        "createRegistry": "Container Registry anlegen",
+        "editRegistry": "Container Registry bearbeiten",
         "trustInsecureCertificates": "Unsicheren Zertifikaten vertrauen",
         "trustInsecureRegistryHint": "Sie sollten diese Option nicht auswählen, wenn es sich um eine produktive Installation von O-Neko handelt. Stellen Sie lieber sicher, gültige und vertrauenswürdige Zertifikate in der Registry zu installieren. Sie müssen außerdem sicherstellen, dass Ihr Kubernetes Cluster dieser Registry vertraut, andernfalls wird auch das Auswählen dieser Option nicht helfen.",
-        "registryHasBeenModifiedByAction": "Die Docker Registry {registry} wurde {action, select, created{angelegt} deleted{gelöscht} saved{gespeichert} other{bearbeitet}}."
+        "registryHasBeenModifiedByAction": "Die Container Registry {registry} wurde {action, select, created{angelegt} deleted{gelöscht} saved{gespeichert} other{bearbeitet}}."
       },
       "registryUrl": "Registry URL",
       "dockerRegistries": "!alias:menu.administration.dockerRegistries",
@@ -230,11 +230,11 @@
         "enterProjectNameDescription": "<p>Wählen Sie einen sinnvollen Namen für das Projekt.</p><p>Der Name kann beliebig gewählt werden, aber darf nicht mit bestehenden Namen kollidieren.</p>",
         "projectName": "Projektname",
         "collidingProjectNameMessage": "Es gibt bereits ein Projekt mit dem Namen {name}.",
-        "selectDockerRegistry": "Wählen Sie eine Docker Registry",
-        "selectDockerRegistryDescription": "Alle Docker Images des Projekts werden aus der angegebenen Docker Registry geladen.",
-        "dockerRegistry": "Docker Registry",
+        "selectDockerRegistry": "Wählen Sie eine Container Registry",
+        "selectDockerRegistryDescription": "Alle Container Images des Projekts werden aus der angegebenen Container Registry geladen.",
+        "dockerRegistry": "Container Registry",
         "enterProjectImageName": "Geben Sie den Image-Namen des Projekts ein",
-        "enterProjectImageNameDescription": "Der Name muss dem Namen entsprechen, den das Docker Image in der Docker Registry hat.",
+        "enterProjectImageNameDescription": "Der Name muss dem Namen entsprechen, den das Container Image in der Container Registry hat.",
         "couldNotUploadFile": "Die Datei {name} konnte nicht hochgeladen werden",
         "errorParsingConfiguration": "Ein Fehler ist beim Lesen der Konfiguration aufgetreten"
       },
@@ -250,7 +250,7 @@
         "imageName": "Image-Name",
         "imageNameIsRequired": "Ein Image-Name ist erforderlich",
         "dockerRegistry": "!alias:components.project.createProjectDialog.dockerRegistry",
-        "dockerRegistryIsRequired": "Jedem Projekt muss eine Docker Registry zugewiesen sein",
+        "dockerRegistryIsRequired": "Jedem Projekt muss eine Container Registry zugewiesen sein",
         "namespaceInKubernetes": "Namespace in Kubernetes",
         "configurationTemplates": "Konfigurationstemplates",
         "templateVariables": "Template-Variablen",

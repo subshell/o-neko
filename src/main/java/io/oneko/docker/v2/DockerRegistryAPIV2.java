@@ -17,7 +17,7 @@ public interface DockerRegistryAPIV2 {
 
 	@RequestLine("GET /v2/{imageName}/manifests/{tagName}")
 	@Headers({
-		"Accept: application/vnd.oci.image.manifest.v1+json, application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json"
+		"Accept: application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json, application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json"
 	})
 	DockerRegistryManifest getManifest(@Param("imageName") String imageName, @Param("tagName") String tagName);
 

@@ -1,7 +1,6 @@
-version: '3'
 services:
   mongodb:
-    image: mongo:4
+    image: mongo:8
     container_name: o-neko-mongodb
     ports:
       - "27017:27017"

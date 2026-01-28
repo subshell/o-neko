@@ -32,7 +32,7 @@
               <p mat-line>
                 <span fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="16px">
                   <span *ngIf="version.deployment.timestamp" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="4px"><mat-icon svgIcon="mdi:kubernetes"></mat-icon><span>{{version.deployment.formattedTimestamp}}</span></span>
-                  <span *ngIf="version.imageUpdatedDate" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="4px"><mat-icon svgIcon="mdi:docker"></mat-icon><span>{{version.formattedImageUpdatedDate}}</span></span>
+                  <span *ngIf="version.imageUpdatedDate" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="4px"><mat-icon svgIcon="mdi:oci"></mat-icon><span>{{version.formattedImageUpdatedDate}}</span></span>
                 </span>
               </p>
             </a>

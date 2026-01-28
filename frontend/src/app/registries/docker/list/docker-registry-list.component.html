@@ -1,12 +1,12 @@
 <div class="docker-registries table-page main-content-padding" fxLayout="column">
   <h2 fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="12px">
-    <mat-icon svgIcon="mdi:docker"></mat-icon>
+    <mat-icon svgIcon="mdi:oci"></mat-icon>
     <span>{{'components.dockerRegistry.dockerRegistries' | translate}}</span>
   </h2>
   <div fxLayout="row" fxLayoutAlign="space-between center">
     <button *ngIf="mayCreateDockerRegistry()" mat-button (click)="createDockerRegistry()">
       <span fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="1em">
-        <mat-icon svgIcon="mdi:docker"></mat-icon>
+        <mat-icon svgIcon="mdi:oci"></mat-icon>
         <span>{{'components.dockerRegistry.createDockerRegistry' | translate}}</span>
       </span>
     </button>

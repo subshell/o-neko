@@ -29,7 +29,7 @@
     },
     "administration": {
       "administration": "Administration",
-      "dockerRegistries": "Docker Registries",
+      "dockerRegistries": "Container Registries",
       "helmRegistries": "Helm Registries",
       "users": "Users",
       "activityLog": "!alias:views.logs.activityLog"
@@ -63,7 +63,7 @@
     "activityLog": {
       "openEntity": "Open {entity}",
       "openUsersPage": "Open user list",
-      "openDockerRegistryPage": "Open docker registry list",
+      "openDockerRegistryPage": "Open container registry list",
       "openNamespacesPage": "Open namespaces list",
       "changedProperty": "Changed property",
       "newActivities": "{count} new {count, plural, one{event} other{events}}"
@@ -112,17 +112,17 @@
     },
     "dockerRegistry": {
       "deletionDialog": {
-        "registryIsUsedByProject": "The docker registry <b>{registry}</b> is used by these projects:",
+        "registryIsUsedByProject": "The contanier registry <b>{registry}</b> is used by these projects:",
         "usedRegistryWarningText": "<p>If you delete this registry then those projects will remain in an orphaned state.</p><p>They can no longer be deployed or used otherwise until they are assigned to a new registry serving images with the same name.</p>",
-        "confirmDeletionText": "Please confirm the deletion of this docker registry by entering its name below. This action cannot be undone.",
+        "confirmDeletionText": "Please confirm the deletion of this container registry by entering its name below. This action cannot be undone.",
         "confirmName": "!alias:components.forms.confirmName"
       },
       "editDialog": {
-        "createRegistry": "Create Docker Registry",
-        "editRegistry": "Edit Docker Registry",
+        "createRegistry": "Create Container Registry",
+        "editRegistry": "Edit Container Registry",
         "trustInsecureCertificates": "Trust insecure certificates",
         "trustInsecureRegistryHint": "You should not check this if you are running O-Neko in production. Make sure to install valid and trusted certificates in your registry instead. You also have to make sure that your Kubernetes cluster trusts your registry. Otherwise even setting this option will not help you.",
-        "registryHasBeenModifiedByAction": "Docker Registry {registry} has been {action, select, created{created} deleted{deleted} saved{saved} other{modified}}."
+        "registryHasBeenModifiedByAction": "Container Registry {registry} has been {action, select, created{created} deleted{deleted} saved{saved} other{modified}}."
       },
       "registryUrl": "Registry URL",
       "dockerRegistries": "!alias:menu.administration.dockerRegistries",
@@ -230,11 +230,11 @@
         "enterProjectNameDescription": "<p>Enter a meaningful name for your new project.</p><p>The name can be chosen arbitrarily but should be distinguishable from the names of yet existing projects.</p>",
         "projectName": "Project name",
         "collidingProjectNameMessage": "There is already a project with the name {name}.",
-        "selectDockerRegistry": "Select a docker registry",
-        "selectDockerRegistryDescription": "All docker images for this project will be picked from the docker registry you select here.",
-        "dockerRegistry": "Docker registry",
+        "selectDockerRegistry": "Select a container registry",
+        "selectDockerRegistryDescription": "All container images for this project will be picked from the container registry you select here.",
+        "dockerRegistry": "Container registry",
         "enterProjectImageName": "Enter the new project's image name",
-        "enterProjectImageNameDescription": "Type in the name of the docker image. This must match the image name as present in the docker registry.",
+        "enterProjectImageNameDescription": "Type in the name of the container image. This must match the image name as present in the container registry.",
         "couldNotUploadFile": "Could not upload file {name}",
         "errorParsingConfiguration": "Error while parsing the configuration file"
       },
@@ -250,7 +250,7 @@
         "imageName": "Image name",
         "imageNameIsRequired": "An image name is required",
         "dockerRegistry": "!alias:components.project.createProjectDialog.dockerRegistry",
-        "dockerRegistryIsRequired": "Each project must have a docker registry assigned.",
+        "dockerRegistryIsRequired": "Each project must have a container registry assigned.",
         "namespaceInKubernetes": "Namespace in Kubernetes",
         "configurationTemplates": "Configuration templates",
         "templateVariables": "Template Variables",

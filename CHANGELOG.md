@@ -1,3 +1,7 @@
+## 1.8.2
+
+* fix: ensure the API can poll OCI manifests
+
 ## 1.8.1 (2025-12-17)
 
 * prevent NullPointerExceptions when filling Immutable collections

@@ -10,7 +10,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DockerRegistryManifest {
 	@Data
-	static class Config {
+	public static class Config {
 		String digest;
 		String mediaType;
 		int size;
@@ -57,13 +57,18 @@ public class DockerRegistryManifest {
 
 
 	public Digest getDigest() {
-		if (!isManifestList()) {
+		if (isManifestList()) {
+			throw new IllegalStateException("tried to receive single digest from manifest list");
+		}
+		if (config != null && config.digest != null) {
 			return new Digest(config.digest);
 		}
-		throw new IllegalStateException("tried to receive single digest from manifest list");
+		return null;
 	}
 
 	public boolean isManifestList() {
-		return manifests != null && !manifests.isEmpty();
+		return "application/vnd.oci.image.index.v1+json".equals(mediaType) ||
+				"application/vnd.docker.distribution.manifest.list.v2+json".equals(mediaType) ||
+				(manifests != null && !manifests.isEmpty());
 	}
 }
