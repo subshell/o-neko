@@ -71,6 +71,16 @@ jobs:
         with:
           name: backend-artifacts
 
+      - name: Locate backend JAR
+        id: find_jar
+        run: |
+          jar=$(find . -type f -name '*-layered.jar' -print -quit)
+          if [ -z "$jar" ]; then
+            echo "No layered JAR found" >&2
+            exit 1
+          fi
+          echo "jar=$jar" >> $GITHUB_OUTPUT
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -93,4 +103,4 @@ jobs:
             subshellgmbh/o-neko:latest
             subshellgmbh/o-neko:${{ steps.tag.outputs.tag }}
           build-args: |
-            JAR_FILE=$(find . -type f -name '*-layered.jar')
+            JAR_FILE=${{ steps.find_jar.outputs.jar }}
