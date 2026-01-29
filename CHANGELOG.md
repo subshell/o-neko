@@ -1,4 +1,4 @@
-## 1.8.2
+## 1.8.2 (2026-01-29)
 
 * fix: ensure the API can poll OCI manifests
 
