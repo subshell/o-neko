@@ -9,7 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import java.util.Collection;
 import java.util.Collections;
 
-class ONekoUserDetailsImpl implements ONekoUserDetails {
+public class ONekoUserDetailsImpl implements ONekoUserDetails {
 
 	private static final String DEFAULT_ROLE_PREFIX = "ROLE_";
 

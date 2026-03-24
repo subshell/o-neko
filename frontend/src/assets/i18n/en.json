@@ -387,6 +387,31 @@
           "title": "Delete your account?",
           "message": "Please confirm the deletion of your account. This action cannot be undone.",
           "okButtonText": "Delete"
+        },
+        "apiTokens": {
+          "title": "API Tokens",
+          "create": "Create Token",
+          "createTitle": "Create API Token",
+          "tokenName": "Token Name",
+          "expiresAt": "Expires at",
+          "expiresAtHint": "Leave empty for no expiration",
+          "noTokens": "No API tokens created yet.",
+          "columnName": "Name",
+          "columnCreated": "Created",
+          "columnExpires": "Expires",
+          "columnLastUsed": "Last Used",
+          "never": "Never",
+          "neverUsed": "Never",
+          "delete": "Delete",
+          "deleteTitle": "Delete API Token?",
+          "deleteMessage": "Are you sure you want to delete the token \"{{name}}\"? Any applications using this token will lose access.",
+          "deleteConfirm": "Delete",
+          "deleted": "Token deleted",
+          "yourToken": "Your API Token",
+          "tokenWarning": "Make sure to copy your token now. You won't be able to see it again!",
+          "copy": "Copy to clipboard",
+          "copied": "Token copied to clipboard",
+          "createError": "Failed to create token"
         }
       }
     }

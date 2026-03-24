@@ -24,6 +24,7 @@ import io.oneko.user.ReadableUser;
 import io.oneko.user.User;
 import io.oneko.user.UserRepository;
 import io.oneko.user.WritableUser;
+import io.oneko.user.auth.ApiTokenRepository;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
@@ -36,11 +37,13 @@ public class UserController {
 	private final UserRepository userRepository;
 	private final UserDTOMapper dtoMapper;
 	private final PasswordEncoder passwordEncoder;
+	private final ApiTokenRepository apiTokenRepository;
 
-	public UserController(UserRepository userRepository, UserDTOMapper dtoMapper, PasswordEncoder passwordEncoder) {
+	public UserController(UserRepository userRepository, UserDTOMapper dtoMapper, PasswordEncoder passwordEncoder, ApiTokenRepository apiTokenRepository) {
 		this.userRepository = userRepository;
 		this.dtoMapper = dtoMapper;
 		this.passwordEncoder = passwordEncoder;
+		this.apiTokenRepository = apiTokenRepository;
 	}
 
 	@PreAuthorize("hasRole('ADMIN')")
@@ -103,6 +106,7 @@ public class UserController {
 	void deleteUser(@PathVariable String userName) {
 		ReadableUser user = this.userRepository.getByUserName(userName)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User with name " + userName + "not found."));
+		this.apiTokenRepository.deleteAllByUserId(user.getId());
 		this.userRepository.removeUser(user);
 	}
 

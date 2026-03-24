@@ -31,6 +31,9 @@ import {
   MatLegacyTooltipDefaultOptions as MatTooltipDefaultOptions,
   MatLegacyTooltipModule as MatTooltipModule
 } from "@angular/material/legacy-tooltip";
+import {ClipboardModule} from "@angular/cdk/clipboard";
+import {MatDatepickerModule} from "@angular/material/datepicker";
+import {MatNativeDateModule} from "@angular/material/core";
 import {BrowserModule, DomSanitizer} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 
@@ -77,6 +80,7 @@ import {AuthGuardService} from "./session/auth-guard.service";
 import {AuthInterceptor} from "./session/auth.interceptor";
 import {AuthService} from "./session/auth.service";
 import {IsAdminOrDoerGuardService} from "./session/is-admin-or-doer-guard.service";
+import {CreateApiTokenDialogComponent} from "./user/api-token-dialog/create-api-token-dialog.component";
 import {UserEditDialog} from "./user/edit-dialog/user-edit-dialog.component";
 import {UserListComponent} from "./user/list/user-list.component";
 import {MeComponent} from "./user/me/me.component";
@@ -196,7 +200,8 @@ export function HttpLoaderFactory(http: HttpClient) {
     SearchPageComponent,
     DeploymentUrlsComponent,
     ContainerLogsComponent,
-    SafeHtmlPipe
+    SafeHtmlPipe,
+    CreateApiTokenDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -235,6 +240,9 @@ export function HttpLoaderFactory(http: HttpClient) {
     MatStepperModule,
     MatCheckboxModule,
     MatRadioModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    ClipboardModule,
     NgxMatSelectSearchModule,
     NgxsModule.forRoot(appStates, {developmentMode: !environment.production}),
     NgxsStoragePluginModule.forRoot({key: [ThemingState, I18nState]}),
