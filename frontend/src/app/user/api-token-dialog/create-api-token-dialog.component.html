@@ -1,0 +1,44 @@
+<h2 mat-dialog-title>{{ 'components.user.me.apiTokens.createTitle' | translate }}</h2>
+<mat-dialog-content>
+  <!-- Step 1: Create -->
+  <div *ngIf="!createdToken" fxLayout="column" fxLayoutGap="1em">
+    <mat-form-field>
+      <mat-label>{{ 'components.user.me.apiTokens.tokenName' | translate }}</mat-label>
+      <input matInput [(ngModel)]="tokenName" required placeholder="e.g. CI Pipeline">
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>{{ 'components.user.me.apiTokens.expiresAt' | translate }}</mat-label>
+      <input matInput [matDatepicker]="picker" [(ngModel)]="expiresAt" [min]="minDate" [max]="maxDate">
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+      <mat-hint>{{ 'components.user.me.apiTokens.expiresAtHint' | translate }}</mat-hint>
+    </mat-form-field>
+  </div>
+
+  <!-- Step 2: Show token -->
+  <div *ngIf="createdToken" fxLayout="column" fxLayoutGap="1em">
+    <div class="token-warning">
+      <mat-icon svgIcon="mdi:alert"></mat-icon>
+      <span>{{ 'components.user.me.apiTokens.tokenWarning' | translate }}</span>
+    </div>
+
+    <mat-form-field>
+      <mat-label>{{ 'components.user.me.apiTokens.yourToken' | translate }}</mat-label>
+      <input matInput [value]="createdToken.rawToken" readonly>
+      <button matSuffix mat-icon-button (click)="copyToken()" matTooltip="{{ 'components.user.me.apiTokens.copy' | translate }}">
+        <mat-icon svgIcon="mdi:content-copy"></mat-icon>
+      </button>
+    </mat-form-field>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button *ngIf="!createdToken" (click)="close()">{{ 'general.cancel' | translate }}</button>
+  <button mat-raised-button color="primary" *ngIf="!createdToken" (click)="createToken()" [disabled]="!tokenName || isCreating">
+    {{ 'components.user.me.apiTokens.create' | translate }}
+  </button>
+  <button mat-raised-button color="primary" *ngIf="createdToken" (click)="close()">
+    {{ 'general.ok' | translate }}
+  </button>
+</mat-dialog-actions>

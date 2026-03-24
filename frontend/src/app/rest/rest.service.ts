@@ -3,6 +3,7 @@ import {Injectable} from "@angular/core";
 import {Observable} from "rxjs";
 import {map, tap} from "rxjs/operators";
 import {AuthService} from "../session/auth.service";
+import {ApiToken, ApiTokenDTO, CreateApiTokenRequest, CreateApiTokenResponse} from "../user/api-token";
 import {ChangePasswordDTO} from "../user/change-password-dto";
 import {User, UserDTO} from "../user/user";
 import {ActivityRestService} from "./activity-rest.service";
@@ -101,6 +102,22 @@ export class RestService {
       .pipe(map(dto => dto.available));
   }
 
+  /*------------------------------------------------------------
+   * API Tokens
+   ------------------------------------------------------------*/
+
+  public getApiTokens(username: string): Observable<Array<ApiToken>> {
+    return this.http.get<Array<ApiTokenDTO>>(`/api/user/${username}/tokens`)
+      .pipe(map(tokens => tokens.map(ApiToken.from)));
+  }
+
+  public createApiToken(username: string, request: CreateApiTokenRequest): Observable<CreateApiTokenResponse> {
+    return this.http.post<CreateApiTokenResponse>(`/api/user/${username}/tokens`, request);
+  }
+
+  public deleteApiToken(username: string, tokenId: string): Observable<any> {
+    return this.http.delete(`/api/user/${username}/tokens/${tokenId}`);
+  }
 
   /*------------------------------------------------------------
    * delegates

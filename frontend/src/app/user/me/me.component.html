@@ -32,6 +32,54 @@
       <span>{{me.role}}</span>
     </div>
   </div>
+
+  <!-- API Tokens Section -->
+  <div class="api-tokens-section" fxLayout="column" fxLayoutGap="1em" style="width: 100%; max-width: 700px;">
+    <div fxLayout="row" fxLayoutAlign="space-between center">
+      <h3>{{ 'components.user.me.apiTokens.title' | translate }}</h3>
+      <button mat-raised-button color="primary" (click)="createApiToken()">
+        <mat-icon svgIcon="mdi:plus"></mat-icon>
+        {{ 'components.user.me.apiTokens.create' | translate }}
+      </button>
+    </div>
+
+    <div *ngIf="apiTokens.length === 0" class="no-tokens">
+      {{ 'components.user.me.apiTokens.noTokens' | translate }}
+    </div>
+
+    <table *ngIf="apiTokens.length > 0" style="width: 100%;">
+      <thead>
+        <tr>
+          <th>{{ 'components.user.me.apiTokens.columnName' | translate }}</th>
+          <th>{{ 'components.user.me.apiTokens.columnCreated' | translate }}</th>
+          <th>{{ 'components.user.me.apiTokens.columnExpires' | translate }}</th>
+          <th>{{ 'components.user.me.apiTokens.columnLastUsed' | translate }}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let token of apiTokens">
+          <td>{{token.name}}</td>
+          <td>{{token.createdAt | date:'medium'}}</td>
+          <td>
+            <span *ngIf="token.expiresAt">{{token.expiresAt | date:'medium'}}</span>
+            <span *ngIf="!token.expiresAt">{{ 'components.user.me.apiTokens.never' | translate }}</span>
+          </td>
+          <td>
+            <span *ngIf="token.lastUsedAt">{{token.lastUsedAt | date:'medium'}}</span>
+            <span *ngIf="!token.lastUsedAt">{{ 'components.user.me.apiTokens.neverUsed' | translate }}</span>
+          </td>
+          <td>
+            <button mat-icon-button color="warn" (click)="deleteApiToken(token)"
+                    matTooltip="{{ 'components.user.me.apiTokens.delete' | translate }}">
+              <mat-icon svgIcon="mdi:delete"></mat-icon>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
   <div>
     <button mat-button color="warn" (click)="deleteAccount()">{{ 'components.user.me.deleteAccount' | translate }}</button>
   </div>

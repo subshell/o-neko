@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -20,10 +21,12 @@ public class SecurityConfiguration {
 
 	private final ONekoUserDetailsService userDetailsService;
 	private final SessionWebSocketHandler sessionWebSocketHandler;
+	private final ApiTokenAuthenticationFilter apiTokenAuthenticationFilter;
 
-	public SecurityConfiguration(ONekoUserDetailsService userDetailsService, SessionWebSocketHandler sessionWebSocketHandler) {
+	public SecurityConfiguration(ONekoUserDetailsService userDetailsService, SessionWebSocketHandler sessionWebSocketHandler, ApiTokenAuthenticationFilter apiTokenAuthenticationFilter) {
 		this.userDetailsService = userDetailsService;
 		this.sessionWebSocketHandler = sessionWebSocketHandler;
+		this.apiTokenAuthenticationFilter = apiTokenAuthenticationFilter;
 	}
 
 	@Bean
@@ -53,6 +56,8 @@ public class SecurityConfiguration {
 				.successHandler(noOpHandler)
 				.and()
 				.logout().logoutUrl("/api/session/logout").logoutSuccessHandler(new RestLogoutSuccessHandler(sessionWebSocketHandler));
+
+		http.addFilterBefore(apiTokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.httpBasic().and()
 				.build();

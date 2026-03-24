@@ -387,6 +387,31 @@
           "title": "Soll Ihr Account gelöscht werden?",
           "message": "Bitte bestätigen Sie das Löschen Ihres Accounts. Diese Aktion kann nicht rückgängig gemacht werden.",
           "okButtonText": "Löschen"
+        },
+        "apiTokens": {
+          "title": "API-Tokens",
+          "create": "Token erstellen",
+          "createTitle": "API-Token erstellen",
+          "tokenName": "Token-Name",
+          "expiresAt": "Gültig bis",
+          "expiresAtHint": "Leer lassen für unbegrenzte Gültigkeit",
+          "noTokens": "Noch keine API-Tokens erstellt.",
+          "columnName": "Name",
+          "columnCreated": "Erstellt",
+          "columnExpires": "Gültig bis",
+          "columnLastUsed": "Zuletzt verwendet",
+          "never": "Nie",
+          "neverUsed": "Nie",
+          "delete": "Löschen",
+          "deleteTitle": "API-Token löschen?",
+          "deleteMessage": "Sind Sie sicher, dass Sie den Token \"{{name}}\" löschen möchten? Alle Anwendungen, die diesen Token verwenden, verlieren den Zugriff.",
+          "deleteConfirm": "Löschen",
+          "deleted": "Token gelöscht",
+          "yourToken": "Ihr API-Token",
+          "tokenWarning": "Kopieren Sie den Token jetzt. Er wird nicht erneut angezeigt!",
+          "copy": "In Zwischenablage kopieren",
+          "copied": "Token in Zwischenablage kopiert",
+          "createError": "Token konnte nicht erstellt werden"
         }
       }
     }
