@@ -1,39 +1,274 @@
-@use '@angular/material' as mat;
-@import "src/styles/mixins";
+$ease: cubic-bezier(.2, .8, .2, 1);
 
-.login {
-  .o-neko-logo {
-    z-index: 1000;
-    img {
-      max-width: 280px;
-      display: block;
-      margin: 4em auto 2em;
-      transition: all ease 0.8s;
-    }
-    &.rotate {
-      img {
-        transform: scale(2);
-      }
+login {
+  .login-page {
+    --accent: #ff8a00;
+    --accent-grad: linear-gradient(135deg, #ffdd00, #ff6200);
+    --pink: #ff4066;
+    --blue: #2f9dff;
+
+    display: flex;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Grotesk Variable', sans-serif;
+
+    &.exiting {
+      animation: on-login-out .45s ease both;
     }
   }
-  .login-form {
+
+  .brand-panel {
+    flex: 1.25;
     position: relative;
-    h1 {
-      text-align: center;
-      font-weight: 500;
-      font-family: "Varela Round", sans-serif;
-      font-size: 36px;
-      mix-blend-mode: overlay;
-    }
-    border-radius: $mat-radius * 2;
-    padding: 2em;
-    min-width: 280px;
-    @include mat.elevation(4);
+    overflow: hidden;
+    min-width: 0;
+    background: linear-gradient(165deg, #13151e 0%, #191424 55%, #1e1520 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 36px;
 
-    mat-form-field {
-      .mat-form-field-outline {
-        border-radius: 5px;
+    .ambient {
+      position: absolute;
+      transform: rotate(45deg);
+    }
+
+    .shape-1 { left: 12%; top: 18%; width: 22px; height: 22px; background: var(--pink); opacity: .28; animation: on-floaty 7s ease-in-out infinite; }
+    .shape-2 { right: 16%; top: 12%; width: 14px; height: 14px; background: var(--blue); opacity: .3; animation: on-floaty 5.5s ease-in-out 1s infinite; }
+    .shape-3 { left: 20%; bottom: 16%; width: 30px; height: 30px; border: 2px solid var(--accent); opacity: .22; animation: on-floaty 8s ease-in-out .5s infinite; }
+    .shape-4 { right: 12%; bottom: 26%; width: 18px; height: 18px; background: var(--accent); opacity: .2; animation: on-floaty 6.2s ease-in-out 2s infinite; }
+    .shape-5 { left: 45%; top: 8%; width: 10px; height: 10px; background: #ffdd00; opacity: .25; animation: on-floaty 5s ease-in-out 1.6s infinite; }
+  }
+
+  // The logo parts animate via the styles embedded in oneko-animated.svg.
+  .logo-wrap {
+    width: min(300px, 40vw);
+    animation: on-floaty 6s ease-in-out 1.6s infinite;
+
+    img {
+      width: 100%;
+      height: auto;
+      display: block;
+      filter: drop-shadow(0 18px 40px rgba(255, 98, 0, .25));
+    }
+  }
+
+  .brand-text {
+    text-align: center;
+    position: relative;
+    animation: on-fade-up .6s .9s $ease both;
+
+    .wordmark {
+      font-size: 34px;
+      font-weight: 700;
+      letter-spacing: .22em;
+      margin-left: .22em;
+      color: #f2f3f7;
+    }
+
+    .tagline {
+      margin-top: 10px;
+      font-size: 15px;
+      color: #9aa0b4;
+      max-width: 340px;
+      line-height: 1.5;
+    }
+  }
+
+  .brand-footer {
+    position: absolute;
+    bottom: 24px;
+    font-size: 12px;
+    color: #565c70;
+    font-family: 'JetBrains Mono Variable', monospace;
+  }
+
+  .form-panel {
+    width: clamp(380px, 36vw, 520px);
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px;
+    position: relative;
+    box-sizing: border-box;
+  }
+
+  .panel-controls {
+    position: absolute;
+    top: 22px;
+    right: 22px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+
+    .lang-switch {
+      display: flex;
+      align-items: center;
+      height: 32px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+
+      button {
+        border: none;
+        height: 32px;
+        padding: 0 12px;
+        background: transparent;
+        color: var(--muted);
+        font-size: 11.5px;
+        font-weight: 700;
+        font-family: inherit;
+        letter-spacing: .05em;
+        cursor: pointer;
+
+        &.active {
+          background: var(--surface2);
+          color: var(--text);
+        }
+      }
+    }
+
+    .theme-toggle {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      display: grid;
+      place-items: center;
+      padding: 0;
+      cursor: pointer;
+
+      &:hover {
+        border-color: var(--accent);
+        color: var(--accent);
       }
     }
   }
+
+  .login-form {
+    width: 100%;
+    max-width: 330px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+
+    .form-heading {
+      animation: on-fade-up .55s .25s $ease both;
+
+      h1 {
+        margin: 0;
+        font-size: 26px;
+        font-weight: 700;
+        font-family: inherit;
+      }
+
+      p {
+        margin: 6px 0 0;
+        font-size: 14px;
+        color: var(--muted);
+      }
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+
+      span {
+        font-size: 12.5px;
+        font-weight: 600;
+        color: var(--muted);
+        letter-spacing: .04em;
+        text-transform: uppercase;
+      }
+
+      input {
+        height: 46px;
+        border-radius: 10px;
+        border: 1.5px solid var(--border);
+        background: var(--input-bg);
+        color: var(--text);
+        padding: 0 14px;
+        font-size: 15px;
+        font-family: inherit;
+        transition: border-color .2s;
+
+        &:focus {
+          outline: none;
+          border-color: var(--accent);
+        }
+      }
+    }
+
+    .field-username { animation: on-fade-up .55s .38s $ease both; }
+    .field-password { animation: on-fade-up .55s .51s $ease both; }
+
+    button[type="submit"] {
+      height: 48px;
+      border: none;
+      border-radius: 10px;
+      background: var(--accent-grad);
+      color: #241300;
+      font-size: 15.5px;
+      font-weight: 700;
+      font-family: inherit;
+      letter-spacing: .02em;
+      margin-top: 6px;
+      cursor: pointer;
+      animation: on-fade-up .55s .64s $ease both;
+      transition: transform .15s ease, box-shadow .2s ease;
+
+      &:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 22px rgba(255, 98, 0, .35);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+
+      &:disabled {
+        cursor: default;
+      }
+    }
+  }
+
+  @media (max-width: 720px) {
+    .brand-panel {
+      display: none;
+    }
+
+    .form-panel {
+      width: 100%;
+      border-left: none;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  login .login-page,
+  login .login-page * {
+    animation: none !important;
+  }
+}
+
+@keyframes on-fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes on-floaty {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+// Duration must stay below LoginComponent.EXIT_NAVIGATION_DELAY_MS.
+@keyframes on-login-out {
+  to { opacity: 0; transform: scale(.985); }
 }

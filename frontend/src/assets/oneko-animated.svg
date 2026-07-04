@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 450 468">
+  <style>
+    .part {
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+    .head { animation: head-in .7s cubic-bezier(.2, .8, .2, 1) both; }
+    .brow-left { animation: part-in .55s .4s cubic-bezier(.2, .8, .2, 1) both; }
+    .brow-bar { animation: part-in .6s .55s cubic-bezier(.2, .8, .2, 1) both; }
+    .brow-right { animation: part-in .55s .47s cubic-bezier(.2, .8, .2, 1) both; }
+    .eye-left { animation: part-in .5s .7s cubic-bezier(.2, .8, .2, 1) both, blink 5s ease-in-out 2.4s infinite; }
+    .eye-right { animation: part-in .5s .78s cubic-bezier(.2, .8, .2, 1) both, blink 5s ease-in-out 2.4s infinite; }
+
+    @keyframes head-in {
+      from { opacity: 0; transform: scale(.65); }
+      to { opacity: 1; transform: none; }
+    }
+    @keyframes part-in {
+      from { opacity: 0; transform: translateY(-34px) scale(.5) rotate(-10deg); }
+      to { opacity: 1; transform: none; }
+    }
+    @keyframes blink {
+      0%, 90%, 100% { transform: scaleY(1); }
+      94% { transform: scaleY(.08); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .part { animation: none !important; }
+    }
+  </style>
+  <defs>
+    <linearGradient id="grad-brow-left" x1="122" y1="195" x2="148" y2="169" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#e00043"/><stop offset="1" stop-color="#ff4066"/></linearGradient>
+    <linearGradient id="grad-brow-bar" x1="192.25" y1="194.25" x2="257.75" y2="128.75" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#e00043"/><stop offset="1" stop-color="#ff4066"/></linearGradient>
+    <linearGradient id="grad-brow-right" x1="302" y1="195" x2="328" y2="169" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#e00043"/><stop offset="1" stop-color="#ff4066"/></linearGradient>
+    <linearGradient id="grad-eye-left" x1="124.75" y1="249.75" x2="145.25" y2="229.25" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#0069e9"/><stop offset="1" stop-color="#00eaff"/></linearGradient>
+    <linearGradient id="grad-eye-right" x1="304.75" y1="249.75" x2="325.25" y2="229.25" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#0069e9"/><stop offset="1" stop-color="#00eaff"/></linearGradient>
+    <linearGradient id="grad-head" x1="121" y1="353" x2="449" y2="25" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fd0"/><stop offset="1" stop-color="#ff6200"/></linearGradient>
+  </defs>
+  <polygon class="part brow-left" fill="url(#grad-brow-left)" points="120 182 135 208 150 182 135 156 120 182"/>
+  <polygon class="part brow-bar" fill="url(#grad-brow-bar)" points="225 156 195 156 165 156 180 182 210 182 240 182 270 182 285 156 255 156 225 156"/>
+  <polygon class="part brow-right" fill="url(#grad-brow-right)" points="315 156 300 182 315 208 330 182 315 156"/>
+  <polygon class="part eye-left" fill="url(#grad-eye-left)" points="135 260 150 234 120 234 135 260"/>
+  <polygon class="part eye-right" fill="url(#grad-eye-right)" points="300 234 315 260 330 234 300 234"/>
+  <g class="part head">
+    <path fill="url(#grad-head)" d="M465,104l15-26L465,52,450,26,435,52,420,78l-15,26-15,26-15,26,15,26-15,26h60l-15,26-15,26H375l-15,26-15-26-15-26,15-26h30l-15-26,15-26-15-26H210l-15,26,15,26-15,26h30l15,26-15,26-15,26-15-26H165l-15-26-15-26h60l-15-26,15-26-15-26-15-26L150,78,135,52,120,26,105,52,90,78l15,26L90,130l15,26L90,182h30l-15,26,15,26-15,26,15,26,15,26,15,26,15,26,15,26,15,26,15,26H360l15-26,15-26,15-26,15-26,15-26,15-26,15-26-15-26,15-26-15-26h30l-15-26,15-26ZM285,364l-15-26-15-26h60l-15,26-15,26,15,26H270ZM225,156H345l-15,26H240Z" transform="translate(-60)"/>
+    <path fill="#000000" d="M495,104l15-26L495,52,480,26,465,0H435L420,26,405,52,390,78l-15,26H195L180,78,165,52,150,26,135,0H105L90,26,75,52,60,78l15,26L60,130l15,26L60,182l15,26,15,26L75,260l15,26,15,26,15,26,15,26,15,26,15,26,15,26,15,26H375l15-26,15-26,15-26,15-26,15-26,15-26,15-26,15-26-15-26,15-26,15-26-15-26,15-26Zm-30,52,15,26H450l15,26-15,26,15,26-15,26-15,26-15,26-15,26-15,26-15,26-15,26H210l-15-26-15-26-15-26-15-26-15-26-15-26-15-26,15-26-15-26,15-26H90l15-26L90,130l15-26L90,78l15-26,15-26,15,26,15,26,15,26,15,26,15,26,15-26H360l15,26,15-26,15-26,15-26,15-26,15-26,15,26,15,26-15,26,15,26Z" transform="translate(-60)"/>
+    <polygon fill="#000000" points="135 208 105 208 75 208 90 234 120 234 150 234 165 260 180 234 165 208 135 208"/>
+    <polygon fill="#000000" points="315 208 285 208 270 234 285 260 300 234 330 234 360 234 375 208 345 208 315 208"/>
+    <polygon fill="#000000" points="195 312 210 338 225 364 240 338 255 312 225 312 195 312"/>
+    <polygon fill="#000000" points="240 390 225 364 210 390 240 390"/>
+    <polygon fill="#ffffff" points="315 260 300 234 285 260 300 286 315 260"/>
+    <polygon fill="#ffffff" points="165 260 150 234 135 260 150 286 165 260"/>
+    <polygon fill="#ffffff" points="360 234 330 234 315 260 345 260 360 234"/>
+    <polygon fill="#ffffff" points="135 260 120 234 90 234 105 260 135 260"/>
+  </g>
+</svg>

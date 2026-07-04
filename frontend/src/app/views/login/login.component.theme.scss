@@ -1,39 +1,23 @@
-@use '@angular/material' as mat;
-@import "src/styles/mixins";
-
 @mixin login-component-theme($theme) {
-  $primary: map-get($theme, primary);
-  $accent: map-get($theme, accent);
-  $background: map-get($theme, background);
   $isDark: map-get($theme, is-dark);
 
-  login {
-    .o-neko-logo {
-      filter: drop-shadow(1px 2px 2px rgba(black, .36));
-    }
-
-    .login {
-      .login-form {
-        h1 {
-          color: white;
-        }
-
-        background: linear-gradient(225deg, mat.get-color-from-palette($primary, 700) 0%, mat.get-color-from-palette($accent, 900) 100%);
-
-        button {
-          @if ($isDark) {
-            color: white;
-          } @else {
-            color: mat.get-color-from-palette($primary);
-          }
-        }
-
-        mat-form-field {
-          .mat-form-field-outline {
-            background: map-get($background, background) !important;
-          }
-        }
-      }
+  login .login-page {
+    @if $isDark {
+      --bg: #101218;
+      --surface: #1a1d29;
+      --surface2: #212536;
+      --border: rgba(255, 255, 255, .08);
+      --text: #edeef2;
+      --muted: #9297a8;
+      --input-bg: #12141d;
+    } @else {
+      --bg: #f4f3ef;
+      --surface: #ffffff;
+      --surface2: #f7f6f1;
+      --border: rgba(22, 24, 38, .1);
+      --text: #1b1d27;
+      --muted: #676c7e;
+      --input-bg: #f1f0eb;
     }
   }
 }
