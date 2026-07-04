@@ -1,28 +1,52 @@
-<div fxLayout="column" fxFlexFill>
-  <div class="login" fxLayoutAlign="center top" fxLayout="row">
-    <div fxFlex="0 1 520px">
-      <div class="o-neko-logo" [class.rotate]="loggingIn">
-        <img src="../../../assets/oneko.svg"/>
-      </div>
-      <div class="login-form" fxLayout="column" (keydown.enter)="login()">
-        <h1>O-NEKO</h1>
+<div class="login-page" [class.exiting]="exiting">
+  <div class="brand-panel">
+    <div class="ambient shape-1" aria-hidden="true"></div>
+    <div class="ambient shape-2" aria-hidden="true"></div>
+    <div class="ambient shape-3" aria-hidden="true"></div>
+    <div class="ambient shape-4" aria-hidden="true"></div>
+    <div class="ambient shape-5" aria-hidden="true"></div>
 
-        <mat-form-field appearance="outline" color="warn">
-          <input matInput [(ngModel)]="username" [placeholder]="'general.username' | translate"/>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" color="warn">
-          <input type="password" [(ngModel)]="password" matInput [placeholder]="'general.password' | translate" />
-        </mat-form-field>
-
-        <button mat-raised-button (click)="login()">{{'views.login.doLogin' | translate}}</button>
-      </div>
-      <div fxLayout="row" fxLayoutAlign="end">
-        <on-i18n-switcher></on-i18n-switcher>
-        <on-theme-switcher></on-theme-switcher>
-      </div>
+    <div class="logo-wrap" aria-hidden="true">
+      <img src="/assets/oneko-animated.svg" alt=""/>
     </div>
+
+    <div class="brand-text">
+      <div class="wordmark">O-NEKO</div>
+      <div class="tagline">{{'views.login.tagline1' | translate}}<br>{{'views.login.tagline2' | translate}}</div>
+    </div>
+
+    <div class="brand-footer">open source · apache-2.0</div>
   </div>
-  <div fxFlex="shrink"><!--push footer to the bottom--></div>
-  <on-footer></on-footer>
+
+  <div class="form-panel">
+    <div class="panel-controls">
+      <div class="lang-switch">
+        <button type="button" [class.active]="(locale$ | async) === 'en'" (click)="setLocale('en')">EN</button>
+        <button type="button" [class.active]="(locale$ | async) === 'de'" (click)="setLocale('de')">DE</button>
+      </div>
+      <button type="button" class="theme-toggle" (click)="toggleTheme()" [title]="'views.login.switchTheme' | translate">
+        <svg *ngIf="isDarkMode$ | async" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M19.4 4.6l-2.1 2.1M6.7 17.3l-2.1 2.1"/></svg>
+        <svg *ngIf="(isDarkMode$ | async) === false" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M20.5 14.5A8.5 8.5 0 1 1 9.5 3.5a7 7 0 0 0 11 11z"/></svg>
+      </button>
+    </div>
+
+    <form class="login-form" (ngSubmit)="login()">
+      <div class="form-heading">
+        <h1>{{'views.login.welcome' | translate}}</h1>
+        <p>{{'views.login.subtitle' | translate}}</p>
+      </div>
+
+      <label class="field field-username">
+        <span>{{'general.username' | translate}}</span>
+        <input name="username" [(ngModel)]="username" autocomplete="username" placeholder="username" autofocus/>
+      </label>
+
+      <label class="field field-password">
+        <span>{{'general.password' | translate}}</span>
+        <input type="password" name="password" [(ngModel)]="password" autocomplete="current-password" placeholder="••••••••"/>
+      </label>
+
+      <button type="submit" [disabled]="loggingIn">{{(loggingIn ? 'views.login.signingIn' : 'views.login.doLogin') | translate}}</button>
+    </form>
+  </div>
 </div>

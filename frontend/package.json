@@ -26,6 +26,7 @@
     "@angular/platform-browser-dynamic": "16.2.8",
     "@angular/router": "16.2.8",
     "@fontsource-variable/jetbrains-mono": "5.0.16",
+    "@fontsource-variable/space-grotesk": "^5.2.10",
     "@fontsource/barlow": "^5.0.8",
     "@fontsource/varela-round": "^5.0.8",
     "@mdi/svg": "7.3.67",

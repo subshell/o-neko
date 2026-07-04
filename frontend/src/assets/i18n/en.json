@@ -37,7 +37,13 @@
   },
   "views": {
     "login": {
-      "doLogin": "Login"
+      "doLogin": "Sign in",
+      "signingIn": "Signing in…",
+      "switchTheme": "Switch theme",
+      "welcome": "Welcome back",
+      "subtitle": "Sign in to manage your deployments.",
+      "tagline1": "On-demand preview environments,",
+      "tagline2": "native to your Kubernetes cluster."
     },
     "logs": {
       "activityLog": "Event Log"

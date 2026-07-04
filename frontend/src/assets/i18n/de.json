@@ -37,7 +37,13 @@
   },
   "views": {
     "login": {
-      "doLogin": "Einloggen"
+      "doLogin": "Anmelden",
+      "signingIn": "Anmeldung…",
+      "switchTheme": "Theme wechseln",
+      "welcome": "Willkommen zurück",
+      "subtitle": "Melde dich an, um deine Deployments zu verwalten.",
+      "tagline1": "On-Demand-Preview-Umgebungen,",
+      "tagline2": "nativ in deinem Kubernetes-Cluster."
     },
     "logs": {
       "activityLog": "Ereignisse"
