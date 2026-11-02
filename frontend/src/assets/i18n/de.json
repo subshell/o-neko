@@ -106,7 +106,7 @@
       "chartRegistry": "Chart Registry",
       "chartName": "Chartname",
       "ociChartPath": "Chart-Pfad (relativ zur Registry-URL)",
-      "ociChartLookup": "Versionen suchen",
+      "ociChartFound": "Helm Chart unter diesem Pfad gefunden",
       "ociChartNotFound": "Unter diesem Pfad wurde kein Helm Chart gefunden",
       "chartVersion": "Chartversion",
       "chartVersionPlaceholder": "Leer lassen für die neueste Version",

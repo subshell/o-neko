@@ -1,5 +1,4 @@
 import {Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation} from '@angular/core';
-import {HttpErrorResponse} from '@angular/common/http';
 import {UntypedFormControl, NG_VALUE_ACCESSOR} from '@angular/forms';
 import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
 import {MatLegacySnackBar as MatSnackBar} from '@angular/material/legacy-snack-bar';
@@ -9,7 +8,8 @@ import {ConfigurationTemplate} from '../configuration-template';
 import {EditConfigurationTemplateDialogComponent} from './edit-configuration-template-dialog/edit-configuration-template-dialog.component';
 import {Select, Store} from "@ngxs/store";
 import {ThemingState} from "../../store/theming/theming.state";
-import {Observable} from "rxjs";
+import {Observable, of} from "rxjs";
+import {catchError, debounceTime, distinctUntilChanged, map, switchMap} from "rxjs/operators";
 import {FileDownloadService} from '../../util/file-download.service';
 import {TranslateService} from "@ngx-translate/core";
 import {RestService} from "../../rest/rest.service";
@@ -93,8 +93,9 @@ export class TemplateEditorComponent implements OnInit {
   public registryByRegistryId: {[id: string]: HelmRegistry} = {};
   public chartRegistries: Observable<Array<HelmRegistry>>;
   public chartsByRegistry: {[registry: string]: HelmCharts} = {};
-  public ociChartPathInput: string = '';
-  public ociChartLookupError: string | null = null;
+  public ociChartPathControl = new UntypedFormControl('');
+  public ociChartLookupStatus: 'found' | 'not-found' = 'not-found';
+  public chartNameFocused: boolean;
 
   public editorOptions: any = {
     theme: 'vs-light',
@@ -152,6 +153,38 @@ export class TemplateEditorComponent implements OnInit {
       };
     });
     this.chartRegistries = this.rest.helm().getAllHelmRegistries();
+
+    this.ociChartPathControl.valueChanges.pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      switchMap((chartPath: string) => {
+        const registry = this.currentRegistry;
+        const trimmedChartPath = chartPath?.trim();
+        if (!registry || !trimmedChartPath) {
+          return of(null);
+        }
+
+        return this.rest.helm().lookupOciChartVersions(registry, trimmedChartPath).pipe(
+          map(versions => ({registry, chartPath: trimmedChartPath, versions})),
+          catchError(() => of({registry, chartPath: trimmedChartPath, versions: null}))
+        );
+      })
+    ).subscribe(result => {
+      if (!result || !result.versions?.length) {
+        if (result) {
+          this.ociChartLookupStatus = 'not-found';
+        }
+        return;
+      }
+
+      this.ociChartLookupStatus = 'found';
+      const chartReference = `${result.registry.url.replace(/\/+$/, '')}/${result.chartPath}`; // strip trailing slashes
+      const existingCharts = this.chartsByRegistry[result.registry.id] || {registryId: result.registry.id, charts: {}};
+      this.chartsByRegistry[result.registry.id] = {...existingCharts, charts: {...existingCharts.charts, [chartReference]: result.versions}};
+
+      this.currentTemplateModel.effectiveTemplate.chartName = chartReference;
+      this.helmChartSettingsChanged();
+    });
   }
 
   ngOnInit(): void {
@@ -190,39 +223,6 @@ export class TemplateEditorComponent implements OnInit {
   public removeRegistryPart(chartName: string): string {
     const parts = chartName.split('/');
     return parts[parts.length - 1];
-  }
-
-  /**
-   * Fallback for OCI registries whose catalog endpoint isn't supported (e.g. Docker Hub, GHCR, ECR) and therefore
-   * don't show up in `currentHelmChartNames`: looks up the versions of a single, already known chart by its path
-   * relative to the registry's URL.
-   */
-  public lookupOciChart(): void {
-    const registry = this.currentRegistry;
-    const chartPath = this.ociChartPathInput?.trim();
-    if (!registry || !chartPath) {
-      return;
-    }
-
-    this.ociChartLookupError = null;
-    this.rest.helm().lookupOciChartVersions(registry, chartPath).subscribe({
-      next: versions => {
-        if (!versions || !versions.length) {
-          this.ociChartLookupError = this.translate.instant('components.templateEditor.ociChartNotFound');
-          return;
-        }
-
-        const chartReference = `${registry.url.replace(/\/+$/, '')}/${chartPath}`;
-        const existingCharts = this.chartsByRegistry[registry.id] || {registryId: registry.id, charts: {}};
-        this.chartsByRegistry[registry.id] = {...existingCharts, charts: {...existingCharts.charts, [chartReference]: versions}};
-
-        this.currentTemplateModel.effectiveTemplate.chartName = chartReference;
-        this.helmChartSettingsChanged();
-      },
-      error: (err: HttpErrorResponse) => {
-        this.ociChartLookupError = err.error?.message || this.translate.instant('components.templateEditor.ociChartNotFound');
-      }
-    });
   }
 
   public async onConfigUpload($event: FileList | File[]) {

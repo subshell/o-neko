@@ -58,20 +58,26 @@
         <mat-option *ngFor="let registry of (chartRegistries | async)" [value]="registry.id">{{ registry.name }}</mat-option>
       </mat-select>
     </mat-form-field>
-    <mat-form-field *ngIf="!currentRegistryIsOci || currentHelmChartNames.length > 0">
+    <mat-form-field *ngIf="!currentRegistryIsOci">
       <mat-label>{{'components.templateEditor.chartName' | translate}}</mat-label>
       <mat-select [disabled]="!currentTemplateModel.effectiveTemplate.helmRegistryId" required [(ngModel)]="currentTemplateModel.effectiveTemplate.chartName" (ngModelChange)="helmChartSettingsChanged()">
         <mat-option *ngFor="let chartName of currentHelmChartNames" [value]="chartName">{{ removeRegistryPart(chartName) }}</mat-option>
       </mat-select>
     </mat-form-field>
-    <mat-form-field *ngIf="currentRegistryIsOci && currentHelmChartNames.length === 0">
+    <mat-form-field class="oci-chart-path-field" *ngIf="currentRegistryIsOci" (focusin)="chartNameFocused = true" (focusout)="chartNameFocused = false">
       <mat-label>{{'components.templateEditor.ociChartPath' | translate}}</mat-label>
-      <input matInput [(ngModel)]="ociChartPathInput" (keyup.enter)="lookupOciChart()" [placeholder]="(currentRegistry?.url || '') + '/...'">
-      <button mat-icon-button matSuffix type="button" [disabled]="!ociChartPathInput" (click)="lookupOciChart()" [matTooltip]="'components.templateEditor.ociChartLookup' | translate">
-        <mat-icon svgIcon="mdi:magnify"></mat-icon>
-      </button>
+      <input matInput [formControl]="ociChartPathControl" [placeholder]="(currentRegistry?.url || '') + '/...'">
+      <div matSuffix class="oci-chart-status" fxLayout="row" fxLayoutAlign="center center">
+        <mat-icon
+          *ngIf="ociChartLookupStatus === 'found' && chartNameFocused" svgIcon="mdi:check-circle" class="oci-chart-found-icon"
+          [matTooltip]="'components.templateEditor.ociChartFound' | translate">
+        </mat-icon>
+        <mat-icon
+          *ngIf="ociChartLookupStatus === 'not-found' && chartNameFocused" svgIcon="mdi:close-circle" class="oci-chart-not-found-icon"
+          [matTooltip]="'components.templateEditor.ociChartNotFound' | translate">
+        </mat-icon>
+      </div>
       <mat-hint *ngIf="currentTemplateModel.effectiveTemplate.chartName">{{currentTemplateModel.effectiveTemplate.chartName}}</mat-hint>
-      <mat-error *ngIf="ociChartLookupError">{{ociChartLookupError}}</mat-error>
     </mat-form-field>
     <mat-form-field>
       <mat-label>{{'components.templateEditor.chartVersionPlaceholder' | translate}}</mat-label>

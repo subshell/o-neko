@@ -20,6 +20,23 @@
 
   .helm-chart-controls {
     margin: 8px auto;
+
+    .oci-chart-path-field .mat-form-field-suffix {
+      align-self: flex-end;
+    }
+
+    .oci-chart-status {
+      width: 24px;
+      height: 24px;
+    }
+
+    .oci-chart-found-icon {
+      color: #4caf50;
+    }
+
+    .oci-chart-not-found-icon {
+      color: #f44336;
+    }
   }
 
   .code-editor-wrapper {
