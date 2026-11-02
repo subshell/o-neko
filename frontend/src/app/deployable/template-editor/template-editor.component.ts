@@ -1,4 +1,5 @@
 import {Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation} from '@angular/core';
+import {HttpErrorResponse} from '@angular/common/http';
 import {UntypedFormControl, NG_VALUE_ACCESSOR} from '@angular/forms';
 import {MatLegacyDialog as MatDialog} from '@angular/material/legacy-dialog';
 import {MatLegacySnackBar as MatSnackBar} from '@angular/material/legacy-snack-bar';
@@ -89,9 +90,11 @@ export class TemplateEditorComponent implements OnInit {
 
   @Select(ThemingState.isDarkMode) isDarkTheme$: Observable<boolean>;
 
-  public registryNameByRegistryId: {[name: string]: string} = {};
+  public registryByRegistryId: {[id: string]: HelmRegistry} = {};
   public chartRegistries: Observable<Array<HelmRegistry>>;
   public chartsByRegistry: {[registry: string]: HelmCharts} = {};
+  public ociChartPathInput: string = '';
+  public ociChartLookupError: string | null = null;
 
   public editorOptions: any = {
     theme: 'vs-light',
@@ -112,6 +115,14 @@ export class TemplateEditorComponent implements OnInit {
 
   public get currentHelmCharts(): HelmCharts {
     return this.chartsByRegistry[this.currentTemplateModel.effectiveTemplate.helmRegistryId];
+  }
+
+  public get currentRegistry(): HelmRegistry {
+    return this.registryByRegistryId[this.currentTemplateModel?.effectiveTemplate.helmRegistryId];
+  }
+
+  public get currentRegistryIsOci(): boolean {
+    return !!this.currentRegistry?.ociRegistry;
   }
 
   public get currentHelmChartNames(): Array<string> {
@@ -168,16 +179,50 @@ export class TemplateEditorComponent implements OnInit {
   private loadHelmCharts() {
     this.chartRegistries.subscribe(registries => {
       registries.forEach(registry => {
+        this.registryByRegistryId[registry.getId()] = registry;
         this.rest.helm().getHelmChartsByRegistry(registry).subscribe(charts => {
           this.chartsByRegistry[registry.getId()] = charts;
-          this.registryNameByRegistryId[registry.getId()] = registry.name;
         });
       });
     })
   }
 
-  public removeRegistryPart(chartName: string) {
-    return chartName.substr(this.registryNameByRegistryId[this.currentHelmCharts.registryId].length + 1, chartName.length);
+  public removeRegistryPart(chartName: string): string {
+    const parts = chartName.split('/');
+    return parts[parts.length - 1];
+  }
+
+  /**
+   * Fallback for OCI registries whose catalog endpoint isn't supported (e.g. Docker Hub, GHCR, ECR) and therefore
+   * don't show up in `currentHelmChartNames`: looks up the versions of a single, already known chart by its path
+   * relative to the registry's URL.
+   */
+  public lookupOciChart(): void {
+    const registry = this.currentRegistry;
+    const chartPath = this.ociChartPathInput?.trim();
+    if (!registry || !chartPath) {
+      return;
+    }
+
+    this.ociChartLookupError = null;
+    this.rest.helm().lookupOciChartVersions(registry, chartPath).subscribe({
+      next: versions => {
+        if (!versions || !versions.length) {
+          this.ociChartLookupError = this.translate.instant('components.templateEditor.ociChartNotFound');
+          return;
+        }
+
+        const chartReference = `${registry.url.replace(/\/+$/, '')}/${chartPath}`;
+        const existingCharts = this.chartsByRegistry[registry.id] || {registryId: registry.id, charts: {}};
+        this.chartsByRegistry[registry.id] = {...existingCharts, charts: {...existingCharts.charts, [chartReference]: versions}};
+
+        this.currentTemplateModel.effectiveTemplate.chartName = chartReference;
+        this.helmChartSettingsChanged();
+      },
+      error: (err: HttpErrorResponse) => {
+        this.ociChartLookupError = err.error?.message || this.translate.instant('components.templateEditor.ociChartNotFound');
+      }
+    });
   }
 
   public async onConfigUpload($event: FileList | File[]) {
