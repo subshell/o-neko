@@ -14,6 +14,7 @@ import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import io.oneko.helmapi.api.Helm;
+import io.oneko.helmapi.api.OciRegistryUrl;
 import io.oneko.helmapi.model.Chart;
 import io.oneko.helmapi.model.InstallStatus;
 import io.oneko.helmapi.model.Release;
@@ -135,7 +136,11 @@ public class HelmCommands {
 			List<InstallStatus> result = new ArrayList<>();
 			for (int i = 0; i < calculatedConfigurationTemplates.size(); i++) {
 				WritableConfigurationTemplate template = calculatedConfigurationTemplates.get(i);
-				result.add(helm.install(getReleaseName(projectVersion, i), template.getChartName(), template.getChartVersion(), Values.fromYamlString(template.getContent()), projectVersion.getNamespaceOrElseFromProject(), false, wait));
+				boolean plainHttp = helmRegistryRepository.getById(template.getHelmRegistryId())
+						.filter(HelmRegistry::isOCIRegistry)
+						.map(registry -> OciRegistryUrl.resolve(registry.getUrl()).plainHttp())
+						.orElse(false);
+				result.add(helm.install(getReleaseName(projectVersion, i), template.getChartName(), template.getChartVersion(), Values.fromYamlString(template.getContent()), projectVersion.getNamespaceOrElseFromProject(), false, wait, plainHttp));
 			}
 			sample.stop(installTimer);
 			return result;

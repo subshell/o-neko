@@ -18,14 +18,14 @@ public interface Helm3API {
 	}
 
 	default InstallStatus install(String name, String chart, Values values, String namespace) {
-		return install(name, chart, null, values, namespace, false, false);
+		return install(name, chart, null, values, namespace, false, false, false);
 	}
 
 	default InstallStatus install(String name, File pathToChartDirectory, Values values, String namespace, boolean dryRun) {
-		return install(name, pathToChartDirectory.getAbsolutePath(), null, values, namespace, dryRun, false);
+		return install(name, pathToChartDirectory.getAbsolutePath(), null, values, namespace, dryRun, false, false);
 	}
 
-	InstallStatus install(String name, String chart, String version, Values values, String namespace, boolean dryRun, boolean wait);
+	InstallStatus install(String name, String chart, String version, Values values, String namespace, boolean dryRun, boolean wait, boolean plainHttp);
 
 	// list
 	default List<Release> list() {

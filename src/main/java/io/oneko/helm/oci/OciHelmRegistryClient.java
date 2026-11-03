@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.oneko.docker.v2.AuthorizationHeader;
 import io.oneko.helm.HelmRegistry;
 import io.oneko.helm.HelmRegistryException;
+import io.oneko.helmapi.api.OciRegistryUrl;
 import io.oneko.helmapi.model.Chart;
 import lombok.extern.slf4j.Slf4j;
 
@@ -39,6 +40,7 @@ public class OciHelmRegistryClient {
 	private static final String HELM_CHART_CONFIG_MEDIA_TYPE = "application/vnd.cncf.helm.config.v1+json";
 	private static final String MANIFEST_ACCEPT_HEADER = "application/vnd.oci.image.manifest.v1+json, application/vnd.docker.distribution.manifest.v2+json";
 
+	private final String host;
 	private final String baseUrl;
 	private final String repositoryPathPrefix;
 	private final String username;
@@ -53,32 +55,10 @@ public class OciHelmRegistryClient {
 		this.username = registry.getUsername();
 		this.password = registry.getPassword();
 
-		String withoutScheme = StringUtils.removeStart(registry.getUrl(), "oci://");
-		int slashIndex = withoutScheme.indexOf('/');
-		String host = slashIndex < 0 ? withoutScheme : withoutScheme.substring(0, slashIndex);
-		this.repositoryPathPrefix = slashIndex < 0 ? "" : StringUtils.strip(withoutScheme.substring(slashIndex + 1), "/");
-		this.baseUrl = determineBaseUrl(host);
-	}
-
-	/**
-	 * Prefers https, but falls back to plain http for registries that aren't reachable via TLS at all (e.g. local
-	 * development registries), rather than failing outright.
-	 */
-	private String determineBaseUrl(String host) {
-		String httpsUrl = "https://" + host;
-		if (respondsOverHttp(httpsUrl)) {
-			return httpsUrl;
-		}
-		log.debug("OCI registry {} is not reachable via https, falling back to plain http", host);
-		return "http://" + host;
-	}
-
-	private boolean respondsOverHttp(String candidateBaseUrl) {
-		try (CloseableHttpResponse response = httpClient.execute(new HttpGet(candidateBaseUrl + "/v2/"))) {
-			return true;
-		} catch (IOException e) {
-			return false;
-		}
+		OciRegistryUrl registryUrl = OciRegistryUrl.resolve(registry.getUrl());
+		this.host = registryUrl.host();
+		this.repositoryPathPrefix = registryUrl.repositoryPathPrefix();
+		this.baseUrl = (registryUrl.plainHttp() ? "http://" : "https://") + host;
 	}
 
 	/**
@@ -122,7 +102,7 @@ public class OciHelmRegistryClient {
 	 * helm charts (e.g. container images sharing the same repository) are silently skipped.
 	 */
 	public List<Chart> listChartsIn(String repositoryPath) throws HelmRegistryException {
-		String chartReference = "oci://" + StringUtils.removeStart(baseUrl, "https://") + "/" + repositoryPath;
+		String chartReference = "oci://" + host + "/" + repositoryPath;
 		List<Chart> charts = new ArrayList<>();
 		for (String tag : getTags(repositoryPath)) {
 			try {

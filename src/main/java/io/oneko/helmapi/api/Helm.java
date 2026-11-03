@@ -62,8 +62,8 @@ public class Helm implements Helm3API {
 	 * @return
 	 */
 	@Override
-	public InstallStatus install(String name, String chart, String version, Values values, String namespace, boolean dryRun, boolean wait) {
-		final String[] command = initCommand("helm", "install")
+	public InstallStatus install(String name, String chart, String version, Values values, String namespace, boolean dryRun, boolean wait, boolean plainHttp) {
+		Command commandBuilder = initCommand("helm", "install")
 				.withArgument(name)
 				.withArgument(chart)
 				.withFlag("--version", version)
@@ -71,9 +71,11 @@ public class Helm implements Helm3API {
 				.withFlag("-f", values.getValuesFilePath().orElse(writeValuesToTemporaryFile(values, name).getAbsolutePath()))
 				.withFlag("--dry-run", dryRun)
 				.withFlag("--wait", wait)
-				.withFlag("-o", "json")
-				.build();
-		return executor.executeWithJsonOutput(InstallStatus.class, command);
+				.withFlag("-o", "json");
+		if (StringUtils.startsWith(chart, "oci://")) {
+			commandBuilder.withFlag("--plain-http", plainHttp);
+		}
+		return executor.executeWithJsonOutput(InstallStatus.class, commandBuilder.build());
 	}
 
 	@Override
@@ -116,12 +118,12 @@ public class Helm implements Helm3API {
 
 	@Override
 	public void loginToRegistry(String url, String username, String password) {
-
+		OciRegistryUrl registryUrl = OciRegistryUrl.resolve(url);
 		final String[] command = initCommand("helm", "registry", "login")
-			.withArgument(url.replaceFirst("^oci://", ""))
+			.withArgument(registryUrl.getHostAndPath())
 			.withFlag("--username", username)
 			.withFlag("--password", password)
-			.withFlag("--plain-http", true) //TODO delete
+			.withFlag("--plain-http", registryUrl.plainHttp())
 			.build();
 		var out = executor.execute(command);
 		log.info(out);
@@ -145,7 +147,7 @@ public class Helm implements Helm3API {
 	@Override
 	public void logoutFromRegistry(String url) {
 		final String[] command = initCommand("helm", "registry", "logout")
-			.withArgument(url.replaceFirst("^oci://", ""))
+			.withArgument(OciRegistryUrl.hostAndPath(url))
 			.build();
 		var out = executor.execute(command);
 		log.info(out);
