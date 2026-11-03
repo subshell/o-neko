@@ -42,8 +42,10 @@ public class HelmCommands {
 
 	private Instant lastRepoUpdate = Instant.MIN;
 
+	private final HelmRegistryRepository helmRegistryRepository;
 
-	public HelmCommands(MeterRegistry meterRegistry) {
+	public HelmCommands(MeterRegistry meterRegistry, HelmRegistryRepository helmRegistryRepository) {
+		this.helmRegistryRepository = helmRegistryRepository;
 		this.commandErrorCounter = Counter.builder(new MetricNameBuilder().amountOf("helm.command.errors").build())
 				.description("number of errors during Helm command execution")
 				.register(meterRegistry);
@@ -105,6 +107,10 @@ public class HelmCommands {
 	}
 
 	public List<Chart> getCharts(ReadableHelmRegistry helmRegistry) throws HelmRegistryException {
+		if (helmRegistry.isOCIRegistry()) {
+			return List.of();
+		}
+
 		try {
 			updateReposNotTooOften();
 			return searchRepoTimer.record(() ->
@@ -118,9 +124,14 @@ public class HelmCommands {
 
 	public List<InstallStatus> install(ProjectVersion<?, ?> projectVersion, boolean wait) throws HelmRegistryException {
 		try {
-			updateReposNotTooOften();
-			final var sample = Timer.start();
 			List<WritableConfigurationTemplate> calculatedConfigurationTemplates = projectVersion.getCalculatedConfigurationTemplates();
+			boolean usesNonOCIRegistry = calculatedConfigurationTemplates.stream()
+					.map(template -> helmRegistryRepository.getById(template.getHelmRegistryId()))
+					.anyMatch(registry -> registry.map(r -> !r.isOCIRegistry()).orElse(false));
+			if (usesNonOCIRegistry) {
+				updateReposNotTooOften();
+			}
+			final var sample = Timer.start();
 			List<InstallStatus> result = new ArrayList<>();
 			for (int i = 0; i < calculatedConfigurationTemplates.size(); i++) {
 				WritableConfigurationTemplate template = calculatedConfigurationTemplates.get(i);
