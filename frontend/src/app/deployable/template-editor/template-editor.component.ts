@@ -220,6 +220,7 @@ export class TemplateEditorComponent implements OnInit {
     })
   }
 
+  // is used to display the version after the registry part, e.g helm-charts/demo/0.1.0 -> 0.1.0
   public removeRegistryPart(chartName: string): string {
     const parts = chartName.split('/');
     return parts[parts.length - 1];
