@@ -105,7 +105,7 @@
       "overwritesInheritedConfiguration": "Das überschreibt eine geerbte Konfiguration.",
       "chartRegistry": "Chart Registry",
       "chartName": "Chartname",
-      "ociChartPath": "Chart-Pfad (relativ zur Registry-URL)",
+      "ociChartPath": "Chart-Pfad",
       "ociChartFound": "Helm Chart unter diesem Pfad gefunden",
       "ociChartNotFound": "Unter diesem Pfad wurde kein Helm Chart gefunden",
       "chartVersion": "Chartversion",

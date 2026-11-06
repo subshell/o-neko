@@ -22,6 +22,10 @@
   .helm-chart-controls {
     margin: 8px auto;
 
+    .oci-chart-path-field {
+      width: 180px;
+    }
+
     .oci-chart-path-field .mat-form-field-suffix {
       align-self: flex-end;
     }
