@@ -70,11 +70,11 @@
       <input matInput [formControl]="ociChartPathControl" [placeholder]="(currentRegistry?.url || '') + '/...'">
       <div *ngIf="chartNameFocused" matSuffix class="oci-chart-status" fxLayout="row" fxLayoutAlign="center center">
         <mat-icon
-          *ngIf="ociChartLookupStatus === 'found'" svgIcon="mdi:check-circle" class="oci-chart-found-icon"
+          *ngIf="ociChartLookupStatus === 'found'" svgIcon="mdi:check-circle" class="green"
           [matTooltip]="'components.templateEditor.ociChartFound' | translate">
         </mat-icon>
         <mat-icon
-          *ngIf="ociChartLookupStatus === 'not-found'" svgIcon="mdi:close-circle" class="oci-chart-not-found-icon"
+          *ngIf="ociChartLookupStatus === 'not-found'" svgIcon="mdi:close-circle" class="red"
           [matTooltip]="'components.templateEditor.ociChartNotFound' | translate">
         </mat-icon>
       </div>
