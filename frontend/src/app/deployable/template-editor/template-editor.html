@@ -68,13 +68,13 @@
     <mat-form-field  class="oci-chart-path-field" *ngIf="currentRegistryIsOci && currentHelmChartNames.length === 0" (focusin)="chartNameFocused = true" (focusout)="chartNameFocused = false">
       <mat-label>{{'components.templateEditor.ociChartPath' | translate}}</mat-label>
       <input matInput [formControl]="ociChartPathControl" [placeholder]="(currentRegistry?.url || '') + '/...'">
-      <div matSuffix class="oci-chart-status" fxLayout="row" fxLayoutAlign="center center">
+      <div *ngIf="chartNameFocused" matSuffix class="oci-chart-status" fxLayout="row" fxLayoutAlign="center center">
         <mat-icon
-          *ngIf="ociChartLookupStatus === 'found' && chartNameFocused" svgIcon="mdi:check-circle" class="oci-chart-found-icon"
+          *ngIf="ociChartLookupStatus === 'found'" svgIcon="mdi:check-circle" class="oci-chart-found-icon"
           [matTooltip]="'components.templateEditor.ociChartFound' | translate">
         </mat-icon>
         <mat-icon
-          *ngIf="ociChartLookupStatus === 'not-found' && chartNameFocused" svgIcon="mdi:close-circle" class="oci-chart-not-found-icon"
+          *ngIf="ociChartLookupStatus === 'not-found'" svgIcon="mdi:close-circle" class="oci-chart-not-found-icon"
           [matTooltip]="'components.templateEditor.ociChartNotFound' | translate">
         </mat-icon>
       </div>
