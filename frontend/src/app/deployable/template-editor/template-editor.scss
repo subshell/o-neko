@@ -1,3 +1,4 @@
+@use '@angular/material' as mat;
 @import "src/styles/mixins";
 
 .create-template-info {
@@ -20,6 +21,27 @@
 
   .helm-chart-controls {
     margin: 8px auto;
+
+    .oci-chart-path-field {
+      width: 180px;
+    }
+
+    .oci-chart-path-field .mat-form-field-suffix {
+      align-self: flex-end;
+    }
+
+    .oci-chart-status {
+      width: 24px;
+      height: 24px;
+    }
+
+    .green {
+      color: mat.get-color-from-palette($green-palette, 500);
+    }
+
+    .red {
+      color: mat.get-color-from-palette($red-palette, 500);
+    }
   }
 
   .code-editor-wrapper {

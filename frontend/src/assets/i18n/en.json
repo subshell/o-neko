@@ -105,6 +105,9 @@
       "overwritesInheritedConfiguration": "This overwrites an inherited configuration.",
       "chartRegistry": "Chart registry",
       "chartName": "Chart name",
+      "ociChartPath": "Chart path",
+      "ociChartFound": "Helm chart found at this path",
+      "ociChartNotFound": "No helm chart found at this path",
       "chartVersion": "Chart version",
       "chartVersionPlaceholder": "Leave blank for latest version",
       "noTemplatesAvailable": "No configuration templates.",
@@ -140,7 +143,10 @@
       "editDialog": {
         "createRegistry": "Create Helm Registry",
         "editRegistry": "Edit Helm Registry",
-        "registryHasBeenModifiedByAction": "Helm Registry {registry} has been {action, select, created{created} deleted{deleted} saved{saved} other{modified}}."
+        "registryHasBeenModifiedByAction": "Helm Registry {registry} has been {action, select, created{created} deleted{deleted} saved{saved} other{modified}}.",
+        "registryType": "Registry Type",
+        "ociRegistry": "OCI Registry",
+        "classicRegistry": "Classic Repository"
       },
       "registryUrl": "Registry URL",
       "helmRegistries": "!alias:menu.administration.helmRegistries",

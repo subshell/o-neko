@@ -12,4 +12,6 @@ public interface HelmRegistry {
 	String getUsername();
 
 	String getPassword();
+
+	boolean isOCIRegistry();
 }

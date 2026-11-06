@@ -14,6 +14,7 @@ import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import io.oneko.helmapi.api.Helm;
+import io.oneko.helmapi.api.OciRegistryUrl;
 import io.oneko.helmapi.model.Chart;
 import io.oneko.helmapi.model.InstallStatus;
 import io.oneko.helmapi.model.Release;
@@ -42,8 +43,10 @@ public class HelmCommands {
 
 	private Instant lastRepoUpdate = Instant.MIN;
 
+	private final HelmRegistryRepository helmRegistryRepository;
 
-	public HelmCommands(MeterRegistry meterRegistry) {
+	public HelmCommands(MeterRegistry meterRegistry, HelmRegistryRepository helmRegistryRepository) {
+		this.helmRegistryRepository = helmRegistryRepository;
 		this.commandErrorCounter = Counter.builder(new MetricNameBuilder().amountOf("helm.command.errors").build())
 				.description("number of errors during Helm command execution")
 				.register(meterRegistry);
@@ -66,9 +69,13 @@ public class HelmCommands {
 
 	public void addRegistry(ReadableHelmRegistry helmRegistry) throws HelmRegistryException {
 		try {
-			addRepoTimer.record(() ->
-					helm.addRepo(helmRegistry.getName(), helmRegistry.getUrl(), helmRegistry.getUsername(), helmRegistry.getPassword())
-			);
+			addRepoTimer.record(() -> {
+				if (helmRegistry.isOCIRegistry()) {
+					helm.loginToRegistry(helmRegistry.getUrl(), helmRegistry.getUsername(), helmRegistry.getPassword());
+				} else {
+					helm.addRepo(helmRegistry.getName(), helmRegistry.getUrl(), helmRegistry.getUsername(), helmRegistry.getPassword());
+				}
+			});
 		} catch (CommandException e) {
 			commandErrorCounter.increment();
 			throw HelmRegistryException.fromCommandException(e, helmRegistry.getUrl(), helmRegistry.getName());
@@ -77,9 +84,13 @@ public class HelmCommands {
 
 	public void deleteRegistry(ReadableHelmRegistry helmRegistry) throws HelmRegistryException {
 		try {
-			deleteRepoTimer.record(() ->
-					helm.removeRepo(helmRegistry.getName())
-			);
+			deleteRepoTimer.record(() -> {
+				if (helmRegistry.isOCIRegistry()) {
+					helm.logoutFromRegistry(helmRegistry.getUrl());
+				} else {
+					helm.removeRepo(helmRegistry.getName());
+				}
+			});
 		} catch (CommandException e) {
 			commandErrorCounter.increment();
 			throw HelmRegistryException.fromCommandException(e, helmRegistry.getUrl(), helmRegistry.getName());
@@ -97,6 +108,10 @@ public class HelmCommands {
 	}
 
 	public List<Chart> getCharts(ReadableHelmRegistry helmRegistry) throws HelmRegistryException {
+		if (helmRegistry.isOCIRegistry()) {
+			return List.of();
+		}
+
 		try {
 			updateReposNotTooOften();
 			return searchRepoTimer.record(() ->
@@ -110,13 +125,22 @@ public class HelmCommands {
 
 	public List<InstallStatus> install(ProjectVersion<?, ?> projectVersion, boolean wait) throws HelmRegistryException {
 		try {
-			updateReposNotTooOften();
-			final var sample = Timer.start();
 			List<WritableConfigurationTemplate> calculatedConfigurationTemplates = projectVersion.getCalculatedConfigurationTemplates();
+			boolean usesNonOCIRegistry = calculatedConfigurationTemplates.stream()
+					.map(template -> helmRegistryRepository.getById(template.getHelmRegistryId()))
+					.anyMatch(registry -> registry.map(r -> !r.isOCIRegistry()).orElse(false));
+			if (usesNonOCIRegistry) {
+				updateReposNotTooOften();
+			}
+			final var sample = Timer.start();
 			List<InstallStatus> result = new ArrayList<>();
 			for (int i = 0; i < calculatedConfigurationTemplates.size(); i++) {
 				WritableConfigurationTemplate template = calculatedConfigurationTemplates.get(i);
-				result.add(helm.install(getReleaseName(projectVersion, i), template.getChartName(), template.getChartVersion(), Values.fromYamlString(template.getContent()), projectVersion.getNamespaceOrElseFromProject(), false, wait));
+				boolean plainHttp = helmRegistryRepository.getById(template.getHelmRegistryId())
+						.filter(HelmRegistry::isOCIRegistry)
+						.map(registry -> OciRegistryUrl.resolve(registry.getUrl()).plainHttp())
+						.orElse(false);
+				result.add(helm.install(getReleaseName(projectVersion, i), template.getChartName(), template.getChartVersion(), Values.fromYamlString(template.getContent()), projectVersion.getNamespaceOrElseFromProject(), false, wait, plainHttp));
 			}
 			sample.stop(installTimer);
 			return result;

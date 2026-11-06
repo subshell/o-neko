@@ -58,12 +58,28 @@
         <mat-option *ngFor="let registry of (chartRegistries | async)" [value]="registry.id">{{ registry.name }}</mat-option>
       </mat-select>
     </mat-form-field>
-    <mat-form-field>
+    <mat-form-field *ngIf="!currentRegistryIsOci || currentHelmChartNames.length > 0; else freeTextField">
       <mat-label>{{'components.templateEditor.chartName' | translate}}</mat-label>
       <mat-select [disabled]="!currentTemplateModel.effectiveTemplate.helmRegistryId" required [(ngModel)]="currentTemplateModel.effectiveTemplate.chartName" (ngModelChange)="helmChartSettingsChanged()">
         <mat-option *ngFor="let chartName of currentHelmChartNames" [value]="chartName">{{ removeRegistryPart(chartName) }}</mat-option>
       </mat-select>
     </mat-form-field>
+    <ng-template #freeTextField>
+    <mat-form-field  class="oci-chart-path-field" *ngIf="currentRegistryIsOci && currentHelmChartNames.length === 0" (focusin)="chartNameFocused = true" (focusout)="chartNameFocused = false">
+      <mat-label>{{'components.templateEditor.ociChartPath' | translate}}</mat-label>
+      <input matInput [formControl]="ociChartPathControl" [placeholder]="(currentRegistry?.url || '') + '/...'">
+      <div *ngIf="chartNameFocused" matSuffix class="oci-chart-status" fxLayout="row" fxLayoutAlign="center center">
+        <mat-icon
+          *ngIf="ociChartLookupStatus === 'found'" svgIcon="mdi:check-circle" class="green"
+          [matTooltip]="'components.templateEditor.ociChartFound' | translate">
+        </mat-icon>
+        <mat-icon
+          *ngIf="ociChartLookupStatus === 'not-found'" svgIcon="mdi:close-circle" class="red"
+          [matTooltip]="'components.templateEditor.ociChartNotFound' | translate">
+        </mat-icon>
+      </div>
+    </mat-form-field>
+    </ng-template>
     <mat-form-field>
       <mat-label>{{'components.templateEditor.chartVersionPlaceholder' | translate}}</mat-label>
       <mat-select [disabled]="!currentTemplateModel.effectiveTemplate.chartName" [(ngModel)]="currentTemplateModel.effectiveTemplate.chartVersion" (ngModelChange)="helmChartSettingsChanged()">

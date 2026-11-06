@@ -13,7 +13,7 @@ import io.oneko.project.ProjectVersion;
 
 class HelmCommandsTest {
 
-	private HelmCommands uut = new HelmCommands(new SimpleMeterRegistry());
+	private final HelmCommands uut = new HelmCommands(new SimpleMeterRegistry(), mock(HelmRegistryRepository.class));
 
 	@Test
 	void getLongReleaseNamePrefix() {

@@ -32,6 +32,10 @@ class HelmTest {
 		tce.addDefinedCommand(helm_list, "helm list -o=json --time-format=2006-01-02T15:04:05Z07:00");
 		tce.addDefinedCommand("v3.4.2+g23dd3af", "helm version --short");
 		tce.addDefinedCommand(helm_install, "helm install ontest o-neko --namespace=deletethispls -f=" + tempFile.getAbsolutePath() + " --dry-run=false --wait=false -o=json");
+		tce.addDefinedCommand(helm_install, "helm install ontest oci://localhost:5001/charts/foo --version=1.0.0 --namespace=deletethispls -f=" + tempFile.getAbsolutePath() + " --dry-run=false --wait=false -o=json --plain-http=true");
+		tce.addDefinedCommand("login success", "helm registry login localhost:5001 --username=user --password=pass --plain-http=true");
+		tce.addDefinedCommand("login success", "helm registry login registry.example.com/path --username=user --password=pass --plain-http=false");
+		tce.addDefinedCommand("logout success", "helm registry logout localhost:5001");
 
 		uut = new Helm(tce);
 	}
@@ -44,6 +48,29 @@ class HelmTest {
 		assertThat(result.getName()).isEqualTo("ontest");
 		assertThat(result.getNamespace()).isEqualTo("deletethispls");
 		assertThat(result.getChart().getMetadata().getName()).isEqualTo("o-neko");
+	}
+
+	@Test
+	void installOciChartWithExplicitPlainHttp() throws IOException {
+		Files.writeString(tempFile.toPath(), ONEKO_VALUES);
+		var result = uut.install("ontest", "oci://localhost:5001/charts/foo", "1.0.0", Values.fromFile(tempFile), "deletethispls", false, false, true);
+		assertThat(result).isNotNull();
+		assertThat(result.getName()).isEqualTo("ontest");
+	}
+
+	@Test
+	void loginToOciRegistryWithExplicitPlainHttp() {
+		uut.loginToRegistry("oci://http://localhost:5001", "user", "pass");
+	}
+
+	@Test
+	void loginToOciRegistryWithExplicitHttps() {
+		uut.loginToRegistry("oci://https://registry.example.com/path", "user", "pass");
+	}
+
+	@Test
+	void logoutFromOciRegistry() {
+		uut.logoutFromRegistry("oci://http://localhost:5001");
 	}
 
 	@Test

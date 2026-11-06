@@ -10,4 +10,5 @@ public class HelmRegistryDTO {
 	private String name;
 	private String url;
 	private String username;
+	private boolean ociRegistry;
 }

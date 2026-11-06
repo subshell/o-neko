@@ -8,7 +8,8 @@ import {ConfigurationTemplate} from '../configuration-template';
 import {EditConfigurationTemplateDialogComponent} from './edit-configuration-template-dialog/edit-configuration-template-dialog.component';
 import {Select, Store} from "@ngxs/store";
 import {ThemingState} from "../../store/theming/theming.state";
-import {Observable} from "rxjs";
+import {Observable, of} from "rxjs";
+import {catchError, debounceTime, distinctUntilChanged, map, switchMap} from "rxjs/operators";
 import {FileDownloadService} from '../../util/file-download.service';
 import {TranslateService} from "@ngx-translate/core";
 import {RestService} from "../../rest/rest.service";
@@ -89,9 +90,12 @@ export class TemplateEditorComponent implements OnInit {
 
   @Select(ThemingState.isDarkMode) isDarkTheme$: Observable<boolean>;
 
-  public registryNameByRegistryId: {[name: string]: string} = {};
+  public registryByRegistryId: {[id: string]: HelmRegistry} = {};
   public chartRegistries: Observable<Array<HelmRegistry>>;
   public chartsByRegistry: {[registry: string]: HelmCharts} = {};
+  public ociChartPathControl = new UntypedFormControl('');
+  public ociChartLookupStatus: 'found' | 'not-found' = 'not-found';
+  public chartNameFocused: boolean;
 
   public editorOptions: any = {
     theme: 'vs-light',
@@ -112,6 +116,14 @@ export class TemplateEditorComponent implements OnInit {
 
   public get currentHelmCharts(): HelmCharts {
     return this.chartsByRegistry[this.currentTemplateModel.effectiveTemplate.helmRegistryId];
+  }
+
+  public get currentRegistry(): HelmRegistry {
+    return this.registryByRegistryId[this.currentTemplateModel?.effectiveTemplate.helmRegistryId];
+  }
+
+  public get currentRegistryIsOci(): boolean {
+    return !!this.currentRegistry?.ociRegistry;
   }
 
   public get currentHelmChartNames(): Array<string> {
@@ -141,6 +153,38 @@ export class TemplateEditorComponent implements OnInit {
       };
     });
     this.chartRegistries = this.rest.helm().getAllHelmRegistries();
+
+    this.ociChartPathControl.valueChanges.pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      switchMap((chartPath: string) => {
+        const registry = this.currentRegistry;
+        const trimmedChartPath = chartPath?.trim();
+        if (!registry || !trimmedChartPath) {
+          return of(null);
+        }
+
+        return this.rest.helm().lookupOciChartVersions(registry, trimmedChartPath).pipe(
+          map(versions => ({registry, chartPath: trimmedChartPath, versions})),
+          catchError(() => of({registry, chartPath: trimmedChartPath, versions: null}))
+        );
+      })
+    ).subscribe(result => {
+      if (!result || !result.versions?.length) {
+        if (result) {
+          this.ociChartLookupStatus = 'not-found';
+        }
+        return;
+      }
+
+      this.ociChartLookupStatus = 'found';
+      const chartReference = `${result.registry.url.replace(/\/+$/, '')}/${result.chartPath}`; // strip trailing slashes
+      const existingCharts = this.chartsByRegistry[result.registry.id] || {registryId: result.registry.id, charts: {}};
+      this.chartsByRegistry[result.registry.id] = {...existingCharts, charts: {...existingCharts.charts, [chartReference]: result.versions}};
+
+      this.currentTemplateModel.effectiveTemplate.chartName = chartReference;
+      this.helmChartSettingsChanged();
+    });
   }
 
   ngOnInit(): void {
@@ -168,16 +212,18 @@ export class TemplateEditorComponent implements OnInit {
   private loadHelmCharts() {
     this.chartRegistries.subscribe(registries => {
       registries.forEach(registry => {
+        this.registryByRegistryId[registry.getId()] = registry;
         this.rest.helm().getHelmChartsByRegistry(registry).subscribe(charts => {
           this.chartsByRegistry[registry.getId()] = charts;
-          this.registryNameByRegistryId[registry.getId()] = registry.name;
         });
       });
     })
   }
 
-  public removeRegistryPart(chartName: string) {
-    return chartName.substr(this.registryNameByRegistryId[this.currentHelmCharts.registryId].length + 1, chartName.length);
+  // is used to display the version after the registry part, e.g helm-charts/demo/0.1.0 -> 0.1.0
+  public removeRegistryPart(chartName: string): string {
+    const parts = chartName.split('/');
+    return parts[parts.length - 1];
   }
 
   public async onConfigUpload($event: FileList | File[]) {

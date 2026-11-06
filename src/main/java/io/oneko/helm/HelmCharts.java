@@ -18,25 +18,38 @@ import com.github.benmanes.caffeine.cache.LoadingCache;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.binder.cache.CaffeineCacheMetrics;
+import io.oneko.helm.oci.OciHelmChartDiscoveryService;
 import io.oneko.helmapi.model.Chart;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
 public class HelmCharts {
+	private final HelmRegistryRepository helmRegistryRepository;
+	private final OciHelmChartDiscoveryService ociHelmChartDiscoveryService;
 	private final LoadingCache<UUID, HelmChartsDTO> chartsCache;
 
-	public HelmCharts(HelmRegistryRepository helmRegistryRepository, HelmCommands helmCommands, MeterRegistry meterRegistry) {
+	public HelmCharts(HelmRegistryRepository helmRegistryRepository, HelmCommands helmCommands,
+										 OciHelmChartDiscoveryService ociHelmChartDiscoveryService, MeterRegistry meterRegistry) {
+		this.helmRegistryRepository = helmRegistryRepository;
+		this.ociHelmChartDiscoveryService = ociHelmChartDiscoveryService;
 		this.chartsCache = Caffeine.newBuilder()
 				.expireAfterWrite(3, TimeUnit.MINUTES)
 				.recordStats()
 				.build(registryId -> helmRegistryRepository.getById(registryId)
 						.flatMap(helmRegistry -> {
 							try {
-								List<Chart> charts = helmCommands.getCharts(helmRegistry);
-								log.debug("found helm charts ({}, {})", kv("chart_count", charts.size()), helmRegistryKv(helmRegistry));
+								if (!helmRegistry.isOCIRegistry()) {
+									List<Chart> charts = helmCommands.getCharts(helmRegistry);
+									log.debug("found helm charts ({}, {})", kv("chart_count", charts.size()), helmRegistryKv(helmRegistry));
 
-								return toHelmChartDTO(helmRegistry, charts);
+									return toHelmChartDTO(helmRegistry, charts);
+								} else {
+									List<Chart> charts = ociHelmChartDiscoveryService.discoverCharts(helmRegistry);
+									log.debug("found oci helm charts ({}, {})", kv("chart_count", charts.size()), helmRegistryKv(helmRegistry));
+
+									return toHelmChartDTO(helmRegistry, charts);
+								}
 							} catch (HelmRegistryException e) {
 								return Optional.empty();
 							}
@@ -60,6 +73,22 @@ public class HelmCharts {
 
 	public void invalidateHelmChartsInRegistry(UUID registryId) {
 		chartsCache.invalidate(registryId);
+	}
+
+	/**
+	 * Looks up the available versions of a single, known chart in an OCI registry by its path relative to the
+	 * registry's URL. This is the fallback for OCI registries whose catalog endpoint isn't supported (and therefore
+	 * doesn't show up via {@link #getChartsByHelmRegistry(UUID)}), e.g. Docker Hub, GHCR or ECR.
+	 */
+	public List<HelmChartsDTO.HelmChartVersionDTO> lookupOciChartVersions(UUID registryId, String chartPath) throws HelmRegistryException {
+		ReadableHelmRegistry registry = helmRegistryRepository.getById(registryId)
+				.orElseThrow(() -> new HelmRegistryException("Helm registry " + registryId + " not found"));
+		if (!registry.isOCIRegistry()) {
+			throw new HelmRegistryException("Helm registry " + registry.getName() + " is not an OCI registry");
+		}
+		return ociHelmChartDiscoveryService.lookupChart(registry, chartPath).stream()
+				.map(this::toHelmChartVersionDTO)
+				.collect(Collectors.toList());
 	}
 
 	private Optional<HelmChartsDTO> toHelmChartDTO(HelmRegistry helmRegistry, List<Chart> charts) {

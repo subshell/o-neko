@@ -20,6 +20,10 @@ export class HelmRegistryEditDialogComponent {
   public editingUser: User;
   public newPassword: string = '';
   public passwordVerification: string = '';
+  public registryType: 'oci' | 'classic';
+  public registryUrl: string;
+
+  public readonly OCI_PREFIX = 'oci://';
 
   constructor(public dialogRef: MatDialogRef<HelmRegistryEditDialogComponent>,
               @Inject(MAT_DIALOG_DATA) private data: { registry: HelmRegistry, readOnly: boolean },
@@ -29,6 +33,15 @@ export class HelmRegistryEditDialogComponent {
               private translate: TranslateService) {
     this.userService.currentUser().subscribe(cu => this.editingUser = cu);
     this.helmRegistry = data ? HelmRegistry.from(data.registry) : new HelmRegistry();
+
+    const url = this.helmRegistry.url || '';
+    if (url.startsWith(this.OCI_PREFIX)) {
+      this.registryType = 'oci';
+      this.registryUrl = url.substring(this.OCI_PREFIX.length);
+    } else {
+      this.registryType = 'classic';
+      this.registryUrl = url;
+    }
   }
 
   private _passwordFieldsVisible = false;
@@ -69,5 +82,9 @@ export class HelmRegistryEditDialogComponent {
 
   public nameUpdated(): void {
     this.helmRegistry.name = this.helmRegistry.name.toLowerCase();
+  }
+
+  public urlUpdated(): void {
+    this.helmRegistry.url = (this.registryType === 'oci' ? this.OCI_PREFIX : '') + this.registryUrl;
   }
 }

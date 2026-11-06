@@ -5,6 +5,7 @@ import java.util.UUID;
 import io.oneko.domain.ModificationAwareIdentifiable;
 import io.oneko.domain.ModificationAwareProperty;
 import lombok.Builder;
+import org.apache.commons.lang3.StringUtils;
 
 public class WritableHelmRegistry extends ModificationAwareIdentifiable implements HelmRegistry {
 
@@ -76,6 +77,11 @@ public class WritableHelmRegistry extends ModificationAwareIdentifiable implemen
 	@Override
 	public String getPassword() {
 		return password.get();
+	}
+
+	@Override
+	public boolean isOCIRegistry() {
+		return StringUtils.startsWith(this.url.get(), "oci://");
 	}
 
 	public void setPassword(String password) {

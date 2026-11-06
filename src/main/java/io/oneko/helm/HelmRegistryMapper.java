@@ -2,6 +2,7 @@ package io.oneko.helm;
 
 import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import io.oneko.helm.rest.CreateHelmRegistryDTO;
 import io.oneko.helm.rest.HelmRegistryDTO;
@@ -9,6 +10,7 @@ import io.oneko.helm.rest.HelmRegistryDTO;
 
 @Mapper(componentModel = "spring")
 public abstract class HelmRegistryMapper {
+	@Mapping(target = "ociRegistry", expression = "java(helmRegistry.isOCIRegistry())")
 	public abstract HelmRegistryDTO toHelmRegistryDTO(HelmRegistry helmRegistry);
 
 	public WritableHelmRegistry updateRegistryFromDTO(WritableHelmRegistry registry, HelmRegistryDTO dto) {

@@ -4,6 +4,7 @@ export interface HelmRegistryDTO extends Registry {
   id: string
   url: string
   username: string
+  ociRegistry: boolean
 }
 
 export class HelmRegistry implements HelmRegistryDTO {
@@ -11,6 +12,7 @@ export class HelmRegistry implements HelmRegistryDTO {
   name: string
   url: string
   username: string
+  ociRegistry: boolean
 
   public static from(from: HelmRegistryDTO): HelmRegistry {
     let registry = new HelmRegistry();
@@ -18,6 +20,7 @@ export class HelmRegistry implements HelmRegistryDTO {
     registry.name = from.name;
     registry.url = from.url;
     registry.username = from.username;
+    registry.ociRegistry = from.ociRegistry;
     return registry;
   }
 

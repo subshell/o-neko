@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -132,6 +133,20 @@ public class HelmRegistryController {
 	HelmChartsDTO getCharts(@PathVariable UUID id) throws ResponseStatusException {
 		return helmCharts.getChartsByHelmRegistry(id)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No Helm charts in Helm registry with id " + id + " found."));
+	}
+
+	/**
+	 * Fallback for OCI registries that don't support chart discovery via their catalog endpoint: looks up the
+	 * versions of a single chart whose path (relative to the registry's URL) is already known.
+	 */
+	@PreAuthorize("hasAnyRole('ADMIN', 'DOER')")
+	@GetMapping("/{id}/charts/lookup")
+	List<HelmChartsDTO.HelmChartVersionDTO> lookupOciChartVersions(@PathVariable UUID id, @RequestParam String chartPath) throws ResponseStatusException {
+		try {
+			return helmCharts.lookupOciChartVersions(id, chartPath);
+		} catch (HelmRegistryException e) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+		}
 	}
 
 	private ReadableHelmRegistry getRegistryOr404(UUID id) {

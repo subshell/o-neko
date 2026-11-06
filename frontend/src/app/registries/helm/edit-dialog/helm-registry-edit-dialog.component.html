@@ -3,18 +3,23 @@
   <div mat-dialog-content="">
     <div>
       <form fxLayout="column" #helmRegistryForm="ngForm" fxLayoutGap="1em">
-        <div fxLayout="row" fxLayoutGap="1em">
-          <mat-form-field>
-            <input type="text" matInput [(ngModel)]="helmRegistry.name" autocomplete="off" required name="name" id="name"
-                   [placeholder]="'general.name' | translate" #name="ngModel" [disabled]="isReadonly()" (ngModelChange)="nameUpdated()">
-            <mat-error *ngIf="name.invalid && name.errors.required">{{'components.forms.errors.fieldIsRequired' | translate}}</mat-error>
-          </mat-form-field>
-          <mat-form-field>
-            <input type="text" matInput [(ngModel)]="helmRegistry.url" autocomplete="off" required name="url" id="url"
-                   [placeholder]="'components.helmRegistry.registryUrl' | translate" #url="ngModel" [disabled]="isReadonly()">
-            <mat-error *ngIf="url.invalid && url.errors.required">{{'components.forms.errors.fieldIsRequired' | translate}}</mat-error>
-          </mat-form-field>
-        </div>
+        <mat-form-field>
+          <input type="text" matInput [(ngModel)]="helmRegistry.name" autocomplete="off" required name="name" id="name"
+                 [placeholder]="'general.name' | translate" #name="ngModel" [disabled]="isReadonly()" (ngModelChange)="nameUpdated()">
+          <mat-error *ngIf="name.invalid && name.errors.required">{{'components.forms.errors.fieldIsRequired' | translate}}</mat-error>
+        </mat-form-field>
+        <mat-radio-group [attr.aria-label]="'components.helmRegistry.editDialog.registryType' | translate"
+                          name="registryType" [(ngModel)]="registryType" (ngModelChange)="urlUpdated()"
+                          [disabled]="isReadonly()" fxLayout="row" fxLayoutGap="1em">
+          <mat-radio-button value="classic">{{'components.helmRegistry.editDialog.classicRegistry' | translate}}</mat-radio-button>
+          <mat-radio-button value="oci">{{'components.helmRegistry.editDialog.ociRegistry' | translate}}</mat-radio-button>
+        </mat-radio-group>
+        <mat-form-field floatLabel="never">
+          <span *ngIf="registryType === 'oci'" matPrefix>{{OCI_PREFIX}}</span>
+          <input type="text" matInput [(ngModel)]="registryUrl" (ngModelChange)="urlUpdated()" autocomplete="off" required name="url" id="url"
+                 [placeholder]="'components.helmRegistry.registryUrl' | translate" #url="ngModel" [disabled]="isReadonly()">
+          <mat-error *ngIf="url.invalid && url.errors.required">{{'components.forms.errors.fieldIsRequired' | translate}}</mat-error>
+        </mat-form-field>
         <div fxLayout="row" fxLayoutGap="1em">
           <mat-form-field>
             <input type="text" #username="ngModel" matInput [(ngModel)]="helmRegistry.username" name="username" id="username" [placeholder]="'general.username' | translate" [disabled]="isReadonly()">
