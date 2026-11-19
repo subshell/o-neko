@@ -1,11 +1,11 @@
-FROM azul/zulu-openjdk-alpine:17.0.15-17.58-jre as builder
+FROM docker.io/azul-zulu:17.70-17.0.21.1-jre-headless-alpine3.23 as builder
 
 WORKDIR /app
 ARG JAR_FILE
 ADD ${JAR_FILE} app.jar
 RUN java -Djarmode=layertools -jar app.jar extract
 
-FROM azul/zulu-openjdk-alpine:17.0.15-17.58-jre
+FROM docker.io/azul-zulu:17.70-17.0.21.1-jre-headless-alpine3.23
 LABEL maintainer="team-weasel@subshell.com"
 
 ARG HELM_VERSION="v3.18.3"
